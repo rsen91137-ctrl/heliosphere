@@ -529,6 +529,8 @@ def gen_rocketry():
     for eid, zh, en in [('scout_drone', '先遣侦察无人机', 'Vanguard Scout Drone'), ('mech_crawler', '机械虫', 'Mech Crawler'),
                         ('vanguard_sentinel', '半人马先遣守卫', 'Centaurian Sentinel')]:
         lang('planets', f'entity.heliosphere.{eid}', zh, en)
+    cube_block('planets', 'cult_core', lambda n: B.cult_core(n))
+    lang('planets', 'block.heliosphere.cult_core', '末日教团核心', 'Doomsday Cult Core')
     lang('planets', 'block.heliosphere.defense_silo', '行星防御导弹井', 'Planetary Defence Silo')
     loot_self('planets', 'defense_silo')
     data('planets', 'recipe/defense_silo.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['SRS', 'SCS', 'SSS'],

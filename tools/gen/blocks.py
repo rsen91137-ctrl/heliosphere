@@ -508,3 +508,18 @@ def silo(n):
     a[hatch, :3] = a[hatch, :3] * 0.55
     a[(d > n * 0.26) & (d < n * 0.3), :3] = [200, 60, 50]
     return Image.fromarray(np.clip(a, 0, 255).astype('uint8'))
+
+
+
+def cult_core(n):
+    """Blackstone reliquary with a pulsing red eye."""
+    import numpy as np
+    from PIL import Image
+    a = np.array(panel(n, '#2A2228', 13, rivets=False, seam=True)).astype(float)
+    yy, xx = np.mgrid[0:n, 0:n]
+    d = np.sqrt((xx - (n - 1) / 2) ** 2 + ((yy - (n - 1) / 2) * 1.8) ** 2) / (n / 2)
+    eye = np.clip(1 - d / 0.5, 0, 1)
+    a[..., 0] += eye * 220; a[..., 1] += eye * 30; a[..., 2] += eye * 40
+    pupil = (np.abs(xx - (n - 1) / 2) < n * 0.06) & (np.abs(yy - (n - 1) / 2) < n * 0.18)
+    a[pupil, :3] = [20, 0, 0]
+    return Image.fromarray(np.clip(a, 0, 255).astype('uint8'))
