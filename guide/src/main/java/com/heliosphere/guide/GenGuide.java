@@ -56,6 +56,7 @@ public final class GenGuide {
             "launch_pad",
             "launch_console",
             "science_suborbital",
+            "suit_fabricator",
             "space_suit_helmet",
             "space_suit_chestplate",
             "space_suit_leggings",

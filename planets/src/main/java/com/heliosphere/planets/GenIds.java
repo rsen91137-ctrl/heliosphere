@@ -41,5 +41,6 @@ public final class GenIds {
         {"sabatier_reactor"},
         {"atmosphere_extractor"},
         {"isru_electrolyzer"},
+        {"suit_fabricator"},
     };
 }

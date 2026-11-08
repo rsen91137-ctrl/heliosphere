@@ -13,6 +13,16 @@
     "frame": "goal"
   },
   "criteria": {
+    "suit_fabricator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:suit_fabricator"
+          }
+        ]
+      }
+    },
     "space_suit_helmet": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
@@ -155,6 +165,9 @@
     }
   },
   "requirements": [
+    [
+      "suit_fabricator"
+    ],
     [
       "space_suit_helmet"
     ],

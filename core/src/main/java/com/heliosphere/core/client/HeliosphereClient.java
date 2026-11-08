@@ -20,5 +20,14 @@ public final class HeliosphereClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(HelioNetwork.PlanetMapPayload.TYPE, (payload, ctx) ->
                 ctx.client().execute(() -> PlanetTextures.setBaked(payload.body(), payload.width(), payload.height(), payload.rgb())));
         HudElementRegistry.addLast(Heliosphere.id("environment"), EnvironmentHud::render);
+        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, tctx, type, lines) -> {
+            com.heliosphere.core.env.HelioComponents.SuitRating r = stack.get(com.heliosphere.core.env.HelioComponents.SUIT);
+            if (r != null) {
+                lines.add(net.minecraft.network.chat.Component.literal("§7密封等级 " + r.tier() + " · 防护温度 §b" + r.minTempC() + "°C §7~ §c" + r.maxTempC() + "°C"));
+                lines.add(net.minecraft.network.chat.Component.literal("§8须穿齐四件才能密封；防护温度取四件中最窄的范围"));
+            }
+            com.heliosphere.core.env.HelioComponents.Oxygen ox = stack.get(com.heliosphere.core.env.HelioComponents.OXYGEN);
+            if (ox != null) lines.add(net.minecraft.network.chat.Component.literal("§7氧气 " + ox.amount() / 20 + " / " + ox.capacity() / 20 + " 秒"));
+        });
     }
 }

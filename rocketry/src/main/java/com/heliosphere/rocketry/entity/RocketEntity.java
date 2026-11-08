@@ -471,8 +471,9 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         if (scienceGiven || crew == null || !(level().getPlayerByUUID(crew) instanceof ServerPlayer p)) return;
         scienceGiven = true;
         ItemStack st = new ItemStack(Reg.get(item));
+        Component name = st.getHoverName();
         if (!p.getInventory().add(st)) p.drop(st, false);
-        p.displayClientMessage(Component.translatable("message.heliosphere.science", st.getHoverName()), false);
+        p.displayClientMessage(Component.translatable("message.heliosphere.science", name), false);
     }
 
     /** Engines or structure fail violently. The escape tower, if fitted, saves the crew. */

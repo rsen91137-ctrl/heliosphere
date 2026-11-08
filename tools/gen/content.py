@@ -202,6 +202,7 @@ MACHINES = [
     ("planets", "sabatier_reactor", "萨巴蒂尔反应器", "Sabatier Reactor", "#6A5A50", "#60E060", "flask"),
     ("planets", "atmosphere_extractor", "大气提取器", "Atmosphere Extractor", "#6A5048", "#FFA070", "wave"),
     ("planets", "isru_electrolyzer", "冰水电解站", "Ice Electrolysis Station", "#5A6A74", "#C0F0FF", "drop"),
+    ("planets", "suit_fabricator", "宇航服制造台", "Spacesuit Fabricator", "#5A6070", "#F0F0F0", "arm"),
 ]
 
 # ---------------------------------------------------------------------------------------- rocket parts
@@ -244,5 +245,8 @@ OTHER_BLOCKS = [
 ARMOR = [
     ("planets", "space_suit", "基础宇航服", "EVA Suit", "#F0F0F0", "#3060C0"),
     ("planets", "mars_suit", "火星宇航服", "Mars Surface Suit", "#E8E0D0", "#D06030"),
+    ("planets", "thermal_suit", "高温隔热服", "Thermal Protection Suit", "#E0C060", "#F0F0F0"),
+    ("planets", "cryo_suit", "深冷宇航服", "Cryogenic Suit", "#D8E8F0", "#2080C0"),
+    ("planets", "solar_suit", "日冕防护服", "Coronal Suit", "#F0D040", "#202020"),
 ]
 ARMOR_PIECES = [("helmet", "头盔", "Helmet"), ("chestplate", "躯干", "Torso"), ("leggings", "护腿", "Leggings"), ("boots", "靴", "Boots")]

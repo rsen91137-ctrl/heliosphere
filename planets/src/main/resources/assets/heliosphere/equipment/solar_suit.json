@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "heliosphere:solar_suit"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "heliosphere:solar_suit"
+      }
+    ]
+  }
+}

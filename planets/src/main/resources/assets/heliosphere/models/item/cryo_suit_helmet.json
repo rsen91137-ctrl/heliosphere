@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "heliosphere:item/cryo_suit_helmet"
+  }
+}

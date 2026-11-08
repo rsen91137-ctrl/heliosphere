@@ -596,6 +596,8 @@ def gen_recipes():
         'battery_bank': (['BBB', 'SCS', 'SSS'], {'B': h('battery_cell'), 'S': h('steel_ingot'), 'C': h('circuit_board')}),
     }
     P = {
+        'suit_fabricator': (['NGN', 'CLC', 'SBS'], {'N': h('nylon'), 'G': 'minecraft:glass', 'C': h('circuit_board'), 'L': 'minecraft:loom',
+                                                  'S': h('stainless_steel_ingot'), 'B': h('battery_cell')}),
         'oxygen_compressor': (['SGS', 'WPW', 'SCS'], {'S': h('steel_ingot'), 'G': 'minecraft:glass', 'W': h('copper_wire'), 'P': 'minecraft:piston', 'C': h('circuit_board')}),
         'oxygen_distributor': (['GGG', 'WPW', 'SCS'], {'S': h('stainless_steel_ingot'), 'G': 'minecraft:glass', 'W': h('copper_wire'), 'P': 'minecraft:piston',
                                                       'C': h('circuit_board')}),

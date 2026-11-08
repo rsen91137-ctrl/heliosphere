@@ -73,9 +73,9 @@ public record RocketStructure(List<Part> parts) {
         return new RocketStructure(l);
     }
 
-    /** Seat offset: just above the crew capsule, or the top of the rocket. */
+    /** Seat offset: inside the crew capsule (the seated crew member is fully enclosed), or the top of the rocket. */
     public double[] seat() {
-        for (Part p : parts) if ("crew_capsule".equals(p.spec)) return new double[]{p.x, p.y + 0.2, p.z};
+        for (Part p : parts) if ("crew_capsule".equals(p.spec)) return new double[]{p.x, p.y - 0.45, p.z};
         return new double[]{0, maxY() + 1, 0};
     }
 }

@@ -53,6 +53,7 @@ public final class PlanetsMod implements ModInitializer {
                 return bar > 0.001 && !Environment.breathable(l, p) ? null : "condition.heliosphere.needs_foreign_air";
             });
     public static final MachineType ISRU_ELECTROLYZER = MachineType.processor("isru_electrolyzer", 2, 3);
+    public static final MachineType SUIT_FABRICATOR = MachineType.processor("suit_fabricator", 6, 1);
 
     public static final TagKey<Item> REPAIRS_SUIT = TagKey.create(Registries.ITEM, Heliosphere.id("repairs_space_suit"));
 
@@ -63,6 +64,9 @@ public final class PlanetsMod implements ModInitializer {
         for (String[] it : GenIds.ITEMS) Reg.item(it[0]);
         registerSuit("space_suit", 1, -175, 130, 6000);
         registerSuit("mars_suit", 2, -200, 160, 12000);
+        registerSuit("thermal_suit", 3, -150, 480, 12000);
+        registerSuit("cryo_suit", 3, -240, 60, 18000);
+        registerSuit("solar_suit", 4, -100, 2500, 6000);
 
         List<Block> blocks = new ArrayList<>();
         for (String[] m : GenIds.MACHINES) {

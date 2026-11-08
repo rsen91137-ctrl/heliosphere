@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "NGN",
+    "CLC",
+    "SBS"
+  ],
+  "key": {
+    "N": "heliosphere:nylon",
+    "G": "minecraft:glass",
+    "C": "heliosphere:circuit_board",
+    "L": "minecraft:loom",
+    "S": "heliosphere:stainless_steel_ingot",
+    "B": "heliosphere:battery_cell"
+  },
+  "result": {
+    "id": "heliosphere:suit_fabricator",
+    "count": 1
+  }
+}

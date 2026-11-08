@@ -61,8 +61,8 @@ public class RocketMenu extends AbstractContainerMenu {
         super(TYPE, id);
         this.data = d;
         this.fuel = fuel;
-        for (int i = 0; i < 9; i++) addSlot(new Slot(fuel, i, 102 + i * 18, 150));
-        addStandardInventorySlots(inv, 8, 180);
+        for (int i = 0; i < 9; i++) addSlot(new Slot(fuel, i, 110 + i * 18, 110));
+        addStandardInventorySlots(inv, 110, 136);
         if (!inv.player.level().isClientSide()) owners.add(inv.player);
     }
 

@@ -65,14 +65,29 @@ public final class PlanetRecipes {
 
         // ---------------------------------------------------------------- space suits
         MachineType asm = M("assembly_station");
-        asm.recipe(r().in(I("plastic"), 2).in(Items.GLASS_PANE, 2).in(I("al_li_plate")).in(I("circuit_board")).out(I("space_suit_helmet")).time(300).power(60));
-        asm.recipe(r().in(I("nylon"), 6).in(I("copv")).in(I("battery_cell")).in(I("circuit_board")).in(I("al_li_plate")).out(I("space_suit_chestplate")).time(400).power(80));
-        asm.recipe(r().in(I("nylon"), 5).in(I("al_li_plate")).in(I("fluoroelastomer")).out(I("space_suit_leggings")).time(300).power(60));
-        asm.recipe(r().in(I("nylon"), 3).in(I("fluoroelastomer"), 2).in(I("al_li_plate")).out(I("space_suit_boots")).time(240).power(60));
-        asm.recipe(r().in(I("space_suit_helmet")).in(I("lunar_glass"), 2).in(I("rad_hard_chip")).out(I("mars_suit_helmet")).time(400).power(80));
-        asm.recipe(r().in(I("space_suit_chestplate")).in(I("lunar_glass_fiber"), 6).in(I("copv"), 2).in(I("rad_hard_chip")).out(I("mars_suit_chestplate")).time(500).power(100));
-        asm.recipe(r().in(I("space_suit_leggings")).in(I("lunar_glass_fiber"), 4).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_leggings")).time(400).power(80));
-        asm.recipe(r().in(I("space_suit_boots")).in(I("lunar_glass_fiber"), 2).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_boots")).time(300).power(80));
+        SUIT_FABRICATOR.recipe(r().in(I("plastic"), 2).in(Items.GLASS_PANE, 2).in(I("al_li_plate")).in(I("circuit_board")).out(I("space_suit_helmet")).time(300).power(60));
+        SUIT_FABRICATOR.recipe(r().in(I("nylon"), 6).in(I("copv")).in(I("battery_cell")).in(I("circuit_board")).in(I("al_li_plate")).out(I("space_suit_chestplate")).time(400).power(80));
+        SUIT_FABRICATOR.recipe(r().in(I("nylon"), 5).in(I("al_li_plate")).in(I("fluoroelastomer")).out(I("space_suit_leggings")).time(300).power(60));
+        SUIT_FABRICATOR.recipe(r().in(I("nylon"), 3).in(I("fluoroelastomer"), 2).in(I("al_li_plate")).out(I("space_suit_boots")).time(240).power(60));
+        SUIT_FABRICATOR.recipe(r().in(I("space_suit_helmet")).in(I("lunar_glass"), 2).in(I("rad_hard_chip")).out(I("mars_suit_helmet")).time(400).power(80));
+        SUIT_FABRICATOR.recipe(r().in(I("space_suit_chestplate")).in(I("lunar_glass_fiber"), 6).in(I("copv"), 2).in(I("rad_hard_chip")).out(I("mars_suit_chestplate")).time(500).power(100));
+        SUIT_FABRICATOR.recipe(r().in(I("space_suit_leggings")).in(I("lunar_glass_fiber"), 4).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_leggings")).time(400).power(80));
+        SUIT_FABRICATOR.recipe(r().in(I("space_suit_boots")).in(I("lunar_glass_fiber"), 2).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_boots")).time(300).power(80));
+        // hot worlds: Mercury day side, Venus — silica/PICA insulation over an Inconel pressure layer
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_helmet")).in(I("lunar_ceramic"), 2).in(I("silver_ingot"), 2).in(I("silicon_nitride")).out(I("thermal_suit_helmet")).time(500).power(120));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_chestplate")).in(I("pica"), 3).in(I("inconel_plate"), 2).in(I("canister_ammonia"), 2).in(I("heat_shield_tile")).out(I("thermal_suit_chestplate")).time(700).power(160));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_leggings")).in(I("pica"), 2).in(I("inconel_plate"), 2).in(I("lunar_ceramic")).out(I("thermal_suit_leggings")).time(500).power(120));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_boots")).in(I("lunar_ceramic"), 2).in(I("inconel_plate")).out(I("thermal_suit_boots")).time(400).power(120));
+        // cold worlds: outer moons, Pluto — aerogel-style fibre layers and a Pu-238 heater
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_helmet")).in(I("lunar_glass"), 2).in(I("carbon_fiber"), 2).in(I("beryllium_ingot")).out(I("cryo_suit_helmet")).time(500).power(120));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_chestplate")).in(I("plutonium_238")).in(I("carbon_fiber"), 4).in(I("copv"), 2).in(I("deep_space_computer")).out(I("cryo_suit_chestplate")).time(800).power(160));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_leggings")).in(I("carbon_fiber"), 3).in(I("fluoroelastomer"), 2).in(I("lunar_glass_fiber"), 2).out(I("cryo_suit_leggings")).time(500).power(120));
+        SUIT_FABRICATOR.recipe(r().in(I("mars_suit_boots")).in(I("carbon_fiber"), 2).in(I("fluoroelastomer"), 2).in(I("beryllium_ingot")).out(I("cryo_suit_boots")).time(400).power(120));
+        // the Sun: tungsten-rhenium shell, silver mirror coat, active ammonia cooling
+        SUIT_FABRICATOR.recipe(r().in(I("thermal_suit_helmet")).in(I("tungsten_ingot"), 3).in(I("rhenium_powder"), 2).in(I("silver_ingot"), 3).out(I("solar_suit_helmet")).time(900).power(240));
+        SUIT_FABRICATOR.recipe(r().in(I("thermal_suit_chestplate")).in(I("tungsten_ingot"), 4).in(I("rhenium_powder"), 3).in(I("canister_ammonia"), 4).in(I("deep_space_computer")).in(I("heat_shield_tile"), 2).out(I("solar_suit_chestplate")).time(1200).power(300));
+        SUIT_FABRICATOR.recipe(r().in(I("thermal_suit_leggings")).in(I("tungsten_ingot"), 3).in(I("rhenium_powder"), 2).in(I("silver_ingot"), 2).out(I("solar_suit_leggings")).time(900).power(240));
+        SUIT_FABRICATOR.recipe(r().in(I("thermal_suit_boots")).in(I("tungsten_ingot"), 2).in(I("rhenium_powder")).in(I("silver_ingot"), 2).out(I("solar_suit_boots")).time(700).power(240));
         // astrobiology: studying Martian clays yields science data
         asm.recipe(r().in(I("microfossil"), 4).in(I("smectite_clay"), 8).in(I("processor")).out(I("science_mars")).time(600).power(80));
     }

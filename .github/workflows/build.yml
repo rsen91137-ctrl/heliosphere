@@ -59,6 +59,9 @@ jobs:
           curl -fsSL --retry 5 "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/0.141.6%2B1.21.11/fabric-api-0.141.6%2B1.21.11.jar" -o "out/jars/fabric-api-0.141.6+1.21.11.jar" || true
           if [ -d build/resourcepack/Heliosphere-HD ]; then (cd build/resourcepack/Heliosphere-HD && zip -qr ../../../out/jars/Heliosphere-HD-Resources-32x.zip .); fi
           cp build.log out/logs/ || true
+      - name: Package client/server bundles and smoke-test the dedicated server
+        timeout-minutes: 20
+        run: bash tools/package.sh
       - name: Client game test (virtual display)
         if: ${{ github.event_name == 'push' || github.event.inputs.client_test == 'true' }}
         continue-on-error: true
