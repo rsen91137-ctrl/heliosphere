@@ -27,27 +27,37 @@ jobs:
             ~/.gradle/wrapper
             .gradle/loom-cache
           key: gradle-${{ hashFiles('**/*.gradle', 'gradle.properties') }}
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/gradle-9.2.1
+          key: gradle-dist-9.2.1
       - name: Install Gradle 9.2.1
         run: |
-          for i in 1 2 3 4 5; do
-            curl -fsSL --retry 5 https://services.gradle.org/distributions/gradle-9.2.1-bin.zip -o /tmp/g.zip && unzip -q -o /tmp/g.zip -d /tmp && break
-            sleep 10
-          done
-          test -x /tmp/gradle-9.2.1/bin/gradle
+          if [ ! -x /tmp/gradle-9.2.1/bin/gradle ]; then
+            for i in 1 2 3 4 5 6; do
+              for url in https://services.gradle.org/distributions/gradle-9.2.1-bin.zip https://downloads.gradle.org/distributions/gradle-9.2.1-bin.zip; do
+                curl -fsSL --retry 3 "$url" -o /tmp/g.zip && unzip -q -o /tmp/g.zip -d /tmp && break 2
+              done
+              sleep 20
+            done
+          fi
+          if [ -x /tmp/gradle-9.2.1/bin/gradle ]; then G=/tmp/gradle-9.2.1/bin/gradle; else G=$(command -v gradle); fi
+          echo "Using $G"; $G --version | head -3
+          echo "GRADLE=$G" >> "$GITHUB_ENV"
       - name: Generate textures and data (deterministic)
         run: |
           pip install --quiet pillow numpy
           python3 tools/gen/javagen.py
           python3 tools/gen/generate.py
       - name: Build all modules
-        run: /tmp/gradle-9.2.1/bin/gradle --no-daemon --stacktrace build dist 2>&1 | tee build.log
+        run: $GRADLE --no-daemon --stacktrace build dist 2>&1 | tee build.log
       - name: Collect jars
         if: always()
         run: |
           mkdir -p out/jars out/logs
           cp build/dist/*.jar out/jars/ 2>/dev/null || true
-          curl -sL "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/0.141.6%2B1.21.11/fabric-api-0.141.6%2B1.21.11.jar" -o "out/jars/fabric-api-0.141.6+1.21.11.jar"
-          (cd build/resourcepack/Heliosphere-HD && zip -qr ../../../out/jars/Heliosphere-HD-Resources-32x.zip .)
+          curl -fsSL --retry 5 "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/0.141.6%2B1.21.11/fabric-api-0.141.6%2B1.21.11.jar" -o "out/jars/fabric-api-0.141.6+1.21.11.jar" || true
+          if [ -d build/resourcepack/Heliosphere-HD ]; then (cd build/resourcepack/Heliosphere-HD && zip -qr ../../../out/jars/Heliosphere-HD-Resources-32x.zip .); fi
           cp build.log out/logs/ || true
       - name: Client game test (virtual display)
         if: ${{ github.event_name == 'push' || github.event.inputs.client_test == 'true' }}
@@ -57,7 +67,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb libgl1-mesa-dri mesa-utils > /dev/null
           export LIBGL_ALWAYS_SOFTWARE=1
-          timeout 1500 xvfb-run -a -s "-screen 0 1600x900x24" /tmp/gradle-9.2.1/bin/gradle --no-daemon :testmod:runClientTest 2>&1 | tail -400 > out/logs/client-test-console.log || true
+          timeout 1500 xvfb-run -a -s "-screen 0 1600x900x24" $GRADLE --no-daemon :testmod:runClientTest 2>&1 | tail -400 > out/logs/client-test-console.log || true
           mkdir -p out/screenshots
           cp -r testmod/run-test/screenshots/* out/screenshots/ 2>/dev/null || true
           cp testmod/run-test/logs/latest.log out/logs/client-latest.log 2>/dev/null || true
