@@ -47,6 +47,12 @@ public class HelioClientTest implements FabricClientGameTest {
 
     @Override
     public void runTest(ClientGameTestContext ctx) {
+        ctx.runOnClient(mc -> {
+            mc.options.languageCode = "zh_cn";
+            mc.getLanguageManager().setSelected("zh_cn");
+            mc.reloadResourcePacks();
+        });
+        ctx.waitTicks(100);
         ResourceKey<WorldPreset> solar = ResourceKey.create(Registries.WORLD_PRESET, Heliosphere.id("solar_system"));
         try (TestSingleplayerContext sp = ctx.worldBuilder().adjustSettings(s -> {
             for (WorldCreationUiState.WorldTypeEntry e : s.getNormalPresetList())
@@ -68,58 +74,83 @@ public class HelioClientTest implements FabricClientGameTest {
             });
             step(ctx, "03_moon_sky_earth", () -> look(ctx, 90, -55));
             step(ctx, "04_moon_from_above", () -> {
-                cmd(sp, "execute as @p at @s run tp @s ~ ~120 ~");
+                cmd(sp, "execute as @p at @s run tp @s ~ ~45 ~");
                 ctx.waitTicks(40);
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, 30, 55);
+                look(ctx, 30, 30);
                 ctx.waitTicks(20);
             });
             step(ctx, "05_mars_olympus", () -> {
                 cmd(sp, "time set 129000");
                 cmd(sp, "execute as @p run heliosphere goto mars 18.0 -129.0");
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, 90, -15);
+                cmd(sp, "execute as @p at @s run tp @s ~ ~30 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 90, 12);
                 ctx.waitTicks(60);
             });
             step(ctx, "06_mars_valles", () -> {
                 cmd(sp, "execute as @p run heliosphere goto mars -10.0 -73.0");
                 sp.getClientWorld().waitForChunksRender();
-                cmd(sp, "execute as @p at @s run tp @s ~ ~150 ~");
+                cmd(sp, "execute as @p at @s run tp @s ~ ~40 ~");
                 ctx.waitTicks(40);
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, 0, 40);
+                look(ctx, 0, 25);
                 ctx.waitTicks(20);
             });
             step(ctx, "07_back_on_earth_rocket", () -> {
                 cmd(sp, "time set 1000");
-                cmd(sp, "execute as @p in minecraft:overworld run tp @s 0 200 0");
+                sp.getServer().runOnServer(s -> {
+                    ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                    BlockPos spawn = s.overworld().getRespawnData().globalPos().pos();
+                    p.teleportTo(s.overworld(), spawn.getX() + 0.5, 200, spawn.getZ() + 0.5, java.util.Set.of(), 0, 0, false);
+                });
                 ctx.waitTicks(20);
-                sp.getServer().runOnServer(HelioClientTest::buildPad);
+                sp.getServer().runOnServer(s -> note(buildPad(s)));
+                ctx.waitTicks(20);
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, -90, -20);
-                ctx.waitTicks(40);
+                ctx.waitTicks(20);
             });
             step(ctx, "08_launch_console", () -> {
                 sp.getServer().runOnServer(s -> {
                     ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-                    if (p.level().getBlockEntity(consolePos) instanceof LaunchConsoleBlockEntity be) p.openMenu(be);
+                    if (p.level().getBlockEntity(consolePos) instanceof LaunchConsoleBlockEntity be) {
+                        p.openMenu(be);
+                        if (p.containerMenu instanceof RocketMenu m) {
+                            m.handle(p, RocketNet.SELECT_DEST, "moon");
+                            m.handle(p, RocketNet.SELECT_SITE, "shackleton");
+                        }
+                        note("console menu: " + p.containerMenu.getClass().getSimpleName());
+                    } else note("no console block entity at " + consolePos);
                 });
                 ctx.waitTicks(40);
             });
             step(ctx, "09_liftoff", () -> {
                 sp.getServer().runOnServer(s -> {
                     ServerPlayer p = s.getPlayerList().getPlayers().get(0);
-                    if (p.containerMenu instanceof RocketMenu m) {
-                        m.handle(p, RocketNet.SELECT_DEST, "moon");
-                        m.handle(p, RocketNet.SELECT_SITE, "shackleton");
-                        m.handle(p, RocketNet.LAUNCH, "");
-                    }
+                    if (p.containerMenu instanceof RocketMenu m) m.handle(p, RocketNet.LAUNCH, "");
+                    else note("menu closed before launch: " + p.containerMenu.getClass().getSimpleName());
+                    note("after launch: vehicle=" + (p.getVehicle() == null ? "none" : p.getVehicle().getType().toShortString()));
                 });
                 ctx.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
                 ctx.waitTicks(150);
             });
-            step(ctx, "10_ascent", () -> ctx.waitTicks(100));
+            step(ctx, "10_ascent", () -> {
+                ctx.waitTicks(100);
+                sp.getServer().runOnServer(s -> {
+                    ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                    if (p.getVehicle() instanceof com.heliosphere.rocketry.entity.RocketEntity r)
+                        note("ascent: phase=" + r.phase() + " y=" + (int) r.getY());
+                    else note("ascent: not riding, at " + p.blockPosition() + " in " + p.level().dimension().identifier());
+                });
+            });
             step(ctx, "11_space_transfer", () -> {
+                sp.getServer().runOnServer(s -> {
+                    ServerPlayer p = s.getPlayerList().getPlayers().get(0);
+                    note("before transfer wait: " + p.level().dimension().identifier() + " y=" + (int) p.getY()
+                            + " vehicle=" + (p.getVehicle() instanceof com.heliosphere.rocketry.entity.RocketEntity r ? "rocket phase " + r.phase() : "none"));
+                });
                 ctx.waitFor(mc -> mc.level != null && mc.level.dimension().identifier().getPath().equals("space"), 1200);
                 ctx.waitTicks(200);
                 look(ctx, 0, 0);
@@ -155,25 +186,40 @@ public class HelioClientTest implements FabricClientGameTest {
 
     private static BlockPos consolePos = BlockPos.ZERO;
 
-    private static void buildPad(MinecraftServer s) {
+    private static void note(String line) {
+        synchronized (NOTES) { NOTES.add(line); }
+    }
+
+    private static final List<String> NOTES = new ArrayList<>();
+
+    /** Builds a stone platform with a launch pad, console and the Qiming-1 rocket next to the player. */
+    private static String buildPad(MinecraftServer s) {
         ServerPlayer p = s.getPlayerList().getPlayers().get(0);
         ServerLevel level = p.level();
-        int x0 = p.getBlockX() - 14, z0 = p.getBlockZ() - 1;
+        int x0 = p.getBlockX() - 6, z0 = p.getBlockZ();
         level.getChunk(new BlockPos(x0, 0, z0));
-        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
-        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) {
-            for (int dy = 1; dy < 24; dy++) level.setBlock(new BlockPos(x0 + dx, y + dy, z0 + dz), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-            level.setBlock(new BlockPos(x0 + dx, y, z0 + dz), Rocketry.LAUNCH_PAD.defaultBlockState(), Block.UPDATE_ALL);
+        int y = level.getMinY();
+        for (int yy = level.getMaxY(); yy > level.getMinY(); yy--) {
+            if (!level.getBlockState(new BlockPos(x0, yy, z0)).isAir()) { y = yy + 1; break; }
         }
-        consolePos = new BlockPos(x0 + 3, y, z0);
+        y = Math.max(y, level.getSeaLevel() + 1);
+        for (int dx = -4; dx <= 10; dx++) for (int dz = -4; dz <= 4; dz++) {
+            for (int dy = 1; dy < 40; dy++) level.setBlock(new BlockPos(x0 + dx, y + dy, z0 + dz), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            boolean pad = Math.abs(dx) <= 2 && Math.abs(dz) <= 2;
+            level.setBlock(new BlockPos(x0 + dx, y, z0 + dz), pad ? Rocketry.LAUNCH_PAD.defaultBlockState() : Blocks.SMOOTH_STONE.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        consolePos = new BlockPos(x0 + 3, y + 1, z0 + 2);
+        level.setBlock(consolePos.below(), Rocketry.LAUNCH_PAD.defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(consolePos, Rocketry.LAUNCH_CONSOLE.defaultBlockState(), Block.UPDATE_ALL);
         BlockPos base = new BlockPos(x0, y + 1, z0);
+        int n = 0;
         for (RocketAnalyzer.Placed part : Blueprints.QIMING_1.parts(true)) {
             BlockPos at = base.offset(part.x(), part.y(), part.z());
             level.setBlock(at, Rocketry.PARTS.get(part.spec().id).defaultBlockState(), Block.UPDATE_ALL);
-            if (level.getBlockEntity(at) instanceof PartBlockEntity be) { be.setFill((float) part.fill()); be.setQuality(0.95f, true); }
+            if (level.getBlockEntity(at) instanceof PartBlockEntity be) { be.setFill((float) part.fill()); be.setQuality(0.95f, true); n++; }
         }
-        p.teleportTo(level, x0 + 10.5, y + 1, z0 + 0.5, java.util.Set.of(), 90, -20, false);
+        p.teleportTo(level, x0 + 7.5, y + 1, z0 + 0.5, java.util.Set.of(), 90, -25, false);
+        return "pad at " + base + " parts=" + n + " console=" + consolePos;
     }
 
     private void openTab(ClientGameTestContext ctx, String tab) {
@@ -208,7 +254,10 @@ public class HelioClientTest implements FabricClientGameTest {
 
     private void writeReport() {
         try {
-            Files.writeString(Path.of("heliosphere-test-report.txt"), String.join("\n", report));
+            List<String> all = new ArrayList<>(report);
+            all.add("--- notes ---");
+            synchronized (NOTES) { all.addAll(NOTES); }
+            Files.writeString(Path.of("heliosphere-test-report.txt"), String.join("\n", all));
         } catch (IOException ignored) {}
     }
 }

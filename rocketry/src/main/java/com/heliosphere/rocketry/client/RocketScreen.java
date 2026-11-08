@@ -104,7 +104,7 @@ public class RocketScreen extends AbstractContainerScreen<RocketMenu> {
             int sev = shown.severity().get(i);
             String mark = sev == 0 ? "✔ " : sev == 1 ? "⚠ " : "✘ ";
             int col = sev == 0 ? HelioGui.GOOD : sev == 1 ? HelioGui.WARN : HelioGui.BAD;
-            for (FormattedCharSequence l : font.split(Component.literal(mark + shown.lines().get(i)), 224)) { lines.add(l); colors.add(col); }
+            for (FormattedCharSequence l : com.heliosphere.core.client.screen.HelioGui.wrap(font, mark + shown.lines().get(i), 224)) { lines.add(l); colors.add(col); }
         }
         int visible = 9;
         scroll = Math.max(0, Math.min(scroll, Math.max(0, lines.size() - visible)));

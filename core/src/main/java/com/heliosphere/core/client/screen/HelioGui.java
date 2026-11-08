@@ -1,6 +1,14 @@
 package com.heliosphere.core.client.screen;
 
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.FormattedCharSequence;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /** Flat sci-fi panel style used by all Heliosphere screens (drawn with fills, no texture needed). */
 public final class HelioGui {
@@ -8,6 +16,69 @@ public final class HelioGui {
     public static final int ACCENT = 0xFF4FC3F7, TEXT = 0xFFDDE6F3, DIM = 0xFF8A98AE, GOOD = 0xFF66E08A, WARN = 0xFFFFC857, BAD = 0xFFFF6B6B;
 
     private HelioGui() {}
+
+    private static final Map<String, List<FormattedCharSequence>> WRAP_CACHE = new HashMap<>();
+    private static final String NO_BREAK_BEFORE = "，。；：、）》」』！？…,.;:)!?%”’·~";
+    private static final String NO_BREAK_AFTER = "（《「『“‘(•";
+
+    /**
+     * Word-wraps text that mixes Chinese and Latin script. Vanilla wrapping only breaks at spaces, which pushes
+     * whole Chinese sentences onto the next line; here a line may break between any two CJK characters
+     * (respecting punctuation rules) and section-sign formatting is carried across lines.
+     */
+    public static List<FormattedCharSequence> wrap(Font font, String text, int width) {
+        String key = width + "|" + text;
+        List<FormattedCharSequence> cached = WRAP_CACHE.get(key);
+        if (cached != null) return cached;
+        List<FormattedCharSequence> out = new ArrayList<>();
+        for (String para : text.split("\n", -1)) {
+            if (para.isEmpty()) { out.add(FormattedCharSequence.EMPTY); continue; }
+            String carry = "";
+            int i = 0, n = para.length();
+            while (i < n) {
+                int j = i, lastBreak = -1;
+                while (j < n) {
+                    char ch = para.charAt(j);
+                    if (ch == '\u00a7' && j + 1 < n) { j += 2; continue; }
+                    int next = j + Character.charCount(para.codePointAt(j));
+                    if (j > i && font.width(carry + para.substring(i, next)) > width) break;
+                    j = next;
+                    if (j < n && canBreak(para, j) && font.width(para.substring(i, j)) > width / 5) lastBreak = j;
+                }
+                int end = j >= n ? n : lastBreak > i ? lastBreak : j;
+                String seg = para.substring(i, end);
+                out.add(Component.literal(carry + seg.stripTrailing()).getVisualOrderText());
+                carry = activeFormat(carry + seg);
+                i = end;
+                while (i < n && para.charAt(i) == ' ') i++;
+            }
+        }
+        if (WRAP_CACHE.size() > 512) WRAP_CACHE.clear();
+        WRAP_CACHE.put(key, out);
+        return out;
+    }
+
+    private static boolean isCjk(char c) { return c >= 0x2E80 && !(c >= 0xFF01 && c <= 0xFF5E && Character.isLetterOrDigit(c)); }
+
+    private static boolean canBreak(String s, int at) {
+        char prev = s.charAt(at - 1), next = s.charAt(at);
+        if (NO_BREAK_BEFORE.indexOf(next) >= 0 || NO_BREAK_AFTER.indexOf(prev) >= 0) return false;
+        if (prev == ' ') return true;
+        if (next == ' ') return false;
+        return isCjk(prev) || isCjk(next);
+    }
+
+    private static String activeFormat(String s) {
+        StringBuilder colour = new StringBuilder(), style = new StringBuilder();
+        for (int k = 0; k + 1 < s.length(); k++) {
+            if (s.charAt(k) != '\u00a7') continue;
+            char c = Character.toLowerCase(s.charAt(k + 1));
+            if ("0123456789abcdefr".indexOf(c) >= 0) { colour.setLength(0); style.setLength(0); if (c != 'r') colour.append('\u00a7').append(c); }
+            else if ("klmno".indexOf(c) >= 0) style.append('\u00a7').append(c);
+            k++;
+        }
+        return colour.toString() + style;
+    }
 
     public static void panel(GuiGraphics g, int x, int y, int w, int h) {
         g.fill(x, y, x + w, y + h, BG);

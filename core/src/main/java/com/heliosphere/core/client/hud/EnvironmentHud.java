@@ -42,7 +42,7 @@ public final class EnvironmentHud {
             g.drawString(font, String.format("重力 %.2fg  温度 %.0f°C", Environment.gravity(mc.level), t), x + 2, y, tc, false);
             y += 10;
             boolean air = Environment.breathable(mc.level, BlockPos.containing(p.getEyePosition()));
-            g.drawString(font, String.format("气压 %.3f bar  %s", Environment.pressureBar(mc.level), air ? "§a有氧" : "§c真空/无氧"), x + 2, y, HelioGui.TEXT, false);
+            g.drawString(font, String.format("气压 %.3f bar  %s", Environment.pressureBar(mc.level), air ? "§a有氧" : Environment.pressureBar(mc.level) < 0.001 ? "§c真空" : "§c无氧"), x + 2, y, HelioGui.TEXT, false);
             y += 10;
             PlanetGeometry geo = b == null ? null : PlanetGeometry.of(b);
             if (geo != null) {

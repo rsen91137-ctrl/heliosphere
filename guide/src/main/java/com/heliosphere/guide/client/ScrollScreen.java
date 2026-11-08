@@ -1,5 +1,7 @@
 package com.heliosphere.guide.client;
 
+import com.heliosphere.core.client.screen.HelioGui;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -108,14 +110,17 @@ public class ScrollScreen extends Screen {
         Chapter c = chapters.get(Math.min(selected, chapters.size() - 1));
         int cx = x + 132, cw = W - 144;
         List<Line> lines = new ArrayList<>();
-        lines.add(new Line(font.split(Component.literal("§l" + c.title), cw), INK));
-        for (FormattedCharSequence s : font.split(Component.literal(c.intro), cw)) lines.add(new Line(List.of(s), INK_LIGHT));
+        lines.add(new Line(HelioGui.wrap(font, "§l" + c.title, cw), INK));
+        for (FormattedCharSequence s : HelioGui.wrap(font, c.intro, cw)) lines.add(new Line(List.of(s), INK_LIGHT));
         lines.add(Line.SPACER);
         lines.add(new Line(font.split(Component.translatable("gui.heliosphere.objectives", Math.round(progress(c) * 100)), cw), INK));
         lines.add(Line.ITEMS);
         lines.add(Line.SPACER);
         lines.add(new Line(font.split(Component.translatable("gui.heliosphere.tips"), cw), INK));
-        for (String t : c.tips) for (FormattedCharSequence s : font.split(Component.literal("• " + t), cw)) lines.add(new Line(List.of(s), INK));
+        for (String t : c.tips) {
+            List<FormattedCharSequence> tl = HelioGui.wrap(font, t, cw - 8);
+            for (int k = 0; k < tl.size(); k++) lines.add(new Line(List.of(k == 0 ? FormattedCharSequence.composite(Component.literal("• ").getVisualOrderText(), tl.get(k)) : FormattedCharSequence.composite(Component.literal("  ").getVisualOrderText(), tl.get(k))), INK));
+        }
 
         int itemRows = (c.objectives.size() + 8) / 9;
         int ly = y + 28 - scroll;
