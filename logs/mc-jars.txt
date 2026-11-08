@@ -1,0 +1,9 @@
+/.gradle/caches/fabric-loom/1.21.11/minecraft-extracted_server.jar
+/.gradle/caches/fabric-loom/1.21.11/minecraft-merged.jar
+/.gradle/caches/fabric-loom/1.21.11/minecraft-server.jar
+/.gradle/caches/fabric-loom/1.21.11/minecraft-client.jar
+/.gradle/caches/fabric-loom/minecraftMaven/loom/mappings/layered+hash.2198/mappings-layered+hash.2198.jar
+/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
+/.gradle/caches/fabric-loom/minecraftMaven/net/minecraft/minecraft-merged-intermediary/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-intermediary-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
+/work/heliosphere/heliosphere/tools/devlibs/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-2ae02fda0f/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-2ae02fda0f-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2-sources.jar
+/work/heliosphere/heliosphere/tools/devlibs/.gradle/loom-cache/minecraftMaven/net/minecraft/minecraft-merged-2ae02fda0f/1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2/minecraft-merged-2ae02fda0f-1.21.11-loom.mappings.1_21_11.layered+hash.2198-v2.jar
