@@ -64,7 +64,8 @@ public final class OrbitMath {
             case "mars" -> 4.1;
             case "venus" -> 27.0;
             case "titan" -> 7.6;
-            default -> b.gasGiant ? Double.POSITIVE_INFINITY
+            // from an aerostat at the cloud tops: orbital speed plus drag and gravity losses
+            default -> b.gasGiant ? 1.08 * circularSpeed(mu(b), b.radiusKm)
                     : 1.1 * circularSpeed(mu(b), lowOrbitKm(b)) + 0.02;
         };
     }
@@ -95,7 +96,7 @@ public final class OrbitMath {
         double descent = descentKmS(to, heatShield, parachute);
         Transfer tr = transfer(from, to);
         double capture = aero ? tr.capture * 0.1 : tr.capture;
-        double entry = tr.entrySpeed;
+        double entry = to.gasGiant ? 14.0 : tr.entrySpeed; // giants: propulsive capture, then a ballute descent to the aerostat
         return new Mission(from, to, ascent, tr.departure, capture, burns ? 0 : descent, tr.days, burns, entry);
     }
 

@@ -131,7 +131,7 @@ public class RocketMenu extends AbstractContainerMenu {
         List<String> stats = new ArrayList<>();
         boolean can = false;
         if (t.structure.parts().isEmpty()) {
-            lines.add(isEntity() ? "火箭为空" : "发射台上没有火箭部件（部件需与发射台顶面相连）");
+            lines.add(isEntity() ? "火箭为空" : "发射台上没有火箭部件：控制台所连的发射台必须与火箭脚下的发射台同一高度且相连（可斜角相接）");
             sev.add(2);
         } else {
             RocketAnalyzer.Report r = MissionControl.analyze(t.structure, t.from, t.dest);

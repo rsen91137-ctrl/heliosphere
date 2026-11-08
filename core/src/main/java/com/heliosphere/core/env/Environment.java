@@ -24,7 +24,8 @@ public final class Environment {
     public static double gravity(Level level) {
         if (Planets.isSpace(level)) return 0.04;
         CelestialBody b = Planets.bodyOf(level);
-        return b == null ? 1.0 : b.surfaceGravity;
+        // tiny moons keep a playable minimum so a jump does not throw you into orbit
+        return b == null ? 1.0 : Math.max(0.03, b.surfaceGravity);
     }
 
     public static boolean hasAtmosphere(Level level) {
@@ -42,6 +43,7 @@ public final class Environment {
         if (Planets.isSpace(level)) return insideBubble(level, pos);
         CelestialBody b = Planets.bodyOf(level);
         if (b == null || b.breathable) return true;
+        if (b.gasGiant) return insideBubble(level, pos);
         return insideBubble(level, pos);
     }
 

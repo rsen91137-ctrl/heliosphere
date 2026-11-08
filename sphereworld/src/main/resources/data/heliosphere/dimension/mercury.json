@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:mercury",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "mercury",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:mercury_surface"
+    }
+  }
+}

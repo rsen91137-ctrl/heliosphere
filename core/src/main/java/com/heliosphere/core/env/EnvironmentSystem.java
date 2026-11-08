@@ -48,6 +48,33 @@ public final class EnvironmentSystem {
                 }
             }
 
+            com.heliosphere.core.celestial.CelestialBody body = Planets.bodyOf(level);
+            boolean shielded = Environment.insideBubble(level, eye);
+            if (body != null && body.gasGiant && !shielded) {
+                // supersonic jet streams: pushed east and battered unless inside a storm shield
+                double lat = 0;
+                com.heliosphere.core.world.PlanetGeometry g = Planets.geometry(level);
+                if (g != null) lat = g.latLon(p.getX(), p.getZ())[0];
+                double s = 0.35 + 0.35 * Math.abs(Math.sin(Math.toRadians(lat) * 7)) + (body.id.equals("jupiter") && Math.abs(lat + 22) < 6 ? 0.4 : 0);
+                p.push(s * 0.9, 0.0, Math.sin(server.getTickCount() * 0.37) * s * 0.3);
+                p.hurtMarked = true;
+                p.hurtServer(level, level.damageSources().flyIntoWall(), (float) (1 + 3 * s));
+                p.displayClientMessage(Component.translatable("message.heliosphere.storm"), true);
+            }
+            if (body != null && body.gasGiant && p.getY() < 40) {
+                p.hurtServer(level, level.damageSources().outOfBorder(), 8f);
+                p.displayClientMessage(Component.translatable("message.heliosphere.crushed"), true);
+            }
+            if (body != null && !body.gasGiant && body.pressureBar > 10 && !shielded && suit.tier() < 3) {
+                p.hurtServer(level, level.damageSources().generic(), 4f);
+                p.displayClientMessage(Component.translatable("message.heliosphere.crushed"), true);
+            }
+            double rad = body == null ? 0 : switch (body.id) { case "io" -> 3; case "europa" -> 1.5; case "ganymede" -> 0.6; default -> 0; };
+            if (rad > 0 && suit.tier() < 3 && !shielded && server.getTickCount() % 40 == 0) {
+                p.hurtServer(level, level.damageSources().magic(), (float) rad);
+                p.displayClientMessage(Component.translatable("message.heliosphere.radiation"), true);
+            }
+
             double t = Environment.temperatureC(level, eye);
             if (t > suit.maxTempC()) {
                 float dmg = (float) Math.min(6, 1 + (t - suit.maxTempC()) / 60.0);

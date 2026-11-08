@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:phobos",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "phobos",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:phobos_surface"
+    }
+  }
+}

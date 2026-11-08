@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:enceladus",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "enceladus",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:enceladus_surface"
+    }
+  }
+}

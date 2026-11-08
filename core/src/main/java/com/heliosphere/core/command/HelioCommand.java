@@ -71,10 +71,14 @@ public final class HelioCommand {
         if (level == null) { c.getSource().sendFailure(Component.literal("无法前往该天体")); return 0; }
         double x = 0.5, z = 0.5;
         PlanetGeometry geo = Planets.geometry(level);
-        if (geo != null && !Double.isNaN(lat)) { x = geo.lonToX(lon); z = geo.latToZ(lat); }
+        if (geo != null && !Double.isNaN(lat) && !body.gasGiant) { x = geo.lonToX(lon); z = geo.latToZ(lat); }
         BlockPos col = BlockPos.containing(x, 0, z);
         level.getChunk(col);
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING, col.getX(), col.getZ()) + 1;
+        if (body.gasGiant) {
+            y = 252; // aerostat deck at the equator
+            if (!Double.isNaN(lat)) c.getSource().sendSuccess(() -> Component.literal("气态巨行星没有地面：已送到赤道浮空平台"), false);
+        }
         p.teleportTo(level, x, y, z, Set.<Relative>of(), p.getYRot(), p.getXRot(), true);
         return 1;
     }

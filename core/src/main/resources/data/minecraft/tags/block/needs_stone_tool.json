@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "heliosphere:aerostat_deck",
     "heliosphere:air_separator",
     "heliosphere:alloy_furnace",
     "heliosphere:apatite_ore",
@@ -23,6 +24,7 @@
     "heliosphere:deepslate_sphalerite_ore",
     "heliosphere:deepslate_spodumene_ore",
     "heliosphere:deepslate_sulfur_ore",
+    "heliosphere:diogenite",
     "heliosphere:electric_arc_furnace",
     "heliosphere:electrolyzer",
     "heliosphere:electronics_assembler",
@@ -33,12 +35,16 @@
     "heliosphere:halite_ore",
     "heliosphere:hematite_deposit",
     "heliosphere:high_ti_basalt",
+    "heliosphere:hollows_deposit",
     "heliosphere:ilmenite_reducer",
     "heliosphere:isru_electrolyzer",
     "heliosphere:launch_console",
     "heliosphere:launch_pad",
+    "heliosphere:lineae_salt",
     "heliosphere:metal_3d_printer",
+    "heliosphere:metal_frost",
     "heliosphere:meteoric_iron_ore",
+    "heliosphere:natron_deposit",
     "heliosphere:olivine_rock",
     "heliosphere:oxygen_compressor",
     "heliosphere:oxygen_distributor",
@@ -48,8 +54,10 @@
     "heliosphere:solar_panel",
     "heliosphere:sphalerite_ore",
     "heliosphere:spodumene_ore",
+    "heliosphere:storm_shield_generator",
     "heliosphere:suit_fabricator",
     "heliosphere:sulfur_ore",
+    "heliosphere:tessera_rock",
     "heliosphere:vacuum_deposition",
     "heliosphere:vacuum_furnace"
   ]

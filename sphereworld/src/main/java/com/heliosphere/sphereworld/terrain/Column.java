@@ -14,11 +14,14 @@ public final class Column {
     public int layerThickness;
     /** Region tags used by the ore placer and the map baker. */
     public float kreep, highTi, iron, ice;
+    /** Optional liquid filling air up to this height (blocks relative to datum), e.g. Titan's seas, Io's lava lakes. */
+    public Mat liquid = null;
+    public double liquidLevel;
     /** Surface colour hint for orbital maps (0xRRGGBB). */
     public int color;
 
     public void reset() {
         height = 0; top = Mat.REGOLITH; topDepth = 3; sub = Mat.ANORTHOSITE; subDepth = 20; rock = Mat.ANORTHOSITE;
-        layer = null; layerDepth = 0; layerThickness = 0; kreep = 0; highTi = 0; iron = 0; ice = 0; color = 0x808080;
+        layer = null; layerDepth = 0; layerThickness = 0; liquid = null; liquidLevel = 0; kreep = 0; highTi = 0; iron = 0; ice = 0; color = 0x808080;
     }
 }

@@ -73,6 +73,16 @@ public final class PlanetRecipes {
         SUIT_FABRICATOR.recipe(r().in(I("space_suit_chestplate")).in(I("lunar_glass_fiber"), 6).in(I("copv"), 2).in(I("rad_hard_chip")).out(I("mars_suit_chestplate")).time(500).power(100));
         SUIT_FABRICATOR.recipe(r().in(I("space_suit_leggings")).in(I("lunar_glass_fiber"), 4).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_leggings")).time(400).power(80));
         SUIT_FABRICATOR.recipe(r().in(I("space_suit_boots")).in(I("lunar_glass_fiber"), 2).in(I("lunar_ti_alloy_ingot")).out(I("mars_suit_boots")).time(300).power(80));
+        // ---------------------------------------------------------------- outer worlds
+        M("vacuum_furnace").recipe(r().in(I("bismuth_sulfide"), 2).out(I("bismuth_ingot")).out(I("sulfur")).time(240).power(120));
+        M("chemical_reactor").recipe(r().in(I("volatile_sulfide"), 2).in(I("canister_hydrogen")).out(I("sulfur"), 2).out(I("empty_canister")).time(160).power(60));
+        M("centrifuge").recipe(r().in(I("carbonaceous_chondrite"), 2).out(I("graphite")).out(I("lunar_ice_chunk")).time(200).power(60));
+        M("chemical_reactor").recipe(r().in(I("sodium_carbonate"), 2).in(Items.WATER_BUCKET).out(I("caustic_soda"), 3).out(Items.BUCKET).time(160).power(50));
+        M("centrifuge").recipe(r().in(I("europan_salt"), 2).out(I("rock_salt"), 2).out(I("sulfuric_acid")).time(200).power(60));
+        M("chemical_reactor").recipe(r().in(I("tholin"), 3).out(I("plastic"), 2).out(I("phenolic_resin")).time(220).power(80));
+        OXYGEN_COMPRESSOR.recipe(r().in(I("solid_nitrogen"), 2).in(I("empty_canister")).out(I("canister_ln2")).time(120).power(30));
+        M("chemical_reactor").recipe(r().in(I("plume_crystal"), 2).in(I("empty_canister")).out(I("canister_hydrogen")).out(I("metallurgical_silicon")).time(200).power(70));
+
         // hot worlds: Mercury day side, Venus — silica/PICA insulation over an Inconel pressure layer
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_helmet")).in(I("lunar_ceramic"), 2).in(I("silver_ingot"), 2).in(I("silicon_nitride")).out(I("thermal_suit_helmet")).time(500).power(120));
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_chestplate")).in(I("pica"), 3).in(I("inconel_plate"), 2).in(I("canister_ammonia"), 2).in(I("heat_shield_tile")).out(I("thermal_suit_chestplate")).time(700).power(160));

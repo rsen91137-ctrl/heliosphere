@@ -1,0 +1,103 @@
+{
+  "period_ticks": 4222600,
+  "tracks": {
+    "minecraft:visual/sun_angle": {
+      "keyframes": [
+        {
+          "ticks": 1055650,
+          "value": 360.0
+        },
+        {
+          "ticks": 1055650,
+          "value": 0.0
+        }
+      ]
+    },
+    "minecraft:visual/star_angle": {
+      "keyframes": [
+        {
+          "ticks": 1055650,
+          "value": 360.0
+        },
+        {
+          "ticks": 1055650,
+          "value": 0.0
+        }
+      ]
+    },
+    "minecraft:visual/moon_angle": {
+      "keyframes": [
+        {
+          "ticks": 1055650,
+          "value": 540.0
+        },
+        {
+          "ticks": 1055650,
+          "value": 180.0
+        }
+      ]
+    },
+    "minecraft:gameplay/sky_light_level": {
+      "keyframes": [
+        {
+          "ticks": 52782,
+          "value": 1.0
+        },
+        {
+          "ticks": 2058518,
+          "value": 1.0
+        },
+        {
+          "ticks": 2287242,
+          "value": 0.08
+        },
+        {
+          "ticks": 4046658,
+          "value": 0.08
+        }
+      ],
+      "modifier": "multiply"
+    },
+    "minecraft:visual/sky_light_factor": {
+      "keyframes": [
+        {
+          "ticks": 52782,
+          "value": 1.0
+        },
+        {
+          "ticks": 2058518,
+          "value": 1.0
+        },
+        {
+          "ticks": 2287242,
+          "value": 0.08
+        },
+        {
+          "ticks": 4046658,
+          "value": 0.08
+        }
+      ],
+      "modifier": "multiply"
+    },
+    "minecraft:visual/star_brightness": {
+      "keyframes": [
+        {
+          "ticks": 52782,
+          "value": 0.0
+        },
+        {
+          "ticks": 2058518,
+          "value": 0.0
+        },
+        {
+          "ticks": 2287242,
+          "value": 0.6
+        },
+        {
+          "ticks": 4046658,
+          "value": 0.6
+        }
+      ]
+    }
+  }
+}

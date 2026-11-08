@@ -211,7 +211,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
             failTick = failure == RocketAnalyzer.Failure.PAD_EXPLOSION ? 5 + random.nextInt(10) : 60 + random.nextInt(80);
         }
         double days = report.mission == null ? 0 : report.mission.transferDays();
-        transitTicks = (int) Math.max(400, Math.min(20 * 240, days * 86400 / 100_000.0 * 20));
+        transitTicks = transitTicksFor(days);
         if (fromBody == SolarSystem.EARTH && level().dimension() == Level.OVERWORLD) { home = blockPosition(); homeDim = "minecraft:overworld"; }
         scienceGiven = false;
         staged = false;
@@ -465,6 +465,16 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
             else if (here == SolarSystem.MARS) giveScience("science_mars");
         }
         eject(false);
+    }
+
+    /**
+     * Real-time length of a coast: compressed from the true transfer time so the Moon takes about 10 minutes,
+     * Mars about 35 minutes and nothing takes longer than an hour.
+     */
+    public static int transitTicksFor(double days) {
+        if (days <= 0 || Boolean.getBoolean("heliosphere.fastTransit")) return 400;
+        double minutes = Math.min(60, 10 * Math.pow(Math.max(days, 0.5) / 3.0, 0.28));
+        return (int) Math.round(Math.max(1, minutes) * 60 * 20);
     }
 
     private void giveScience(String item) {

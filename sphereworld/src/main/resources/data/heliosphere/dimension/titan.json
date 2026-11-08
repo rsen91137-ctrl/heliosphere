@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:titan",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "titan",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:titan_surface"
+    }
+  }
+}

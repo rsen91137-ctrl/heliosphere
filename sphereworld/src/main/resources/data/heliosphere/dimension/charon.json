@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:charon",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "charon",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:charon_surface"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:europa",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "europa",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:europa_surface"
+    }
+  }
+}

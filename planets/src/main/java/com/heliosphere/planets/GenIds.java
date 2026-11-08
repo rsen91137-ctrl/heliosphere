@@ -31,6 +31,15 @@ public final class GenIds {
         {"science_suborbital"},
         {"science_moon"},
         {"science_mars"},
+        {"volatile_sulfide"},
+        {"bismuth_sulfide"},
+        {"bismuth_ingot"},
+        {"carbonaceous_chondrite"},
+        {"sodium_carbonate"},
+        {"europan_salt"},
+        {"plume_crystal"},
+        {"tholin"},
+        {"solid_nitrogen"},
     };
     public static final String[][] MACHINES = {
         {"oxygen_compressor"},
@@ -42,5 +51,6 @@ public final class GenIds {
         {"atmosphere_extractor"},
         {"isru_electrolyzer"},
         {"suit_fabricator"},
+        {"storm_shield_generator"},
     };
 }

@@ -54,6 +54,7 @@ public final class PlanetsMod implements ModInitializer {
             });
     public static final MachineType ISRU_ELECTROLYZER = MachineType.processor("isru_electrolyzer", 2, 3);
     public static final MachineType SUIT_FABRICATOR = MachineType.processor("suit_fabricator", 6, 1);
+    public static final MachineType STORM_SHIELD = MachineType.bubble("storm_shield_generator");
 
     public static final TagKey<Item> REPAIRS_SUIT = TagKey.create(Registries.ITEM, Heliosphere.id("repairs_space_suit"));
 
@@ -77,6 +78,28 @@ public final class PlanetsMod implements ModInitializer {
             blocks.add(b);
         }
         MACHINE_BE = Reg.blockEntity("planets_machine", (pos, state) -> new MachineBlockEntity(MACHINE_BE, pos, state), blocks.toArray(new Block[0]));
+
+        // Scooping Titan's seas and gas-giant clouds with an empty canister
+        net.fabricmc.fabric.api.event.player.UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            ItemStack held = player.getItemInHand(hand);
+            if (!held.is(Reg.get("empty_canister"))) return InteractionResult.PASS;
+            net.minecraft.core.BlockPos pos = hit.getBlockPos();
+            String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(level.getBlockState(pos).getBlock()).getPath();
+            String out = null;
+            if (id.equals("liquid_methane")) out = "canister_ch4";
+            else if (id.endsWith("_cloud")) {
+                out = level.getRandom().nextFloat() < 0.12f && !id.equals("methane_cloud") ? "canister_helium3" : "canister_hydrogen";
+                if (!level.isClientSide()) level.removeBlock(pos, false);
+            }
+            if (out == null) return InteractionResult.PASS;
+            if (!level.isClientSide()) {
+                held.shrink(1);
+                ItemStack full = new ItemStack(Reg.get(out));
+                if (!player.getInventory().add(full)) player.drop(full, false);
+                level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.PLAYERS, 1f, 0.8f);
+            }
+            return InteractionResult.SUCCESS;
+        });
 
         UseItemCallback.EVENT.register((player, level, hand) -> {
             ItemStack held = player.getItemInHand(hand);

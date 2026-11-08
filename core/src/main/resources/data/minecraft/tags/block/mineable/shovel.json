@@ -1,13 +1,29 @@
 {
   "replace": false,
   "values": [
+    "heliosphere:ammoniated_clay",
+    "heliosphere:callisto_regolith",
+    "heliosphere:ceres_regolith",
+    "heliosphere:charon_regolith",
+    "heliosphere:enceladus_snow",
+    "heliosphere:eris_frost",
     "heliosphere:helium3_regolith",
     "heliosphere:mare_regolith",
     "heliosphere:mars_regolith",
     "heliosphere:mars_sand",
+    "heliosphere:mercury_regolith",
     "heliosphere:moon_regolith",
+    "heliosphere:nitrogen_ice",
     "heliosphere:oil_sand",
     "heliosphere:perchlorate_deposit",
-    "heliosphere:smectite_clay_block"
+    "heliosphere:phobos_regolith",
+    "heliosphere:smectite_clay_block",
+    "heliosphere:so2_frost",
+    "heliosphere:sulfur_crust",
+    "heliosphere:tholin_crust",
+    "heliosphere:tholin_deposit",
+    "heliosphere:tholin_sand",
+    "heliosphere:venus_regolith",
+    "heliosphere:vesta_regolith"
   ]
 }

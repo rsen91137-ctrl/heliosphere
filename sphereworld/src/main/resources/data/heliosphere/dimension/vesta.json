@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:vesta",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "vesta",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:vesta_surface"
+    }
+  }
+}

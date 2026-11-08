@@ -33,6 +33,11 @@ public final class SphereWorld implements ModInitializer {
         Planets.setEarthSphereCheck(SphereWorld::isSphericalEarth);
         HelioNetwork.registerMapBaker("moon", s -> bakePlanet(s, Planets.MOON));
         HelioNetwork.registerMapBaker("mars", s -> bakePlanet(s, Planets.MARS));
+        for (com.heliosphere.core.celestial.CelestialBody b : com.heliosphere.core.celestial.SolarSystem.all()) {
+            if (b.gasGiant || b.kind == com.heliosphere.core.celestial.CelestialBody.Kind.STAR || b.id.equals("earth") || b.id.equals("moon") || b.id.equals("mars")) continue;
+            net.minecraft.resources.ResourceKey<Level> key = Planets.dim(b.id);
+            HelioNetwork.registerMapBaker(b.id, s -> bakePlanet(s, key));
+        }
         HelioNetwork.registerMapBaker("earth", SphereWorld::bakeEarth);
     }
 

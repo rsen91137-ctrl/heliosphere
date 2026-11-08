@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:miranda",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "miranda",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:miranda_surface"
+    }
+  }
+}

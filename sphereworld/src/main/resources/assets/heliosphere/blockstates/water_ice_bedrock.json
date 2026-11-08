@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "heliosphere:block/water_ice_bedrock"
+    }
+  }
+}

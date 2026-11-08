@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CMC",
+    "NPN",
+    "SBS"
+  ],
+  "key": {
+    "C": "heliosphere:copper_wire",
+    "M": "heliosphere:ndfeb_magnet",
+    "N": "heliosphere:niobium_ingot",
+    "P": "heliosphere:processor",
+    "S": "heliosphere:stainless_steel_plate",
+    "B": "heliosphere:battery_cell"
+  },
+  "result": {
+    "id": "heliosphere:storm_shield_generator",
+    "count": 1
+  }
+}

@@ -40,8 +40,10 @@ public final class RocketScanner {
         while (!q.isEmpty() && pad.size() < MAX_PAD) {
             BlockPos p = q.poll();
             pad.add(p);
-            for (Direction d : Direction.Plane.HORIZONTAL) {
-                BlockPos n = p.relative(d);
+            // 8-connected: diagonal neighbours count, so a console pad touching a corner still joins the pad
+            for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) { int dy = 0;
+                if (dx == 0 && dz == 0) continue;
+                BlockPos n = p.offset(dx, dy, dz);
                 if (seen.add(n) && level.getBlockState(n).is(Rocketry.LAUNCH_PAD)) q.add(n);
             }
         }

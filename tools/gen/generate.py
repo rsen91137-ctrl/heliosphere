@@ -203,6 +203,9 @@ def gen_core():
         'message.heliosphere.crash': ('§4坠毁！', '§4Crash!'),
         'message.heliosphere.tip_over': ('§c着陆腿不足，火箭着陆后翻倒爆炸', '§cThe rocket tipped over on landing'),
         'message.heliosphere.landed': ('§a成功着陆：%s', '§aLanded on %s'),
+        'message.heliosphere.storm': ('§c风暴！时速上千公里的急流把你吹离平台——待在风暴护盾发生器的力场里', '§cStorm! Supersonic jet streams — stay inside a storm shield'),
+        'message.heliosphere.crushed': ('§4巨大的大气压正在压垮你——需要密封等级 3 的宇航服或护盾', '§4The crushing atmosphere is collapsing your suit — tier 3 suit or shield needed'),
+        'message.heliosphere.radiation': ('§d木星磁层强辐射——需要密封等级 3 的宇航服', '§dJovian radiation belt — tier 3 suit needed'),
         'message.heliosphere.science': ('§b获得科学数据：%s', '§bScience collected: %s'),
         'message.heliosphere.escape_tower': ('§e逃逸塔点火！乘员舱被弹射出去', '§eEscape tower fired - crew ejected!'),
         'message.heliosphere.life_support_failed': ('§c生命维持不足，舱内二氧化碳浓度升高', '§cLife support exhausted'),
@@ -250,6 +253,19 @@ def gen_terrain():
                 extra = {'rolls': 1, 'bonus_rolls': 0, 'entries': [{'type': 'minecraft:item', 'name': f'{NS}:microfossil'}],
                          'conditions': [{'condition': 'minecraft:random_chance', 'chance': 0.06}]}
             loot_drop(m, bid, f'{NS}:{it}', mn, mx, fortune=True, extra=extra)
+        else:
+            loot_self(m, bid)
+    for (bid, zh, en, base, speck, dens, hard, tool, style, drop) in C.WORLD_TERRAIN:
+        if style == 'bricks':
+            cube_block(m, bid, lambda n, b=base, s=speck, i=bid: B.bricks(n, b, s, seed(i)))
+        else:
+            cube_block(m, bid, lambda n, b=base, s=speck, d=dens, i=bid, st=style: B.rock(n, b, s, d, seed(i), st))
+        lang(m, f'block.heliosphere.{bid}', zh, en)
+        if drop == 'none':
+            continue
+        mineable(bid, 'shovel' if tool == 'none' else 'pickaxe', None if tool in ('none', 'wood') else tool)
+        if drop:
+            loot_drop(m, bid, f'{NS}:{drop[0]}', drop[1], drop[2], fortune=True)
         else:
             loot_self(m, bid)
     gen_dimensions(m)
@@ -322,6 +338,17 @@ def gen_dimensions(m):
     # Moon: one solar day = 29.53 Earth days; Mars: one sol = 24 h 39 min (blue sunsets!)
     data(m, 'timeline/moon_day.json', day_timeline(int(24000 * 29.53), 0.12, None, 0.0))
     data(m, 'timeline/mars_day.json', day_timeline(int(24000 * 1.0275), 0.22, '#6a9ad8ff', 0.0))
+    import math
+    for (bid, sky, fog, amb, night, sunset) in C.BODY_DIMS:
+        gas = bid in ('jupiter', 'saturn', 'uranus', 'neptune')
+        lo, hi = (-64, 512) if gas else (-256, 1280)
+        data(m, f'dimension_type/{bid}.json', dict(common, ambient_light=amb, min_y=lo, height=hi, logical_height=hi,
+                                                   attributes=attrs(sky, fog, {'minecraft:visual/cloud_height': 2000.0}),
+                                                   timelines=[f'{NS}:{bid}_day']))
+        data(m, f'dimension/{bid}.json', {'type': f'{NS}:{bid}', 'generator': {'type': f'{NS}:planet', 'planet': bid,
+                                          'biome_source': {'type': 'minecraft:fixed', 'biome': f'{NS}:{bid}_surface'}}})
+        data(m, f'worldgen/biome/{bid}_surface.json', biome(sky, fog, -0.5))
+        data(m, f'timeline/{bid}_day.json', day_timeline(max(2400, int(round(C.SOLAR_DAY_HOURS[bid] * 1000))), night, sunset, 0.0))
 
     preset = {'dimensions': {
         'minecraft:overworld': {'type': 'minecraft:overworld', 'generator': {'type': 'minecraft:noise', 'biome_source': {
@@ -596,6 +623,8 @@ def gen_recipes():
         'battery_bank': (['BBB', 'SCS', 'SSS'], {'B': h('battery_cell'), 'S': h('steel_ingot'), 'C': h('circuit_board')}),
     }
     P = {
+        'storm_shield_generator': (['CMC', 'NPN', 'SBS'], {'C': h('copper_wire'), 'M': h('ndfeb_magnet'), 'N': h('niobium_ingot'), 'P': h('processor'),
+                                                         'S': h('stainless_steel_plate'), 'B': h('battery_cell')}),
         'suit_fabricator': (['NGN', 'CLC', 'SBS'], {'N': h('nylon'), 'G': 'minecraft:glass', 'C': h('circuit_board'), 'L': 'minecraft:loom',
                                                   'S': h('stainless_steel_ingot'), 'B': h('battery_cell')}),
         'oxygen_compressor': (['SGS', 'WPW', 'SCS'], {'S': h('steel_ingot'), 'G': 'minecraft:glass', 'W': h('copper_wire'), 'P': 'minecraft:piston', 'C': h('circuit_board')}),

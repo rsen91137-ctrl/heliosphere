@@ -203,6 +203,7 @@ MACHINES = [
     ("planets", "atmosphere_extractor", "大气提取器", "Atmosphere Extractor", "#6A5048", "#FFA070", "wave"),
     ("planets", "isru_electrolyzer", "冰水电解站", "Ice Electrolysis Station", "#5A6A74", "#C0F0FF", "drop"),
     ("planets", "suit_fabricator", "宇航服制造台", "Spacesuit Fabricator", "#5A6070", "#F0F0F0", "arm"),
+    ("planets", "storm_shield_generator", "风暴护盾发生器", "Storm Shield Generator", "#3A4A6A", "#80C0FF", "wave"),
 ]
 
 # ---------------------------------------------------------------------------------------- rocket parts
@@ -250,3 +251,94 @@ ARMOR = [
     ("planets", "solar_suit", "日冕防护服", "Coronal Suit", "#F0D040", "#202020"),
 ]
 ARMOR_PIECES = [("helmet", "头盔", "Helmet"), ("chestplate", "躯干", "Torso"), ("leggings", "护腿", "Leggings"), ("boots", "靴", "Boots")]
+
+# ---------------------------------------------------------------------------------------- outer solar system terrain
+# id, zh, en, base, speck, density, hardness, tool, style, drop (item, min, max) or None
+WORLD_TERRAIN = [
+    ("mercury_regolith", "水星表土", "Mercurian Regolith", "#6A6660", "#8E8880", 0.12, 0.6, "none", "regolith", None),
+    ("mercury_crust", "水星低反照率岩", "Low-Reflectance Mercurian Rock", "#3A3836", "#55524E", 0.15, 2.2, "wood", "basalt", None),
+    ("hollows_deposit", "水星凹陷亮斑", "Mercurian Hollows Deposit", "#8A96A8", "#DCE8F8", 0.3, 1.2, "stone", "deposit", ("volatile_sulfide", 1, 3)),
+    ("venus_regolith", "金星风化层", "Venusian Regolith", "#8A6A48", "#A88460", 0.15, 0.8, "none", "soil", None),
+    ("venus_basalt", "金星玄武岩", "Venusian Basalt", "#5A4436", "#7A5C48", 0.15, 2.5, "wood", "basalt", None),
+    ("tessera_rock", "金星镶嵌地块岩", "Tessera Rock", "#7A6A5A", "#9A8670", 0.2, 3.0, "stone", "layered", None),
+    ("metal_frost", "高山金属霜", "Highland Metal Frost", "#B8B4A8", "#F0ECE0", 0.35, 2.0, "stone", "frost", ("bismuth_sulfide", 1, 3)),
+    ("phobos_regolith", "碳质表土", "Carbonaceous Regolith", "#4A4240", "#6A5E58", 0.15, 0.5, "none", "regolith", None),
+    ("carbonaceous_rock", "碳质球粒陨石岩", "Carbonaceous Chondrite Rock", "#2E2A28", "#5A504A", 0.25, 1.8, "wood", "deposit", ("carbonaceous_chondrite", 1, 2)),
+    ("ceres_regolith", "谷神星含水黏土", "Cererian Hydrated Clay", "#5A5854", "#7A7670", 0.15, 0.6, "none", "regolith", None),
+    ("ammoniated_clay", "氨化层状硅酸盐", "Ammoniated Phyllosilicate", "#6A6660", "#8A8478", 0.2, 1.0, "none", "layered", None),
+    ("natron_deposit", "欧卡托亮斑碳酸钠", "Occator Natron Deposit", "#D8D8D0", "#FFFFFF", 0.3, 1.0, "stone", "deposit", ("sodium_carbonate", 2, 4)),
+    ("vesta_regolith", "灶神星表土", "Vestan Regolith", "#8A8478", "#A8A296", 0.12, 0.6, "none", "regolith", None),
+    ("eucrite", "钙长辉长无球粒陨石", "Eucrite", "#6A6458", "#B0A890", 0.25, 2.5, "wood", "crystal", None),
+    ("diogenite", "古铜辉石岩", "Diogenite", "#6A6A40", "#A8A050", 0.25, 2.5, "stone", "crystal", ("olivine", 1, 2)),
+    ("sulfur_crust", "木卫一硫磺壳", "Ionian Sulfur Crust", "#D8C040", "#F0E070", 0.2, 0.8, "none", "deposit", ("sulfur", 2, 4)),
+    ("so2_frost", "二氧化硫霜", "Sulfur Dioxide Frost", "#E8E8D0", "#FFFFF0", 0.2, 0.6, "none", "frost", None),
+    ("io_silicate", "木卫一硅酸盐火山岩", "Ionian Silicate Lava Rock", "#3A3020", "#6A5030", 0.2, 2.5, "wood", "basalt", None),
+    ("europa_ice", "木卫二冰壳", "Europan Ice Shell", "#C8C0B0", "#E8E4DC", 0.15, 1.2, "wood", "ice", None),
+    ("lineae_salt", "条纹带盐沉积", "Lineae Salt Deposit", "#8A5A3A", "#B07848", 0.3, 1.0, "stone", "layered", ("europan_salt", 2, 3)),
+    ("ganymede_dark", "木卫三暗色地体", "Ganymede Dark Terrain", "#4A4440", "#6A625A", 0.15, 1.5, "wood", "soil", None),
+    ("grooved_ice", "木卫三沟槽冰", "Grooved Terrain Ice", "#A8A8A8", "#D0D4D8", 0.2, 1.5, "wood", "ice", None),
+    ("callisto_regolith", "木卫四暗色风化层", "Callistan Dark Regolith", "#3A342E", "#5A5048", 0.12, 0.6, "none", "regolith", None),
+    ("enceladus_snow", "土卫二冰雪", "Enceladan Snow", "#F0F4F8", "#FFFFFF", 0.1, 0.4, "none", "frost", None),
+    ("tiger_stripe_ice", "虎纹裂隙冰", "Tiger Stripe Ice", "#9AB8D0", "#E0F0FF", 0.25, 1.2, "wood", "ice", ("plume_crystal", 1, 2)),
+    ("tholin_sand", "土卫六有机沙丘", "Titan Tholin Sand", "#5A3A20", "#7A5030", 0.2, 0.5, "none", "sand", None),
+    ("titan_ice_bedrock", "土卫六冰质基岩", "Titan Ice Bedrock", "#8A8070", "#A8A090", 0.15, 2.0, "wood", "ice", None),
+    ("tholin_deposit", "托林有机质沉积", "Tholin Deposit", "#7A4A20", "#B07030", 0.3, 1.0, "none", "deposit", ("tholin", 2, 3)),
+    ("miranda_ice", "天卫五冰", "Mirandan Ice", "#9A9A98", "#C0C0BC", 0.15, 1.5, "wood", "ice", None),
+    ("corona_ridge", "冕状区条带岩", "Corona Banded Rock", "#6A6A68", "#B8B8B0", 0.3, 2.0, "wood", "layered", None),
+    ("nitrogen_ice", "氮冰", "Nitrogen Ice", "#E8E0D8", "#FFFFFF", 0.15, 0.6, "none", "frost", ("solid_nitrogen", 2, 3)),
+    ("cantaloupe_terrain", "哈密瓜地形冰", "Cantaloupe Terrain Ice", "#B8A898", "#D8C8B8", 0.25, 1.2, "wood", "layered", None),
+    ("methane_ice", "甲烷冰（刃脊）", "Bladed Methane Ice", "#D8C8C0", "#F4ECE8", 0.2, 1.0, "wood", "ice", None),
+    ("tholin_crust", "冥王星托林红壳", "Plutonian Tholin Crust", "#6A3020", "#A05030", 0.25, 0.8, "none", "soil", ("tholin", 1, 2)),
+    ("water_ice_bedrock", "水冰基岩", "Water Ice Bedrock", "#B0B0B8", "#D8D8E0", 0.15, 2.5, "wood", "ice", None),
+    ("charon_regolith", "卡戎冰质表土", "Charon Icy Regolith", "#8A8682", "#A8A4A0", 0.15, 0.6, "none", "regolith", None),
+    ("eris_frost", "阋神星甲烷霜", "Eridian Methane Frost", "#F4F4F4", "#FFFFFF", 0.1, 0.6, "none", "frost", None),
+    ("ammonia_cloud", "氨冰云", "Ammonia Ice Cloud", "#E8DCC0", "#FFF8E8", 0.2, 0.2, "none", "frost", "none"),
+    ("nh4sh_cloud", "硫氢化铵云", "Ammonium Hydrosulfide Cloud", "#A86040", "#D08868", 0.2, 0.2, "none", "frost", "none"),
+    ("methane_cloud", "甲烷冰云", "Methane Ice Cloud", "#90C8E0", "#C8ECF8", 0.2, 0.2, "none", "frost", "none"),
+    ("liquid_methane", "液态甲烷", "Liquid Methane", "#1A1410", "#3A2A20", 0.2, 100.0, "none", "sand", "none"),
+    ("aerostat_deck", "浮空平台甲板", "Aerostat Deck", "#8A8E96", "#5A5E66", 0.0, 4.0, "stone", "bricks", None),
+]
+
+WORLD_ITEMS = [
+    ("volatile_sulfide", "挥发性硫化物", "Volatile Sulfides", "dust", "#A8B8D0"),
+    ("bismuth_sulfide", "辉铋矿精矿", "Bismuthinite Concentrate", "raw", "#9898A0", "#E0E0F0"),
+    ("bismuth_ingot", "铋锭", "Bismuth Ingot", "ingot", "#D0B8D8"),
+    ("carbonaceous_chondrite", "碳质球粒陨石", "Carbonaceous Chondrite", "raw", "#3A3430", "#7A6A60"),
+    ("sodium_carbonate", "碳酸钠", "Sodium Carbonate", "dust", "#F0F0EC"),
+    ("europan_salt", "木卫二海盐", "Europan Sea Salt", "dust", "#C08860"),
+    ("plume_crystal", "羽流冰晶", "Plume Ice Crystal", "gem", "#C0E0FF"),
+    ("tholin", "托林", "Tholin", "dust", "#A05028"),
+    ("solid_nitrogen", "氮冰块", "Solid Nitrogen", "gem", "#F0ECE8"),
+]
+
+# Dimensions for every landable body: id, sky, fog, ambient, night light, sunset colour or None
+BODY_DIMS = [
+    ("mercury", "#000000", "#000000", 0.0, 0.08, None),
+    ("venus", "#C8A060", "#B88A48", 0.15, 0.45, "#d09040ff"),
+    ("phobos", "#000000", "#000000", 0.0, 0.25, None),
+    ("deimos", "#000000", "#000000", 0.0, 0.25, None),
+    ("ceres", "#000000", "#000000", 0.0, 0.06, None),
+    ("vesta", "#000000", "#000000", 0.0, 0.06, None),
+    ("jupiter", "#C8A880", "#B89870", 0.1, 0.25, "#e0a070ff"),
+    ("io", "#000000", "#000000", 0.0, 0.3, None),
+    ("europa", "#000000", "#000000", 0.0, 0.25, None),
+    ("ganymede", "#000000", "#000000", 0.0, 0.2, None),
+    ("callisto", "#000000", "#000000", 0.0, 0.15, None),
+    ("saturn", "#E0CFA0", "#D0BC88", 0.1, 0.25, "#e8c890ff"),
+    ("enceladus", "#000000", "#000000", 0.0, 0.3, None),
+    ("titan", "#B07830", "#9A6828", 0.1, 0.3, "#c08040ff"),
+    ("uranus", "#A0D8E0", "#88C8D8", 0.1, 0.2, None),
+    ("miranda", "#000000", "#000000", 0.0, 0.15, None),
+    ("neptune", "#4870E0", "#3858C8", 0.1, 0.2, None),
+    ("triton", "#000000", "#000000", 0.0, 0.25, None),
+    ("pluto", "#101418", "#0A0C10", 0.0, 0.1, None),
+    ("charon", "#000000", "#000000", 0.0, 0.2, None),
+    ("eris", "#000000", "#000000", 0.0, 0.05, None),
+]
+
+for row in WORLD_ITEMS:
+    item("planets", row[0], row[1], row[2], *row[3:])
+
+SOLAR_DAY_HOURS = {"mercury": 4222.6, "venus": 2802.0, "phobos": 7.65, "deimos": 30.3, "ceres": 9.074, "vesta": 5.342, "jupiter": 9.925,
+                   "io": 42.46, "europa": 85.2, "ganymede": 171.7, "callisto": 400.5, "saturn": 10.656, "enceladus": 32.9, "titan": 382.7,
+                   "uranus": 17.24, "miranda": 33.9, "neptune": 16.11, "triton": 141.0, "pluto": 153.3, "charon": 153.3, "eris": 379.0}

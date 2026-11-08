@@ -99,6 +99,78 @@ public class HelioClientTest implements FabricClientGameTest {
                 look(ctx, 0, 25);
                 ctx.waitTicks(20);
             });
+            step(ctx, "06a_venus", () -> {
+                cmd(sp, "execute as @p run heliosphere goto venus 65.2 3.3");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 0, 10);
+            });
+            step(ctx, "06b_io", () -> {
+                cmd(sp, "execute as @p run heliosphere goto io 15 51");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 90, 15);
+            });
+            step(ctx, "06c_europa", () -> {
+                cmd(sp, "execute as @p run heliosphere goto europa 9.7 -86.6");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 0, 20);
+            });
+            step(ctx, "06d_titan", () -> {
+                cmd(sp, "execute as @p run heliosphere goto titan 62 -50");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 180, 15);
+            });
+            step(ctx, "06e_jupiter", () -> {
+                cmd(sp, "execute as @p run heliosphere goto jupiter 0 0");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 0, -5);
+            });
+            step(ctx, "06f_saturn", () -> {
+                cmd(sp, "execute as @p run heliosphere goto saturn 0 0");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 90, -25);
+            });
+            step(ctx, "06g_pluto", () -> {
+                cmd(sp, "execute as @p run heliosphere goto pluto 25 175");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 0, 10);
+            });
+            step(ctx, "06h_miranda", () -> {
+                cmd(sp, "execute as @p run heliosphere goto miranda -18 -12");
+                ctx.waitTicks(40);
+                sp.getClientWorld().waitForChunksRender();
+                cmd(sp, "execute as @p at @s run tp @s ~ ~12 ~");
+                ctx.waitTicks(20);
+                sp.getClientWorld().waitForChunksRender();
+                look(ctx, 90, 0);
+            });
             step(ctx, "07_back_on_earth_rocket", () -> {
                 cmd(sp, "time set 1000");
                 sp.getServer().runOnServer(s -> {

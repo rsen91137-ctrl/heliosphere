@@ -27,6 +27,10 @@ public final class Planets {
         link(Level.OVERWORLD, SolarSystem.EARTH);
         link(MOON, SolarSystem.MOON);
         link(MARS, SolarSystem.MARS);
+        for (CelestialBody b : SolarSystem.all()) {
+            if (b.kind == CelestialBody.Kind.STAR || BY_BODY.containsKey(b.id)) continue;
+            link(dim(b.id), b);
+        }
     }
 
     private Planets() {}
@@ -45,7 +49,7 @@ public final class Planets {
     public static boolean isSpace(Level level) { return level.dimension() == SPACE; }
 
     public static boolean isHeliosphereDimension(Level level) {
-        return level.dimension() == MOON || level.dimension() == MARS || level.dimension() == SPACE;
+        return level.dimension() == SPACE || (level.dimension() != Level.OVERWORLD && BY_DIM.containsKey(level.dimension()));
     }
 
     /** Surface geometry if this level wraps around a sphere, else null. */
@@ -55,6 +59,8 @@ public final class Planets {
         if (b == SolarSystem.EARTH && !earthIsSphere.test(level)) return null;
         return PlanetGeometry.of(b);
     }
+
+    public static boolean isGasGiant(Level level) { CelestialBody b = bodyOf(level); return b != null && b.gasGiant; }
 
     public static Iterable<CelestialBody> landable() { return () -> BY_DIM.values().iterator(); }
 }

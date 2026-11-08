@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:pluto",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "pluto",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:pluto_surface"
+    }
+  }
+}

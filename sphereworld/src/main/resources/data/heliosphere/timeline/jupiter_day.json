@@ -1,0 +1,173 @@
+{
+  "period_ticks": 9925,
+  "tracks": {
+    "minecraft:visual/sun_angle": {
+      "keyframes": [
+        {
+          "ticks": 2481,
+          "value": 360.0
+        },
+        {
+          "ticks": 2481,
+          "value": 0.0
+        }
+      ]
+    },
+    "minecraft:visual/star_angle": {
+      "keyframes": [
+        {
+          "ticks": 2481,
+          "value": 360.0
+        },
+        {
+          "ticks": 2481,
+          "value": 0.0
+        }
+      ]
+    },
+    "minecraft:visual/moon_angle": {
+      "keyframes": [
+        {
+          "ticks": 2481,
+          "value": 540.0
+        },
+        {
+          "ticks": 2481,
+          "value": 180.0
+        }
+      ]
+    },
+    "minecraft:gameplay/sky_light_level": {
+      "keyframes": [
+        {
+          "ticks": 124,
+          "value": 1.0
+        },
+        {
+          "ticks": 4838,
+          "value": 1.0
+        },
+        {
+          "ticks": 5376,
+          "value": 0.25
+        },
+        {
+          "ticks": 9511,
+          "value": 0.25
+        }
+      ],
+      "modifier": "multiply"
+    },
+    "minecraft:visual/sky_light_factor": {
+      "keyframes": [
+        {
+          "ticks": 124,
+          "value": 1.0
+        },
+        {
+          "ticks": 4838,
+          "value": 1.0
+        },
+        {
+          "ticks": 5376,
+          "value": 0.25
+        },
+        {
+          "ticks": 9511,
+          "value": 0.25
+        }
+      ],
+      "modifier": "multiply"
+    },
+    "minecraft:visual/star_brightness": {
+      "keyframes": [
+        {
+          "ticks": 124,
+          "value": 0.0
+        },
+        {
+          "ticks": 4838,
+          "value": 0.0
+        },
+        {
+          "ticks": 5376,
+          "value": 0.6
+        },
+        {
+          "ticks": 9511,
+          "value": 0.6
+        }
+      ]
+    },
+    "minecraft:visual/sunrise_sunset_color": {
+      "keyframes": [
+        {
+          "ticks": 0,
+          "value": "#e0a070ff"
+        },
+        {
+          "ticks": 289,
+          "value": "#00000000"
+        },
+        {
+          "ticks": 4673,
+          "value": "#00000000"
+        },
+        {
+          "ticks": 4962,
+          "value": "#e0a070ff"
+        },
+        {
+          "ticks": 5293,
+          "value": "#00000000"
+        },
+        {
+          "ticks": 9594,
+          "value": "#00000000"
+        }
+      ]
+    },
+    "minecraft:visual/sky_color": {
+      "keyframes": [
+        {
+          "ticks": 124,
+          "value": "#ffffff"
+        },
+        {
+          "ticks": 4838,
+          "value": "#ffffff"
+        },
+        {
+          "ticks": 5376,
+          "value": "#000000"
+        },
+        {
+          "ticks": 9511,
+          "value": "#000000"
+        }
+      ],
+      "modifier": "multiply"
+    },
+    "minecraft:visual/fog_color": {
+      "keyframes": [
+        {
+          "ticks": 124,
+          "value": "#ffffff"
+        },
+        {
+          "ticks": 4838,
+          "value": "#ffffff"
+        },
+        {
+          "ticks": 5376,
+          "value": "#0f0f16"
+        },
+        {
+          "ticks": 9511,
+          "value": "#0f0f16"
+        }
+      ],
+      "modifier": "multiply"
+    }
+  }
+}

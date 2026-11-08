@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "heliosphere:block/carbonaceous_rock"
+  }
+}
