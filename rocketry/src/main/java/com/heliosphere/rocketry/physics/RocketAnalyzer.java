@@ -142,6 +142,12 @@ public final class RocketAnalyzer {
             s.deltaV = (s.propellantUsable > 0 && isp > 0) ? isp * OrbitMath.G0 * Math.log(m0 / m1) : 0;
             r.totalDeltaV += s.deltaV;
         }
+        // light sails: propellantless thrust from sunlight, worth a fixed budget on interplanetary legs
+        if (from != to) {
+            int sails = 0;
+            for (Placed p : parts) if (p.spec() == PartSpec.LIGHT_SAIL) sails++;
+            if (sails > 0) r.totalDeltaV += 1800 * Math.min(3, sails);
+        }
 
         // ---------------------------------------------------------- checks, in launch order
         double g = from.surfaceGravity * OrbitMath.G0;
@@ -267,8 +273,9 @@ public final class RocketAnalyzer {
 
         double liquidUsable = 0;
         if (!engines.isEmpty()) {
-            double burnableFuel = Math.min(fuelMass, oxMass / of);
-            liquidUsable = burnableFuel * (1 + of);
+            boolean mono = ox == null || ox == Propellant.NONE || of <= 0;   // plasma thrusters: single propellant
+            double burnableFuel = mono ? fuelMass : Math.min(fuelMass, oxMass / of);
+            liquidUsable = mono ? fuelMass : burnableFuel * (1 + of);
             double leftover = fuelMass + oxMass - liquidUsable;
             if (leftover > Math.max(0.05, liquidUsable * 0.06)) r.warn(String.format("第 %d 级推进剂配比偏离 O/F=%.1f：%.1f 吨无法燃烧", s.index, of, leftover));
         }

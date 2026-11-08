@@ -54,7 +54,8 @@ public final class Rocketry implements ModInitializer {
                 {"srb_segment", "tank"}, {"srb_nozzle", "engine"}, {"tank_rp1", "tank"}, {"tank_lox", "tank"}, {"tank_lh2", "tank"}, {"tank_ch4", "tank"},
                 {"decoupler", "band"}, {"rocket_frame", "truss"}, {"avionics_t1", "box"}, {"avionics_t2", "box"}, {"crew_capsule", "capsule"},
                 {"heat_shield", "slab"}, {"heat_shield_t2", "slab"}, {"parachute_pack", "box"}, {"landing_leg", "leg"}, {"nose_cone", "cone"},
-                {"rocket_fin", "fin"}, {"escape_tower", "tower"}, {"rocket_battery", "box"}, {"life_support", "box"}};
+                {"rocket_fin", "fin"}, {"escape_tower", "tower"}, {"rocket_battery", "box"}, {"life_support", "box"},
+                {"plasma_thruster", "engine_vac"}, {"tank_argon", "tank"}, {"light_sail", "truss"}};
         for (String[] r : m) MODELS.put(r[0], r[1]);
     }
 
@@ -110,6 +111,11 @@ public final class Rocketry implements ModInitializer {
     private static void recipes() {
         MachineType asm = MachineType.get("assembly_station");
         MachineType stand = MachineType.get("engine_test_stand");
+        // tier 3: Venus bismuth, Mercury graphene, Martian argon
+        asm.recipe(r().in(I("bismuth_ingot"), 2).in(I("ndfeb_magnet"), 4).in(I("graphene_sheet"), 2).in(I("processor")).in(I("inconel_plate"), 2)
+                .in(I("canister_argon")).out(I("plasma_thruster")).time(1200).power(300).precise());
+        asm.recipe(r().in(I("ti64_plate"), 4).in(I("valve")).in(I("copv")).out(I("tank_argon"), 2).time(300).power(80));
+        asm.recipe(r().in(I("graphene_sheet"), 8).in(I("carbon_fiber"), 4).in(I("silver_ingot"), 2).in(I("nylon"), 4).out(I("light_sail")).time(1200).power(200));
         // starter versions for the Moon rocket: steel instead of aerospace alloys, listed first
         asm.recipe(r().in(I("turbopump")).in(I("combustion_chamber")).in(I("injector")).in(I("valve"), 2).in(I("igniter")).in(I("nozzle_bell"))
                 .out(I("engine_kerolox")).time(400).power(100));

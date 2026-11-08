@@ -58,6 +58,7 @@ public class RocketPartBlock extends BaseEntityBlock {
             case LOX -> "canister_lox";
             case LH2 -> "canister_lh2";
             case CH4 -> "canister_ch4";
+            case ARGON -> "canister_argon";
             default -> null;
         };
     }

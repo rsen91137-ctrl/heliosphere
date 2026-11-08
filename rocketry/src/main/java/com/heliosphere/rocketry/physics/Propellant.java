@@ -7,7 +7,8 @@ public enum Propellant {
     LOX("液氧", 1.14),
     LH2("液氢", 0.071),
     CH4("液甲烷", 0.42),
-    APCP("高氯酸铵复合固体推进剂", 1.75);
+    APCP("高氯酸铵复合固体推进剂", 1.75),
+    ARGON("氩工质（等离子推进）", 1.40);
 
     public final String nameZh;
     public final double density;

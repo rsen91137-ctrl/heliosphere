@@ -211,6 +211,9 @@ MACHINES = [
 # ---------------------------------------------------------------------------------------- rocket parts
 # id, zh, en, model kind, colour, accent
 PARTS = [
+    ("plasma_thruster", "霍尔效应等离子推进器", "Hall-Effect Plasma Thruster", "engine_vac", "#504070", "#C080FF"),
+    ("tank_argon", "氩工质贮箱", "Argon Propellant Tank", "tank", "#8890A8", "#C080FF"),
+    ("light_sail", "石墨烯光帆", "Graphene Light Sail", "truss", "#D8DCE4", "#FFE080"),
     ("engine_kerolox", "RD-1 煤油液氧发动机", "RD-1 Kerolox Engine", "engine", "#B0A080", "#3A3A3A"),
     ("engine_hydrolox", "RL-1 氢氧真空发动机", "RL-1 Hydrolox Vacuum Engine", "engine_vac", "#C8CCD4", "#3A3A3A"),
     ("engine_methalox", "猛禽式全流量甲烷发动机", "Raptor-class Methalox Engine", "engine", "#7888B0", "#2A2A30"),

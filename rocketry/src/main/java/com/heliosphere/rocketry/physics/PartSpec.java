@@ -85,6 +85,12 @@ public final class PartSpec {
     public static final PartSpec LIFE_SUPPORT = reg(b("life_support", Category.LIFE_SUPPORT, 2, 1.2, 20).life(400));
     public static final PartSpec HEAT_SHIELD_T2 = reg(b("heat_shield_t2", Category.HEAT_SHIELD, 2, 0.55, 35).shield(16));
 
+    // Tier 3 — outer Solar System: low-thrust, very high specific impulse, and propellantless sails
+    public static final PartSpec PLASMA_THRUSTER = reg(b("plasma_thruster", Category.ENGINE, 3, 0.4, 25)
+            .engine(6, 0, 3200, Propellant.ARGON, Propellant.NONE, 0));
+    public static final PartSpec TANK_ARGON = reg(b("tank_argon", Category.TANK, 3, 0.08, 45).tank(Propellant.ARGON, Propellant.ARGON.density));
+    public static final PartSpec LIGHT_SAIL = reg(b("light_sail", Category.STRUCTURE, 3, 0.15, 10));
+
     public static final class Builder {
         final String id; final Category category; final int tier; final double dryMass, strength;
         double thrustVac, ispSea, ispVac, mixtureRatio, capacity, lifeSupportDays, shieldRatingKmS;

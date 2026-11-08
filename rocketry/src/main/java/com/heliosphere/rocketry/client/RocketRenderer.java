@@ -44,19 +44,20 @@ public class RocketRenderer extends EntityRenderer<RocketEntity, RocketRenderer.
             s.positions.add(new int[]{p.x(), p.y(), p.z()});
         }
         s.pitch = e.pitchDeg();
-        boolean capsule = false, decoupler = false, srb = false, deep = false;
+        boolean capsule = false, decoupler = false, srb = false, deep = false, huge = false;
         for (RocketStructure.Part p : e.structure().parts()) {
             String id = p.spec();
             if ("crew_capsule".equals(id)) capsule = true;
             if ("decoupler".equals(id)) decoupler = true;
             if ("srb_segment".equals(id)) srb = true;
             if (id.startsWith("engine_methalox") || "avionics_t2".equals(id) || "life_support".equals(id)) deep = true;
+            if ("plasma_thruster".equals(id) || "light_sail".equals(id)) { deep = true; huge = true; }
         }
         // Earth-Moon rockets fly as the ship alone (small); deep-space rockets get the full booster + ship stack
         if (srb || e.structure().parts().isEmpty()) s.skin = 0;
         else if (capsule) s.skin = deep && decoupler ? 1 : 2;
         else s.skin = deep ? 3 : 0;
-        s.scale = deep ? RocketSkin.SCALE : RocketSkin.SCALE * 0.8f;
+        s.scale = huge ? RocketSkin.SCALE * 1.45f : deep ? RocketSkin.SCALE : RocketSkin.SCALE * 0.8f;
     }
 
     @Override
