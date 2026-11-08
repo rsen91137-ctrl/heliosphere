@@ -49,6 +49,7 @@ jobs:
           pip install --quiet pillow numpy
           python3 tools/gen/javagen.py
           python3 tools/gen/generate.py
+          python3 tools/gen/handbook.py build/handbook
       - name: Build all modules
         run: $GRADLE --no-daemon --stacktrace build dist 2>&1 | tee build.log
       - name: Collect jars

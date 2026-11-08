@@ -12,6 +12,8 @@ echo "loader $LOADER installer $INSTALLER"
 C=/tmp/pkg/client; rm -rf /tmp/pkg; mkdir -p $C/mods $C/resourcepacks
 cp build/dist/*.jar "$FAPI" $C/mods/
 cp $OUT/Heliosphere-HD-Resources-32x.zip $C/resourcepacks/ 2>/dev/null || true
+cp build/handbook/*.md $C/ 2>/dev/null || true
+cp build/handbook/*.md $OUT/ 2>/dev/null || true
 cat > $C/安装说明.txt <<'TXT'
 Heliosphere 客户端（你和朋友每人都装）
 1. 安装 Minecraft 1.21.11 与 Fabric Loader（https://fabricmc.net/use/installer/ ，选 1.21.11）。
