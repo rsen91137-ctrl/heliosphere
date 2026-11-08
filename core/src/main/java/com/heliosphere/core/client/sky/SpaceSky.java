@@ -112,7 +112,12 @@ public final class SpaceSky {
             pose.pushPose();
             pose.mulPose(Axis.YP.rotationDegrees(-90.0F));
             pose.mulPose(Axis.XP.rotation(starAngle));
-            ((SkyRendererAccessor) vanilla).heliosphere$renderStars(stars, pose);
+            boolean twinkle = here != null && here.pressureBar > 0.001;
+            Matrix4fStack mvs = RenderSystem.getModelViewStack();
+            mvs.pushMatrix();
+            mvs.mul(pose.last().pose());
+            drawStarField(stars, twinkle);
+            mvs.popMatrix();
             pose.popPose();
         }
 
@@ -136,6 +141,89 @@ public final class SpaceSky {
         mv.mul(pose.last().pose());
         for (Draw d : draws) d.render();
         mv.popMatrix();
+    }
+
+    /** name-free catalogue: direction, size, colour by spectral class, base brightness, twinkle phase */
+    private static float[] STARS;
+
+    private static void buildStars() {
+        java.util.Random r = new java.util.Random(4246L);
+        int n = 9000;
+        STARS = new float[n * 9];
+        // spectral classes O/B, A, F, G, K, M with rough population weights and colours
+        float[][] col = {{0.62f, 0.72f, 1f}, {0.80f, 0.86f, 1f}, {0.97f, 0.97f, 1f}, {1f, 0.95f, 0.86f}, {1f, 0.80f, 0.60f}, {1f, 0.66f, 0.50f}};
+        double[] w = {0.04, 0.10, 0.18, 0.24, 0.26, 0.18};
+        for (int i = 0; i < n; i++) {
+            double x, y, z;
+            // a third of the stars crowd the galactic plane (the Milky Way band)
+            if (i % 3 == 0) {
+                double lon = r.nextDouble() * Math.PI * 2, lat = r.nextGaussian() * 0.12;
+                x = Math.cos(lat) * Math.cos(lon); y = Math.sin(lat); z = Math.cos(lat) * Math.sin(lon);
+                double tilt = 1.05;   // galactic plane inclined to the sky frame
+                double y2 = y * Math.cos(tilt) - z * Math.sin(tilt), z2 = y * Math.sin(tilt) + z * Math.cos(tilt);
+                y = y2; z = z2;
+            } else {
+                x = r.nextGaussian(); y = r.nextGaussian(); z = r.nextGaussian();
+                double l = Math.sqrt(x * x + y * y + z * z); x /= l; y /= l; z /= l;
+            }
+            double u = r.nextDouble(), acc = 0; int k = 0;
+            for (; k < w.length - 1; k++) { acc += w[k]; if (u < acc) break; }
+            float mag = (float) Math.pow(r.nextDouble(), 4.5);           // few bright, many faint
+            int o = i * 9;
+            STARS[o] = (float) x; STARS[o + 1] = (float) y; STARS[o + 2] = (float) z;
+            STARS[o + 3] = 0.12f + mag * 0.75f;
+            STARS[o + 4] = col[k][0]; STARS[o + 5] = col[k][1]; STARS[o + 6] = col[k][2];
+            STARS[o + 7] = 0.25f + mag * 0.75f;
+            STARS[o + 8] = (float) (r.nextDouble() * Math.PI * 2);
+        }
+    }
+
+    private static void drawStarField(float vis, boolean twinkle) {
+        if (STARS == null) buildStars();
+        double t = (System.nanoTime() / 1e9);
+        BufferBuilder bb = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX_COLOR);
+        Vector3f d = new Vector3f(), u = new Vector3f(), v = new Vector3f(), c = new Vector3f();
+        int n = STARS.length / 9;
+        for (int i = 0; i < n; i++) {
+            int o = i * 9;
+            float br = STARS[o + 7] * vis;
+            if (twinkle) br *= 0.55f + 0.45f * (float) Math.sin(t * (2.5 + (i % 7)) + STARS[o + 8]) * (float) Math.sin(t * 1.3 + STARS[o + 8] * 2);
+            else br *= 0.92f + 0.08f * (float) Math.sin(t * 0.4 + STARS[o + 8]);
+            if (br < 0.03f) continue;
+            d.set(STARS[o], STARS[o + 1], STARS[o + 2]);
+            if (Math.abs(d.y) < 0.95f) u.set(0, 1, 0).cross(d).normalize(); else u.set(1, 0, 0).cross(d).normalize();
+            v.set(d).cross(u).normalize();
+            float size = STARS[o + 3] * 0.55f;
+            c.set(d).mul((float) DIST);
+            int R = (int) (STARS[o + 4] * 255), G = (int) (STARS[o + 5] * 255), B = (int) (STARS[o + 6] * 255), A = (int) (Math.min(1, br) * 255);
+            float ux = u.x * size, uy = u.y * size, uz = u.z * size, vx = v.x * size, vy = v.y * size, vz = v.z * size;
+            bb.addVertex(c.x - ux - vx, c.y - uy - vy, c.z - uz - vz).setUv(0, 0).setColor(R, G, B, A);
+            bb.addVertex(c.x + ux - vx, c.y + uy - vy, c.z + uz - vz).setUv(1, 0).setColor(R, G, B, A);
+            bb.addVertex(c.x + ux + vx, c.y + uy + vy, c.z + uz + vz).setUv(1, 1).setColor(R, G, B, A);
+            bb.addVertex(c.x - ux - vx, c.y - uy - vy, c.z - uz - vz).setUv(0, 0).setColor(R, G, B, A);
+            bb.addVertex(c.x + ux + vx, c.y + uy + vy, c.z + uz + vz).setUv(1, 1).setColor(R, G, B, A);
+            bb.addVertex(c.x - ux + vx, c.y - uy + vy, c.z - uz + vz).setUv(0, 1).setColor(R, G, B, A);
+        }
+        // an occasional meteor streak on worlds with air
+        if (twinkle) {
+            long slot = (long) (t / 7.0);
+            java.util.Random mr = new java.util.Random(slot * 7919);
+            double ph = (t / 7.0) - slot;
+            if (mr.nextFloat() < 0.6f && ph < 0.12) {
+                float a0 = (float) (mr.nextDouble() * Math.PI * 2), e0 = 0.3f + mr.nextFloat() * 0.6f;
+                d.set((float) (Math.cos(e0) * Math.cos(a0)), (float) Math.sin(e0), (float) (Math.cos(e0) * Math.sin(a0)));
+                u.set(-d.z, 0.4f, d.x).normalize();
+                float len = (float) (ph / 0.12) * 14f;
+                c.set(d).mul((float) DIST);
+                Vector3f e = new Vector3f(c).add(new Vector3f(u).mul(len));
+                v.set(d).cross(u).normalize().mul(0.12f);
+                int A = (int) (255 * (1 - ph / 0.12) * vis);
+                bb.addVertex(c.x - v.x, c.y - v.y, c.z - v.z).setUv(0.5f, 0.5f).setColor(255, 250, 230, A);
+                bb.addVertex(c.x + v.x, c.y + v.y, c.z + v.z).setUv(0.5f, 0.5f).setColor(255, 250, 230, A);
+                bb.addVertex(e.x, e.y, e.z).setUv(0.5f, 0.5f).setColor(255, 200, 150, 0);
+            }
+        }
+        draw(bb, glowTexture(), GLOW);
     }
 
     private static Vector3f lockedParentDir(ClientLevel level, CelestialBody here, Player player) {
