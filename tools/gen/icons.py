@@ -491,3 +491,43 @@ def wrench(n, color='#C8CCD4', accent='#FFB040', seed=0):
     c.ellipse(0.68, 0.32, 0.06, 0.06, '#2A2E36', 0.6)
     c.outline()
     return c.image()
+
+
+
+def gun(n, body='#3A3A40', accent='#60C0FF', kind='rifle', seed=0):
+    """Side-view firearm icon, muzzle to the upper right."""
+    c = Canvas(n)
+    long = kind in ('sniper', 'rail', 'rifle')
+    bx1 = 0.97 if long else 0.88
+    if kind in ('launcher', 'heavy'):
+        c.rect(0.14, 0.36, 0.94, 0.56, body, 1.0)
+        c.rect(0.14, 0.36, 0.94, 0.40, body, 1.3)
+        c.rect(0.86, 0.33, 0.97, 0.59, accent, 1.0)
+        c.poly([(0.40, 0.56), (0.48, 0.56), (0.44, 0.76), (0.36, 0.76)], '#2A2A30', 1.0)
+        c.poly([(0.62, 0.56), (0.70, 0.56), (0.68, 0.70), (0.60, 0.70)], '#2A2A30', 0.9)
+    else:
+        if kind not in ('smg',):
+            c.poly([(0.03, 0.50), (0.26, 0.45), (0.26, 0.58), (0.05, 0.66)], body if kind in ('rifle', 'shotgun') else '#2A2A30', 1.0)
+        c.rect(0.24, 0.42, 0.62, 0.57, body, 1.05)
+        c.rect(0.24, 0.42, 0.62, 0.45, body, 1.35)
+        c.rect(0.60, 0.46, bx1, 0.51, '#2A2E36', 1.0)
+        c.poly([(0.36, 0.56), (0.44, 0.56), (0.40, 0.76), (0.32, 0.76)], '#2A2A30', 1.0)
+        if kind in ('smg', 'auto'):
+            c.rect(0.48, 0.56, 0.56, 0.74, '#2A2A30', 0.9)
+        if kind == 'shotgun':
+            c.rect(0.60, 0.51, 0.86, 0.56, '#4A3A2A', 1.0)
+            c.rect(0.66, 0.51, 0.78, 0.58, accent, 0.9)
+        if kind == 'sniper':
+            c.rect(0.34, 0.33, 0.58, 0.40, '#1A1A20', 1.0)
+            c.rect(0.55, 0.32, 0.60, 0.41, accent, 1.0)
+            c.rect(0.80, 0.51, 0.82, 0.64, '#2A2A30', 0.9)
+        if kind in ('coil', 'rail'):
+            for k in range(4):
+                x = 0.64 + k * 0.07
+                c.rect(x, 0.43, x + 0.03, 0.54, accent, 1.1)
+        if kind == 'energy':
+            c.rect(0.62, 0.44, 0.84, 0.53, body, 1.0)
+            c.rect(0.84, 0.45, 0.92, 0.52, accent, 1.25)
+            c.rect(0.30, 0.47, 0.56, 0.50, accent, 1.1)
+    c.outline()
+    return c.image()

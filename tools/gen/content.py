@@ -205,6 +205,7 @@ MACHINES = [
     ("planets", "suit_fabricator", "宇航服制造台", "Spacesuit Fabricator", "#5A6070", "#F0F0F0", "arm"),
     ("planets", "storm_shield_generator", "风暴护盾发生器", "Storm Shield Generator", "#3A4A6A", "#80C0FF", "wave"),
     ("planets", "deep_space_radio_array", "深空射电阵", "Deep Space Radio Array", "#3A3E48", "#FF6080", "wave"),
+    ("planets", "planet_core_drill", "行星核心钻机", "Planetary Core Drill", "#4A4038", "#FFB040", "gear"),
 ]
 
 # ---------------------------------------------------------------------------------------- rocket parts
@@ -372,3 +373,44 @@ FOODS = [
     ("lunar_ice_water", "月冰纯净水袋", "Lunar Ice Water Pouch", ("canister", "#A0C0E0", None, None, "#E0F0FF"), 2, 0.3, ["heliosphere:lunar_ice_chunk", "heliosphere:empty_canister"], 1),
     ("plume_soda", "土卫二羽流汽水", "Enceladus Plume Soda", ("canister", "#80C0F0", None, None, "#FFFFFF"), 3, 0.5, ["heliosphere:plume_crystal", "minecraft:sugar", "heliosphere:empty_canister"], 1),
 ]
+
+WEAPON_ITEMS = [
+    ("nitric_acid", "硝酸", "Nitric Acid", "canister", "#C8C0A0", None, None, "#F0E080"),
+    ("smokeless_powder", "无烟火药", "Smokeless Powder", "dust", "#5A5A50"),
+    ("rdx", "RDX 高爆炸药", "RDX High Explosive", "dust", "#E8E4D8", "#C0B090"),
+    ("brass_ingot", "黄铜锭", "Brass Ingot", "ingot", "#D0A040"),
+    ("rifle_round", "步枪弹", "Rifle Rounds", "cyl", "#D0A040", "#8A6A30"),
+    ("shotgun_shell", "霰弹", "Shotgun Shells", "cyl", "#C03030", "#D0A040"),
+    ("grenade_40mm", "40 毫米榴弹", "40mm Grenade", "cyl", "#5A6A40", "#D0A040"),
+    ("steel_slug", "线圈枪钢弹", "Coilgun Slugs", "cyl", "#A0A8B0", "#606870"),
+    ("tungsten_slug", "钨芯穿甲弹", "Tungsten Penetrators", "cyl", "#505860", "#C0C8D0"),
+    ("power_cell", "能量电池", "Power Cell", "chip", "#304050", "#40E0FF"),
+    ("plasma_cell", "等离子工质罐", "Plasma Cell", "canister", "#403060", None, None, "#C080FF"),
+    ("nuke_warhead", "战术核弹头", "Tactical Nuclear Warhead", "cyl", "#3A4030", "#F0D020"),
+    ("antimatter_cell", "反物质电池", "Antimatter Cell", "chip", "#200030", "#FF40E0"),
+]
+for row in WEAPON_ITEMS:
+    item("planets", row[0], row[1], row[2], *row[3:])
+
+# Guns: id, zh, en, icon kind, body colour, accent
+GUNS = [
+    ("bolt_rifle", "栓动步枪", "Bolt-Action Rifle", "rifle", "#5A4030", "#3A3A40"),
+    ("shotgun", "泵动霰弹枪", "Pump Shotgun", "shotgun", "#4A3A2A", "#2A2A30"),
+    ("smg", "冲锋枪", "Submachine Gun", "smg", "#2A2A30", "#505860"),
+    ("assault_rifle", "突击步枪", "Assault Rifle", "auto", "#3A4030", "#2A2A30"),
+    ("sniper_rifle", "反器材狙击枪", "Anti-Materiel Rifle", "sniper", "#3A3A40", "#60C0FF"),
+    ("grenade_launcher", "榴弹发射器", "Grenade Launcher", "launcher", "#4A5A3A", "#D0A040"),
+    ("coilgun", "线圈枪", "Coilgun", "coil", "#505860", "#D08040"),
+    ("railgun", "电磁轨道炮", "Railgun", "rail", "#3A4050", "#40E0FF"),
+    ("laser_rifle", "激光步枪", "Laser Rifle", "energy", "#E0E4EA", "#FF4040"),
+    ("plasma_cannon", "等离子炮", "Plasma Cannon", "heavy", "#4A3A60", "#C080FF"),
+    ("nuke_launcher", "战术核弹发射器", "Tactical Nuke Launcher", "launcher", "#3A4030", "#F0D020"),
+    ("antimatter_rifle", "反物质步枪", "Antimatter Rifle", "energy", "#202030", "#FF40E0"),
+    ("singularity_cannon", "奇点炮", "Singularity Cannon", "heavy", "#101018", "#8040FF"),
+]
+
+PLANET_CORES = [("mercury", "水星", "#8C8680"), ("venus", "金星", "#E6CFA0"), ("earth", "地球", "#3A6EA5"), ("mars", "火星", "#C1440E"),
+                ("jupiter", "木星", "#C99B6A"), ("saturn", "土星", "#E3CF9A"), ("uranus", "天王星", "#9FD7E0"), ("neptune", "海王星", "#3E66F0")]
+for pid, pzh, pc in PLANET_CORES:
+    item("planets", f"{pid}_core", f"{pzh}核心样本", f"{pid.title()} Core Sample", "gem", pc, "#FFFFFF")
+item("planets", "zero_point_cell", "零点能量核", "Zero-Point Energy Core", "chip", "#101830", "#80FFFF")

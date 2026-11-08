@@ -56,6 +56,7 @@ public final class PlanetsMod implements ModInitializer {
     public static final MachineType SUIT_FABRICATOR = MachineType.processor("suit_fabricator", 6, 1);
     public static final MachineType STORM_SHIELD = MachineType.bubble("storm_shield_generator");
     public static final MachineType RADIO_ARRAY = MachineType.processor("deep_space_radio_array", 3, 1);
+    public static final MachineType CORE_DRILL = MachineType.processor("planet_core_drill", 2, 1);
 
     public static final TagKey<Item> REPAIRS_SUIT = TagKey.create(Registries.ITEM, Heliosphere.id("repairs_space_suit"));
 
@@ -147,7 +148,12 @@ public final class PlanetsMod implements ModInitializer {
             return InteractionResult.SUCCESS;
         });
 
+        Reg.tab("planets");
+        Reg.blockWithItem("stargate", Stargate.GateBlock::new, Reg.metal(MapColor.COLOR_BLUE, 50f).lightLevel(st -> 12).explosionResistance(3600f));
+        Stargate.init();
+        com.heliosphere.planets.weapon.Weapons.register();
         MachineType.addProvider(PlanetRecipes::register);
+        MachineType.addProvider(com.heliosphere.planets.weapon.Weapons::recipes);
         CreativeTabs.register("planets", () -> new ItemStack(Reg.get("space_suit_helmet")), "planets");
         Heliosphere.LOG.info("Heliosphere planets ready ({} on the Moon and Mars)", Planets.MOON.identifier());
     }

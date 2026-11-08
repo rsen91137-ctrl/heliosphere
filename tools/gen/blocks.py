@@ -471,3 +471,24 @@ def suit_layer(w, color, accent, legs=False):
         blank = reg[..., :3].sum(axis=2) == 0
         reg[blank, 3] = 0
     return Image.fromarray(img.astype(np.uint8), 'RGBA')
+
+
+
+def stargate(n):
+    """Dark alloy frame with a glowing event-horizon ring and chevrons."""
+    import numpy as np
+    img = panel(n, '#20283A', 7, rivets=True, seam=False, grime=0.08)
+    a = np.array(img).astype(float)
+    yy, xx = np.mgrid[0:n, 0:n]
+    d = np.sqrt((xx - (n - 1) / 2) ** 2 + (yy - (n - 1) / 2) ** 2) / (n / 2)
+    ring = np.exp(-((d - 0.68) / 0.07) ** 2)
+    inner = np.clip(1 - d / 0.55, 0, 1) ** 1.5
+    a[..., 0] += ring * 40 + inner * 30
+    a[..., 1] += ring * 160 + inner * 120
+    a[..., 2] += ring * 230 + inner * 200
+    for k in range(8):
+        ang = k * np.pi / 4
+        cx, cy = int((n - 1) / 2 + np.cos(ang) * n * 0.42), int((n - 1) / 2 + np.sin(ang) * n * 0.42)
+        a[max(0, cy - 1):cy + 1, max(0, cx - 1):cx + 1, :3] = [255, 170, 60]
+    from PIL import Image
+    return Image.fromarray(np.clip(a, 0, 255).astype('uint8'), 'RGBA' if a.shape[2] == 4 else 'RGB')

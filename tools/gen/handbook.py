@@ -277,6 +277,13 @@ tagcat(C.MACHINES, '机器', 1); tagcat(C.PARTS, '火箭部件'); tagcat(C.OTHER
 for a in C.ARMOR:
     for pc in ('helmet', 'chestplate', 'leggings', 'boots'):
         CAT[f'{a[1]}_{pc}'] = '宇航服'
+for r in C.WEAPON_ITEMS:
+    CAT[r[0]] = '武器与弹药'
+for r in C.GUNS:
+    CAT[r[0]] = '武器与弹药'
+for pid, _, _ in C.PLANET_CORES:
+    CAT[f'{pid}_core'] = '星门与行星核心'
+CAT['zero_point_cell'] = '星门与行星核心'; CAT['stargate'] = '星门与行星核心'; CAT['planet_core_drill'] = '星门与行星核心'
 for r in C.TERRAIN:
     CAT[r[0]] = '天体方块'
 for r in C.WORLD_TERRAIN:

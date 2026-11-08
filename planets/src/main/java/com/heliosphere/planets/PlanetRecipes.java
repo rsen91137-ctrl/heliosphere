@@ -101,6 +101,15 @@ public final class PlanetRecipes {
         asm.recipe(r().in(I("deep_space_computer")).in(I("canister_ln2"), 2).in(I("tholin"), 4).in(I("plume_crystal"), 2).in(I("plastic"), 4)
                 .in(I("canister_oxygen"), 4).in(I("processor"), 2).out(I("hibernation_pod_core")).time(1600).power(250));
 
+        // ---------------------------------------------------------------- stargate tier: planetary core samples
+        for (String pl : new String[]{"mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"}) {
+            CORE_DRILL.recipe(r().in(I("tungsten_ingot"), 2).in(I("battery_cell")).out(I(pl + "_core")).time(2400).power(300)
+                    .when((l, p) -> { com.heliosphere.core.celestial.CelestialBody b = Planets.bodyOf(l); return b != null && b.id.equals(pl) ? null : "condition.heliosphere.wrong_planet"; }));
+        }
+        asm.recipe(r().in(I("mercury_core")).in(I("venus_core")).in(I("earth_core")).in(I("mars_core")).in(I("jupiter_core")).in(I("saturn_core"))
+                .in(I("uranus_core")).in(I("neptune_core")).in(I("antimatter_trap")).out(I("stargate")).time(4800).power(600));
+        asm.recipe(r().in(I("jupiter_core")).in(I("neptune_core")).in(I("antimatter_cell")).in(I("power_cell"), 2).out(I("zero_point_cell"), 4).time(1200).power(400));
+
         // hot worlds: Mercury day side, Venus — silica/PICA insulation over an Inconel pressure layer
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_helmet")).in(I("lunar_ceramic"), 2).in(I("silver_ingot"), 2).in(I("silicon_nitride")).out(I("thermal_suit_helmet")).time(500).power(120));
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_chestplate")).in(I("pica"), 3).in(I("inconel_plate"), 2).in(I("canister_ammonia"), 2).in(I("heat_shield_tile")).out(I("thermal_suit_chestplate")).time(700).power(160));

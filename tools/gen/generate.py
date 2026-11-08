@@ -521,6 +521,17 @@ def part_models(m, pid, kind, color, accent):
 
 
 def gen_rocketry():
+    for (gid, zh, en, kind, body, acc) in C.GUNS:
+        simple_item('planets', gid, lambda n, k=kind, b=body, a=acc: icons.gun(n, b, a, k))
+        lang('planets', f'item.heliosphere.{gid}', zh, en)
+    cube_block('planets', 'stargate', lambda n: B.stargate(n))
+    lang('planets', 'block.heliosphere.stargate', '星际之门', 'Stargate')
+    lang('planets', 'message.heliosphere.gate_need', '§c星门需要 1 个零点能量核', '§cThe gate needs a zero-point core')
+    lang('planets', 'message.heliosphere.gate_far', '§c离星际之门太远', '§cToo far from the stargate')
+    lang('planets', 'condition.heliosphere.wrong_planet', '只能在对应的行星上钻取', 'Must drill on the matching planet')
+    loot_self('planets', 'stargate')
+    lang('planets', 'itemGroup.heliosphere.weapons', '日球层 · 武器', 'Heliosphere · Weapons')
+    lang('planets', 'message.heliosphere.no_ammo', '§c没有弹药：%s', '§cOut of ammo: %s')
     # starter crafting-table recipes: no machine needed for plates, wire and the basic space suit
     for rid, ings, out, cnt in [('steel_plate_hand', [h('steel_ingot'), h('steel_ingot')], 'steel_plate', 1),
                                 ('copper_plate_hand', ['minecraft:copper_ingot', 'minecraft:copper_ingot'], 'copper_plate', 1),
@@ -653,6 +664,8 @@ def gen_recipes():
         'battery_bank': (['BBB', 'SCS', 'SSS'], {'B': h('battery_cell'), 'S': h('steel_ingot'), 'C': h('circuit_board')}),
     }
     P = {
+        'planet_core_drill': (['TPT', 'TMT', 'SBS'], {'T': h('tungsten_ingot'), 'P': h('processor'), 'M': h('electric_motor'),
+                                                    'S': h('stainless_steel_plate'), 'B': h('battery_cell')}),
         'deep_space_radio_array': ([' D ', 'WPW', 'SBS'], {'D': h('lunar_ceramic'), 'W': h('copper_wire'), 'P': h('deep_space_computer'),
                                                          'S': h('stainless_steel_plate'), 'B': h('battery_cell')}),
         'star_map': (['PGP', 'GCG', 'PGP'], {'P': 'minecraft:paper', 'G': 'minecraft:glowstone_dust', 'C': h('proxima_signal')}),

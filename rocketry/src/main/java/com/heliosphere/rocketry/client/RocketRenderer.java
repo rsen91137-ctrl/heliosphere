@@ -24,6 +24,7 @@ public class RocketRenderer extends EntityRenderer<RocketEntity, RocketRenderer.
         public float pitch;
         /** 0 = draw the parts, 1 = full skin, 2 = ship only, 3 = booster only */
         public int skin;
+        public float scale = RocketSkin.SCALE;
     }
 
     public RocketRenderer(EntityRendererProvider.Context ctx) {
@@ -43,13 +44,19 @@ public class RocketRenderer extends EntityRenderer<RocketEntity, RocketRenderer.
             s.positions.add(new int[]{p.x(), p.y(), p.z()});
         }
         s.pitch = e.pitchDeg();
-        boolean capsule = false, decoupler = false, srb = false;
+        boolean capsule = false, decoupler = false, srb = false, deep = false;
         for (RocketStructure.Part p : e.structure().parts()) {
-            if ("crew_capsule".equals(p.spec())) capsule = true;
-            if ("decoupler".equals(p.spec())) decoupler = true;
-            if ("srb_segment".equals(p.spec())) srb = true;
+            String id = p.spec();
+            if ("crew_capsule".equals(id)) capsule = true;
+            if ("decoupler".equals(id)) decoupler = true;
+            if ("srb_segment".equals(id)) srb = true;
+            if (id.startsWith("engine_methalox") || "avionics_t2".equals(id) || "life_support".equals(id)) deep = true;
         }
-        s.skin = srb || e.structure().parts().isEmpty() ? 0 : capsule ? (decoupler ? 1 : 2) : (e.phase() == RocketEntity.LANDED || e.phase() == RocketEntity.DEBRIS ? 3 : 0);
+        // Earth-Moon rockets fly as the ship alone (small); deep-space rockets get the full booster + ship stack
+        if (srb || e.structure().parts().isEmpty()) s.skin = 0;
+        else if (capsule) s.skin = deep && decoupler ? 1 : 2;
+        else s.skin = deep ? 3 : 0;
+        s.scale = deep ? RocketSkin.SCALE : RocketSkin.SCALE * 0.8f;
     }
 
     @Override
@@ -65,7 +72,7 @@ public class RocketRenderer extends EntityRenderer<RocketEntity, RocketRenderer.
         if (s.pitch != 0) pose.mulPose(Axis.ZP.rotationDegrees(-s.pitch));
         if (s.skin > 0 && !RocketSkin.get().isEmpty()) {
             int split = RocketSkin.split();
-            float k = RocketSkin.SCALE;
+            float k = s.scale;
             pose.pushPose();
             pose.scale(k, k, k);
             if (s.skin == 2) pose.translate(0, -split, 0);

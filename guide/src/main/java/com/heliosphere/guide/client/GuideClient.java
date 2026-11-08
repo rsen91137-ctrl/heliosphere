@@ -14,6 +14,7 @@ public final class GuideClient implements ClientModInitializer {
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             while (key.consumeClick()) if (mc.screen == null) mc.setScreen(new EncyclopediaScreen());
         });
+        ClientPlayNetworking.registerGlobalReceiver(com.heliosphere.planets.Stargate.Open.TYPE, (p, ctx) -> ctx.client().execute(() -> ctx.client().setScreen(new StargateScreen(p.bodies()))));
         ClientPlayNetworking.registerGlobalReceiver(Guide.OpenIntro.TYPE, (p, ctx) -> ctx.client().execute(() -> ctx.client().setScreen(new IntroScreen())));
         net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register((player, level, hand) -> {
             if (!level.isClientSide()) return net.minecraft.world.InteractionResult.PASS;

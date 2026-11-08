@@ -37,7 +37,7 @@ public class EncyclopediaScreen extends Screen {
     record Hit(int x, int y, int w, int h, String id) {}
 
     private static final Map<String, Entry> DATA = new LinkedHashMap<>();
-    private static final String[] CATS = {"机器", "火箭部件", "发射设施", "零部件", "金属与合金", "化工产品", "燃料与气罐", "矿石与原料", "宇航服",
+    private static final String[] CATS = {"机器", "武器与弹药", "星门与行星核心", "火箭部件", "发射设施", "零部件", "金属与合金", "化工产品", "燃料与气罐", "矿石与原料", "宇航服",
             "太空食物", "月球与火星资源", "外太阳系资源", "星际方舟与剧情", "天体方块", "其他物品", "原版物品"};
     private static final int W = 420, H = 232, COLS = 8, ROWS = 11;
 
@@ -118,8 +118,8 @@ public class EncyclopediaScreen extends Screen {
         int by = y + 20;
         for (String c : CATS) {
             addRenderableWidget(Button.builder(Component.literal(c), b -> { cat = c; lastCat = c; search.setValue(""); gridScroll = 0; refresh(); })
-                    .bounds(x + 4, by, 88, 12).build());
-            by += 13;
+                    .bounds(x + 4, by, 88, 11).build());
+            by += 11;
         }
         refresh();
         if (selected == null && !shown.isEmpty()) selected = shown.get(0);
