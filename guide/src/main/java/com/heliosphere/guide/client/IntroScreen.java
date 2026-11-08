@@ -95,6 +95,10 @@ public class IntroScreen extends Screen {
             float sx = ((seed >>> 16) & 0xFFFF) / 65535f * width + t * 2.2f * depth;
             sx = sx % width;
             float sy = ((seed >>> 32) & 0xFF) / 255f * height;
+            // keep the overlay stars off the planets and the Sun in each plate
+            if (t < 31 && sy > height * 0.36f) continue;
+            if (t >= 31 && t < 40.5f && sx < width * 0.64f) continue;
+            if (t >= 40.5f && t < 64.5f && sx < width * 0.48f && sy > height * 0.32f) continue;
             float tw = 0.5f + 0.5f * (float) Math.sin(t * (1.5f + depth * 3) + i);
             int[] pal = {0xFF9BB0FF, 0xFFCAD7FF, 0xFFF8F7FF, 0xFFFFF4EA, 0xFFFFD2A1, 0xFFFFB48C};
             int c = pal[(int) ((seed >>> 8) & 0xFFFF) % pal.length];
