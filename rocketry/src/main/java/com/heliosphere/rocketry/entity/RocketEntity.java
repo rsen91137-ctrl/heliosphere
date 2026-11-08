@@ -250,14 +250,25 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
                 && p.level() == level() && p.distanceToSqr(this) < 64 * 64) p.startRiding(this, true, false);
     }
 
+    /** Ten-second count with titles for the crew; engines light at T-3 and throttle up before release. */
     private void countdown() {
-        entityData.set(THROTTLE, ticks > 80 ? 0.3f : 0f);
-        if (ticks % 20 == 0 && ticks <= 100) say(Component.literal("T-" + (5 - ticks / 20)));
-        if (ticks >= 100) {
+        int t = ticks;
+        entityData.set(THROTTLE, t < 140 ? 0f : Math.min(0.75f, (t - 140) / 60f * 0.75f));
+        if (t % 20 == 0 && t <= 180) title("§fT-" + (10 - t / 20), t >= 140 ? "§6主发动机点火" : t == 0 ? "§7发射程序启动 · 加注完毕 · 塔架撤离" : "");
+        if (t == 140) level().playSound(null, blockPosition(), Rocketry.IGNITION_SOUND, SoundSource.NEUTRAL, 4f, 1f);
+        if (t >= 200) {
             setPhase(ASCENT);
-            level().playSound(null, blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.NEUTRAL, 2f, 0.5f);
+            title("§e起飞！", "§7" + body(to).nameZh + " · 祝一路顺风");
             say(Component.translatable("message.heliosphere.liftoff"));
             if (failure == RocketAnalyzer.Failure.PAD_EXPLOSION && failTick < 0) failTick = 8;
+        }
+    }
+
+    private void title(String main, String sub) {
+        for (Entity e : getPassengers()) if (e instanceof ServerPlayer p) {
+            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket(0, 30, 6));
+            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.literal(sub)));
+            p.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(Component.literal(main)));
         }
     }
 
@@ -277,15 +288,18 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         if (failure == RocketAnalyzer.Failure.BREAKUP && ticks == 110) { catastrophe(level, "message.heliosphere.breakup"); return; }
         if (failure == RocketAnalyzer.Failure.FALL_BACK && ticks == 150) { say(Component.translatable("message.heliosphere.out_of_fuel")); setPhase(FALLING); return; }
 
-        vy = Math.min(2.6, vy + 0.035);
-        if (ticks > 80) {
-            float pitch = Math.min(18f, (ticks - 80) * 0.25f);
+        // real launches crawl off the pad and keep accelerating as the propellant burns away
+        entityData.set(THROTTLE, Math.min(1f, 0.75f + ticks / 200f));
+        vy = Math.min(3.2, vy + 0.0004 + 0.0000085 * ticks);
+        if (ticks > 200) {
+            float pitch = Math.min(22f, (ticks - 200) * 0.06f);
             entityData.set(PITCH, pitch);
             vx = vy * Math.tan(Math.toRadians(pitch));
         }
         setPos(getX() + vx, getY() + vy, getZ());
-        if (!staged && ticks == 130) jettisonFirstStage(level);
-        if (getY() > level.getMaxY() - 8 || ticks > 360) reachSpace(level);
+        if (!staged && ticks == 430) jettisonFirstStage(level);
+        if (ticks == 300) title("§fMax-Q", "§7最大动压");
+        if (getY() > level.getMaxY() - 8 || ticks > 900) reachSpace(level);
     }
 
     private void jettisonFirstStage(ServerLevel level) {
@@ -307,7 +321,8 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         }
         setStructure(structure().above(top));
         setPos(getX(), getY() + top + 1, getZ());
-        level.playSound(null, blockPosition(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.NEUTRAL, 3f, 0.6f);
+        level.playSound(null, blockPosition(), Rocketry.SEPARATION_SOUND, SoundSource.NEUTRAL, 4f, 1f);
+        title("§f一级分离", "§7二级发动机点火");
         say(Component.translatable("message.heliosphere.staging"));
     }
 
@@ -564,6 +579,32 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         float t = throttle();
         if (t <= 0.01f) return;
         RocketStructure s = structure();
+        boolean capsule = false, srb = false;
+        for (RocketStructure.Part p : s.parts()) { if ("crew_capsule".equals(p.spec())) capsule = true; if ("srb_segment".equals(p.spec())) srb = true; }
+        if (capsule && !srb && level().dimension() != Planets.SPACE) {
+            // flight model: a wide engine cluster under the 7x7 booster, a billowing ground cloud near the pad
+            double pr = Math.toRadians(pitchDeg());
+            int n = (int) (26 * t);
+            for (int i = 0; i < n; i++) {
+                double a = random.nextDouble() * Math.PI * 2, r = Math.sqrt(random.nextDouble()) * 3.2;
+                double lx = Math.cos(a) * r, lz = Math.sin(a) * r, ly = -0.4 - random.nextDouble() * 1.5;
+                double wx = getX() + lx * Math.cos(pr) + ly * Math.sin(pr), wy = getY() + ly * Math.cos(pr) - lx * Math.sin(pr);
+                level().addParticle(random.nextInt(4) == 0 ? ParticleTypes.LAVA : ParticleTypes.FLAME, wx, wy, getZ() + lz,
+                        (random.nextDouble() - 0.5) * 0.3, -1.2 - random.nextDouble() * 1.2, (random.nextDouble() - 0.5) * 0.3);
+            }
+            for (int i = 0; i < 6; i++)
+                level().addParticle(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, getX() + (random.nextDouble() - 0.5) * 6, getY() - 2 - random.nextDouble() * 4, getZ() + (random.nextDouble() - 0.5) * 6,
+                        (random.nextDouble() - 0.5) * 0.1, -0.05, (random.nextDouble() - 0.5) * 0.1);
+            int ground = level().getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, (int) getX(), (int) getZ());
+            if (getY() - ground < 40) {
+                for (int i = 0; i < 14; i++) {
+                    double a = random.nextDouble() * Math.PI * 2, sp = 0.25 + random.nextDouble() * 0.5;
+                    level().addParticle(ParticleTypes.CLOUD, getX() + Math.cos(a) * 4, ground + 1 + random.nextDouble() * 2, getZ() + Math.sin(a) * 4,
+                            Math.cos(a) * sp, 0.02 + random.nextDouble() * 0.05, Math.sin(a) * sp);
+                }
+            }
+            return;
+        }
         double pr = Math.toRadians(pitchDeg());
         for (RocketStructure.Part p : s.parts()) {
             PartSpec spec = p.specObj();

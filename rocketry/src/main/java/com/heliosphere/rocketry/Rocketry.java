@@ -45,6 +45,12 @@ public final class Rocketry implements ModInitializer {
     public static final Map<String, Block> PARTS = new LinkedHashMap<>();
     public static BlockEntityType<PartBlockEntity> PART_BE;
     public static Block LAUNCH_PAD;
+    public static final net.minecraft.sounds.SoundEvent ENGINE_SOUND = sound("rocket_engine"), IGNITION_SOUND = sound("rocket_ignition"),
+            SEPARATION_SOUND = sound("rocket_separation"), ALARM_SOUND = sound("cabin_alarm");
+
+    private static net.minecraft.sounds.SoundEvent sound(String id) {
+        return net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Heliosphere.id(id));
+    }
     public static LaunchConsoleBlock LAUNCH_CONSOLE;
     public static BlockEntityType<LaunchConsoleBlockEntity> CONSOLE_BE;
     public static EntityType<RocketEntity> ROCKET;
@@ -63,6 +69,8 @@ public final class Rocketry implements ModInitializer {
     public void onInitialize() {
         com.heliosphere.core.Heliosphere.bootstrap();
         FabricTrackedDataRegistry.register(Heliosphere.id("rocket_structure"), RocketEntity.STRUCTURE_SERIALIZER);
+        for (net.minecraft.sounds.SoundEvent se : new net.minecraft.sounds.SoundEvent[]{ENGINE_SOUND, IGNITION_SOUND, SEPARATION_SOUND, ALARM_SOUND})
+            Registry.register(BuiltInRegistries.SOUND_EVENT, se.location(), se);
         Reg.tab("rocketry");
         for (Blueprints.Blueprint bp : Blueprints.all())
             Reg.item("rocket_" + bp.id(), p -> new PrebuiltRocketItem(p, bp.id()), new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));

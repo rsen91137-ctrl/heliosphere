@@ -20,6 +20,7 @@ public final class RocketryClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         EntityRendererRegistry.register(Rocketry.ROCKET, RocketRenderer::new);
+        net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(RocketSound::clientTick);
         MenuScreens.register(RocketMenu.TYPE, RocketScreen::new);
         for (String id : new String[]{"nose_cone", "rocket_fin", "landing_leg", "escape_tower", "rocket_frame", "heat_shield", "heat_shield_t2"})
             BlockRenderLayerMap.putBlock(Rocketry.PARTS.get(id), ChunkSectionLayer.CUTOUT);

@@ -8,7 +8,8 @@
   ],
   "client": [
     "client.SkyRendererAccessor",
-    "client.SkyRendererMixin"
+    "client.SkyRendererMixin",
+    "client.CameraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

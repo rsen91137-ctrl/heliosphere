@@ -1,3 +1,7 @@
 {
-  "intro_theme": { "category": "music", "sounds": [ { "name": "heliosphere:intro_theme", "stream": true } ] }
+  "intro_theme": { "category": "music", "sounds": [ { "name": "heliosphere:intro_theme", "stream": true } ] },
+  "rocket_engine": { "category": "neutral", "sounds": [ { "name": "heliosphere:rocket_engine", "attenuation_distance": 96 } ] },
+  "rocket_ignition": { "category": "neutral", "sounds": [ { "name": "heliosphere:rocket_ignition", "attenuation_distance": 96 } ] },
+  "rocket_separation": { "category": "neutral", "sounds": [ { "name": "heliosphere:rocket_separation", "attenuation_distance": 96 } ] },
+  "cabin_alarm": { "category": "neutral", "sounds": [ "heliosphere:cabin_alarm" ] }
 }
