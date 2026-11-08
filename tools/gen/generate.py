@@ -749,6 +749,10 @@ def main():
     os.makedirs(HD, exist_ok=True)
     wjson(os.path.join(HD, 'pack.mcmeta'), {'pack': {'description': '日球层 Heliosphere · 32x 高清材质', 'min_format': [75, 0], 'max_format': [75, 0]}})
     icons.rocket(64).save(os.path.join(HD, 'pack.png'))
+    # hand-made media (intro key art, score) live in tools/media/assets and are copied after the clean
+    media = os.path.join(ROOT, 'tools/media/assets')
+    if os.path.isdir(media):
+        shutil.copytree(media, os.path.join(ROOT, 'guide/src/main/resources/assets/heliosphere'), dirs_exist_ok=True)
     print(f'wrote {len(WRITTEN)} json files')
 
 

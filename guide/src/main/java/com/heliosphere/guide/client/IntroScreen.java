@@ -68,6 +68,12 @@ public class IntroScreen extends Screen {
         renderBackground(g, mx, my, pt);
         float t = time();
         if (t > LENGTH) { onClose(); return; }
+        // camera shake around the climax impact
+        float shake = t > 59.8f && t < 62f ? (62f - t) / 2.2f : 0;
+        int jx = shake > 0 ? Math.round((float) Math.sin(t * 91) * 6 * shake) : 0;
+        int jy = shake > 0 ? Math.round((float) Math.cos(t * 77) * 5 * shake) : 0;
+        g.pose().pushMatrix();
+        g.pose().translate(jx, jy);
         // plates: cover the screen, slow push-in, 2 s cross-fades
         for (Plate p : PLATES) {
             if (t < p.start - 2 || t > p.end + 2) continue;
@@ -81,6 +87,51 @@ public class IntroScreen extends Screen {
             int col = ((int) (a * 255) << 24) | 0xFFFFFF;
             g.blit(RenderPipelines.GUI_TEXTURED, Heliosphere.id("textures/gui/intro/" + p.tex + ".png"), x, y, 0, 0, w, h, 960, 540, 960, 540, col);
         }
+        // living starfield: coloured stars that twinkle and drift with parallax
+        long seed = 99;
+        for (int i = 0; i < 260; i++) {
+            seed = seed * 6364136223846793005L + 1442695040888963407L;
+            float depth = 0.3f + ((seed >>> 40) & 255) / 255f;
+            float sx = ((seed >>> 16) & 0xFFFF) / 65535f * width + t * 2.2f * depth;
+            sx = sx % width;
+            float sy = ((seed >>> 32) & 0xFF) / 255f * height;
+            float tw = 0.5f + 0.5f * (float) Math.sin(t * (1.5f + depth * 3) + i);
+            int[] pal = {0xFF9BB0FF, 0xFFCAD7FF, 0xFFF8F7FF, 0xFFFFF4EA, 0xFFFFD2A1, 0xFFFFB48C};
+            int c = pal[(int) ((seed >>> 8) & 0xFFFF) % pal.length];
+            int a = (int) (tw * tw * 170 * Math.min(1, t / 2f));
+            int sz = depth > 1.1f ? 2 : 1;
+            g.fill((int) sx, (int) sy, (int) sx + sz, (int) sy + sz, (a << 24) | (c & 0xFFFFFF));
+        }
+        // the Centaurian fleet crawls across Proxima
+        if (t > 40 && t < 66) {
+            float a = Mth.clamp(Math.min((t - 40) / 2f, (66 - t) / 2f), 0, 1);
+            for (int k = 0; k < 7; k++) {
+                float fx = width * (0.15f + k * 0.11f) + (t - 40) * (4 + k * 0.7f);
+                float fy = height * (0.30f + k * 0.065f) + (float) Math.sin(t * 0.7 + k) * 2;
+                int sw = 10 - k, sh = Math.max(2, 3 - k / 3);
+                g.fill((int) fx - sw, (int) fy - sh, (int) fx + sw, (int) fy + sh, ((int) (a * 230) << 24) | 0x05070C);
+                float pulse = 0.6f + 0.4f * (float) Math.sin(t * 9 + k * 1.3);
+                g.fill((int) fx - sw - 3, (int) fy - 1, (int) fx - sw, (int) fy + 1, ((int) (a * pulse * 255) << 24) | 0x7FB8FF);
+            }
+        }
+        // the rocket on the title plate: flickering exhaust and a slow climb
+        if (t > 63) {
+            float a = Mth.clamp((t - 63) / 2f, 0, 1) * Mth.clamp((LENGTH - t) / 2f, 0, 1);
+            float rx = width * 0.45f, ry = height * (0.38f - (t - 63) * 0.006f);
+            for (int k = 0; k < 6; k++) {
+                float fl = 0.6f + 0.4f * (float) Math.sin(t * 40 + k * 2.1);
+                int len = (int) ((10 + k * 6) * fl);
+                int col = k < 2 ? 0xFFFFF0 : k < 4 ? 0xFFD070 : 0xFF7030;
+                g.fill((int) rx - 2 + k / 3, (int) ry + 6 + k * 3, (int) rx + 3 - k / 3, (int) ry + 6 + k * 3 + len / 3, ((int) (a * (230 - k * 30)) << 24) | col);
+            }
+            g.fill((int) rx - 1, (int) ry - 6, (int) rx + 2, (int) ry + 6, ((int) (a * 255) << 24) | 0xE8E8EE);
+        }
+        g.pose().popMatrix();
+        // white flash on the impact
+        if (t > 59.9f && t < 61.5f) {
+            int fa = (int) (Mth.clamp(1 - (t - 59.9f) / 1.6f, 0, 1) * 200);
+            g.fill(0, 0, width, height, (fa << 24) | 0xFFF4E0);
+        }
         // cinematic letterbox
         int bar = height / 9;
         g.fill(0, 0, width, bar, 0xFF000000);
@@ -90,7 +141,18 @@ public class IntroScreen extends Screen {
             if (t < l.start || t > l.end) continue;
             float a = Mth.clamp(Math.min((t - l.start) / 0.6f, (l.end - t) / 0.6f), 0, 1);
             int alpha = Math.max(8, (int) (a * 255));
-            List<FormattedCharSequence> wrapped = HelioGui.wrap(font, l.text, Math.min(width - 60, 420));
+            String full = l.text;
+            int plain = full.replaceAll("§.", "").length();
+            int shownChars = (int) Math.min(plain, Math.max(1, (t - l.start) / 1.1f * plain));
+            StringBuilder vis = new StringBuilder();
+            int cnt = 0;
+            for (int ci = 0; ci < full.length() && cnt < shownChars; ci++) {
+                char ch = full.charAt(ci);
+                vis.append(ch);
+                if (ch == '\u00a7' && ci + 1 < full.length()) { vis.append(full.charAt(++ci)); continue; }
+                cnt++;
+            }
+            List<FormattedCharSequence> wrapped = HelioGui.wrap(font, vis.toString(), Math.min(width - 60, 420));
             int y = height - bar - 14 - wrapped.size() * 11;
             for (FormattedCharSequence s : wrapped) {
                 int w = font.width(s);

@@ -251,6 +251,11 @@ public class HelioClientTest implements FabricClientGameTest {
             step(ctx, "14_creative_rocketry_tab", () -> openTab(ctx, "rocketry"));
             step(ctx, "15_creative_industry_tab", () -> openTab(ctx, "industry"));
             step(ctx, "16_creative_planets_tab", () -> openTab(ctx, "planets"));
+            step(ctx, "16b_encyclopedia", () -> {
+                ctx.runOnClient(mc -> mc.setScreen(new com.heliosphere.guide.client.EncyclopediaScreen("heliosphere:engine_kerolox")));
+                ctx.waitTicks(20);
+            });
+            ctx.runOnClient(mc -> mc.setScreen(null));
             step(ctx, "17_star_scroll", () -> {
                 ctx.setScreen(() -> null);
                 sp.getServer().runOnServer(s -> Guide.open(s.getPlayerList().getPlayers().get(0)));

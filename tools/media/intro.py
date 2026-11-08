@@ -166,15 +166,12 @@ sphere(img, W * 0.82, H * 0.22, H * 0.08, moon_col, light=(-0.7, 0.2, 0.6))
 trail_x = W * 0.45
 for t in np.linspace(0, 1, 400):
     x = trail_x + math.sin(t * 3) * 6 * t
-    y = H * 0.32 + t * H * 0.75
+    y = H * 0.40 + t * H * 0.65
     w = 2 + t * 22
     yv = int(y)
     if 0 <= yv < H:
         x0, x1 = int(max(0, x - w)), int(min(W, x + w))
         img[yv, x0:x1] += np.array([200, 200, 210]) * 0.10 * (1 - t * 0.6)
-flame = np.exp(-(((xx - trail_x) / 4) ** 2 + ((yy - H * 0.33) / 14) ** 2))
-img += flame[..., None] * np.array([255, 200, 120]) * 3
-img[int(H * 0.27):int(H * 0.32), int(trail_x - 2):int(trail_x + 3)] = np.array([230, 230, 235])
 save(img, 'intro_title')
 print('plates done')
 
