@@ -71,6 +71,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
     private double missionDv;
     private int transitTicks = 400;
     private double transitDays;
+    private BlockPos cabin;
     private BlockPos home;
     private String homeDim = "minecraft:overworld";
     private UUID crew;
@@ -246,6 +247,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
 
     private void keepCrewAboard() {
         if (crew == null || phase() == LANDED || phase() == DEBRIS) return;
+        if (phase() == TRANSIT && cabin != null && ticks < transitTicks - 200) return;   // crew walks about in the cabin
         if (level().getPlayerByUUID(crew) instanceof ServerPlayer p && p.getVehicle() != this && p.isAlive()
                 && p.level() == level() && p.distanceToSqr(this) < 64 * 64) p.startRiding(this, true, false);
     }
@@ -369,6 +371,26 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
     }
 
     private void transit(ServerLevel level) {
+        if (ticks == 40 && cabin == null && transitTicks > 1200 && crew != null && level.getPlayerByUUID(crew) instanceof ServerPlayer cp) {
+            cabin = com.heliosphere.rocketry.flight.FlightCabin.origin(blockPosition());
+            com.heliosphere.rocketry.flight.FlightCabin.build(level, cabin);
+            cp.stopRiding();
+            cp.teleportTo(level, cabin.getX() + 0.5, cabin.getY() + 1, cabin.getZ() + 1.5, java.util.Set.of(), 180, 0, false);
+            title("§b巡航阶段", "§7可以在座舱里自由走动 · 右键飞行控制台查看遥测");
+        }
+        if (cabin != null && ticks == transitTicks - 400) {
+            level.playSound(null, cabin, Rocketry.ALARM_SOUND, SoundSource.NEUTRAL, 1.5f, 1f);
+            for (Entity e : level.players()) if (e instanceof ServerPlayer sp && sp.blockPosition().closerThan(cabin, 12))
+                sp.displayClientMessage(Component.literal("§e即将抵达 " + body(to).nameZh + "：20 秒后自动返回座椅，准备减速与着陆"), true);
+        }
+        if (cabin != null && ticks >= transitTicks - 200) {
+            if (crew != null && level.getPlayerByUUID(crew) instanceof ServerPlayer cp && cp.getVehicle() != this) {
+                cp.teleportTo(level, getX(), getY() + 1, getZ(), java.util.Set.of(), cp.getYRot(), cp.getXRot(), false);
+                cp.startRiding(this, true, false);
+            }
+            com.heliosphere.rocketry.flight.FlightCabin.remove(level, cabin);
+            cabin = null;
+        }
         entityData.set(THROTTLE, ticks < 40 || ticks > transitTicks - 40 ? 0.6f : 0f);
         if (failure == RocketAnalyzer.Failure.SUFFOCATION && ticks % 40 == 0 && crew != null && level.getPlayerByUUID(crew) instanceof ServerPlayer p) {
             p.hurtServer(level, level.damageSources().drown(), 3f);

@@ -21,12 +21,15 @@ public final class RocketryClient implements ClientModInitializer {
     public void onInitializeClient() {
         EntityRendererRegistry.register(Rocketry.ROCKET, RocketRenderer::new);
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents.END_CLIENT_TICK.register(RocketSound::clientTick);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(com.heliosphere.core.Heliosphere.id("telemetry"), Telemetry::hud);
+        com.heliosphere.rocketry.flight.FlightCabin.openClient = () -> Minecraft.getInstance().setScreen(new Telemetry.ConsoleScreen());
         MenuScreens.register(RocketMenu.TYPE, RocketScreen::new);
         for (String id : new String[]{"nose_cone", "rocket_fin", "landing_leg", "escape_tower", "rocket_frame", "heat_shield", "heat_shield_t2"})
             BlockRenderLayerMap.putBlock(Rocketry.PARTS.get(id), ChunkSectionLayer.CUTOUT);
         ClientPlayNetworking.registerGlobalReceiver(RocketNet.Report.TYPE, (p, ctx) -> ctx.client().execute(() -> RocketScreen.latest = p));
         ClientPlayNetworking.registerGlobalReceiver(RocketNet.Transit.TYPE, (p, ctx) -> ctx.client().execute(() -> {
-            if (p.duration() <= 0) { ClientNav.clear(); return; }
+            if (p.duration() <= 0) { ClientNav.clear(); Telemetry.duration = 0; return; }
+            Telemetry.set(p.from(), p.to(), p.start(), p.duration());
             CelestialBody from = SolarSystem.get(p.from()), to = SolarSystem.get(p.to());
             long start = p.start();
             int dur = p.duration();

@@ -523,3 +523,12 @@ def cult_core(n):
     pupil = (np.abs(xx - (n - 1) / 2) < n * 0.06) & (np.abs(yy - (n - 1) / 2) < n * 0.18)
     a[pupil, :3] = [20, 0, 0]
     return Image.fromarray(np.clip(a, 0, 255).astype('uint8'))
+
+
+
+def console_face(n):
+    import numpy as np
+    from PIL import Image
+    f = machine_faces(n, '#3A4250', '#40E0FF', 'chip', 5)[3]
+    a = np.array(f)
+    return Image.fromarray(np.clip(a, 0, 255).astype('uint8')) if not isinstance(f, Image.Image) else f

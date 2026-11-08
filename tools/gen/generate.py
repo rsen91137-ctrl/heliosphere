@@ -561,6 +561,8 @@ def gen_rocketry():
         data('planets', f'recipe/{fid}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc', 'ingredients': ings,
                                               'result': {'id': f'{NS}:{fid}', 'count': cnt}})
     m = 'rocketry'
+    cube_block(m, 'flight_console', lambda n: B.console_face(n))
+    lang(m, 'block.heliosphere.flight_console', '飞行控制台', 'Flight Console')
     simple_item(m, 'rocket_recovery_tool', lambda n: icons.wrench(n))
     lang(m, 'item.heliosphere.rocket_recovery_tool', '火箭回收扳手', 'Rocket Recovery Wrench')
     lang(m, 'message.heliosphere.recovered', '§a已回收 %s 个火箭部件', '§aRecovered %s rocket parts')

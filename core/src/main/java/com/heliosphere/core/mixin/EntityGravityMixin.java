@@ -14,6 +14,8 @@ public abstract class EntityGravityMixin {
     private void heliosphere$planetGravity(CallbackInfoReturnable<Double> cir) {
         Entity self = (Entity) (Object) this;
         double g = Environment.gravity(self.level());
+        // spin-gravity in pressurised cabins and stations in orbit
+        if (g < 0.2 && com.heliosphere.core.env.Planets.isSpace(self.level()) && Environment.insideBubble(self.level(), self.blockPosition())) g = 1.0;
         if (g != 1.0) cir.setReturnValue(cir.getReturnValue() * g);
     }
 }

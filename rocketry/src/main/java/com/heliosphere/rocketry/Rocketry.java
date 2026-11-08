@@ -45,6 +45,7 @@ public final class Rocketry implements ModInitializer {
     public static final Map<String, Block> PARTS = new LinkedHashMap<>();
     public static BlockEntityType<PartBlockEntity> PART_BE;
     public static Block LAUNCH_PAD;
+    public static Block FLIGHT_CONSOLE;
     public static final net.minecraft.sounds.SoundEvent ENGINE_SOUND = sound("rocket_engine"), IGNITION_SOUND = sound("rocket_ignition"),
             SEPARATION_SOUND = sound("rocket_separation"), ALARM_SOUND = sound("cabin_alarm");
 
@@ -85,6 +86,7 @@ public final class Rocketry implements ModInitializer {
             return net.minecraft.world.InteractionResult.SUCCESS;
         });
 
+        FLIGHT_CONSOLE = Reg.blockWithItem("flight_console", com.heliosphere.rocketry.flight.FlightCabin.ConsoleBlock::new, Reg.metal(MapColor.COLOR_GRAY, 5f).lightLevel(st -> 10));
         LAUNCH_PAD = Reg.blockWithItem("launch_pad", Block::new, Reg.metal(MapColor.COLOR_GRAY, 5f).explosionResistance(1200f));
         LAUNCH_CONSOLE = Reg.blockWithItem("launch_console", LaunchConsoleBlock::new, Reg.metal(MapColor.COLOR_GRAY, 4f));
         CONSOLE_BE = Reg.blockEntity("launch_console", LaunchConsoleBlockEntity::new, LAUNCH_CONSOLE);
