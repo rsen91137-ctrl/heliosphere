@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SRS",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_plate",
+    "R": "minecraft:redstone_block",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:defense_silo",
+    "count": 1
+  }
+}

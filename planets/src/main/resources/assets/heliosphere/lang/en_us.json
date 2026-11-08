@@ -1,6 +1,7 @@
 {
   "block.heliosphere.atmosphere_extractor": "Atmosphere Extractor",
   "block.heliosphere.deep_space_radio_array": "Deep Space Radio Array",
+  "block.heliosphere.defense_silo": "Planetary Defence Silo",
   "block.heliosphere.ilmenite_reducer": "Ilmenite Hydrogen Reducer",
   "block.heliosphere.isru_electrolyzer": "Ice Electrolysis Station",
   "block.heliosphere.oxygen_compressor": "Oxygen Compressor",
@@ -43,6 +44,7 @@
   "item.heliosphere.hibernation_pod_core": "Hibernation Pod Core",
   "item.heliosphere.hydroponic_salad": "Hydroponic Salad",
   "item.heliosphere.jupiter_core": "Jupiter Core Sample",
+  "item.heliosphere.kinetic_interceptor": "Kinetic Interceptor",
   "item.heliosphere.kreep_concentrate": "KREEP Concentrate",
   "item.heliosphere.laser_rifle": "Laser Rifle",
   "item.heliosphere.lunar_ceramic": "Lunar Ceramic",

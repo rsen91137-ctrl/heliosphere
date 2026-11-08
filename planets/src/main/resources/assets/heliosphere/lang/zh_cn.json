@@ -1,6 +1,7 @@
 {
   "block.heliosphere.atmosphere_extractor": "大气提取器",
   "block.heliosphere.deep_space_radio_array": "深空射电阵",
+  "block.heliosphere.defense_silo": "行星防御导弹井",
   "block.heliosphere.ilmenite_reducer": "钛铁矿氢还原炉",
   "block.heliosphere.isru_electrolyzer": "冰水电解站",
   "block.heliosphere.oxygen_compressor": "氧气压缩机",
@@ -43,6 +44,7 @@
   "item.heliosphere.hibernation_pod_core": "冬眠舱维生核心",
   "item.heliosphere.hydroponic_salad": "水培沙拉",
   "item.heliosphere.jupiter_core": "木星核心样本",
+  "item.heliosphere.kinetic_interceptor": "动能拦截弹",
   "item.heliosphere.kreep_concentrate": "KREEP 精矿",
   "item.heliosphere.laser_rifle": "激光步枪",
   "item.heliosphere.lunar_ceramic": "月壤陶瓷",

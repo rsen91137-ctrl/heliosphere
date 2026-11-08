@@ -70,6 +70,7 @@ public final class GenIds {
         {"uranus_core"},
         {"neptune_core"},
         {"zero_point_cell"},
+        {"kinetic_interceptor"},
     };
     public static final String[][] MACHINES = {
         {"oxygen_compressor"},

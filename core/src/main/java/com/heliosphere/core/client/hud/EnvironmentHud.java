@@ -24,12 +24,22 @@ public final class EnvironmentHud {
         LocalPlayer p = mc.player;
         if (p == null || mc.level == null || mc.options.hideGui) return;
         com.heliosphere.core.story.Story.Payload story = com.heliosphere.core.story.Story.client;
+        int ty = 3;
+        if (story.asteroid() == 1) {
+            double d = story.asteroidDays();
+            String txt = (d < 5 && (System.currentTimeMillis() / 500) % 2 == 0 ? "§4" : "§6") + "灾星 2097-ΩX 撞击地球：§f" + com.heliosphere.core.story.Story.format(d);
+            int tw = mc.font.width(txt);
+            int sx = g.guiWidth() - tw - 10;
+            HelioGui.panel(g, sx - 4, ty, tw + 10, 15);
+            g.drawString(mc.font, txt, sx + 1, ty + 4, HelioGui.TEXT, false);
+            ty += 17;
+        }
         if (story.active()) {
             String txt = "§c半人马舰队抵达地球：§f" + com.heliosphere.core.story.Story.format(story.remainingDays());
             int tw = mc.font.width(txt);
             int sx = g.guiWidth() - tw - 10;
-            HelioGui.panel(g, sx - 4, 3, tw + 10, 15);
-            g.drawString(mc.font, txt, sx + 1, 7, HelioGui.TEXT, false);
+            HelioGui.panel(g, sx - 4, ty, tw + 10, 15);
+            g.drawString(mc.font, txt, sx + 1, ty + 4, HelioGui.TEXT, false);
         }
         boolean helio = Planets.isHeliosphereDimension(mc.level);
         ItemStack ox = SpaceSuits.oxygenSource(p);

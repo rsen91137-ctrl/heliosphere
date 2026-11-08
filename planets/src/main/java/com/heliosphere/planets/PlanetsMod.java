@@ -151,6 +151,8 @@ public final class PlanetsMod implements ModInitializer {
         Reg.tab("planets");
         Reg.blockWithItem("stargate", Stargate.GateBlock::new, Reg.metal(MapColor.COLOR_BLUE, 50f).lightLevel(st -> 12).explosionResistance(3600f));
         Stargate.init();
+        Reg.blockWithItem("defense_silo", Asteroid.SiloBlock::new, Reg.metal(MapColor.COLOR_GRAY, 20f).explosionResistance(1200f));
+        com.heliosphere.core.story.Story.impact = Asteroid::impact;
         com.heliosphere.planets.weapon.Weapons.register();
         MachineType.addProvider(PlanetRecipes::register);
         MachineType.addProvider(com.heliosphere.planets.weapon.Weapons::recipes);

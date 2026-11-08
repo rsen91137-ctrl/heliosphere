@@ -525,6 +525,11 @@ def gen_rocketry():
         simple_item('planets', gid, lambda n, k=kind, b=body, a=acc: icons.gun(n, b, a, k))
         lang('planets', f'item.heliosphere.{gid}', zh, en)
     cube_block('planets', 'stargate', lambda n: B.stargate(n))
+    cube_block('planets', 'defense_silo', lambda n: B.silo(n))
+    lang('planets', 'block.heliosphere.defense_silo', '行星防御导弹井', 'Planetary Defence Silo')
+    loot_self('planets', 'defense_silo')
+    data('planets', 'recipe/defense_silo.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['SRS', 'SCS', 'SSS'],
+         'key': {'S': h('steel_plate'), 'R': 'minecraft:redstone_block', 'C': h('circuit_board')}, 'result': {'id': h('defense_silo'), 'count': 1}})
     lang('planets', 'block.heliosphere.stargate', '星际之门', 'Stargate')
     lang('planets', 'message.heliosphere.gate_need', '§c星门需要 1 个零点能量核', '§cThe gate needs a zero-point core')
     lang('planets', 'message.heliosphere.gate_far', '§c离星际之门太远', '§cToo far from the stargate')

@@ -63,6 +63,9 @@ public final class Weapons {
         asm.recipe(r().in(I("enriched_uranium"), 4).in(I("plutonium_238"), 2).in(I("rdx"), 8).in(I("beryllium_ingot"), 2).in(I("processor"))
                 .in(I("steel_plate"), 4).out(I("nuke_warhead")).time(1200).power(300));
         asm.recipe(r().in(I("antimatter_trap")).in(I("power_cell"), 2).out(I("antimatter_cell"), 4).time(400).power(300));
+        // planetary defence: reachable before the Moon (kerolox engine, guidance, RDX)
+        asm.recipe(r().in(I("engine_kerolox")).in(I("guidance_computer")).in(I("rdx"), 8).in(I("steel_plate"), 6).in(I("tank_rp1")).in(I("tank_lox"))
+                .out(I("kinetic_interceptor")).time(1200).power(200));
         // guns
         asm.recipe(r().in(I("steel_ingot"), 4).in(Items.OAK_PLANKS, 2).in(I("steel_plate")).out(I("bolt_rifle")).time(200).power(40));
         asm.recipe(r().in(I("steel_ingot"), 4).in(Items.OAK_PLANKS, 2).in(I("steel_plate"), 2).out(I("shotgun")).time(200).power(40));

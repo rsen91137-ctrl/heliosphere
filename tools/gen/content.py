@@ -417,3 +417,5 @@ PLANET_CORES = [("mercury", "水星", "#8C8680"), ("venus", "金星", "#E6CFA0")
 for pid, pzh, pc in PLANET_CORES:
     item("planets", f"{pid}_core", f"{pzh}核心样本", f"{pid.title()} Core Sample", "gem", pc, "#FFFFFF")
 item("planets", "zero_point_cell", "零点能量核", "Zero-Point Energy Core", "chip", "#101830", "#80FFFF")
+
+item("planets", "kinetic_interceptor", "动能拦截弹", "Kinetic Interceptor", "cyl", "#D0D4DA", "#C03030")

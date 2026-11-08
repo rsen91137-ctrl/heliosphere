@@ -20,15 +20,21 @@ public final class Story {
     public static final double FLEET_YEARS = 160;
     private static final Identifier KEY = Heliosphere.id("story");
 
-    public record Payload(boolean active, double remainingDays) implements CustomPacketPayload {
+    public record Payload(boolean active, double remainingDays, int asteroid, double asteroidDays) implements CustomPacketPayload {
         public static final Type<Payload> TYPE = new Type<>(Heliosphere.id("story"));
         public static final StreamCodec<io.netty.buffer.ByteBuf, Payload> CODEC = StreamCodec.composite(
-                ByteBufCodecs.BOOL, Payload::active, ByteBufCodecs.DOUBLE, Payload::remainingDays, Payload::new);
+                ByteBufCodecs.BOOL, Payload::active, ByteBufCodecs.DOUBLE, Payload::remainingDays,
+                ByteBufCodecs.VAR_INT, Payload::asteroid, ByteBufCodecs.DOUBLE, Payload::asteroidDays, Payload::new);
         @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
     }
 
     /** Client copy, updated every two seconds. */
-    public static volatile Payload client = new Payload(false, 0);
+    public static volatile Payload client = new Payload(false, 0, 0, 0);
+
+    /** Days from world start until asteroid 2097-ΩX hits, unless intercepted. */
+    public static final double ASTEROID_DAYS = 60;
+    /** Called when the asteroid arrives un-deflected (set by the planets module: crater + meteorite). */
+    public static java.util.function.Consumer<MinecraftServer> impact = s -> {};
 
     private Story() {}
 
@@ -76,14 +82,41 @@ public final class Story {
         return true;
     }
 
+    /** 0 = not started, 1 = incoming, 2 = deflected, 3 = impacted */
+    public static int asteroidState(MinecraftServer s) { return tag(s).getIntOr("asteroid", 0); }
+
+    public static double asteroidDays(MinecraftServer s) { return tag(s).getDoubleOr("asteroid_due", 0) - universeDay(s); }
+
+    public static void setAsteroid(MinecraftServer s, int state) {
+        CompoundTag t = tag(s);
+        t.putInt("asteroid", state);
+        save(s, t);
+        sync(s);
+    }
+
+    private static void tickAsteroid(MinecraftServer s) {
+        CompoundTag t = tag(s);
+        int st = t.getIntOr("asteroid", 0);
+        if (st == 0) {
+            t.putInt("asteroid", 1);
+            t.putDouble("asteroid_due", universeDay(s) + ASTEROID_DAYS);
+            save(s, t);
+        } else if (st == 1 && asteroidDays(s) <= 0) {
+            t.putInt("asteroid", 3);
+            save(s, t);
+            impact.accept(s);
+        }
+    }
+
     public static void sync(MinecraftServer s) {
         boolean on = decoded(s);
-        Payload p = new Payload(on, on ? remainingDays(s) : 0);
+        int ast = asteroidState(s);
+        Payload p = new Payload(on, on ? remainingDays(s) : 0, ast, ast == 1 ? asteroidDays(s) : 0);
         for (ServerPlayer pl : s.getPlayerList().getPlayers()) ServerPlayNetworking.send(pl, p);
     }
 
     public static void tick(MinecraftServer s) {
-        if (s.getTickCount() % 40 == 0) sync(s);
+        if (s.getTickCount() % 40 == 0) { tickAsteroid(s); sync(s); }
     }
 
     /** "87 年 142 天" */

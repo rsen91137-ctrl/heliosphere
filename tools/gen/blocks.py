@@ -492,3 +492,19 @@ def stargate(n):
         a[max(0, cy - 1):cy + 1, max(0, cx - 1):cx + 1, :3] = [255, 170, 60]
     from PIL import Image
     return Image.fromarray(np.clip(a, 0, 255).astype('uint8'), 'RGBA' if a.shape[2] == 4 else 'RGB')
+
+
+
+def silo(n):
+    """Planetary-defence silo hatch: grey armour with hazard stripes and a central hatch."""
+    import numpy as np
+    from PIL import Image
+    a = np.array(panel(n, '#5A6068', 11, rivets=True, seam=True)).astype(float)
+    yy, xx = np.mgrid[0:n, 0:n]
+    stripe = (((xx + yy) // max(1, n // 8)) % 2 == 0) & ((xx < n * 0.12) | (xx > n * 0.88) | (yy < n * 0.12) | (yy > n * 0.88))
+    a[stripe, 0] = 230; a[stripe, 1] = 180; a[stripe, 2] = 40
+    d = np.sqrt((xx - (n - 1) / 2) ** 2 + (yy - (n - 1) / 2) ** 2)
+    hatch = d < n * 0.28
+    a[hatch, :3] = a[hatch, :3] * 0.55
+    a[(d > n * 0.26) & (d < n * 0.3), :3] = [200, 60, 50]
+    return Image.fromarray(np.clip(a, 0, 255).astype('uint8'))
