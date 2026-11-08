@@ -29,6 +29,14 @@ import java.util.List;
 public final class Guide implements ModInitializer {
     public static final String TAG_PREFIX = "heliosphere.got.";
     public static final String GIVEN_TAG = "heliosphere.scroll_given";
+    public static final String INTRO_TAG = "heliosphere.intro_seen";
+    public static final net.minecraft.sounds.SoundEvent INTRO_THEME = net.minecraft.sounds.SoundEvent.createVariableRangeEvent(Heliosphere.id("intro_theme"));
+
+    public record OpenIntro() implements CustomPacketPayload {
+        public static final Type<OpenIntro> TYPE = new Type<>(Heliosphere.id("open_intro"));
+        public static final StreamCodec<ByteBuf, OpenIntro> CODEC = StreamCodec.unit(new OpenIntro());
+        @Override public Type<? extends CustomPacketPayload> type() { return TYPE; }
+    }
 
     public record OpenScroll(List<String> done) implements CustomPacketPayload {
         public static final Type<OpenScroll> TYPE = new Type<>(Heliosphere.id("open_scroll"));
@@ -45,8 +53,14 @@ public final class Guide implements ModInitializer {
         Reg.tab("guide");
         SCROLL = Reg.item("star_scroll", ScrollItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
         PayloadTypeRegistry.playS2C().register(OpenScroll.TYPE, OpenScroll.CODEC);
+        PayloadTypeRegistry.playS2C().register(OpenIntro.TYPE, OpenIntro.CODEC);
+        net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT, Heliosphere.id("intro_theme"), INTRO_THEME);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> server.execute(() -> {
             ServerPlayer p = handler.getPlayer();
+            if (!p.getTags().contains(INTRO_TAG) && !Boolean.getBoolean("heliosphere.skipIntro")) {
+                p.addTag(INTRO_TAG);
+                net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(p, new OpenIntro());
+            }
             if (!p.getTags().contains(GIVEN_TAG)) {
                 p.addTag(GIVEN_TAG);
                 ItemStack s = new ItemStack(SCROLL);

@@ -9,6 +9,7 @@ public final class GuideClient implements ClientModInitializer {
     public void onInitializeClient() {
         ClientPlayNetworking.registerGlobalReceiver(Guide.OpenScroll.TYPE, (p, ctx) ->
                 ctx.client().execute(() -> ctx.client().setScreen(new ScrollScreen(p.done()))));
+        ClientPlayNetworking.registerGlobalReceiver(Guide.OpenIntro.TYPE, (p, ctx) -> ctx.client().execute(() -> ctx.client().setScreen(new IntroScreen())));
         net.fabricmc.fabric.api.event.player.UseItemCallback.EVENT.register((player, level, hand) -> {
             if (!level.isClientSide()) return net.minecraft.world.InteractionResult.PASS;
             net.minecraft.world.item.ItemStack st = player.getItemInHand(hand);

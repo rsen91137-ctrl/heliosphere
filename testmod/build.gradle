@@ -23,6 +23,7 @@ loom {
             name = 'Client game test'
             vmArg '-Dfabric.client.gametest'
             vmArg '-Dheliosphere.fastTransit=true'
+            vmArg '-Dheliosphere.skipIntro=true'
             vmArg '-Dfabric.client.gametest.disableNetworkSynchronizer=true'
             runDir 'run-test'
             ideConfigGenerated false

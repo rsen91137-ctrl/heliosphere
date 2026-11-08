@@ -60,6 +60,11 @@ public class HelioClientTest implements FabricClientGameTest {
             s.setGameMode(WorldCreationUiState.SelectedGameMode.CREATIVE);
         }).create()) {
             sp.getClientWorld().waitForChunksRender();
+            step(ctx, "00_intro", () -> {
+                ctx.runOnClient(mc -> mc.setScreen(new com.heliosphere.guide.client.IntroScreen()));
+                ctx.waitTicks(170);
+            });
+            ctx.runOnClient(mc -> mc.setScreen(null));
             step(ctx, "01_earth_spawn", () -> {
                 cmd(sp, "time set 1000");
                 look(ctx, 0, 10);
