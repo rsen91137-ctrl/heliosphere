@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "heliosphere:block/stellar_plasma"
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "WCW",
+    "SRS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "G": "minecraft:gold_ingot",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:electronics_assembler",
+    "count": 1
+  }
+}

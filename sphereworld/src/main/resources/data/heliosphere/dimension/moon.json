@@ -1,0 +1,11 @@
+{
+  "type": "heliosphere:moon",
+  "generator": {
+    "type": "heliosphere:planet",
+    "planet": "moon",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "heliosphere:lunar_surface"
+    }
+  }
+}

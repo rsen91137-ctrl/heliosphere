@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WRW",
+    "QIQ",
+    "WRW"
+  ],
+  "key": {
+    "W": "heliosphere:copper_wire",
+    "R": "minecraft:redstone",
+    "Q": "minecraft:quartz",
+    "I": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "heliosphere:circuit_board",
+    "count": 2
+  }
+}

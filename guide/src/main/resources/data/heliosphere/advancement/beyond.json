@@ -1,0 +1,84 @@
+{
+  "parent": "heliosphere:mars",
+  "display": {
+    "icon": {
+      "id": "heliosphere:canister_helium3"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.beyond"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.beyond.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "canister_helium3": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:canister_helium3"
+          }
+        ]
+      }
+    },
+    "canister_deuterium": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:canister_deuterium"
+          }
+        ]
+      }
+    },
+    "canister_argon": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:canister_argon"
+          }
+        ]
+      }
+    },
+    "enriched_uranium": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:enriched_uranium"
+          }
+        ]
+      }
+    },
+    "plutonium_238": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:plutonium_238"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "canister_helium3"
+    ],
+    [
+      "canister_deuterium"
+    ],
+    [
+      "canister_argon"
+    ],
+    [
+      "enriched_uranium"
+    ],
+    [
+      "plutonium_238"
+    ]
+  ]
+}

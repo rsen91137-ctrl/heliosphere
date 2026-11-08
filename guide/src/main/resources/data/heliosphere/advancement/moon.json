@@ -1,0 +1,201 @@
+{
+  "parent": "heliosphere:sounding",
+  "display": {
+    "icon": {
+      "id": "heliosphere:engine_hydrolox"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.moon"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.moon.desc"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "space_suit_helmet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:space_suit_helmet"
+          }
+        ]
+      }
+    },
+    "space_suit_chestplate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:space_suit_chestplate"
+          }
+        ]
+      }
+    },
+    "space_suit_leggings": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:space_suit_leggings"
+          }
+        ]
+      }
+    },
+    "space_suit_boots": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:space_suit_boots"
+          }
+        ]
+      }
+    },
+    "tank_rp1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:tank_rp1"
+          }
+        ]
+      }
+    },
+    "tank_lox": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:tank_lox"
+          }
+        ]
+      }
+    },
+    "tank_lh2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:tank_lh2"
+          }
+        ]
+      }
+    },
+    "engine_hydrolox": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_hydrolox"
+          }
+        ]
+      }
+    },
+    "decoupler": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:decoupler"
+          }
+        ]
+      }
+    },
+    "avionics_t1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:avionics_t1"
+          }
+        ]
+      }
+    },
+    "rocket_battery": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:rocket_battery"
+          }
+        ]
+      }
+    },
+    "heat_shield": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:heat_shield"
+          }
+        ]
+      }
+    },
+    "landing_leg": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:landing_leg"
+          }
+        ]
+      }
+    },
+    "science_moon": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:science_moon"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "space_suit_helmet"
+    ],
+    [
+      "space_suit_chestplate"
+    ],
+    [
+      "space_suit_leggings"
+    ],
+    [
+      "space_suit_boots"
+    ],
+    [
+      "tank_rp1"
+    ],
+    [
+      "tank_lox"
+    ],
+    [
+      "tank_lh2"
+    ],
+    [
+      "engine_hydrolox"
+    ],
+    [
+      "decoupler"
+    ],
+    [
+      "avionics_t1"
+    ],
+    [
+      "rocket_battery"
+    ],
+    [
+      "heat_shield"
+    ],
+    [
+      "landing_leg"
+    ],
+    [
+      "science_moon"
+    ]
+  ]
+}

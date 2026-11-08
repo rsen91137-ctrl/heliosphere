@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere",
+  "version": "${version}",
+  "name": "Heliosphere Core 日球层·核心库",
+  "description": "天体数据、行星环境（重力/氧气/温度）、球面环绕拓扑、恒星等离子体、太阳系天空渲染、机器与能量框架。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.core.Heliosphere"
+    ],
+    "client": [
+      "com.heliosphere.core.client.HeliosphereClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    "heliosphere.mixins.json"
+  ]
+}

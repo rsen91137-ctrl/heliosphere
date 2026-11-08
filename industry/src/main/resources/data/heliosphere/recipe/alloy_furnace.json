@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "SBS",
+    "CRC"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "B": "minecraft:blast_furnace",
+    "C": "minecraft:copper_ingot",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:alloy_furnace",
+    "count": 1
+  }
+}

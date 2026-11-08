@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    "heliosphere:al_li_ingot",
+    "heliosphere:aluminum_ingot",
+    "heliosphere:beryllium_ingot",
+    "heliosphere:chromium_ingot",
+    "heliosphere:cobalt_ingot",
+    "heliosphere:grcop_ingot",
+    "heliosphere:inconel_ingot",
+    "heliosphere:lead_ingot",
+    "heliosphere:lithium_ingot",
+    "heliosphere:lunar_ti_alloy_ingot",
+    "heliosphere:lunar_titanium_ingot",
+    "heliosphere:molybdenum_ingot",
+    "heliosphere:nickel_ingot",
+    "heliosphere:niobium_ingot",
+    "heliosphere:platinum_ingot",
+    "heliosphere:silver_ingot",
+    "heliosphere:stainless_steel_ingot",
+    "heliosphere:steel_ingot",
+    "heliosphere:ti64_ingot",
+    "heliosphere:tin_ingot",
+    "heliosphere:titanium_ingot",
+    "heliosphere:tungsten_ingot",
+    "heliosphere:vanadium_ingot",
+    "heliosphere:zinc_ingot"
+  ]
+}

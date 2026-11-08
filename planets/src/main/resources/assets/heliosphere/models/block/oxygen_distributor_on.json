@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/oxygen_distributor_top",
+    "front": "heliosphere:block/machine/oxygen_distributor_front_on",
+    "side": "heliosphere:block/machine/oxygen_distributor_side"
+  }
+}

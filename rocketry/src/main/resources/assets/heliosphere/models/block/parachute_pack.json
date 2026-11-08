@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/parachute_pack",
+    "end": "heliosphere:block/part/parachute_pack_top"
+  }
+}

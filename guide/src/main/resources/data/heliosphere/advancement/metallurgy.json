@@ -1,0 +1,201 @@
+{
+  "parent": "heliosphere:industry",
+  "display": {
+    "icon": {
+      "id": "heliosphere:ti64_ingot"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.metallurgy"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.metallurgy.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "electrolyzer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:electrolyzer"
+          }
+        ]
+      }
+    },
+    "chemical_reactor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:chemical_reactor"
+          }
+        ]
+      }
+    },
+    "vacuum_furnace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:vacuum_furnace"
+          }
+        ]
+      }
+    },
+    "alloy_furnace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:alloy_furnace"
+          }
+        ]
+      }
+    },
+    "caustic_soda": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:caustic_soda"
+          }
+        ]
+      }
+    },
+    "alumina": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:alumina"
+          }
+        ]
+      }
+    },
+    "aluminum_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:aluminum_ingot"
+          }
+        ]
+      }
+    },
+    "titanium_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:titanium_ingot"
+          }
+        ]
+      }
+    },
+    "lithium_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lithium_ingot"
+          }
+        ]
+      }
+    },
+    "al_li_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:al_li_ingot"
+          }
+        ]
+      }
+    },
+    "ti64_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:ti64_ingot"
+          }
+        ]
+      }
+    },
+    "inconel_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:inconel_ingot"
+          }
+        ]
+      }
+    },
+    "grcop_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:grcop_ingot"
+          }
+        ]
+      }
+    },
+    "stainless_steel_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:stainless_steel_ingot"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "electrolyzer"
+    ],
+    [
+      "chemical_reactor"
+    ],
+    [
+      "vacuum_furnace"
+    ],
+    [
+      "alloy_furnace"
+    ],
+    [
+      "caustic_soda"
+    ],
+    [
+      "alumina"
+    ],
+    [
+      "aluminum_ingot"
+    ],
+    [
+      "titanium_ingot"
+    ],
+    [
+      "lithium_ingot"
+    ],
+    [
+      "al_li_ingot"
+    ],
+    [
+      "ti64_ingot"
+    ],
+    [
+      "inconel_ingot"
+    ],
+    [
+      "grcop_ingot"
+    ],
+    [
+      "stainless_steel_ingot"
+    ]
+  ]
+}

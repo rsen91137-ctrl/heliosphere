@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "heliosphere:block/part/rocket_fin",
+    "t": "heliosphere:block/part/rocket_fin",
+    "e": "heliosphere:block/part/rocket_fin_edge"
+  },
+  "elements": [
+    {
+      "from": [
+        7,
+        0,
+        0
+      ],
+      "to": [
+        9,
+        14,
+        16
+      ],
+      "faces": {
+        "east": {
+          "texture": "#t"
+        },
+        "west": {
+          "texture": "#t"
+        },
+        "north": {
+          "texture": "#e"
+        },
+        "south": {
+          "texture": "#e"
+        },
+        "up": {
+          "texture": "#e"
+        },
+        "down": {
+          "texture": "#e"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        7
+      ],
+      "to": [
+        16,
+        14,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#t"
+        },
+        "south": {
+          "texture": "#t"
+        },
+        "east": {
+          "texture": "#e"
+        },
+        "west": {
+          "texture": "#e"
+        },
+        "up": {
+          "texture": "#e"
+        },
+        "down": {
+          "texture": "#e"
+        }
+      }
+    }
+  ]
+}

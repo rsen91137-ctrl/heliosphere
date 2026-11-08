@@ -1,0 +1,201 @@
+{
+  "parent": "heliosphere:lunar_base",
+  "display": {
+    "icon": {
+      "id": "heliosphere:engine_methalox"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.deep_space"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.deep_space.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "lunar_ti_alloy_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_ti_alloy_ingot"
+          }
+        ]
+      }
+    },
+    "lunar_turbopump": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_turbopump"
+          }
+        ]
+      }
+    },
+    "methalox_chamber": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:methalox_chamber"
+          }
+        ]
+      }
+    },
+    "engine_methalox": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_methalox"
+          }
+        ]
+      }
+    },
+    "engine_methalox_vac": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_methalox_vac"
+          }
+        ]
+      }
+    },
+    "tank_ch4": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:tank_ch4"
+          }
+        ]
+      }
+    },
+    "rad_hard_chip": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:rad_hard_chip"
+          }
+        ]
+      }
+    },
+    "deep_space_computer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:deep_space_computer"
+          }
+        ]
+      }
+    },
+    "avionics_t2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:avionics_t2"
+          }
+        ]
+      }
+    },
+    "life_support": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:life_support"
+          }
+        ]
+      }
+    },
+    "heat_shield_t2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:heat_shield_t2"
+          }
+        ]
+      }
+    },
+    "lunar_glass_fiber": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_glass_fiber"
+          }
+        ]
+      }
+    },
+    "mars_suit_helmet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:mars_suit_helmet"
+          }
+        ]
+      }
+    },
+    "mars_suit_chestplate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:mars_suit_chestplate"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "lunar_ti_alloy_ingot"
+    ],
+    [
+      "lunar_turbopump"
+    ],
+    [
+      "methalox_chamber"
+    ],
+    [
+      "engine_methalox"
+    ],
+    [
+      "engine_methalox_vac"
+    ],
+    [
+      "tank_ch4"
+    ],
+    [
+      "rad_hard_chip"
+    ],
+    [
+      "deep_space_computer"
+    ],
+    [
+      "avionics_t2"
+    ],
+    [
+      "life_support"
+    ],
+    [
+      "heat_shield_t2"
+    ],
+    [
+      "lunar_glass_fiber"
+    ],
+    [
+      "mars_suit_helmet"
+    ],
+    [
+      "mars_suit_chestplate"
+    ]
+  ]
+}

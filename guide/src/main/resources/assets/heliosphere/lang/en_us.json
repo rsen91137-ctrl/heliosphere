@@ -1,0 +1,23 @@
+{
+  "advancement.heliosphere.beyond": "Beyond",
+  "advancement.heliosphere.beyond.desc": "beyond",
+  "advancement.heliosphere.deep_space": "Deep Space",
+  "advancement.heliosphere.deep_space.desc": "deep_space",
+  "advancement.heliosphere.industry": "Industry",
+  "advancement.heliosphere.industry.desc": "industry",
+  "advancement.heliosphere.lunar_base": "Lunar Base",
+  "advancement.heliosphere.lunar_base.desc": "lunar_base",
+  "advancement.heliosphere.mars": "Mars",
+  "advancement.heliosphere.mars.desc": "mars",
+  "advancement.heliosphere.metallurgy": "Metallurgy",
+  "advancement.heliosphere.metallurgy.desc": "metallurgy",
+  "advancement.heliosphere.moon": "Moon",
+  "advancement.heliosphere.moon.desc": "moon",
+  "advancement.heliosphere.precision": "Precision",
+  "advancement.heliosphere.precision.desc": "precision",
+  "advancement.heliosphere.root": "Heliosphere",
+  "advancement.heliosphere.root.desc": "From Earth's ores to the red planet",
+  "advancement.heliosphere.sounding": "Sounding",
+  "advancement.heliosphere.sounding.desc": "sounding",
+  "item.heliosphere.star_scroll": "The Star Scroll"
+}

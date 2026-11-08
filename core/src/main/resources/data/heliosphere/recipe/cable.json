@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "KKK",
+    "WWW",
+    "KKK"
+  ],
+  "key": {
+    "K": "minecraft:dried_kelp",
+    "W": "heliosphere:copper_wire"
+  },
+  "result": {
+    "id": "heliosphere:cable",
+    "count": 8
+  }
+}

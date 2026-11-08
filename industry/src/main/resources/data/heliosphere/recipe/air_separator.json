@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "WPW",
+    "SRS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "G": "minecraft:glass",
+    "W": "heliosphere:copper_wire",
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:air_separator",
+    "count": 1
+  }
+}

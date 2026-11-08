@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_sphereworld",
+  "version": "${version}",
+  "name": "Heliosphere SphereWorld 日球层·球形世界",
+  "description": "太阳系世界预设（1/100 有限球面地球）、月球与火星的球面地形生成（真实地标）。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.sphereworld.SphereWorld"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "heliosphere": "*"
+  },
+  "mixins": [
+    "heliosphere_sphereworld.mixins.json"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SPS",
+    "GCG",
+    "SPS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "P": "minecraft:piston",
+    "G": "minecraft:glass",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:atmosphere_extractor",
+    "count": 1
+  }
+}

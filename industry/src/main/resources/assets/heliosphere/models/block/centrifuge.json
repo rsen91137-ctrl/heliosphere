@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/centrifuge_top",
+    "front": "heliosphere:block/machine/centrifuge_front",
+    "side": "heliosphere:block/machine/centrifuge_side"
+  }
+}

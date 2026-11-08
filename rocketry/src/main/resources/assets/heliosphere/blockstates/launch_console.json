@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heliosphere:block/launch_console"
+    },
+    "facing=east": {
+      "model": "heliosphere:block/launch_console",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "heliosphere:block/launch_console",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "heliosphere:block/launch_console",
+      "y": 270
+    }
+  }
+}

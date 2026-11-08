@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_rocketry",
+  "version": "${version}",
+  "name": "Heliosphere Rocketry 日球层·火箭",
+  "description": "火箭部件、物理校验、发射控制、飞行、坠毁与着陆。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.rocketry.Rocketry"
+    ],
+    "client": [
+      "com.heliosphere.rocketry.client.RocketryClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "heliosphere": "*",
+    "heliosphere_sphereworld": "*",
+    "heliosphere_industry": "*",
+    "heliosphere_planets": "*"
+  }
+}

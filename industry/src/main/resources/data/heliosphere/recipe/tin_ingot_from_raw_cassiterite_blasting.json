@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:blasting",
+  "category": "misc",
+  "cookingtime": 100,
+  "experience": 0.5,
+  "ingredient": "heliosphere:raw_cassiterite",
+  "result": {
+    "id": "heliosphere:tin_ingot"
+  }
+}

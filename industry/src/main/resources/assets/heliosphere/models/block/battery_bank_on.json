@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/battery_bank_top",
+    "front": "heliosphere:block/machine/battery_bank_front_on",
+    "side": "heliosphere:block/machine/battery_bank_side"
+  }
+}

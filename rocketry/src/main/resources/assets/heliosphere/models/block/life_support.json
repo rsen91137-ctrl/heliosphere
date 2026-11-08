@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/life_support",
+    "end": "heliosphere:block/part/life_support_top"
+  }
+}

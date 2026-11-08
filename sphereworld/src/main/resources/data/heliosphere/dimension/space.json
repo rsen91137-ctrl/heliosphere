@@ -1,0 +1,13 @@
+{
+  "type": "heliosphere:space",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "heliosphere:orbit",
+      "features": false,
+      "lakes": false,
+      "layers": [],
+      "structure_overrides": []
+    }
+  }
+}

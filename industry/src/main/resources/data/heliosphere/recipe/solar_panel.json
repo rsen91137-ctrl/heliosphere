@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "SBS",
+    "SWS"
+  ],
+  "key": {
+    "C": "heliosphere:solar_cell",
+    "S": "heliosphere:steel_ingot",
+    "B": "heliosphere:circuit_board",
+    "W": "heliosphere:copper_wire"
+  },
+  "result": {
+    "id": "heliosphere:solar_panel",
+    "count": 1
+  }
+}

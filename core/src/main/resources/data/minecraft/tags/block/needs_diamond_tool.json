@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "heliosphere:deepslate_sperrylite_ore",
+    "heliosphere:deepslate_uraninite_ore",
+    "heliosphere:sperrylite_ore",
+    "heliosphere:uraninite_ore"
+  ]
+}

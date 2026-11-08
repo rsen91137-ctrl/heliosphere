@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/electrolyzer_top",
+    "front": "heliosphere:block/machine/electrolyzer_front_on",
+    "side": "heliosphere:block/machine/electrolyzer_side"
+  }
+}

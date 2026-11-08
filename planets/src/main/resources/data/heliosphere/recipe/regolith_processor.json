@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SPS",
+    "WCW",
+    "SSS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "P": "minecraft:piston",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:regolith_processor",
+    "count": 1
+  }
+}

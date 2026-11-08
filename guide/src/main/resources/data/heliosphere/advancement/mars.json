@@ -1,0 +1,162 @@
+{
+  "parent": "heliosphere:deep_space",
+  "display": {
+    "icon": {
+      "id": "heliosphere:sabatier_reactor"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.mars"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.mars.desc"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "atmosphere_extractor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:atmosphere_extractor"
+          }
+        ]
+      }
+    },
+    "sabatier_reactor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:sabatier_reactor"
+          }
+        ]
+      }
+    },
+    "canister_co2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:canister_co2"
+          }
+        ]
+      }
+    },
+    "canister_argon": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:canister_argon"
+          }
+        ]
+      }
+    },
+    "perchlorate_salt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:perchlorate_salt"
+          }
+        ]
+      }
+    },
+    "hematite_nodule": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:hematite_nodule"
+          }
+        ]
+      }
+    },
+    "gypsum_crystal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:gypsum_crystal"
+          }
+        ]
+      }
+    },
+    "smectite_clay": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:smectite_clay"
+          }
+        ]
+      }
+    },
+    "mars_ice_chunk": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:mars_ice_chunk"
+          }
+        ]
+      }
+    },
+    "heavy_water": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:heavy_water"
+          }
+        ]
+      }
+    },
+    "science_mars": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:science_mars"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "atmosphere_extractor"
+    ],
+    [
+      "sabatier_reactor"
+    ],
+    [
+      "canister_co2"
+    ],
+    [
+      "canister_argon"
+    ],
+    [
+      "perchlorate_salt"
+    ],
+    [
+      "hematite_nodule"
+    ],
+    [
+      "gypsum_crystal"
+    ],
+    [
+      "smectite_clay"
+    ],
+    [
+      "mars_ice_chunk"
+    ],
+    [
+      "heavy_water"
+    ],
+    [
+      "science_mars"
+    ]
+  ]
+}

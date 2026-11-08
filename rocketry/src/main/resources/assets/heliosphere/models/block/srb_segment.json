@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/srb_segment_side",
+    "end": "heliosphere:block/part/srb_segment_end"
+  }
+}

@@ -1,0 +1,201 @@
+{
+  "parent": "heliosphere:moon",
+  "display": {
+    "icon": {
+      "id": "heliosphere:ilmenite_reducer"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.lunar_base"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.lunar_base.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "solar_panel": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:solar_panel"
+          }
+        ]
+      }
+    },
+    "battery_bank": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:battery_bank"
+          }
+        ]
+      }
+    },
+    "oxygen_distributor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:oxygen_distributor"
+          }
+        ]
+      }
+    },
+    "regolith_processor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:regolith_processor"
+          }
+        ]
+      }
+    },
+    "ilmenite_reducer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:ilmenite_reducer"
+          }
+        ]
+      }
+    },
+    "isru_electrolyzer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:isru_electrolyzer"
+          }
+        ]
+      }
+    },
+    "high_ti_basalt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:high_ti_basalt"
+          }
+        ]
+      }
+    },
+    "lunar_titanium_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_titanium_ingot"
+          }
+        ]
+      }
+    },
+    "lunar_ice_chunk": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_ice_chunk"
+          }
+        ]
+      }
+    },
+    "lunar_glass": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_glass"
+          }
+        ]
+      }
+    },
+    "lunar_ceramic": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:lunar_ceramic"
+          }
+        ]
+      }
+    },
+    "kreep_concentrate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:kreep_concentrate"
+          }
+        ]
+      }
+    },
+    "vacuum_deposition": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:vacuum_deposition"
+          }
+        ]
+      }
+    },
+    "vacuum_wafer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:vacuum_wafer"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "solar_panel"
+    ],
+    [
+      "battery_bank"
+    ],
+    [
+      "oxygen_distributor"
+    ],
+    [
+      "regolith_processor"
+    ],
+    [
+      "ilmenite_reducer"
+    ],
+    [
+      "isru_electrolyzer"
+    ],
+    [
+      "high_ti_basalt"
+    ],
+    [
+      "lunar_titanium_ingot"
+    ],
+    [
+      "lunar_ice_chunk"
+    ],
+    [
+      "lunar_glass"
+    ],
+    [
+      "lunar_ceramic"
+    ],
+    [
+      "kreep_concentrate"
+    ],
+    [
+      "vacuum_deposition"
+    ],
+    [
+      "vacuum_wafer"
+    ]
+  ]
+}

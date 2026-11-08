@@ -1,0 +1,23 @@
+{
+  "advancement.heliosphere.beyond": "第九卷 · 远方",
+  "advancement.heliosphere.beyond.desc": "化学燃料到这里就是极限了。冥王星、木星的大红斑、土卫六的甲烷湖……那里需要等离子推进器、光帆与聚变引擎。",
+  "advancement.heliosphere.deep_space": "第七卷 · 深空技术",
+  "advancement.heliosphere.deep_space.desc": "火星往返需要 259 天航程、深空导航、更强的发动机和能扛住 11.6 km/s 再入的隔热盾。这些都离不开月球材料。",
+  "advancement.heliosphere.industry": "第一卷 · 工业黎明",
+  "advancement.heliosphere.industry.desc": "星际之旅从地球的矿脉开始。地下藏着 22 种新矿石，它们是火箭的血肉。先搭起电网，造出第一台电弧炉。",
+  "advancement.heliosphere.lunar_base": "第六卷 · 月面开拓",
+  "advancement.heliosphere.lunar_base.desc": "「启明一号」到月球后几乎没有余量返航。就地取材（ISRU）是唯一的出路：把月壤、月岩和极区的冰变成燃料、氧气和新材料。",
+  "advancement.heliosphere.mars": "第八卷 · 红色星球",
+  "advancement.heliosphere.mars.desc": "火星大气只有 0.006 bar，却足以让隔热盾和降落伞派上用场。奥林匹斯山、水手谷、希腊盆地都在它们真实的经纬度上等着…",
+  "advancement.heliosphere.metallurgy": "第二卷 · 化工与冶金",
+  "advancement.heliosphere.metallurgy.desc": "航天级金属不是熔炉里烧出来的。你要重走一遍人类的冶金史：拜耳法、霍尔-埃鲁法、亨特法、氯碱工业……",
+  "advancement.heliosphere.moon": "第五卷 · 奔月",
+  "advancement.heliosphere.moon.desc": "地月任务需要约 6070 m/s 的 Δv（已按方块尺度缩放）。单级火箭做不到——你需要两级：煤油液氧一级把你推出大气，…",
+  "advancement.heliosphere.precision": "第三卷 · 精密制造",
+  "advancement.heliosphere.precision.desc": "一台液体火箭发动机由上百个精密零件组成。公差决定生死：每个精密零件都带有制造公差，发动机必须在试车台上点火验证。",
+  "advancement.heliosphere.root": "日球层",
+  "advancement.heliosphere.root.desc": "从地球的矿脉到红色星球",
+  "advancement.heliosphere.sounding": "第四卷 · 探空",
+  "advancement.heliosphere.sounding.desc": "第一枚火箭不必入轨。一枚无制导的固体探空火箭，越过 100 公里卡门线再用降落伞回来——带回的数据是制造航电的前提。",
+  "item.heliosphere.star_scroll": "星际航行卷轴"
+}

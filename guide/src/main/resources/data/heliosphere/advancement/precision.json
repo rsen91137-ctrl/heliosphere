@@ -1,0 +1,227 @@
+{
+  "parent": "heliosphere:metallurgy",
+  "display": {
+    "icon": {
+      "id": "heliosphere:turbopump"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.precision"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.precision.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "refinery": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:refinery"
+          }
+        ]
+      }
+    },
+    "air_separator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:air_separator"
+          }
+        ]
+      }
+    },
+    "cnc_machine": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:cnc_machine"
+          }
+        ]
+      }
+    },
+    "metal_3d_printer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:metal_3d_printer"
+          }
+        ]
+      }
+    },
+    "electronics_assembler": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:electronics_assembler"
+          }
+        ]
+      }
+    },
+    "assembly_station": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:assembly_station"
+          }
+        ]
+      }
+    },
+    "turbine_blade": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:turbine_blade"
+          }
+        ]
+      }
+    },
+    "si3n4_bearing": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:si3n4_bearing"
+          }
+        ]
+      }
+    },
+    "turbopump": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:turbopump"
+          }
+        ]
+      }
+    },
+    "combustion_chamber": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:combustion_chamber"
+          }
+        ]
+      }
+    },
+    "injector": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:injector"
+          }
+        ]
+      }
+    },
+    "valve": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:valve"
+          }
+        ]
+      }
+    },
+    "igniter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:igniter"
+          }
+        ]
+      }
+    },
+    "engine_controller": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_controller"
+          }
+        ]
+      }
+    },
+    "engine_kerolox": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_kerolox"
+          }
+        ]
+      }
+    },
+    "engine_test_stand": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:engine_test_stand"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "refinery"
+    ],
+    [
+      "air_separator"
+    ],
+    [
+      "cnc_machine"
+    ],
+    [
+      "metal_3d_printer"
+    ],
+    [
+      "electronics_assembler"
+    ],
+    [
+      "assembly_station"
+    ],
+    [
+      "turbine_blade"
+    ],
+    [
+      "si3n4_bearing"
+    ],
+    [
+      "turbopump"
+    ],
+    [
+      "combustion_chamber"
+    ],
+    [
+      "injector"
+    ],
+    [
+      "valve"
+    ],
+    [
+      "igniter"
+    ],
+    [
+      "engine_controller"
+    ],
+    [
+      "engine_kerolox"
+    ],
+    [
+      "engine_test_stand"
+    ]
+  ]
+}

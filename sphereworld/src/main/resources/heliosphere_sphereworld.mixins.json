@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.heliosphere.sphereworld.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "NoiseBasedChunkGeneratorMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

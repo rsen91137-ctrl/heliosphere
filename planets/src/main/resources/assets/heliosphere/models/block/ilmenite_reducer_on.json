@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/ilmenite_reducer_top",
+    "front": "heliosphere:block/machine/ilmenite_reducer_front_on",
+    "side": "heliosphere:block/machine/ilmenite_reducer_side"
+  }
+}

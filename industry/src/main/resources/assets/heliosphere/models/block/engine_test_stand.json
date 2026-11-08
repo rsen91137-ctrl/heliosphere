@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/engine_test_stand_top",
+    "front": "heliosphere:block/machine/engine_test_stand_front",
+    "side": "heliosphere:block/machine/engine_test_stand_side"
+  }
+}

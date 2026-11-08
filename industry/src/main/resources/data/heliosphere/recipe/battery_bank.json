@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BBB",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+    "B": "heliosphere:battery_cell",
+    "S": "heliosphere:steel_ingot",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:battery_bank",
+    "count": 1
+  }
+}

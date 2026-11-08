@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "CCC"
+  ],
+  "key": {
+    "P": "heliosphere:steel_plate",
+    "C": "minecraft:smooth_stone"
+  },
+  "result": {
+    "id": "heliosphere:launch_pad",
+    "count": 4
+  }
+}

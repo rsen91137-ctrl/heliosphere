@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SLS",
+    "WCW",
+    "SGS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "L": "heliosphere:platinum_ingot",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "heliosphere:isru_electrolyzer",
+    "count": 1
+  }
+}

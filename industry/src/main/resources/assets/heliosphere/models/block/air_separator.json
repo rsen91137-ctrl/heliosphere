@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/air_separator_top",
+    "front": "heliosphere:block/machine/air_separator_front",
+    "side": "heliosphere:block/machine/air_separator_side"
+  }
+}

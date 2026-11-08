@@ -1,0 +1,26 @@
+{
+  "replace": false,
+  "values": [
+    "heliosphere:beryl_ore",
+    "heliosphere:chromite_ore",
+    "heliosphere:cobaltite_ore",
+    "heliosphere:deepslate_beryl_ore",
+    "heliosphere:deepslate_chromite_ore",
+    "heliosphere:deepslate_cobaltite_ore",
+    "heliosphere:deepslate_ilmenite_ore",
+    "heliosphere:deepslate_molybdenite_ore",
+    "heliosphere:deepslate_monazite_ore",
+    "heliosphere:deepslate_pentlandite_ore",
+    "heliosphere:deepslate_pyrochlore_ore",
+    "heliosphere:deepslate_titanomagnetite_ore",
+    "heliosphere:deepslate_wolframite_ore",
+    "heliosphere:ilmenite_ore",
+    "heliosphere:kreep_rock",
+    "heliosphere:molybdenite_ore",
+    "heliosphere:monazite_ore",
+    "heliosphere:pentlandite_ore",
+    "heliosphere:pyrochlore_ore",
+    "heliosphere:titanomagnetite_ore",
+    "heliosphere:wolframite_ore"
+  ]
+}

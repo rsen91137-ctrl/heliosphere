@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SPS",
+    "PFP",
+    "SCS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "P": "heliosphere:stainless_steel_ingot",
+    "F": "minecraft:furnace",
+    "C": "minecraft:cauldron"
+  },
+  "result": {
+    "id": "heliosphere:refinery",
+    "count": 1
+  }
+}

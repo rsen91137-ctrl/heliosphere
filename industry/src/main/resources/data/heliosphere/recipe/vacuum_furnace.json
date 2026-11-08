@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TMT",
+    "SBS",
+    "SRS"
+  ],
+  "key": {
+    "T": "heliosphere:tungsten_ingot",
+    "M": "heliosphere:molybdenum_ingot",
+    "S": "heliosphere:steel_ingot",
+    "B": "minecraft:blast_furnace",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "heliosphere:vacuum_furnace",
+    "count": 1
+  }
+}

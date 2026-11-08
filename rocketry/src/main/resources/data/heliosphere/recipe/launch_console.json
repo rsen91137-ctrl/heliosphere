@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "PCP",
+    "SRS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "G": "minecraft:glass_pane",
+    "P": "heliosphere:processor",
+    "C": "heliosphere:circuit_board",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:launch_console",
+    "count": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "B B",
+    "BCB",
+    "III"
+  ],
+  "key": {
+    "B": "minecraft:iron_bars",
+    "C": "heliosphere:circuit_board",
+    "I": "minecraft:iron_block"
+  },
+  "result": {
+    "id": "heliosphere:engine_test_stand",
+    "count": 1
+  }
+}

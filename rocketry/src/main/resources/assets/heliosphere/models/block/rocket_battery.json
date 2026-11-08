@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/rocket_battery",
+    "end": "heliosphere:block/part/rocket_battery_top"
+  }
+}

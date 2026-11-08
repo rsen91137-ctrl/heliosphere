@@ -1,0 +1,26 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:star_scroll"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.root"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.root.desc"
+    },
+    "background": "heliosphere:block/anorthosite",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "tick": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [
+    [
+      "tick"
+    ]
+  ]
+}

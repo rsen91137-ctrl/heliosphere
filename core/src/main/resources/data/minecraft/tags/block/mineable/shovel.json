@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    "heliosphere:helium3_regolith",
+    "heliosphere:mare_regolith",
+    "heliosphere:mars_regolith",
+    "heliosphere:mars_sand",
+    "heliosphere:moon_regolith",
+    "heliosphere:oil_sand",
+    "heliosphere:perchlorate_deposit",
+    "heliosphere:smectite_clay_block"
+  ]
+}

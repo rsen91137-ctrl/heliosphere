@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SDS",
+    "GPG",
+    "SRS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "D": "minecraft:diamond",
+    "G": "minecraft:glowstone",
+    "P": "heliosphere:processor",
+    "R": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "heliosphere:metal_3d_printer",
+    "count": 1
+  }
+}

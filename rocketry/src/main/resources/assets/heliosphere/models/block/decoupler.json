@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/decoupler",
+    "end": "heliosphere:block/part/decoupler_end"
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "parent": "heliosphere:precision",
+  "display": {
+    "icon": {
+      "id": "heliosphere:srb_nozzle"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.sounding"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.sounding.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "ammonium_perchlorate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:ammonium_perchlorate"
+          }
+        ]
+      }
+    },
+    "srb_segment": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:srb_segment"
+          }
+        ]
+      }
+    },
+    "srb_nozzle": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:srb_nozzle"
+          }
+        ]
+      }
+    },
+    "parachute_pack": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:parachute_pack"
+          }
+        ]
+      }
+    },
+    "crew_capsule": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:crew_capsule"
+          }
+        ]
+      }
+    },
+    "nose_cone": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:nose_cone"
+          }
+        ]
+      }
+    },
+    "launch_pad": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:launch_pad"
+          }
+        ]
+      }
+    },
+    "launch_console": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:launch_console"
+          }
+        ]
+      }
+    },
+    "science_suborbital": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:science_suborbital"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "ammonium_perchlorate"
+    ],
+    [
+      "srb_segment"
+    ],
+    [
+      "srb_nozzle"
+    ],
+    [
+      "parachute_pack"
+    ],
+    [
+      "crew_capsule"
+    ],
+    [
+      "nose_cone"
+    ],
+    [
+      "launch_pad"
+    ],
+    [
+      "launch_console"
+    ],
+    [
+      "science_suborbital"
+    ]
+  ]
+}

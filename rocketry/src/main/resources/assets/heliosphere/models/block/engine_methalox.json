@@ -1,0 +1,138 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "heliosphere:block/part/engine_methalox_body",
+    "body": "heliosphere:block/part/engine_methalox_body",
+    "nozzle": "heliosphere:block/part/engine_methalox_nozzle"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        10,
+        2
+      ],
+      "to": [
+        14,
+        16,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#body"
+        },
+        "south": {
+          "texture": "#body"
+        },
+        "east": {
+          "texture": "#body"
+        },
+        "west": {
+          "texture": "#body"
+        },
+        "up": {
+          "texture": "#body"
+        },
+        "down": {
+          "texture": "#body"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        7,
+        5
+      ],
+      "to": [
+        11,
+        10,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#nozzle"
+        },
+        "south": {
+          "texture": "#nozzle"
+        },
+        "east": {
+          "texture": "#nozzle"
+        },
+        "west": {
+          "texture": "#nozzle"
+        },
+        "up": {
+          "texture": "#nozzle"
+        },
+        "down": {
+          "texture": "#nozzle"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        4,
+        4
+      ],
+      "to": [
+        12,
+        7,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#nozzle"
+        },
+        "south": {
+          "texture": "#nozzle"
+        },
+        "east": {
+          "texture": "#nozzle"
+        },
+        "west": {
+          "texture": "#nozzle"
+        },
+        "up": {
+          "texture": "#nozzle"
+        },
+        "down": {
+          "texture": "#nozzle"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#nozzle"
+        },
+        "south": {
+          "texture": "#nozzle"
+        },
+        "east": {
+          "texture": "#nozzle"
+        },
+        "west": {
+          "texture": "#nozzle"
+        },
+        "up": {
+          "texture": "#nozzle"
+        },
+        "down": {
+          "texture": "#nozzle"
+        }
+      }
+    }
+  ]
+}

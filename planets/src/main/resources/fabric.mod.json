@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_planets",
+  "version": "${version}",
+  "name": "Heliosphere Planets 日球层·太空生存",
+  "description": "宇航服与氧气、月球与火星的就地资源利用（ISRU）。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.planets.PlanetsMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "heliosphere": "*",
+    "heliosphere_sphereworld": "*",
+    "heliosphere_industry": "*"
+  }
+}

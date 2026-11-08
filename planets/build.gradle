@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(path: ':core', configuration: 'namedElements')
+    implementation project(path: ':sphereworld', configuration: 'namedElements')
+    implementation project(path: ':industry', configuration: 'namedElements')
+}

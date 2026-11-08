@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_guide",
+  "version": "${version}",
+  "name": "Heliosphere Guide 日球层·星际卷轴",
+  "description": "星际航行卷轴：从地球矿石到火星的科技树指引。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.guide.Guide"
+    ],
+    "client": [
+      "com.heliosphere.guide.client.GuideClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "heliosphere": "*",
+    "heliosphere_industry": "*",
+    "heliosphere_planets": "*",
+    "heliosphere_rocketry": "*"
+  }
+}

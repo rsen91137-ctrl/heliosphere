@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/launch_console_side",
+    "front": "heliosphere:block/launch_console_front",
+    "side": "heliosphere:block/launch_console_side"
+  }
+}

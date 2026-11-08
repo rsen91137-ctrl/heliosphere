@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "side": "heliosphere:block/part/tank_rp1_side",
+    "end": "heliosphere:block/part/tank_rp1_end"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_industry",
+  "version": "${version}",
+  "name": "Heliosphere Industry 日球层·工业",
+  "description": "22 种新矿石、冶金化工链、精密制造与电力。",
+  "authors": [
+    "Heliosphere"
+  ],
+  "license": "MIT",
+  "icon": "assets/heliosphere/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.industry.Industry"
+    ],
+    "client": [
+      "com.heliosphere.industry.client.IndustryClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*",
+    "heliosphere": "*"
+  }
+}

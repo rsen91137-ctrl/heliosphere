@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "PCP",
+    "SRS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "G": "minecraft:glass",
+    "P": "minecraft:copper_ingot",
+    "C": "minecraft:cauldron",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:chemical_reactor",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SWS",
+    "WCW",
+    "SIS"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board",
+    "I": "minecraft:iron_block"
+  },
+  "result": {
+    "id": "heliosphere:centrifuge",
+    "count": 1
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TGT",
+    "SBS",
+    "SCS"
+  ],
+  "key": {
+    "T": "heliosphere:tungsten_ingot",
+    "G": "minecraft:glass",
+    "S": "heliosphere:stainless_steel_ingot",
+    "B": "minecraft:blast_furnace",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:ilmenite_reducer",
+    "count": 1
+  }
+}

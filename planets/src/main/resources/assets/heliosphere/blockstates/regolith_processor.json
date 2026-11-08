@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,lit=false": {
+      "model": "heliosphere:block/regolith_processor"
+    },
+    "facing=north,lit=true": {
+      "model": "heliosphere:block/regolith_processor_on"
+    },
+    "facing=east,lit=false": {
+      "model": "heliosphere:block/regolith_processor",
+      "y": 90
+    },
+    "facing=east,lit=true": {
+      "model": "heliosphere:block/regolith_processor_on",
+      "y": 90
+    },
+    "facing=south,lit=false": {
+      "model": "heliosphere:block/regolith_processor",
+      "y": 180
+    },
+    "facing=south,lit=true": {
+      "model": "heliosphere:block/regolith_processor_on",
+      "y": 180
+    },
+    "facing=west,lit=false": {
+      "model": "heliosphere:block/regolith_processor",
+      "y": 270
+    },
+    "facing=west,lit=true": {
+      "model": "heliosphere:block/regolith_processor_on",
+      "y": 270
+    }
+  }
+}

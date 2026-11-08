@@ -1,0 +1,162 @@
+{
+  "parent": "heliosphere:root",
+  "display": {
+    "icon": {
+      "id": "heliosphere:electric_arc_furnace"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.industry"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.industry.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "raw_bauxite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:raw_bauxite"
+          }
+        ]
+      }
+    },
+    "raw_ilmenite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:raw_ilmenite"
+          }
+        ]
+      }
+    },
+    "raw_pentlandite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:raw_pentlandite"
+          }
+        ]
+      }
+    },
+    "raw_chromite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:raw_chromite"
+          }
+        ]
+      }
+    },
+    "graphite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:graphite"
+          }
+        ]
+      }
+    },
+    "fluorite": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:fluorite"
+          }
+        ]
+      }
+    },
+    "rock_salt": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:rock_salt"
+          }
+        ]
+      }
+    },
+    "coal_generator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:coal_generator"
+          }
+        ]
+      }
+    },
+    "cable": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:cable"
+          }
+        ]
+      }
+    },
+    "electric_arc_furnace": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:electric_arc_furnace"
+          }
+        ]
+      }
+    },
+    "steel_ingot": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:steel_ingot"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "raw_bauxite"
+    ],
+    [
+      "raw_ilmenite"
+    ],
+    [
+      "raw_pentlandite"
+    ],
+    [
+      "raw_chromite"
+    ],
+    [
+      "graphite"
+    ],
+    [
+      "fluorite"
+    ],
+    [
+      "rock_salt"
+    ],
+    [
+      "coal_generator"
+    ],
+    [
+      "cable"
+    ],
+    [
+      "electric_arc_furnace"
+    ],
+    [
+      "steel_ingot"
+    ]
+  ]
+}

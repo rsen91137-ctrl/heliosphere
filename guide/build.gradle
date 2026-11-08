@@ -1,0 +1,19 @@
+dependencies {
+    implementation project(path: ':core', configuration: 'namedElements')
+    implementation project(path: ':sphereworld', configuration: 'namedElements')
+    implementation project(path: ':industry', configuration: 'namedElements')
+    implementation project(path: ':planets', configuration: 'namedElements')
+    implementation project(path: ':rocketry', configuration: 'namedElements')
+}
+
+// Dev runs load every module as its own mod.
+loom {
+    mods {
+        heliosphere { sourceSet project(':core').sourceSets.main }
+        heliosphere_sphereworld { sourceSet project(':sphereworld').sourceSets.main }
+        heliosphere_industry { sourceSet project(':industry').sourceSets.main }
+        heliosphere_planets { sourceSet project(':planets').sourceSets.main }
+        heliosphere_rocketry { sourceSet project(':rocketry').sourceSets.main }
+        heliosphere_guide { sourceSet sourceSets.main }
+    }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:paper",
+    "minecraft:compass"
+  ],
+  "result": {
+    "id": "heliosphere:star_scroll",
+    "count": 1
+  }
+}

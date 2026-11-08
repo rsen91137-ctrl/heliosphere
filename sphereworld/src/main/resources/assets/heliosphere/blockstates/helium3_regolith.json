@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "heliosphere:block/helium3_regolith"
+    }
+  }
+}

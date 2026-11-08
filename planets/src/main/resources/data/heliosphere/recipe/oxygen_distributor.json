@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GGG",
+    "WPW",
+    "SCS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "G": "minecraft:glass",
+    "W": "heliosphere:copper_wire",
+    "P": "minecraft:piston",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:oxygen_distributor",
+    "count": 1
+  }
+}

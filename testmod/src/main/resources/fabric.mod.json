@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_test",
+  "version": "${version}",
+  "name": "Heliosphere client game tests",
+  "environment": "client",
+  "entrypoints": { "fabric-client-gametest": ["com.heliosphere.test.HelioClientTest"] },
+  "depends": { "heliosphere_guide": "*", "heliosphere_rocketry": "*" }
+}

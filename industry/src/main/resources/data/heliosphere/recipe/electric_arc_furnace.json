@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GKG",
+    "IBI",
+    "IRI"
+  ],
+  "key": {
+    "G": "heliosphere:graphite",
+    "K": "heliosphere:cable",
+    "I": "minecraft:iron_ingot",
+    "B": "minecraft:blast_furnace",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "heliosphere:electric_arc_furnace",
+    "count": 1
+  }
+}

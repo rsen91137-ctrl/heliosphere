@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "GPG",
+    "SGS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_ingot",
+    "G": "minecraft:glass",
+    "P": "heliosphere:processor"
+  },
+  "result": {
+    "id": "heliosphere:vacuum_deposition",
+    "count": 1
+  }
+}
