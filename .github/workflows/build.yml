@@ -29,8 +29,11 @@ jobs:
           key: gradle-${{ hashFiles('**/*.gradle', 'gradle.properties') }}
       - name: Install Gradle 9.2.1
         run: |
-          curl -sL https://services.gradle.org/distributions/gradle-9.2.1-bin.zip -o /tmp/g.zip
-          unzip -q /tmp/g.zip -d /tmp
+          for i in 1 2 3 4 5; do
+            curl -fsSL --retry 5 https://services.gradle.org/distributions/gradle-9.2.1-bin.zip -o /tmp/g.zip && unzip -q -o /tmp/g.zip -d /tmp && break
+            sleep 10
+          done
+          test -x /tmp/gradle-9.2.1/bin/gradle
       - name: Generate textures and data (deterministic)
         run: |
           pip install --quiet pillow numpy
