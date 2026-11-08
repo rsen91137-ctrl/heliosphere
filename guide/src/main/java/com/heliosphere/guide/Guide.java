@@ -41,6 +41,7 @@ public final class Guide implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        com.heliosphere.core.Heliosphere.bootstrap();
         Reg.tab("guide");
         SCROLL = Reg.item("star_scroll", ScrollItem::new, new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
         PayloadTypeRegistry.playS2C().register(OpenScroll.TYPE, OpenScroll.CODEC);

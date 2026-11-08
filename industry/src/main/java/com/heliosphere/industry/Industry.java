@@ -55,6 +55,7 @@ public final class Industry implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        com.heliosphere.core.Heliosphere.bootstrap();
         Reg.tab("industry");
         for (String[] ore : GenIds.ORES) {
             float h = switch (ore[1]) { case "diamond" -> 4.5f; case "iron" -> 3.5f; default -> 3.0f; };
@@ -84,7 +85,6 @@ public final class Industry implements ModInitializer {
         MachineType.addProvider(IndustryRecipes::register);
         CreativeTabs.register("industry", () -> new ItemStack(MACHINES.get("electric_arc_furnace")), "industry", "core");
         Heliosphere.LOG.info("Heliosphere industry: {} ores, {} machines", GenIds.ORES.length, MACHINES.size());
-        CoreBlocks.CABLE.asItem();
     }
 
     private static ResourceKey<PlacedFeature> placed(String id) { return ResourceKey.create(Registries.PLACED_FEATURE, Heliosphere.id(id)); }

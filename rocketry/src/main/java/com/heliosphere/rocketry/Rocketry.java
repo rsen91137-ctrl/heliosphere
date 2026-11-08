@@ -60,6 +60,7 @@ public final class Rocketry implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        com.heliosphere.core.Heliosphere.bootstrap();
         FabricTrackedDataRegistry.register(Heliosphere.id("rocket_structure"), RocketEntity.STRUCTURE_SERIALIZER);
         Reg.tab("rocketry");
         for (Blueprints.Blueprint bp : Blueprints.all())

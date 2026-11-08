@@ -21,8 +21,18 @@ public final class Heliosphere implements ModInitializer {
 
     public static Identifier id(String path) { return Identifier.fromNamespaceAndPath(MOD_ID, path); }
 
+    private static boolean booted;
+
     @Override
-    public void onInitialize() {
+    public void onInitialize() { bootstrap(); }
+
+    /**
+     * Fabric does not order entrypoints by dependency, so every Heliosphere module calls this first.
+     * Idempotent: the first caller registers the core content, later calls do nothing.
+     */
+    public static synchronized void bootstrap() {
+        if (booted) return;
+        booted = true;
         HelioComponents.init();
         Reg.tab("core");
         CoreBlocks.init();

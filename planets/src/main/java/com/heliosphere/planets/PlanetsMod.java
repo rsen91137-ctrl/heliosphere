@@ -58,6 +58,7 @@ public final class PlanetsMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        com.heliosphere.core.Heliosphere.bootstrap();
         Reg.tab("planets");
         for (String[] it : GenIds.ITEMS) Reg.item(it[0]);
         registerSuit("space_suit", 1, -175, 130, 6000);

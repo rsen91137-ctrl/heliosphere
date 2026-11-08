@@ -26,6 +26,7 @@ import net.minecraft.world.level.levelgen.RandomState;
 public final class SphereWorld implements ModInitializer {
     @Override
     public void onInitialize() {
+        com.heliosphere.core.Heliosphere.bootstrap();
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Heliosphere.id("planet"), PlanetChunkGenerator.CODEC);
         Registry.register(BuiltInRegistries.BIOME_SOURCE, Heliosphere.id("earth"), EarthBiomeSource.CODEC);
         TerrainBlocks.init();
