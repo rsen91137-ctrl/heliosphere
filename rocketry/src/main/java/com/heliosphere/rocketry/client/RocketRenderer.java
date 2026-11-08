@@ -57,14 +57,15 @@ public class RocketRenderer extends EntityRenderer<RocketEntity, RocketRenderer.
         if (srb || e.structure().parts().isEmpty()) s.skin = 0;
         else if (capsule) s.skin = deep && decoupler ? 1 : 2;
         else s.skin = deep ? 3 : 0;
-        s.scale = huge ? RocketSkin.SCALE * 1.45f : deep ? RocketSkin.SCALE : RocketSkin.SCALE * 0.8f;
+        // full size as the players built it; outer-system ships are larger still
+        s.scale = huge ? RocketSkin.SCALE * 1.5f : RocketSkin.SCALE;
     }
 
     @Override
     protected AABB getBoundingBoxForCulling(RocketEntity e) {
         RocketStructure st = e.structure();
-        int r = Math.max(st.radius() + 1, 4);
-        return new AABB(e.getX() - r, e.getY() + st.minY() - 1, e.getZ() - r, e.getX() + r, e.getY() + Math.max(st.maxY() + 2, 42), e.getZ() + r);
+        int r = Math.max(st.radius() + 1, 13);
+        return new AABB(e.getX() - r, e.getY() + st.minY() - 1, e.getZ() - r, e.getX() + r, e.getY() + Math.max(st.maxY() + 2, 185), e.getZ() + r);
     }
 
     @Override

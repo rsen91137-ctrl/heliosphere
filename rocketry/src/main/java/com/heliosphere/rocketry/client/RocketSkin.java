@@ -12,13 +12,13 @@ import java.util.List;
 
 /**
  * The flight model of crewed rockets: the players' own rocket design, captured block by block from their world
- * (surface blocks only) and drawn at a third of full size. The booster below the copper interstage and the ship
+ * (surface blocks only) and drawn at full size: 121 blocks tall. The booster below the copper interstage and the ship
  * above it are drawn separately so staging looks right.
  */
 public final class RocketSkin {
     public record Voxel(float x, int y, float z, BlockState state) {}
 
-    public static final float SCALE = 0.33f;
+    public static final float SCALE = 1.0f;
     private static List<Voxel> voxels;
     private static int height = 1, split = 0;
 
