@@ -86,6 +86,10 @@ public class ScrollScreen extends Screen {
             addRenderableWidget(b);
             y += step;
         }
+        addRenderableWidget(Button.builder(Component.literal("§e配方百科 (H)"), bt -> minecraft.setScreen(new EncyclopediaScreen()))
+                .bounds(left() + W - 92, top() + 10, 80, 14).build());
+        addRenderableWidget(Button.builder(Component.literal("§7重看开场"), bt -> minecraft.setScreen(new IntroScreen()))
+                .bounds(left() + W - 176, top() + 10, 80, 14).build());
     }
 
     @Override

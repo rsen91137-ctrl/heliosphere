@@ -23,6 +23,8 @@
   "itemGroup.heliosphere.industry": "Heliosphere · Industry",
   "itemGroup.heliosphere.planets": "Heliosphere · Space",
   "itemGroup.heliosphere.rocketry": "Heliosphere · Rocketry",
+  "key.category.heliosphere.main": "Heliosphere",
+  "key.heliosphere.encyclopedia": "Open recipe encyclopedia",
   "message.heliosphere.abort": "§eNot enough delta-v for the transfer - aborting",
   "message.heliosphere.arrival": "§bArriving at %s, beginning descent",
   "message.heliosphere.breakup": "§4Structural failure at Max-Q!",

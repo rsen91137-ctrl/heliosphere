@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "W W",
+    "S S"
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "W": "minecraft:white_wool"
+  },
+  "result": {
+    "id": "heliosphere:space_suit_boots",
+    "count": 1
+  }
+}

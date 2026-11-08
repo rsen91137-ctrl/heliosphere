@@ -110,6 +110,23 @@ public final class Rocketry implements ModInitializer {
     private static void recipes() {
         MachineType asm = MachineType.get("assembly_station");
         MachineType stand = MachineType.get("engine_test_stand");
+        // starter versions for the Moon rocket: steel instead of aerospace alloys, listed first
+        asm.recipe(r().in(I("turbopump")).in(I("combustion_chamber")).in(I("injector")).in(I("valve"), 2).in(I("igniter")).in(I("nozzle_bell"))
+                .out(I("engine_kerolox")).time(400).power(100));
+        asm.recipe(r().in(I("turbopump")).in(I("combustion_chamber")).in(I("injector")).in(I("valve"), 2).in(I("igniter")).in(I("nozzle_bell"), 2)
+                .out(I("engine_hydrolox")).time(400).power(100));
+        asm.recipe(r().in(I("steel_plate"), 4).in(I("valve")).out(I("tank_rp1"), 2).time(200).power(60));
+        asm.recipe(r().in(I("steel_plate"), 4).in(I("valve")).in(I("copv")).out(I("tank_lox"), 2).time(200).power(60));
+        asm.recipe(r().in(I("steel_plate"), 4).in(I("valve")).in(I("copv")).in(Items.PACKED_ICE).out(I("tank_lh2"), 2).time(200).power(60));
+        asm.recipe(r().in(I("steel_plate"), 2).in(I("steel_ingot")).out(I("rocket_frame"), 4).time(100).power(30));
+        asm.recipe(r().in(I("guidance_computer")).in(I("battery_cell")).in(I("steel_plate"), 2).out(I("avionics_t1")).time(300).power(80));
+        asm.recipe(r().in(I("steel_plate"), 6).in(Items.GLASS_PANE, 2).in(I("circuit_board"), 2).in(I("battery_cell")).out(I("crew_capsule")).time(400).power(100));
+        asm.recipe(r().in(I("heat_shield_tile"), 6).in(I("steel_plate"), 2).out(I("heat_shield")).time(300).power(80));
+        asm.recipe(r().in(I("parachute_canopy"), 3).in(Items.STRING, 4).out(I("parachute_pack")).time(200).power(40));
+        asm.recipe(r().in(I("steel_plate"), 2).in(I("steel_ingot"), 2).out(I("landing_leg"), 2).time(200).power(50));
+        asm.recipe(r().in(I("steel_plate"), 3).out(I("nose_cone")).time(120).power(40));
+        asm.recipe(r().in(I("steel_plate"), 2).out(I("rocket_fin"), 2).time(120).power(40));
+        asm.recipe(r().in(I("battery_cell"), 4).in(I("steel_plate")).out(I("rocket_battery")).time(160).power(40));
         asm.recipe(r().in(I("turbopump")).in(I("combustion_chamber")).in(I("injector")).in(I("valve"), 2).in(I("igniter")).in(I("engine_controller"))
                 .in(I("gimbal")).in(I("nozzle_bell")).out(I("engine_kerolox")).time(600).power(160).precise());
         asm.recipe(r().in(I("turbopump"), 2).in(I("combustion_chamber")).in(I("injector")).in(I("valve"), 2).in(I("igniter")).in(I("engine_controller"))

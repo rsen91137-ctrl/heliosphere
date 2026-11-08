@@ -23,6 +23,8 @@
   "itemGroup.heliosphere.industry": "日球层 · 工业",
   "itemGroup.heliosphere.planets": "日球层 · 太空",
   "itemGroup.heliosphere.rocketry": "日球层 · 火箭",
+  "key.category.heliosphere.main": "日球层",
+  "key.heliosphere.encyclopedia": "打开配方百科",
   "message.heliosphere.abort": "§eΔv 不足以完成转移，任务中止返航",
   "message.heliosphere.arrival": "§b抵达%s，开始进入与下降",
   "message.heliosphere.breakup": "§4火箭在最大动压区解体！",

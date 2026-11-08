@@ -211,6 +211,8 @@ def gen_core():
         'story.heliosphere.signal_3': ('§c§l半人马舰队预计 %s 年后抵达地球。§r§e打开星图，第一个目标：比邻星系。', '§c§lThe Centaurian fleet will reach Earth in %s years.§r§e Open the star map. First target: Proxima.'),
         'story.heliosphere.already': ('§7倒计时早已开始。', '§7The countdown is already running.'),
         'condition.heliosphere.needs_outer': ('需要远离太阳的射电噪声：只能在海王星以外（海卫一、冥王星、卡戎、阋神星）运行', 'Needs radio silence: only beyond Neptune'),
+        'key.heliosphere.encyclopedia': ('打开配方百科', 'Open recipe encyclopedia'),
+        'key.category.heliosphere.main': ('日球层', 'Heliosphere'),
         'message.heliosphere.science': ('§b获得科学数据：%s', '§bScience collected: %s'),
         'message.heliosphere.escape_tower': ('§e逃逸塔点火！乘员舱被弹射出去', '§eEscape tower fired - crew ejected!'),
         'message.heliosphere.life_support_failed': ('§c生命维持不足，舱内二氧化碳浓度升高', '§cLife support exhausted'),
@@ -519,6 +521,19 @@ def part_models(m, pid, kind, color, accent):
 
 
 def gen_rocketry():
+    # starter crafting-table recipes: no machine needed for plates, wire and the basic space suit
+    for rid, ings, out, cnt in [('steel_plate_hand', [h('steel_ingot'), h('steel_ingot')], 'steel_plate', 1),
+                                ('copper_plate_hand', ['minecraft:copper_ingot', 'minecraft:copper_ingot'], 'copper_plate', 1),
+                                ('copper_wire_hand', ['minecraft:copper_ingot'], 'copper_wire', 3)]:
+        data('industry', f'recipe/{rid}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc', 'ingredients': ings,
+                                                'result': {'id': h(out), 'count': cnt}})
+    suit = {'helmet': (['SSS', 'SGS'], {'S': h('steel_ingot'), 'G': 'minecraft:glass_pane'}),
+            'chestplate': (['S S', 'SWS', 'SCS'], {'S': h('steel_ingot'), 'W': 'minecraft:white_wool', 'C': h('empty_canister')}),
+            'leggings': (['SSS', 'W W', 'S S'], {'S': h('steel_ingot'), 'W': 'minecraft:white_wool'}),
+            'boots': (['W W', 'S S'], {'S': h('steel_ingot'), 'W': 'minecraft:white_wool'})}
+    for pc, (pat, key) in suit.items():
+        data('planets', f'recipe/space_suit_{pc}_hand.json', {'type': 'minecraft:crafting_shaped', 'category': 'equipment', 'pattern': pat,
+                                                               'key': key, 'result': {'id': h(f'space_suit_{pc}'), 'count': 1}})
     for (fid, zh, en, spec, nut, sat, ings, cnt) in C.FOODS:
         simple_item('planets', fid, lambda n, i=fid, sp=spec: icons.item_icon(n, i, sp, seed(i)))
         lang('planets', f'item.heliosphere.{fid}', zh, en)

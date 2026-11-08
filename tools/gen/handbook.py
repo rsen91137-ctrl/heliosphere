@@ -368,3 +368,38 @@ data = json.dumps(list(items.values()), ensure_ascii=False)
 tpl = open(os.path.join(os.path.dirname(__file__), 'handbook_template.html'), encoding='utf-8').read()
 open(f'{out_dir}/Heliosphere-配方大全.html', 'w', encoding='utf-8').write(tpl.replace('/*DATA*/[]', data))
 print('web items', len(items))
+
+# ================================================================== in-game encyclopedia data (ids, not names)
+VAN_REV = {v: 'minecraft:' + k.lower() for k, v in VANILLA.items()}
+def to_id(nm):
+    if nm in NAME_ID:
+        return 'heliosphere:' + NAME_ID[nm]
+    if nm in VAN_REV:
+        return VAN_REV[nm]
+    if nm.startswith('任意 #'):
+        return '#' + nm[4:]
+    return 'minecraft:' + nm
+MACH_ID = {v: k for k, v in MACHINE_NAMES.items()}
+game = []
+for e in items.values():
+    gid = to_id(e['n'])
+    if gid.startswith('#'):
+        continue
+    rec = []
+    for r in e['r']:
+        rr = {'m': ('heliosphere:' + MACH_ID[r['m']]) if r['m'] in MACH_ID else r['m'], 'i': [[to_id(x), c] for x, c in r['i']],
+              'o': [[to_id(x), c, p] for x, c, p in r['o']]}
+        if r.get('g'):
+            rr['g'] = [[to_id(x) if x else '' for x in row] for row in r['g']]
+        if r.get('t'):
+            rr['t'] = r['t']
+        if r.get('p'):
+            rr['p'] = r['p']
+        if r.get('x'):
+            rr['x'] = r['x']
+        rec.append(rr)
+    game.append({'id': gid, 'c': e['c'], 'r': rec, 's': e.get('s', []), 'u': [to_id(x) for x in e.get('u', [])]})
+gdir = f'{ROOT}/guide/src/main/resources/assets/heliosphere/guide'
+os.makedirs(gdir, exist_ok=True)
+json.dump(game, open(f'{gdir}/recipes.json', 'w', encoding='utf-8'), ensure_ascii=False)
+print('game entries', len(game))

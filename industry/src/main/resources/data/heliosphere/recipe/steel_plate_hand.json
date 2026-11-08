@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:steel_ingot",
+    "heliosphere:steel_ingot"
+  ],
+  "result": {
+    "id": "heliosphere:steel_plate",
+    "count": 1
+  }
+}

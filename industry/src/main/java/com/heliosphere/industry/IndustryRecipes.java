@@ -19,6 +19,27 @@ public final class IndustryRecipes {
 
     public static void register() {
         // ---------------------------------------------------------------- electric arc furnace
+        // ---------------------------------------------------------------- starter routes (listed first: the easy way to the Moon)
+        ARC_FURNACE.recipe(r().in(I("raw_bauxite"), 2).out(I("aluminum_ingot")).time(160).power(40));
+        ARC_FURNACE.recipe(r().in(I("raw_ilmenite"), 2).out(I("titanium_ingot")).chance(Items.IRON_NUGGET, 3, 0.5f).time(200).power(50));
+        ARC_FURNACE.recipe(r().in(I("raw_spodumene"), 2).out(I("lithium_ingot")).time(160).power(40));
+        ASSEMBLY.recipe(r().in(I("copper_plate")).in(I("copper_wire"), 4).in(Items.REDSTONE).out(I("circuit_board"), 2).time(100).power(30));
+        ASSEMBLY.recipe(r().in(I("steel_ingot"), 2).in(I("copper_wire"), 4).in(Items.IRON_INGOT).out(I("electric_motor")).time(120).power(40));
+        ASSEMBLY.recipe(r().in(I("steel_plate"), 4).in(I("electric_motor")).in(I("copper_wire"), 2).out(I("turbopump")).time(200).power(60));
+        ASSEMBLY.recipe(r().in(I("copper_plate"), 3).in(I("steel_plate"), 2).out(I("combustion_chamber")).time(160).power(50));
+        ASSEMBLY.recipe(r().in(I("steel_plate")).in(I("copper_plate")).out(I("injector")).time(100).power(40));
+        ASSEMBLY.recipe(r().in(I("steel_ingot"), 2).in(I("copper_wire")).out(I("valve"), 2).time(80).power(30));
+        ASSEMBLY.recipe(r().in(I("steel_plate"), 3).out(I("nozzle_bell")).time(100).power(40));
+        ASSEMBLY.recipe(r().in(I("steel_plate"), 2).in(I("electric_motor")).out(I("gimbal")).time(100).power(40));
+        ASSEMBLY.recipe(r().in(I("steel_plate")).in(I("copper_wire")).in(Items.FLINT).out(I("igniter"), 2).time(80).power(30));
+        ASSEMBLY.recipe(r().in(I("circuit_board")).in(I("copper_wire"), 4).out(I("engine_controller")).time(100).power(30));
+        ASSEMBLY.recipe(r().in(I("circuit_board"), 2).in(Items.COMPASS).out(I("imu")).time(120).power(30));
+        ASSEMBLY.recipe(r().in(I("circuit_board"), 3).in(I("imu")).out(I("guidance_computer")).time(160).power(40));
+        ASSEMBLY.recipe(r().in(I("steel_plate"), 3).out(I("copv")).time(100).power(40));
+        ASSEMBLY.recipe(r().in(I("graphite"), 2).in(Items.BRICK, 2).out(I("heat_shield_tile"), 2).time(120).power(40));
+        ASSEMBLY.recipe(r().in(Items.WHITE_WOOL, 4).in(Items.STRING, 2).out(I("parachute_canopy")).time(100).power(20));
+        ASSEMBLY.recipe(r().in(I("lithium_ingot")).in(I("copper_plate")).in(Items.REDSTONE, 2).out(I("battery_cell"), 2).time(120).power(30));
+
         ARC_FURNACE.recipe(r().in(Items.IRON_INGOT, 2).in(I("graphite")).out(I("steel_ingot"), 2).time(160).power(40));
         ARC_FURNACE.recipe(r().in(I("raw_pentlandite")).out(I("nickel_ingot")).chance(Items.IRON_NUGGET, 3, 0.5f).time(160).power(40));
         ARC_FURNACE.recipe(r().in(I("raw_chromite")).out(I("chromium_ingot")).chance(Items.IRON_NUGGET, 3, 0.5f).time(180).power(50));
