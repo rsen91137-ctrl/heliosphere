@@ -27,5 +27,7 @@
   "block.heliosphere.tank_rp1": "煤油贮箱",
   "item.heliosphere.rocket_qiming_1": "启明一号 · 地月火箭（预组装）",
   "item.heliosphere.rocket_qiming_2": "启明二号 · 火星飞船（预组装）",
-  "item.heliosphere.rocket_sounding": "探空一号（预组装）"
+  "item.heliosphere.rocket_recovery_tool": "火箭回收扳手",
+  "item.heliosphere.rocket_sounding": "探空一号（预组装）",
+  "message.heliosphere.recovered": "§a已回收 %s 个火箭部件"
 }

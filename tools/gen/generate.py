@@ -515,6 +515,11 @@ def part_models(m, pid, kind, color, accent):
 
 def gen_rocketry():
     m = 'rocketry'
+    simple_item(m, 'rocket_recovery_tool', lambda n: icons.wrench(n))
+    lang(m, 'item.heliosphere.rocket_recovery_tool', '火箭回收扳手', 'Rocket Recovery Wrench')
+    lang(m, 'message.heliosphere.recovered', '§a已回收 %s 个火箭部件', '§aRecovered %s rocket parts')
+    data(m, 'recipe/rocket_recovery_tool.json', {'type': 'minecraft:crafting_shaped', 'category': 'tools', 'pattern': [' SS', ' CS', 'S  '],
+         'key': {'S': f'{NS}:steel_ingot', 'C': f'{NS}:circuit_board'}, 'result': {'id': f'{NS}:rocket_recovery_tool', 'count': 1}})
     for (pid, zh, en, kind, color, accent) in C.PARTS:
         model = part_models(m, pid, kind, color, accent)
         asset(m, f'models/block/{pid}.json', model)

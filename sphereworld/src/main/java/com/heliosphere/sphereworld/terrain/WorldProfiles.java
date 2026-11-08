@@ -56,9 +56,9 @@ public final class WorldProfiles {
                 .ore(DIOGENITE, 0.6f, 3, 40).ore(METEORIC_IRON, 0.4f, 2, 20));
         // Io: sulfur plains, lava lakes, giant mountains, no craters at all
         add(new Profile("io", 1821.6, SULFUR_CRUST, SO2_FROST, IO_SILICATE).relief(0.8, 0.2, 4).craters(0, 1).depths(3, 12)
-                .feature(Feature.of("Loki Patera", 13, 51, 100, Shape.BASIN, 1.0, IO_SILICATE).lake(LAVA, -0.4))
-                .feature(Feature.of("Pele", -18.7, -104.5, 60, Shape.BASIN, 0.8, IO_SILICATE).lake(LAVA, -0.3))
-                .feature(Feature.of("Tvashtar Paterae", 63, -124, 50, Shape.BASIN, 0.8, IO_SILICATE).lake(LAVA, -0.3))
+                .feature(Feature.of("Loki Patera", 13, 51, 25, Shape.BASIN, 1.0, IO_SILICATE).lake(LAVA, -0.4))
+                .feature(Feature.of("Pele", -18.7, -104.5, 15, Shape.BASIN, 0.8, IO_SILICATE).lake(LAVA, -0.3))
+                .feature(Feature.of("Tvashtar Paterae", 63, -124, 15, Shape.BASIN, 0.8, IO_SILICATE).lake(LAVA, -0.3))
                 .feature(Feature.of("Boosaule Montes", -5.4, -91.7, 160, Shape.DOME, 17.5, IO_SILICATE))
                 .feature(Feature.of("Prometheus", -1.5, -153, 40, Shape.PATCH, 0, SO2_FROST))
                 .ore(SULFUR_CRUST, 0.7f, 1, 15).ore(IO_SILICATE, 0.3f, 6, 40));

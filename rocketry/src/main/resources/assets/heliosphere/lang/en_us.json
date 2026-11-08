@@ -27,5 +27,7 @@
   "block.heliosphere.tank_rp1": "RP-1 Tank",
   "item.heliosphere.rocket_qiming_1": "Qiming-1 Moon Rocket (prebuilt)",
   "item.heliosphere.rocket_qiming_2": "Qiming-2 Mars Ship (prebuilt)",
-  "item.heliosphere.rocket_sounding": "Sounding-1 (prebuilt)"
+  "item.heliosphere.rocket_recovery_tool": "Rocket Recovery Wrench",
+  "item.heliosphere.rocket_sounding": "Sounding-1 (prebuilt)",
+  "message.heliosphere.recovered": "§aRecovered %s rocket parts"
 }

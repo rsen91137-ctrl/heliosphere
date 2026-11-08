@@ -65,6 +65,16 @@ public final class Rocketry implements ModInitializer {
         Reg.tab("rocketry");
         for (Blueprints.Blueprint bp : Blueprints.all())
             Reg.item("rocket_" + bp.id(), p -> new PrebuiltRocketItem(p, bp.id()), new Item.Properties().stacksTo(1).rarity(Rarity.EPIC));
+        Reg.item("rocket_recovery_tool", com.heliosphere.rocketry.item.RecoveryToolItem::new, new Item.Properties().stacksTo(1));
+        net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
+            if (!player.getItemInHand(hand).is(Reg.get("rocket_recovery_tool")) || !(entity instanceof com.heliosphere.rocketry.entity.RocketEntity r)) return net.minecraft.world.InteractionResult.PASS;
+            if (r.phase() != com.heliosphere.rocketry.entity.RocketEntity.LANDED) return net.minecraft.world.InteractionResult.FAIL;
+            if (level instanceof net.minecraft.server.level.ServerLevel sl) {
+                int n = r.recover(sl, player);
+                player.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.heliosphere.recovered", n), true);
+            }
+            return net.minecraft.world.InteractionResult.SUCCESS;
+        });
 
         LAUNCH_PAD = Reg.blockWithItem("launch_pad", Block::new, Reg.metal(MapColor.COLOR_GRAY, 5f).explosionResistance(1200f));
         LAUNCH_CONSOLE = Reg.blockWithItem("launch_console", LaunchConsoleBlock::new, Reg.metal(MapColor.COLOR_GRAY, 4f));
@@ -133,6 +143,6 @@ public final class Rocketry implements ModInitializer {
         asm.recipe(r().in(I("lunar_glass"), 4).in(I("canister_oxygen"), 4).in(I("electric_motor"), 2).in(I("circuit_board")).in(I("lunar_ice_chunk"), 8)
                 .in(I("science_moon")).out(I("life_support")).time(800).power(150));
         for (String engine : new String[]{"engine_kerolox", "engine_hydrolox", "engine_methalox", "engine_methalox_vac", "srb_nozzle"})
-            stand.recipe(r().in(I(engine)).out(I(engine)).tested().fail(0.08f).time(400).power(200));
+            stand.recipe(r().in(I(engine)).out(I(engine)).tested().time(400).power(200));
     }
 }

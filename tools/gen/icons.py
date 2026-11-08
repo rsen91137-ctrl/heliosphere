@@ -479,3 +479,15 @@ def item_icon(n, iid, spec, seed=0):
         return canister(n, spec[1], band, seed)
     accent = spec[2] if len(spec) > 2 else None
     return SHAPES[shape](n, spec[1], accent, seed)
+
+
+def wrench(n, color='#C8CCD4', accent='#FFB040', seed=0):
+    """Rocket recovery wrench: diagonal handle, open jaw, orange grip."""
+    c = Canvas(n)
+    c.poly([(0.18, 0.74), (0.26, 0.82), (0.62, 0.46), (0.54, 0.38)], color, 1.0)
+    c.poly([(0.16, 0.76), (0.24, 0.84), (0.38, 0.70), (0.30, 0.62)], accent, 1.0)
+    c.ellipse(0.68, 0.32, 0.17, 0.17, color, 1.15)
+    c.poly([(0.66, 0.30), (0.86, 0.10), (0.92, 0.18), (0.74, 0.36)], '#00000000' if False else '#2A2E36', 0.6)
+    c.ellipse(0.68, 0.32, 0.06, 0.06, '#2A2E36', 0.6)
+    c.outline()
+    return c.image()

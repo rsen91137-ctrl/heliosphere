@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "tools",
+  "pattern": [
+    " SS",
+    " CS",
+    "S  "
+  ],
+  "key": {
+    "S": "heliosphere:steel_ingot",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:rocket_recovery_tool",
+    "count": 1
+  }
+}

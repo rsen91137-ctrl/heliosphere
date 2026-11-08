@@ -35,7 +35,7 @@ public final class LandingSites {
         S("deimos", new Site("swift", "斯威夫特平原", 10, 0, "细腻的碳质表土"));
         S("ceres", new Site("occator", "欧卡托陨石坑", 19.8, -120.7, "亮斑：碳酸钠"), new Site("ahuna", "阿胡纳山", -10.5, -44.1, "冰火山"));
         S("vesta", new Site("rheasilvia", "雷亚希尔维亚中央峰", -75, -59, "太阳系第二高峰，古铜辉石岩"), new Site("marcia", "玛西亚坑", 10, -170, "年轻陨坑，陨铁"));
-        S("io", new Site("loki", "洛基火山口湖畔", 15, 51, "熔岩湖：小心岩浆！硫磺壳"), new Site("boosaule", "博萨乌莱山", -5.4, -91.7, "比珠峰高一倍的山"),
+        S("io", new Site("loki", "洛基火山口湖畔", 14.2, 51, "熔岩湖：小心岩浆！硫磺壳"), new Site("boosaule", "博萨乌莱山", -5.4, -91.7, "比珠峰高一倍的山"),
                 new Site("prometheus", "普罗米修斯火山", -1.5, -153, "二氧化硫霜"));
         S("europa", new Site("conamara", "科纳马拉混沌区", 9.7, -86.6, "条纹带盐沉积；向下钻 110 格可抵达冰下海洋"), new Site("pwyll", "皮威尔坑", -25.2, -88.8, "年轻冰坑"));
         S("ganymede", new Site("galileo", "伽利略区", 35, -145, "古老暗色地体"), new Site("tros", "特罗斯坑", 11, -27, "明亮沟槽冰"));

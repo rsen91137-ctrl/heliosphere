@@ -206,10 +206,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         parachute = structure().parts().stream().anyMatch(p -> "parachute_pack".equals(p.spec()));
         missionDv = report.requiredDeltaV;
         failure = forced ? report.predicted : RocketAnalyzer.Failure.NONE;
-        if (failure == RocketAnalyzer.Failure.NONE && random.nextDouble() < report.failureChance) {
-            failure = random.nextBoolean() ? RocketAnalyzer.Failure.PAD_EXPLOSION : RocketAnalyzer.Failure.BREAKUP;
-            failTick = failure == RocketAnalyzer.Failure.PAD_EXPLOSION ? 5 + random.nextInt(10) : 60 + random.nextInt(80);
-        }
+        // No random accidents: a rocket that passes every check always flies. Only forced launches can fail.
         double days = report.mission == null ? 0 : report.mission.transferDays();
         transitTicks = transitTicksFor(days);
         if (fromBody == SolarSystem.EARTH && level().dimension() == Level.OVERWORLD) { home = blockPosition(); homeDim = "minecraft:overworld"; }
@@ -433,14 +430,19 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
 
     private void falling(ServerLevel level) {
         entityData.set(THROTTLE, 0f);
-        vy = Math.max(-3.0, vy - 0.08);
-        if (phase() == DEBRIS) entityData.set(PITCH, Math.min(90f, pitchDeg() + 0.6f));
+        vy = Math.max(phase() == DEBRIS ? -0.6 : -3.0, vy - 0.08);
+        if (phase() == DEBRIS) { vx *= 0.98; entityData.set(PITCH, Math.max(0f, pitchDeg() - 0.5f)); }
         setPos(getX() + vx, getY() + vy, getZ());
         if (hitGround(level) || ticks > 1200) {
-            float power = (float) Math.min(6, 2 + structure().totalPropellant() / 3.0);
             if (phase() == DEBRIS) {
-                level.explode(this, getX(), getY(), getZ(), power, Level.ExplosionInteraction.TNT);
-                discard();
+                // spent stages come down under drogue chutes and wait to be recovered with the wrench
+                BlockPos ground = BlockPos.containing(getX(), getY(), getZ());
+                while (ground.getY() < level.getMaxY() && !level.getBlockState(ground).isAir()) ground = ground.above();
+                setPos(getX(), ground.getY(), getZ());
+                entityData.set(PITCH, 0f);
+                vx = 0; vy = 0;
+                setPhase(LANDED);
+                level.playSound(null, blockPosition(), net.minecraft.sounds.SoundEvents.ANVIL_LAND, net.minecraft.sounds.SoundSource.NEUTRAL, 1.5f, 0.5f);
             } else catastrophe(level, "message.heliosphere.crash");
         }
     }
@@ -519,6 +521,19 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
     // ------------------------------------------------------------------ disassembly
 
     /** Turns a landed rocket back into blocks (keeping fuel and quality); parts that don't fit drop as items. */
+    /** Recovery wrench: the whole vehicle comes back as part items. */
+    public int recover(ServerLevel level, net.minecraft.world.entity.player.Player player) {
+        int n = 0;
+        for (RocketStructure.Part p : structure().parts()) {
+            ItemStack st = new ItemStack(p.state().getBlock());
+            if (!player.getInventory().add(st)) Block.popResource(level, blockPosition(), st);
+            n++;
+        }
+        eject(false);
+        discard();
+        return n;
+    }
+
     public void disassemble(ServerLevel level) {
         BlockPos base = blockPosition();
         for (RocketStructure.Part p : structure().parts()) {

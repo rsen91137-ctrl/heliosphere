@@ -337,8 +337,9 @@ public final class RocketAnalyzer {
             if (!p.tested) untested++;
         }
         r.failureChance = 1 - survive;
-        if (untested > 0) r.warn(untested + " 台发动机未经试车，随机故障率 " + String.format("%.1f%%", r.failureChance * 100));
-        else r.ok(String.format("发动机已全部试车，随机故障率 %.1f%%", r.failureChance * 100));
+        r.failureChance = 0;
+        if (untested > 0) r.warn(untested + " 台发动机未经试车：不影响安全，但试车后才能确认推力（建议试车）");
+        else r.ok("发动机已全部试车");
     }
 
     private static final int[][] DIRS = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
