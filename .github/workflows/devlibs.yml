@@ -1,0 +1,24 @@
+name: devlibs
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'tools/devlibs/**', '.github/workflows/devlibs.yml' ]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  devlibs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Export dev libraries
+        run: bash tools/devlibs/export.sh
+      - name: Push devlibs branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash tools/devlibs/push.sh devlibs

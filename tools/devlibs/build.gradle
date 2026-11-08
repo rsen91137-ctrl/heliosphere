@@ -1,0 +1,32 @@
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+}
+
+tasks.register('exportDevLibs') {
+    doLast {
+        def out = new File(rootDir, "../../out/compile")
+        out.mkdirs()
+        configurations.compileClasspath.resolve().each { f ->
+            java.nio.file.Files.copy(f.toPath(), new File(out, f.name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+        }
+        def rt = new File(rootDir, "../../out/runtime")
+        rt.mkdirs()
+        def names = out.list() as Set
+        configurations.runtimeClasspath.resolve().each { f ->
+            if (!names.contains(f.name)) {
+                java.nio.file.Files.copy(f.toPath(), new File(rt, f.name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
+    }
+}
