@@ -23,11 +23,16 @@ VANILLA = {'WATER_BUCKET': '水桶', 'BUCKET': '空桶', 'GLASS_PANE': '玻璃�
            'RAW_IRON': '粗铁', 'RAW_COPPER': '粗铜', 'RAW_GOLD': '粗金', 'NETHERITE_SCRAP': '下界合金碎片', 'BLAZE_POWDER': '烈焰粉'}
 
 
+NAME_ID = {}
+
+
 def name(token):
     token = token.strip()
     m = re.match(r'I\("([\w]+)"\)', token)
     if m:
-        return ZH.get(m.group(1), m.group(1))
+        nm = ZH.get(m.group(1), m.group(1))
+        NAME_ID[nm] = m.group(1)
+        return nm
     m = re.match(r'Items\.(\w+)', token)
     if m:
         return VANILLA.get(m.group(1), m.group(1).lower())
@@ -192,6 +197,7 @@ for mch in [m[1] for m in C.MACHINES] + [k for k in by if k not in MACHINE_NAMES
     for _, ins, outs, secs, power, notes in by[mch]:
         L.append(f'| {fmt_out(outs)} | {fmt_in(ins)} | {secs:g} | {power} | {"；".join(notes)} |')
 
+CRAFT = []
 # --- 4. crafting table recipes
 L.append('\n## 四、工作台 / 熔炉配方\n')
 for m in MODULES:
@@ -212,6 +218,7 @@ for m in MODULES:
             ns, _, p = v.partition(':')
             return ZH.get(p, p) if ns == 'heliosphere' else VANILLA.get(p.upper(), p)
         t = j.get('type', '')
+        CRAFT.append((t, j, rn, cnt, rid))
         if t.endswith('crafting_shaped'):
             grid = ' / '.join(r.replace(' ', '.') for r in j['pattern'])
             keys = '，'.join(f'`{k}`={key_name(v)}' for k, v in j['key'].items())
@@ -241,3 +248,123 @@ out_dir = sys.argv[1] if len(sys.argv) > 1 else f'{ROOT}/build'
 os.makedirs(out_dir, exist_ok=True)
 open(f'{out_dir}/Heliosphere-配方手册.md', 'w', encoding='utf-8').write('\n'.join(L) + '\n')
 print('recipes', len(RECIPES), 'lines', len(L))
+
+
+# ================================================================== searchable web handbook
+import base64
+def tex_for(iid):
+    pats = [f'textures/item/{iid}.png', f'textures/block/{iid}.png', f'textures/block/machine/{iid}_front.png',
+            f'textures/block/part/{iid}_body.png', f'textures/block/part/{iid}.png', f'textures/block/{iid}_side.png', f'textures/block/{iid}_top.png']
+    for m in MODULES:
+        for p in pats:
+            fp = f'{ROOT}/{m}/src/main/resources/assets/heliosphere/{p}'
+            if os.path.exists(fp):
+                return 'data:image/png;base64,' + base64.b64encode(open(fp, 'rb').read()).decode()
+    for m in MODULES:
+        g = glob.glob(f'{ROOT}/{m}/src/main/resources/assets/heliosphere/textures/block/**/{iid}*.png', recursive=True)
+        if g:
+            return 'data:image/png;base64,' + base64.b64encode(open(g[0], 'rb').read()).decode()
+    return None
+
+CAT = {}
+def tagcat(rows, cat, idx=0):
+    for r in rows:
+        CAT[r[idx]] = cat
+tagcat(C.ORES, '矿石与原料', 3); tagcat(C.ORES, '矿石与原料', 0)
+tagcat(C.INGOTS, '金属与合金'); tagcat(C.PLATES, '金属与合金'); tagcat(C.CHEM, '化工产品'); tagcat(C.CANISTERS, '燃料与气罐')
+tagcat(C.COMPONENTS, '零部件'); tagcat(C.PLANET_ITEMS, '月球与火星资源'); tagcat(C.WORLD_ITEMS, '外太阳系资源'); tagcat(C.STORY_ITEMS, '星际方舟与剧情')
+tagcat(C.MACHINES, '机器', 1); tagcat(C.PARTS, '火箭部件'); tagcat(C.OTHER_BLOCKS, '发射设施', 1); tagcat(C.FOODS, '太空食物')
+for a in C.ARMOR:
+    for pc in ('helmet', 'chestplate', 'leggings', 'boots'):
+        CAT[f'{a[1]}_{pc}'] = '宇航服'
+for r in C.TERRAIN:
+    CAT[r[0]] = '天体方块'
+for r in C.WORLD_TERRAIN:
+    CAT[r[0]] = '天体方块'
+
+items = {}
+def ent(nm):
+    if nm not in items:
+        iid = NAME_ID.get(nm)
+        if iid is None:
+            for k, v in ZH.items():
+                if v == nm:
+                    iid = k; NAME_ID[nm] = k; break
+        items[nm] = {'n': nm, 'id': iid or '', 'c': CAT.get(iid, '原版物品' if iid is None else '其他'), 'r': []}
+    return items[nm]
+
+for mch, ins, outs, secs, power, notes in RECIPES:
+    mname = MACHINE_NAMES.get(mch, mch)
+    rec = {'k': 'm', 'm': mname, 'i': [[n, c] for n, c in ins], 'o': [[n, c, p] for n, c, p in outs], 't': secs, 'p': power, 'x': '；'.join(notes)}
+    for n, _ in ins:
+        ent(n)
+    for n, c, p in outs:
+        ent(n)['r'].append(rec)
+    ent(mname)
+
+def key_nm(v):
+    if isinstance(v, list):
+        v = v[0]
+    if isinstance(v, dict):
+        v = v.get('item') or v.get('tag', '')
+    v = str(v)
+    ns, _, p = v.partition(':')
+    if v.startswith('#'):
+        return '任意 ' + v
+    if ns == 'heliosphere':
+        nm = ZH.get(p, p); NAME_ID[nm] = p; return nm
+    return VANILLA.get(p.upper(), p)
+
+for t, j, rn, cnt, rid in CRAFT:
+    if t.endswith('crafting_shaped'):
+        grid = [[key_nm(j['key'][ch]) if ch in j['key'] else '' for ch in row.ljust(3)] for row in j['pattern']]
+        need = {}
+        for row in grid:
+            for x in row:
+                if x:
+                    need[x] = need.get(x, 0) + 1
+        rec = {'k': 'c', 'm': '工作台（有序）', 'g': grid, 'i': [[n, c] for n, c in need.items()], 'o': [[rn, cnt, 1.0]]}
+    elif t.endswith('crafting_shapeless'):
+        need = {}
+        for x in j['ingredients']:
+            nm = key_nm(x); need[nm] = need.get(nm, 0) + 1
+        rec = {'k': 'c', 'm': '工作台（无序）', 'i': [[n, c] for n, c in need.items()], 'o': [[rn, cnt, 1.0]]}
+    elif 'smelting' in t or 'blasting' in t:
+        rec = {'k': 'c', 'm': '高炉' if 'blast' in t else '熔炉', 'i': [[key_nm(j['ingredient']), 1]], 'o': [[rn, cnt, 1.0]]}
+    else:
+        continue
+    NAME_ID[rn] = rid.split(':')[-1]
+    for n, _ in rec['i']:
+        ent(n)
+    ent(rn)['r'].append(rec)
+
+# natural sources
+SRC = {}
+for o in C.ORES:
+    SRC.setdefault(ZH.get(o[3], o[4]), []).append(f'挖掘「{o[1]}」（地球 Y {o[8]} ~ {o[9]}）')
+    SRC.setdefault(o[1], []).append(f'地球地下 Y {o[8]} ~ {o[9]} 生成')
+for row in C.WORLD_TERRAIN:
+    if row[9] and row[9] != 'none':
+        SRC.setdefault(ZH.get(row[9][0], row[9][0]), []).append(f'挖掘「{row[1]}」掉落 {row[9][1]}~{row[9][2]} 个')
+SRC.setdefault(ZH.get('canister_ch4', '液甲烷罐'), []).append('土卫六：手持空罐右键液态甲烷海')
+SRC.setdefault(ZH.get('canister_hydrogen', '氢气罐'), []).append('气态巨行星：手持空罐右键云层')
+SRC.setdefault(ZH.get('canister_helium3', '氦-3 罐'), []).append('木星/土星：空罐右键云层，12% 几率')
+for nm, lst in SRC.items():
+    ent(nm)['s'] = lst
+for e in items.values():
+    if e['id']:
+        e['img'] = tex_for(e['id'])
+        if e['c'] == '其他':
+            e['c'] = '其他物品'
+# uses
+uses = {}
+for e in items.values():
+    for r in e['r']:
+        for n, _ in r['i']:
+            uses.setdefault(n, set()).add(e['n'])
+for n, u in uses.items():
+    ent(n)['u'] = sorted(u)
+data = json.dumps(list(items.values()), ensure_ascii=False)
+tpl = open(os.path.join(os.path.dirname(__file__), 'handbook_template.html'), encoding='utf-8').read()
+open(f'{out_dir}/Heliosphere-配方大全.html', 'w', encoding='utf-8').write(tpl.replace('/*DATA*/[]', data))
+print('web items', len(items))

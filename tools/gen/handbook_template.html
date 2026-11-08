@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Heliosphere 配方大全</title>
+<style>
+  :root { --bg:#0b0f18; --panel:#121a28; --panel2:#18233a; --line:#26344f; --text:#dfe7f5; --dim:#8a9ab8; --acc:#5cc8ff; --gold:#ffcf6a; --good:#7be07b; }
+  * { box-sizing:border-box }
+  body { margin:0; font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif; background:radial-gradient(1200px 600px at 70% -10%,#1b2a4a 0,transparent 60%),var(--bg); color:var(--text); }
+  header { position:sticky; top:0; z-index:5; display:flex; gap:14px; align-items:center; padding:12px 18px; background:rgba(11,15,24,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line) }
+  header h1 { font-size:18px; margin:0; letter-spacing:2px; white-space:nowrap }
+  header h1 span { color:var(--gold) }
+  #q { flex:1; max-width:560px; padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:15px; outline:none }
+  #q:focus { border-color:var(--acc); box-shadow:0 0 0 3px rgba(92,200,255,.15) }
+  .wrap { display:grid; grid-template-columns:200px 320px 1fr; height:calc(100vh - 58px) }
+  nav, #list, main { overflow:auto }
+  nav { border-right:1px solid var(--line); padding:10px }
+  nav button { display:flex; justify-content:space-between; width:100%; padding:8px 10px; margin:2px 0; border:0; border-radius:8px; background:transparent; color:var(--dim); cursor:pointer; font-size:14px; text-align:left }
+  nav button:hover { background:var(--panel) } nav button.on { background:var(--panel2); color:var(--text) }
+  nav button em { font-style:normal; color:#5d6d8c; font-size:12px }
+  #list { border-right:1px solid var(--line); padding:8px }
+  .it { display:flex; align-items:center; gap:10px; padding:7px 9px; border-radius:8px; cursor:pointer }
+  .it:hover { background:var(--panel) } .it.on { background:var(--panel2); outline:1px solid var(--line) }
+  .ico { width:32px; height:32px; image-rendering:pixelated; border-radius:4px; background:#0d1320; flex:none; display:grid; place-items:center; color:#4b5a78; font-size:11px }
+  .it small { display:block; color:#5d6d8c; font-size:11px }
+  main { padding:22px 28px 60px }
+  .hero { display:flex; gap:16px; align-items:center; margin-bottom:14px }
+  .hero .ico { width:64px; height:64px }
+  .hero h2 { margin:0; font-size:24px } .hero p { margin:4px 0 0; color:var(--dim) }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0 }
+  .card h3 { margin:0 0 10px; font-size:15px; color:var(--acc); font-weight:600 }
+  .rec { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 0; border-top:1px dashed var(--line) }
+  .rec:first-of-type { border-top:0 }
+  .mach { padding:4px 9px; border-radius:6px; background:#22314f; color:var(--gold); font-size:13px; cursor:pointer }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:3px 8px 3px 3px; border-radius:7px; background:var(--panel2); border:1px solid var(--line); cursor:pointer; font-size:13px }
+  .chip:hover { border-color:var(--acc) } .chip .ico { width:22px; height:22px } .chip b { color:var(--gold); font-weight:600 }
+  .chip.v { cursor:default; opacity:.8 }
+  .arrow { color:var(--dim) } .meta { color:var(--dim); font-size:12px; width:100% } .note { color:#ffb070 }
+  .grid { display:grid; grid-template-columns:repeat(3,44px); gap:4px; margin:6px 12px 6px 0 }
+  .grid div { width:44px; height:44px; border-radius:6px; background:#0d1320; border:1px solid var(--line); display:grid; place-items:center; cursor:pointer; font-size:10px; color:var(--dim); text-align:center; overflow:hidden }
+  .grid img { width:30px; height:30px; image-rendering:pixelated }
+  .tree { font-size:13px; line-height:1.9 }
+  .tree ul { list-style:none; margin:0; padding-left:20px; border-left:1px dashed var(--line) }
+  .tree li > span { cursor:pointer } .tree .raw { color:var(--good) } .tree .m { color:#7f8fb0; font-size:12px }
+  .tot { display:flex; flex-wrap:wrap; gap:6px }
+  .empty { color:var(--dim); padding:40px; text-align:center }
+  @media (max-width:900px){ .wrap{grid-template-columns:1fr} nav{display:flex;flex-wrap:wrap;gap:4px} nav button{width:auto} #list{max-height:40vh} }
+</style>
+</head>
+<body>
+<header><h1>HELIOSPHERE <span>配方大全</span></h1><input id="q" placeholder="搜索物品、机器、部件……例如：化工反应釜、涡轮泵、钢锭" autofocus></header>
+<div class="wrap"><nav id="nav"></nav><div id="list"></div><main id="main"><div class="empty">在左侧选择分类，或者在上方搜索。点击任何原料都能跳到它的做法。</div></main></div>
+<script>
+const DATA = /*DATA*/[];
+const BY = Object.fromEntries(DATA.map(e => [e.n, e]));
+const ORDER = ['机器','火箭部件','发射设施','零部件','金属与合金','化工产品','燃料与气罐','矿石与原料','宇航服','太空食物','月球与火星资源','外太阳系资源','星际方舟与剧情','天体方块','其他物品','原版物品'];
+let cat = '机器', cur = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const ico = (e, cls='ico') => e && e.img ? `<img class="${cls}" src="${e.img}">` : `<div class="${cls}">▢</div>`;
+function chip(n, c, p) { const e = BY[n]; const has = e && (e.r.length || e.s);
+  return `<span class="chip${has ? '' : ' v'}" data-go="${esc(n)}">${ico(e)}${esc(n)}${c && c !== 1 ? ` <b>×${c}</b>` : ''}${p && p < 1 ? ` <b>${Math.round(p*100)}%</b>` : ''}</span>`; }
+function nav() {
+  const counts = {}; DATA.forEach(e => counts[e.c] = (counts[e.c]||0) + 1);
+  $('#nav').innerHTML = ORDER.filter(c => counts[c]).map(c => `<button class="${c===cat?'on':''}" data-cat="${c}">${c}<em>${counts[c]}</em></button>`).join('');
+}
+function list() {
+  const q = $('#q').value.trim().toLowerCase();
+  let items = q ? DATA.filter(e => e.n.toLowerCase().includes(q) || e.id.includes(q)) : DATA.filter(e => e.c === cat);
+  items.sort((a,b) => (b.r.length>0) - (a.r.length>0) || a.n.localeCompare(b.n, 'zh'));
+  $('#list').innerHTML = items.map(e => `<div class="it${cur===e.n?' on':''}" data-go="${esc(e.n)}">${ico(e)}<div>${esc(e.n)}<small>${esc(e.c)}${e.r.length ? ' · '+e.r.length+' 种做法' : ''}</small></div></div>`).join('') || '<div class="empty">没有找到</div>';
+}
+// full crafting tree (first recipe each, cycle-safe) and raw totals
+function tree(n, qty, depth, seen, tot) {
+  const e = BY[n]; const r = e && e.r.find(r => !r.i.some(([x]) => seen.has(x)));
+  if (!r || depth > 9) { tot[n] = (tot[n]||0) + qty; return `<li><span class="raw" data-go="${esc(n)}">${esc(n)} ×${+qty.toFixed(2)}</span>${e && e.s ? ` <span class="m">（${esc(e.s[0])}）</span>` : ''}</li>`; }
+  const made = (r.o.find(o => o[0]===n) || [n,1])[1] || 1, runs = qty / made;
+  const s2 = new Set(seen); s2.add(n);
+  return `<li><span data-go="${esc(n)}">${esc(n)} ×${+qty.toFixed(2)}</span> <span class="m">← ${esc(r.m)}${r.t ? ' '+r.t+'s' : ''}</span><ul>${r.i.map(([x,c]) => tree(x, c*runs, depth+1, s2, tot)).join('')}</ul></li>`;
+}
+function show(n) {
+  const e = BY[n]; if (!e) return; cur = n; if (!$('#q').value) { cat = e.c; nav(); } list();
+  let h = `<div class="hero">${ico(e)}<div><h2>${esc(e.n)}</h2><p>${esc(e.c)}${e.id ? ' · heliosphere:'+esc(e.id) : ''}</p></div></div>`;
+  if (e.s) h += `<div class="card"><h3>天然来源</h3>${e.s.map(x => `<div>· ${esc(x)}</div>`).join('')}</div>`;
+  if (e.r.length) {
+    h += `<div class="card"><h3>怎么做（${e.r.length} 种）</h3>`;
+    for (const r of e.r) {
+      h += `<div class="rec"><span class="mach" data-go="${esc(r.m)}">${esc(r.m)}</span>`;
+      if (r.g) h += `<div class="grid">${r.g.flat().map(x => `<div ${x ? `data-go="${esc(x)}" title="${esc(x)}"` : ''}>${x ? (BY[x] && BY[x].img ? `<img src="${BY[x].img}">` : esc(x).slice(0,4)) : ''}</div>`).join('')}</div>`;
+      h += r.i.map(([x,c]) => chip(x,c)).join(' + ') + ` <span class="arrow">→</span> ` + r.o.map(([x,c,p]) => chip(x,c,p)).join(' + ');
+      h += `<div class="meta">${r.t ? `耗时 ${r.t} 秒 · ` : ''}${r.p ? `耗电 ${r.p} EU/t` : ''}${r.x ? ` · <span class="note">${esc(r.x)}</span>` : ''}</div></div>`;
+    }
+    h += `</div>`;
+    const tot = {}; const t = tree(n, (e.r[0].o.find(o=>o[0]===n)||[n,1])[1] || 1, 0, new Set(), tot);
+    h += `<div class="card"><h3>完整制作树（从原材料开始，按第一种做法展开）</h3><div class="tree"><ul>${t}</ul></div></div>`;
+    h += `<div class="card"><h3>原材料总需求</h3><div class="tot">${Object.entries(tot).sort((a,b)=>b[1]-a[1]).map(([x,c]) => chip(x, +c.toFixed(2))).join('')}</div></div>`;
+  } else if (!e.s) h += `<div class="card"><h3>怎么获得</h3>原版物品或世界中直接获取。</div>`;
+  if (e.u && e.u.length) h += `<div class="card"><h3>用途（可以用来做 ${e.u.length} 种东西）</h3>${e.u.map(x => chip(x)).join(' ')}</div>`;
+  $('#main').innerHTML = h; $('#main').scrollTop = 0;
+}
+document.addEventListener('click', ev => {
+  const g = ev.target.closest('[data-go]'); if (g) { show(g.dataset.go); return; }
+  const c = ev.target.closest('[data-cat]'); if (c) { cat = c.dataset.cat; $('#q').value=''; nav(); list(); }
+});
+$('#q').addEventListener('input', () => { list(); const q = $('#q').value.trim(); if (q && BY[q]) show(q); });
+nav(); list();
+</script>
+</body>
+</html>
