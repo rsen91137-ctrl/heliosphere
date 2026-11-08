@@ -20,6 +20,7 @@ public final class HeliosphereClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(HelioNetwork.PlanetMapPayload.TYPE, (payload, ctx) ->
                 ctx.client().execute(() -> PlanetTextures.setBaked(payload.body(), payload.width(), payload.height(), payload.rgb())));
         HudElementRegistry.addLast(Heliosphere.id("environment"), EnvironmentHud::render);
+        ClientPlayNetworking.registerGlobalReceiver(com.heliosphere.core.story.Story.Payload.TYPE, (payload, ctx) -> com.heliosphere.core.story.Story.client = payload);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, tctx, type, lines) -> {
             com.heliosphere.core.env.HelioComponents.SuitRating r = stack.get(com.heliosphere.core.env.HelioComponents.SUIT);
             if (r != null) {

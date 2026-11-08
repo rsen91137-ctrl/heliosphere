@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:lunar_ice_chunk",
+    "heliosphere:empty_canister"
+  ],
+  "result": {
+    "id": "heliosphere:lunar_ice_water",
+    "count": 1
+  }
+}

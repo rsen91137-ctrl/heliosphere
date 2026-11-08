@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:potato",
+    "heliosphere:mars_regolith",
+    "minecraft:bone_meal"
+  ],
+  "result": {
+    "id": "heliosphere:mars_potato",
+    "count": 2
+  }
+}

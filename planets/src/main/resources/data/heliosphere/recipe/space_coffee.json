@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:cocoa_beans",
+    "minecraft:sugar",
+    "heliosphere:empty_canister"
+  ],
+  "result": {
+    "id": "heliosphere:space_coffee",
+    "count": 1
+  }
+}

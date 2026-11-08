@@ -3,7 +3,8 @@
 CHAPTERS = [
     {
         "id": "industry", "icon": "electric_arc_furnace",
-        "title": "第一卷 · 工业黎明",
+        "title": "第一部 · 第1章 · 工业黎明",
+        "story": "公元 2097 年。地表资源告急，联合航天署向全体工程师发出号召：走出地球，把整个太阳系变成人类文明的矿场。你的第一件工作，是唤醒沉睡在地下的矿脉。",
         "intro": "星际之旅从地球的矿脉开始。地下藏着 22 种新矿石，它们是火箭的血肉。先搭起电网，造出第一台电弧炉。",
         "objectives": ["raw_bauxite", "raw_ilmenite", "raw_pentlandite", "raw_chromite", "graphite", "fluorite", "rock_salt",
                        "coal_generator", "cable", "electric_arc_furnace", "steel_ingot"],
@@ -17,7 +18,8 @@ CHAPTERS = [
     },
     {
         "id": "metallurgy", "icon": "ti64_ingot",
-        "title": "第二卷 · 化工与冶金",
+        "title": "第一部 · 第2章 · 化工与冶金",
+        "story": "航天署档案馆里留着一份前代宇航员的手稿：「造火箭先造化工厂。」他们的飞船早在百年前就失踪在冥王星轨道之外。",
         "intro": "航天级金属不是熔炉里烧出来的。你要重走一遍人类的冶金史：拜耳法、霍尔-埃鲁法、亨特法、氯碱工业……",
         "objectives": ["electrolyzer", "chemical_reactor", "vacuum_furnace", "alloy_furnace", "caustic_soda", "alumina", "aluminum_ingot",
                        "titanium_ingot", "lithium_ingot", "al_li_ingot", "ti64_ingot", "inconel_ingot", "grcop_ingot", "stainless_steel_ingot"],
@@ -31,7 +33,8 @@ CHAPTERS = [
     },
     {
         "id": "precision", "icon": "turbopump",
-        "title": "第三卷 · 精密制造",
+        "title": "第一部 · 第3章 · 精密制造",
+        "story": "涡轮泵每分钟三万转，公差以微米计。这一章，你要学会像钟表匠一样造发动机。",
         "intro": "一台液体火箭发动机由上百个精密零件组成。公差决定生死：每个精密零件都带有制造公差，发动机必须在试车台上点火验证。",
         "objectives": ["refinery", "air_separator", "cnc_machine", "metal_3d_printer", "electronics_assembler", "assembly_station",
                        "turbine_blade", "si3n4_bearing", "turbopump", "combustion_chamber", "injector", "valve", "igniter",
@@ -45,7 +48,8 @@ CHAPTERS = [
     },
     {
         "id": "sounding", "icon": "srb_nozzle",
-        "title": "第四卷 · 探空",
+        "title": "第一部 · 第4章 · 探空",
+        "story": "第一次越过卡门线。探空火箭带回的数据里，有一段谁也解释不了的噪声。",
         "intro": "第一枚火箭不必入轨。一枚无制导的固体探空火箭，越过 100 公里卡门线再用降落伞回来——带回的数据是制造航电的前提。",
         "objectives": ["ammonium_perchlorate", "srb_segment", "srb_nozzle", "parachute_pack", "crew_capsule", "nose_cone",
                        "launch_pad", "launch_console", "science_suborbital"],
@@ -58,7 +62,8 @@ CHAPTERS = [
     },
     {
         "id": "moon", "icon": "engine_hydrolox",
-        "title": "第五卷 · 奔月",
+        "title": "第一部 · 第5章 · 奔月",
+        "story": "月球是太阳系的第一级台阶。静海的玄武岩里，埋着通往火星的钛。",
         "intro": "地月任务需要约 6070 m/s 的 Δv（已按方块尺度缩放）。单级火箭做不到——你需要两级：煤油液氧一级把你推出大气，氢氧上面级送你到月球。",
         "objectives": ["suit_fabricator", "space_suit_helmet", "space_suit_chestplate", "space_suit_leggings", "space_suit_boots", "tank_rp1", "tank_lox",
                        "tank_lh2", "engine_hydrolox", "decoupler", "avionics_t1", "rocket_battery", "heat_shield", "landing_leg", "science_moon"],
@@ -74,7 +79,8 @@ CHAPTERS = [
     },
     {
         "id": "lunar_base", "icon": "ilmenite_reducer",
-        "title": "第六卷 · 月面开拓",
+        "title": "第一部 · 第6章 · 月面开拓",
+        "story": "沙克尔顿坑的永久阴影里有水冰，也有一座被遗弃的前代基地。日志的最后一行写着：「它们在听。」",
         "intro": "「启明一号」到月球后几乎没有余量返航。就地取材（ISRU）是唯一的出路：把月壤、月岩和极区的冰变成燃料、氧气和新材料。",
         "objectives": ["solar_panel", "battery_bank", "oxygen_distributor", "regolith_processor", "ilmenite_reducer", "isru_electrolyzer",
                        "high_ti_basalt", "lunar_titanium_ingot", "lunar_ice_chunk", "lunar_glass", "lunar_ceramic", "kreep_concentrate",
@@ -89,7 +95,8 @@ CHAPTERS = [
     },
     {
         "id": "deep_space", "icon": "engine_methalox",
-        "title": "第七卷 · 深空技术",
+        "title": "第一部 · 第7章 · 深空技术",
+        "story": "化学火箭的极限就在眼前。抗辐射芯片、深空导航、生命维持——为长途航行做准备。",
         "intro": "火星往返需要 259 天航程、深空导航、更强的发动机和能扛住 11.6 km/s 再入的隔热盾。这些都离不开月球材料。",
         "objectives": ["lunar_ti_alloy_ingot", "lunar_turbopump", "methalox_chamber", "engine_methalox", "engine_methalox_vac", "tank_ch4",
                        "rad_hard_chip", "deep_space_computer", "avionics_t2", "life_support", "heat_shield_t2", "lunar_glass_fiber",
@@ -103,7 +110,8 @@ CHAPTERS = [
     },
     {
         "id": "mars", "icon": "sabatier_reactor",
-        "title": "第八卷 · 红色星球",
+        "title": "第一部 · 第8章 · 红色星球",
+        "story": "火星：第一个真正的殖民地。用它的大气造出返程燃料，用它的冰养活一座城市。",
         "intro": "火星大气只有 0.006 bar，却足以让隔热盾和降落伞派上用场。奥林匹斯山、水手谷、希腊盆地都在它们真实的经纬度上等着你。",
         "objectives": ["atmosphere_extractor", "sabatier_reactor", "canister_co2", "canister_argon", "perchlorate_salt", "hematite_nodule",
                        "gypsum_crystal", "smectite_clay", "mars_ice_chunk", "heavy_water", "science_mars"],
@@ -117,7 +125,8 @@ CHAPTERS = [
     },
     {
         "id": "beyond", "icon": "canister_helium3",
-        "title": "第九卷 · 远方",
+        "title": "第一部 · 第9章 · 远方",
+        "story": "从水星的凹陷亮斑到冥王星的心形冰原，太阳系的每一个角落都有你需要的东西。在海王星之外建起深空射电阵——前代宇航员最后的坐标就在那里。",
         "intro": "化学燃料到这里就是极限了。冥王星、木星的大红斑、土卫六的甲烷湖……那里需要等离子推进器、光帆与聚变引擎。",
         "objectives": ["canister_helium3", "canister_deuterium", "canister_argon", "enriched_uranium", "plutonium_238"],
         "tips": [
@@ -128,7 +137,31 @@ CHAPTERS = [
 
             "氦-3 来自月海富氦月壤，氘来自火星重水：二者是 D-³He 聚变推进的燃料。",
             "氩是等离子推进器的工质；钚-238 是外太阳系探测器的 RTG 热源（木星以外太阳能几乎无用）。",
-            "下一版本将开放水星、金星、小行星带、木星与土星系统，以及更远的柯伊伯带。把这些材料准备好吧。",
+            "在海卫一、冥王星、卡戎或阋神星上放置「深空射电阵」（需要供电），放入 2 个抗辐射芯片、1 个深空导航核心和 4 块氮冰，它会接收来自比邻星的信号。",
+        ],
+    },
+    {
+        "id": "signal", "icon": "proxima_signal",
+        "title": "第二部 · 第1章 · 比邻星的信号",
+        "story": "射电阵在 4.24 光年外捕捉到一段窄带信号。前代宇航员的失踪、月球基地的「它们在听」——一切都对上了。这不是问候，而是一支舰队的航行广播。倒计时开始了。",
+        "intro": "右键「比邻星信号记录」播放信号：半人马舰队抵达地球的倒计时开始（默认 160 年），同时获得星图。游戏里每过一天、每次星际航行花掉的天数都会扣减倒计时。",
+        "objectives": ["deep_space_radio_array", "proxima_signal", "star_map"],
+        "tips": [
+            "倒计时显示在屏幕右上角。航行越慢，留给你的时间越少。",
+            "星图上只有比邻星可以前往，其他恒星显示为「未知」。鼠标悬停可查看距离，以及以 0.9 倍光速航行时地球时间和船上时间各要多久。",
+        ],
+    },
+    {
+        "id": "ark", "icon": "fusion_ramjet_core",
+        "title": "第二部 · 第2章 · 星际方舟",
+        "story": "化学火箭飞到比邻星要七万年。人类需要一艘接近光速的方舟：氦-3 和氘的聚变冲压、反物质催化、超导磁帆减速、星际尘埃护盾，再加上让船员度过数年航程的冬眠舱。",
+        "intro": "第一部里所有星球的特产在这里汇合：木星的氦-3、火星的重水、水星的石墨、金星的铋、木卫二的海盐、土卫六的托林、土卫二的羽流冰晶。",
+        "objectives": ["graphene_sheet", "fusion_ramjet_core", "antimatter_trap", "magnetic_sail_coil", "dust_shield_plate", "hibernation_pod_core"],
+        "tips": [
+            "石墨烯片：真空沉积炉，石墨×2 + 铜板。",
+            "聚变冲压发动机核心、反物质约束阱都是精密件，在总装台制造。",
+            "以 0.9c 航行时，船上时间只有地球时间的 44%。但倒计时按地球时间计算：去比邻星单程就要扣掉约 4.7 年。",
+            "方舟的整船组装与比邻星系（比邻星 b 的明暗界线带、红矮星耀斑、半人马前哨与 Boss）将在下一版本开放。先把核心部件造出来吧。",
         ],
     },
 ]

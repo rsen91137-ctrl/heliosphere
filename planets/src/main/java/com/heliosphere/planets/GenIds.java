@@ -40,6 +40,14 @@ public final class GenIds {
         {"plume_crystal"},
         {"tholin"},
         {"solid_nitrogen"},
+        {"graphene_sheet"},
+        {"proxima_signal"},
+        {"star_map"},
+        {"fusion_ramjet_core"},
+        {"antimatter_trap"},
+        {"magnetic_sail_coil"},
+        {"dust_shield_plate"},
+        {"hibernation_pod_core"},
     };
     public static final String[][] MACHINES = {
         {"oxygen_compressor"},
@@ -52,5 +60,6 @@ public final class GenIds {
         {"isru_electrolyzer"},
         {"suit_fabricator"},
         {"storm_shield_generator"},
+        {"deep_space_radio_array"},
     };
 }

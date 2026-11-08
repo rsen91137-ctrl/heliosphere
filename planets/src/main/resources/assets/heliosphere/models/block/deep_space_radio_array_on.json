@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/deep_space_radio_array_top",
+    "front": "heliosphere:block/machine/deep_space_radio_array_front_on",
+    "side": "heliosphere:block/machine/deep_space_radio_array_side"
+  }
+}

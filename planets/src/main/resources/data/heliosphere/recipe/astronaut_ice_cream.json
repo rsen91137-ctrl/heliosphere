@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:milk_bucket",
+    "minecraft:sugar",
+    "minecraft:cocoa_beans",
+    "heliosphere:canister_ln2"
+  ],
+  "result": {
+    "id": "heliosphere:astronaut_ice_cream",
+    "count": 4
+  }
+}

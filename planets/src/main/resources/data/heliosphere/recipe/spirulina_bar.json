@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:kelp",
+    "minecraft:kelp",
+    "minecraft:honey_bottle",
+    "heliosphere:europan_salt"
+  ],
+  "result": {
+    "id": "heliosphere:spirulina_bar",
+    "count": 3
+  }
+}

@@ -23,6 +23,14 @@ public final class EnvironmentHud {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer p = mc.player;
         if (p == null || mc.level == null || mc.options.hideGui) return;
+        com.heliosphere.core.story.Story.Payload story = com.heliosphere.core.story.Story.client;
+        if (story.active()) {
+            String txt = "§c半人马舰队抵达地球：§f" + com.heliosphere.core.story.Story.format(story.remainingDays());
+            int tw = mc.font.width(txt);
+            int sx = g.guiWidth() - tw - 10;
+            HelioGui.panel(g, sx - 4, 3, tw + 10, 15);
+            g.drawString(mc.font, txt, sx + 1, 7, HelioGui.TEXT, false);
+        }
         boolean helio = Planets.isHeliosphereDimension(mc.level);
         ItemStack ox = SpaceSuits.oxygenSource(p);
         HelioComponents.Oxygen o = ox.get(HelioComponents.OXYGEN);

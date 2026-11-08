@@ -1,0 +1,97 @@
+{
+  "parent": "heliosphere:signal",
+  "display": {
+    "icon": {
+      "id": "heliosphere:fusion_ramjet_core"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.ark"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.ark.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "graphene_sheet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:graphene_sheet"
+          }
+        ]
+      }
+    },
+    "fusion_ramjet_core": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:fusion_ramjet_core"
+          }
+        ]
+      }
+    },
+    "antimatter_trap": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:antimatter_trap"
+          }
+        ]
+      }
+    },
+    "magnetic_sail_coil": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:magnetic_sail_coil"
+          }
+        ]
+      }
+    },
+    "dust_shield_plate": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:dust_shield_plate"
+          }
+        ]
+      }
+    },
+    "hibernation_pod_core": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:hibernation_pod_core"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "graphene_sheet"
+    ],
+    [
+      "fusion_ramjet_core"
+    ],
+    [
+      "antimatter_trap"
+    ],
+    [
+      "magnetic_sail_coil"
+    ],
+    [
+      "dust_shield_plate"
+    ],
+    [
+      "hibernation_pod_core"
+    ]
+  ]
+}

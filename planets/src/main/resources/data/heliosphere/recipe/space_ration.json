@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:wheat",
+    "minecraft:wheat",
+    "minecraft:sugar",
+    "heliosphere:plastic"
+  ],
+  "result": {
+    "id": "heliosphere:space_ration",
+    "count": 2
+  }
+}

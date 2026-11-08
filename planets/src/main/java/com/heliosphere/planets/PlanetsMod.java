@@ -55,6 +55,7 @@ public final class PlanetsMod implements ModInitializer {
     public static final MachineType ISRU_ELECTROLYZER = MachineType.processor("isru_electrolyzer", 2, 3);
     public static final MachineType SUIT_FABRICATOR = MachineType.processor("suit_fabricator", 6, 1);
     public static final MachineType STORM_SHIELD = MachineType.bubble("storm_shield_generator");
+    public static final MachineType RADIO_ARRAY = MachineType.processor("deep_space_radio_array", 3, 1);
 
     public static final TagKey<Item> REPAIRS_SUIT = TagKey.create(Registries.ITEM, Heliosphere.id("repairs_space_suit"));
 
@@ -63,6 +64,19 @@ public final class PlanetsMod implements ModInitializer {
         com.heliosphere.core.Heliosphere.bootstrap();
         Reg.tab("planets");
         for (String[] it : GenIds.ITEMS) Reg.item(it[0]);
+        // space food (crafting recipes generated in tools/gen)
+        food("space_ration", 6, 0.8f);
+        food("tube_beef_paste", 8, 0.9f);
+        food("freeze_dried_fruit", 4, 0.5f);
+        food("astronaut_ice_cream", 5, 0.6f);
+        food("space_coffee", 3, 0.4f);
+        food("mars_potato", 5, 0.6f);
+        food("hydroponic_salad", 4, 0.7f);
+        food("spirulina_bar", 6, 1.0f);
+        food("tholin_protein", 7, 0.9f);
+        food("rehydrated_pasta", 7, 0.8f);
+        food("lunar_ice_water", 2, 0.3f);
+        food("plume_soda", 3, 0.5f);
         registerSuit("space_suit", 1, -175, 130, 6000);
         registerSuit("mars_suit", 2, -200, 160, 12000);
         registerSuit("thermal_suit", 3, -150, 480, 12000);
@@ -101,6 +115,20 @@ public final class PlanetsMod implements ModInitializer {
             return InteractionResult.SUCCESS;
         });
 
+        // Playing back the Proxima recording decodes the signal and starts the fleet countdown
+        UseItemCallback.EVENT.register((player, level, hand) -> {
+            ItemStack held = player.getItemInHand(hand);
+            if (!held.is(Reg.get("proxima_signal"))) return InteractionResult.PASS;
+            if (level instanceof net.minecraft.server.level.ServerLevel sl) {
+                if (com.heliosphere.core.story.Story.decode(sl.getServer())) {
+                    ItemStack map = new ItemStack(Reg.get("star_map"));
+                    if (!player.getInventory().add(map)) player.drop(map, false);
+                    sl.playSound(null, player.blockPosition(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.PLAYERS, 2f, 0.6f);
+                } else player.displayClientMessage(net.minecraft.network.chat.Component.translatable("story.heliosphere.already"), true);
+            }
+            return InteractionResult.SUCCESS;
+        });
+
         UseItemCallback.EVENT.register((player, level, hand) -> {
             ItemStack held = player.getItemInHand(hand);
             boolean o2 = held.is(Reg.get("canister_oxygen")), lox = held.is(Reg.get("canister_lox"));
@@ -122,6 +150,10 @@ public final class PlanetsMod implements ModInitializer {
         MachineType.addProvider(PlanetRecipes::register);
         CreativeTabs.register("planets", () -> new ItemStack(Reg.get("space_suit_helmet")), "planets");
         Heliosphere.LOG.info("Heliosphere planets ready ({} on the Moon and Mars)", Planets.MOON.identifier());
+    }
+
+    private static void food(String id, int nutrition, float saturation) {
+        Reg.item(id, Item::new, new Item.Properties().food(new net.minecraft.world.food.FoodProperties(nutrition, saturation, true)));
     }
 
     private static void registerSuit(String id, int tier, int minT, int maxT, int oxygen) {

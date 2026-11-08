@@ -1,0 +1,58 @@
+{
+  "parent": "heliosphere:beyond",
+  "display": {
+    "icon": {
+      "id": "heliosphere:proxima_signal"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.signal"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.signal.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "deep_space_radio_array": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:deep_space_radio_array"
+          }
+        ]
+      }
+    },
+    "proxima_signal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:proxima_signal"
+          }
+        ]
+      }
+    },
+    "star_map": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "heliosphere:star_map"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "deep_space_radio_array"
+    ],
+    [
+      "proxima_signal"
+    ],
+    [
+      "star_map"
+    ]
+  ]
+}

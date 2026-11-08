@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:plume_crystal",
+    "minecraft:sugar",
+    "heliosphere:empty_canister"
+  ],
+  "result": {
+    "id": "heliosphere:plume_soda",
+    "count": 1
+  }
+}

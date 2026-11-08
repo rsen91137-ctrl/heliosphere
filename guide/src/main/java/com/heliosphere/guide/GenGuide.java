@@ -113,5 +113,14 @@ public final class GenGuide {
             "canister_helium3",
             "canister_deuterium",
             "enriched_uranium",
-            "plutonium_238");
+            "plutonium_238",
+            "deep_space_radio_array",
+            "proxima_signal",
+            "star_map",
+            "graphene_sheet",
+            "fusion_ramjet_core",
+            "antimatter_trap",
+            "magnetic_sail_coil",
+            "dust_shield_plate",
+            "hibernation_pod_core");
 }

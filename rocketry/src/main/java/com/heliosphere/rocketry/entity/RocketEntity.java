@@ -70,6 +70,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
     private boolean escapeTower, parachute, staged;
     private double missionDv;
     private int transitTicks = 400;
+    private double transitDays;
     private BlockPos home;
     private String homeDim = "minecraft:overworld";
     private UUID crew;
@@ -132,6 +133,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         staged = in.getBooleanOr("staged", false);
         missionDv = in.getDoubleOr("mission_dv", 0);
         transitTicks = in.getIntOr("transit", 400);
+        transitDays = in.getDoubleOr("tdays", 0);
         in.read("home", BlockPos.CODEC).ifPresent(p -> home = p);
         homeDim = in.getStringOr("home_dim", "minecraft:overworld");
         in.getString("crew").ifPresent(u -> crew = UUID.fromString(u));
@@ -157,6 +159,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         out.putBoolean("staged", staged);
         out.putDouble("mission_dv", missionDv);
         out.putInt("transit", transitTicks);
+        out.putDouble("tdays", transitDays);
         if (home != null) out.store("home", BlockPos.CODEC, home);
         out.putString("home_dim", homeDim);
         if (crew != null) out.putString("crew", crew.toString());
@@ -208,6 +211,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
         failure = forced ? report.predicted : RocketAnalyzer.Failure.NONE;
         // No random accidents: a rocket that passes every check always flies. Only forced launches can fail.
         double days = report.mission == null ? 0 : report.mission.transferDays();
+        transitDays = days;
         transitTicks = transitTicksFor(days);
         if (fromBody == SolarSystem.EARTH && level().dimension() == Level.OVERWORLD) { home = blockPosition(); homeDim = "minecraft:overworld"; }
         scienceGiven = false;
@@ -356,6 +360,7 @@ public class RocketEntity extends Entity implements ExtendedScreenHandlerFactory
             p.displayClientMessage(Component.translatable("message.heliosphere.life_support_failed"), true);
         }
         if (ticks < transitTicks) return;
+        if (transitDays > 0) { com.heliosphere.core.story.Story.addTravelDays(level.getServer(), transitDays); transitDays = 0; }
         CelestialBody dest = body(to);
         ResourceKey<Level> dim = Planets.dimensionOf(dest);
         ServerLevel target = dim == null ? null : level.getServer().getLevel(dim);

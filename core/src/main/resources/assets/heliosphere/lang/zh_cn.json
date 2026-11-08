@@ -3,6 +3,7 @@
   "block.heliosphere.stellar_plasma": "恒星等离子体",
   "condition.heliosphere.needs_air": "需要可呼吸的大气",
   "condition.heliosphere.needs_foreign_air": "需要非地球的大气（如火星）",
+  "condition.heliosphere.needs_outer": "需要远离太阳的射电噪声：只能在海王星以外（海卫一、冥王星、卡戎、阋神星）运行",
   "condition.heliosphere.needs_oxygen": "燃烧需要氧气",
   "condition.heliosphere.needs_vacuum": "只能在真空中工作",
   "entity.heliosphere.rocket": "火箭",
@@ -62,5 +63,9 @@
   "message.heliosphere.too_hot": "§c温度 %s°C，超出宇航服耐受范围",
   "message.heliosphere.transfer": "§b转移轨道：前往%s，预计 %s 秒",
   "message.heliosphere.tumble": "§c推力偏心——火箭失控翻滚！",
+  "story.heliosphere.already": "§7倒计时早已开始。",
+  "story.heliosphere.signal_1": "§d§l【深空射电阵】§r§d在 4.24 光年外的比邻星方向，截获到一段有规律的窄带信号……",
+  "story.heliosphere.signal_2": "§d破译完成：这不是问候，是一支舰队的航行广播。目标——太阳系第三颗行星。",
+  "story.heliosphere.signal_3": "§c§l半人马舰队预计 %s 年后抵达地球。§r§e打开星图，第一个目标：比邻星系。",
   "tooltip.heliosphere.prebuilt": "右键放置：已加满燃料、发动机已试车"
 }

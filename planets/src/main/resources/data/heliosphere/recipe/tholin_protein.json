@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:tholin",
+    "heliosphere:tholin",
+    "heliosphere:canister_hydrogen",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "heliosphere:tholin_protein",
+    "count": 2
+  }
+}

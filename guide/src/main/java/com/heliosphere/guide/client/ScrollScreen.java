@@ -73,14 +73,18 @@ public class ScrollScreen extends Screen {
     @Override
     protected void init() {
         int x = left() + 12, y = top() + 30;
+        int step = Math.max(14, Math.min(21, (H - 46) / Math.max(1, chapters.size())));
         for (int i = 0; i < chapters.size(); i++) {
             final int idx = i;
             boolean open = i <= unlocked;
-            String label = open ? chapters.get(i).title : "？？？";
-            Button b = Button.builder(Component.literal(label), bt -> { selected = idx; scroll = 0; }).bounds(x, y, 104, 18).build();
+            String full = chapters.get(i).title;
+            String part = full.startsWith("第二部") ? "Ⅱ" : "Ⅰ";
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("第(\\d+)章 · (.+)$").matcher(full);
+            String label = m.find() ? part + "-" + m.group(1) + " " + m.group(2) : full;
+            Button b = Button.builder(Component.literal(open ? label : part + " ？？？"), bt -> { selected = idx; scroll = 0; }).bounds(x, y, 104, step - 2).build();
             b.active = open;
             addRenderableWidget(b);
-            y += 21;
+            y += step;
         }
     }
 

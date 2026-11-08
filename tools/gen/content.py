@@ -204,6 +204,7 @@ MACHINES = [
     ("planets", "isru_electrolyzer", "冰水电解站", "Ice Electrolysis Station", "#5A6A74", "#C0F0FF", "drop"),
     ("planets", "suit_fabricator", "宇航服制造台", "Spacesuit Fabricator", "#5A6070", "#F0F0F0", "arm"),
     ("planets", "storm_shield_generator", "风暴护盾发生器", "Storm Shield Generator", "#3A4A6A", "#80C0FF", "wave"),
+    ("planets", "deep_space_radio_array", "深空射电阵", "Deep Space Radio Array", "#3A3E48", "#FF6080", "wave"),
 ]
 
 # ---------------------------------------------------------------------------------------- rocket parts
@@ -342,3 +343,32 @@ for row in WORLD_ITEMS:
 SOLAR_DAY_HOURS = {"mercury": 4222.6, "venus": 2802.0, "phobos": 7.65, "deimos": 30.3, "ceres": 9.074, "vesta": 5.342, "jupiter": 9.925,
                    "io": 42.46, "europa": 85.2, "ganymede": 171.7, "callisto": 400.5, "saturn": 10.656, "enceladus": 32.9, "titan": 382.7,
                    "uranus": 17.24, "miranda": 33.9, "neptune": 16.11, "triton": 141.0, "pluto": 153.3, "charon": 153.3, "eris": 379.0}
+
+STORY_ITEMS = [
+    ("graphene_sheet", "石墨烯片", "Graphene Sheet", "plate", "#30343C", "#80A0C0"),
+    ("proxima_signal", "比邻星信号记录", "Proxima Signal Recording", "chip", "#401018", "#FF4060"),
+    ("star_map", "星图", "Star Map", "board", "#101830", "#F0E080"),
+    ("fusion_ramjet_core", "聚变冲压发动机核心", "Fusion Ramjet Core", "cyl", "#5A3A80", "#C080FF"),
+    ("antimatter_trap", "反物质约束阱", "Antimatter Penning Trap", "chip", "#202040", "#FF40C0"),
+    ("magnetic_sail_coil", "超导磁帆线圈", "Superconducting Magsail Coil", "cyl", "#3A5070", "#80E0FF"),
+    ("dust_shield_plate", "星际尘埃防护板", "Interstellar Dust Shield", "plate", "#5A5A60", "#E0E0E8"),
+    ("hibernation_pod_core", "冬眠舱维生核心", "Hibernation Pod Core", "chip", "#204050", "#80FFE0"),
+]
+for row in STORY_ITEMS:
+    item("planets", row[0], row[1], row[2], *row[3:])
+
+# Space food: id, zh, en, icon spec, nutrition, saturation, shapeless ingredients (namespaced), count
+FOODS = [
+    ("space_ration", "太空压缩饼干", "Space Ration Bar", ("plate", "#C8A060", "#8A6030"), 6, 0.8, ["minecraft:wheat", "minecraft:wheat", "minecraft:sugar", "heliosphere:plastic"], 2),
+    ("tube_beef_paste", "管装牛肉糊", "Tube Beef Paste", ("cyl", "#B0B4BC", "#A04030"), 8, 0.9, ["minecraft:cooked_beef", "minecraft:potato", "heliosphere:plastic"], 2),
+    ("freeze_dried_fruit", "冻干水果", "Freeze-Dried Fruit", ("dust", "#E04060", "#FFC0D0"), 4, 0.5, ["minecraft:sweet_berries", "minecraft:apple", "heliosphere:canister_ln2"], 3),
+    ("astronaut_ice_cream", "宇航员冻干冰淇淋", "Astronaut Ice Cream", ("plate", "#F0E0D0", "#8A5030"), 5, 0.6, ["minecraft:milk_bucket", "minecraft:sugar", "minecraft:cocoa_beans", "heliosphere:canister_ln2"], 4),
+    ("space_coffee", "太空咖啡袋", "Space Coffee Pouch", ("canister", "#4A3020", None, None, "#C08040"), 3, 0.4, ["minecraft:cocoa_beans", "minecraft:sugar", "heliosphere:empty_canister"], 1),
+    ("mars_potato", "火星土豆", "Martian Potato", ("raw", "#C08850", "#7A4A28"), 5, 0.6, ["minecraft:potato", "heliosphere:mars_regolith", "minecraft:bone_meal"], 2),
+    ("hydroponic_salad", "水培沙拉", "Hydroponic Salad", ("dust", "#60C050", "#C0F0A0"), 4, 0.7, ["minecraft:kelp", "minecraft:beetroot", "minecraft:carrot", "minecraft:bowl"], 1),
+    ("spirulina_bar", "螺旋藻能量块", "Spirulina Energy Bar", ("plate", "#205A40", "#60C090"), 6, 1.0, ["minecraft:kelp", "minecraft:kelp", "minecraft:honey_bottle", "heliosphere:europan_salt"], 3),
+    ("tholin_protein", "托林合成蛋白", "Tholin Synthetic Protein", ("raw", "#C07040", "#F0C090"), 7, 0.9, ["heliosphere:tholin", "heliosphere:tholin", "heliosphere:canister_hydrogen", "minecraft:bowl"], 2),
+    ("rehydrated_pasta", "复水意面", "Rehydrated Pasta", ("dust", "#F0D080", "#C04020"), 7, 0.8, ["minecraft:wheat", "minecraft:wheat", "minecraft:tomato" if False else "minecraft:beetroot", "minecraft:water_bucket", "heliosphere:plastic"], 3),
+    ("lunar_ice_water", "月冰纯净水袋", "Lunar Ice Water Pouch", ("canister", "#A0C0E0", None, None, "#E0F0FF"), 2, 0.3, ["heliosphere:lunar_ice_chunk", "heliosphere:empty_canister"], 1),
+    ("plume_soda", "土卫二羽流汽水", "Enceladus Plume Soda", ("canister", "#80C0F0", None, None, "#FFFFFF"), 3, 0.5, ["heliosphere:plume_crystal", "minecraft:sugar", "heliosphere:empty_canister"], 1),
+]

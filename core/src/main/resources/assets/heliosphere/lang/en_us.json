@@ -3,6 +3,7 @@
   "block.heliosphere.stellar_plasma": "Stellar Plasma",
   "condition.heliosphere.needs_air": "Needs breathable air",
   "condition.heliosphere.needs_foreign_air": "Needs a foreign atmosphere such as Mars",
+  "condition.heliosphere.needs_outer": "Needs radio silence: only beyond Neptune",
   "condition.heliosphere.needs_oxygen": "Combustion needs oxygen",
   "condition.heliosphere.needs_vacuum": "Works only in vacuum",
   "entity.heliosphere.rocket": "Rocket",
@@ -62,5 +63,9 @@
   "message.heliosphere.too_hot": "§c%s°C exceeds your suit rating",
   "message.heliosphere.transfer": "§bTransfer to %s, about %s s",
   "message.heliosphere.tumble": "§cAsymmetric thrust - the rocket is tumbling!",
+  "story.heliosphere.already": "§7The countdown is already running.",
+  "story.heliosphere.signal_1": "§d§l[Deep Space Array]§r§d A narrow-band signal from Proxima Centauri, 4.24 light years away...",
+  "story.heliosphere.signal_2": "§dDecoded: not a greeting, but the navigation broadcast of a fleet. Destination: the third planet of the Sun.",
+  "story.heliosphere.signal_3": "§c§lThe Centaurian fleet will reach Earth in %s years.§r§e Open the star map. First target: Proxima.",
   "tooltip.heliosphere.prebuilt": "Right-click to place: fuelled and test-fired"
 }

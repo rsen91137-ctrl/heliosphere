@@ -206,6 +206,11 @@ def gen_core():
         'message.heliosphere.storm': ('§c风暴！时速上千公里的急流把你吹离平台——待在风暴护盾发生器的力场里', '§cStorm! Supersonic jet streams — stay inside a storm shield'),
         'message.heliosphere.crushed': ('§4巨大的大气压正在压垮你——需要密封等级 3 的宇航服或护盾', '§4The crushing atmosphere is collapsing your suit — tier 3 suit or shield needed'),
         'message.heliosphere.radiation': ('§d木星磁层强辐射——需要密封等级 3 的宇航服', '§dJovian radiation belt — tier 3 suit needed'),
+        'story.heliosphere.signal_1': ('§d§l【深空射电阵】§r§d在 4.24 光年外的比邻星方向，截获到一段有规律的窄带信号……', '§d§l[Deep Space Array]§r§d A narrow-band signal from Proxima Centauri, 4.24 light years away...'),
+        'story.heliosphere.signal_2': ('§d破译完成：这不是问候，是一支舰队的航行广播。目标——太阳系第三颗行星。', '§dDecoded: not a greeting, but the navigation broadcast of a fleet. Destination: the third planet of the Sun.'),
+        'story.heliosphere.signal_3': ('§c§l半人马舰队预计 %s 年后抵达地球。§r§e打开星图，第一个目标：比邻星系。', '§c§lThe Centaurian fleet will reach Earth in %s years.§r§e Open the star map. First target: Proxima.'),
+        'story.heliosphere.already': ('§7倒计时早已开始。', '§7The countdown is already running.'),
+        'condition.heliosphere.needs_outer': ('需要远离太阳的射电噪声：只能在海王星以外（海卫一、冥王星、卡戎、阋神星）运行', 'Needs radio silence: only beyond Neptune'),
         'message.heliosphere.science': ('§b获得科学数据：%s', '§bScience collected: %s'),
         'message.heliosphere.escape_tower': ('§e逃逸塔点火！乘员舱被弹射出去', '§eEscape tower fired - crew ejected!'),
         'message.heliosphere.life_support_failed': ('§c生命维持不足，舱内二氧化碳浓度升高', '§cLife support exhausted'),
@@ -514,6 +519,11 @@ def part_models(m, pid, kind, color, accent):
 
 
 def gen_rocketry():
+    for (fid, zh, en, spec, nut, sat, ings, cnt) in C.FOODS:
+        simple_item('planets', fid, lambda n, i=fid, sp=spec: icons.item_icon(n, i, sp, seed(i)))
+        lang('planets', f'item.heliosphere.{fid}', zh, en)
+        data('planets', f'recipe/{fid}.json', {'type': 'minecraft:crafting_shapeless', 'category': 'misc', 'ingredients': ings,
+                                              'result': {'id': f'{NS}:{fid}', 'count': cnt}})
     m = 'rocketry'
     simple_item(m, 'rocket_recovery_tool', lambda n: icons.wrench(n))
     lang(m, 'item.heliosphere.rocket_recovery_tool', '火箭回收扳手', 'Rocket Recovery Wrench')
@@ -628,6 +638,9 @@ def gen_recipes():
         'battery_bank': (['BBB', 'SCS', 'SSS'], {'B': h('battery_cell'), 'S': h('steel_ingot'), 'C': h('circuit_board')}),
     }
     P = {
+        'deep_space_radio_array': ([' D ', 'WPW', 'SBS'], {'D': h('lunar_ceramic'), 'W': h('copper_wire'), 'P': h('deep_space_computer'),
+                                                         'S': h('stainless_steel_plate'), 'B': h('battery_cell')}),
+        'star_map': (['PGP', 'GCG', 'PGP'], {'P': 'minecraft:paper', 'G': 'minecraft:glowstone_dust', 'C': h('proxima_signal')}),
         'storm_shield_generator': (['CMC', 'NPN', 'SBS'], {'C': h('copper_wire'), 'M': h('ndfeb_magnet'), 'N': h('niobium_ingot'), 'P': h('processor'),
                                                          'S': h('stainless_steel_plate'), 'B': h('battery_cell')}),
         'suit_fabricator': (['NGN', 'CLC', 'SBS'], {'N': h('nylon'), 'G': 'minecraft:glass', 'C': h('circuit_board'), 'L': 'minecraft:loom',
@@ -665,7 +678,7 @@ def gen_guide():
     m = 'guide'
     simple_item(m, 'star_scroll', lambda n: icons.scroll(n))
     lang(m, 'item.heliosphere.star_scroll', '星际航行卷轴', 'The Star Scroll')
-    asset(m, 'guide/chapters.json', [{'title': c['title'], 'intro': c['intro'], 'objectives': c['objectives'], 'tips': c['tips']} for c in G.CHAPTERS])
+    asset(m, 'guide/chapters.json', [{'title': c['title'], 'intro': (('§o' + c['story'] + '§r\n\n') if c.get('story') else '') + c['intro'], 'objectives': c['objectives'], 'tips': c['tips']} for c in G.CHAPTERS])
     data(m, 'advancement/root.json', {
         'display': {'icon': {'id': h('star_scroll')}, 'title': {'translate': 'advancement.heliosphere.root'},
                     'description': {'translate': 'advancement.heliosphere.root.desc'}, 'background': 'heliosphere:block/anorthosite',

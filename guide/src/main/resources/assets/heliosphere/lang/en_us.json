@@ -1,4 +1,6 @@
 {
+  "advancement.heliosphere.ark": "Ark",
+  "advancement.heliosphere.ark.desc": "ark",
   "advancement.heliosphere.beyond": "Beyond",
   "advancement.heliosphere.beyond.desc": "beyond",
   "advancement.heliosphere.deep_space": "Deep Space",
@@ -17,6 +19,8 @@
   "advancement.heliosphere.precision.desc": "precision",
   "advancement.heliosphere.root": "Heliosphere",
   "advancement.heliosphere.root.desc": "From Earth's ores to the red planet",
+  "advancement.heliosphere.signal": "Signal",
+  "advancement.heliosphere.signal.desc": "signal",
   "advancement.heliosphere.sounding": "Sounding",
   "advancement.heliosphere.sounding.desc": "sounding",
   "item.heliosphere.star_scroll": "The Star Scroll"

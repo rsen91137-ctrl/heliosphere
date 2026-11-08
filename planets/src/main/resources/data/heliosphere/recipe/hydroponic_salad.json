@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:kelp",
+    "minecraft:beetroot",
+    "minecraft:carrot",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "heliosphere:hydroponic_salad",
+    "count": 1
+  }
+}

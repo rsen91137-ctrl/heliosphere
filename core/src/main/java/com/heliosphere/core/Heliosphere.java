@@ -38,9 +38,11 @@ public final class Heliosphere implements ModInitializer {
         CoreBlocks.init();
         MachineMenu.init();
         HelioNetwork.init();
+        com.heliosphere.core.story.Story.init();
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             EnvironmentSystem.tick(server);
             WrapSystem.tick(server);
+            com.heliosphere.core.story.Story.tick(server);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, ctx, env) -> HelioCommand.register(dispatcher));
         LOG.info("Heliosphere core ready: {} celestial bodies", com.heliosphere.core.celestial.SolarSystem.all().size());

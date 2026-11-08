@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " D ",
+    "WPW",
+    "SBS"
+  ],
+  "key": {
+    "D": "heliosphere:lunar_ceramic",
+    "W": "heliosphere:copper_wire",
+    "P": "heliosphere:deep_space_computer",
+    "S": "heliosphere:stainless_steel_plate",
+    "B": "heliosphere:battery_cell"
+  },
+  "result": {
+    "id": "heliosphere:deep_space_radio_array",
+    "count": 1
+  }
+}

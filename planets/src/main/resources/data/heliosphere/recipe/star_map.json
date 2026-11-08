@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PGP",
+    "GCG",
+    "PGP"
+  ],
+  "key": {
+    "P": "minecraft:paper",
+    "G": "minecraft:glowstone_dust",
+    "C": "heliosphere:proxima_signal"
+  },
+  "result": {
+    "id": "heliosphere:star_map",
+    "count": 1
+  }
+}

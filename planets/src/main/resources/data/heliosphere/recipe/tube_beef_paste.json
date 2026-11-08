@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:cooked_beef",
+    "minecraft:potato",
+    "heliosphere:plastic"
+  ],
+  "result": {
+    "id": "heliosphere:tube_beef_paste",
+    "count": 2
+  }
+}

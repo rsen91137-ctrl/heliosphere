@@ -83,6 +83,24 @@ public final class PlanetRecipes {
         OXYGEN_COMPRESSOR.recipe(r().in(I("solid_nitrogen"), 2).in(I("empty_canister")).out(I("canister_ln2")).time(120).power(30));
         M("chemical_reactor").recipe(r().in(I("plume_crystal"), 2).in(I("empty_canister")).out(I("canister_hydrogen")).out(I("metallurgical_silicon")).time(200).power(70));
 
+        // ---------------------------------------------------------------- Volume II: the interstellar ark
+        RADIO_ARRAY.recipe(r().in(I("rad_hard_chip"), 2).in(I("deep_space_computer")).in(I("solid_nitrogen"), 4).out(I("proxima_signal")).time(1200).power(200)
+                .when((l, p) -> {
+                    com.heliosphere.core.celestial.CelestialBody b = Planets.bodyOf(l);
+                    return b != null && java.util.Set.of("triton", "pluto", "charon", "eris").contains(b.id) ? null : "condition.heliosphere.needs_outer";
+                }));
+        VACUUM_DEPOSITION.recipe(r().in(I("graphite"), 2).in(I("copper_plate")).out(I("graphene_sheet")).time(300).power(120));
+        asm.recipe(r().in(I("canister_helium3"), 4).in(I("canister_deuterium"), 4).in(I("ndfeb_magnet"), 4).in(I("tungsten_ingot"), 4)
+                .in(I("bismuth_ingot"), 2).in(I("graphene_sheet"), 2).in(I("engine_controller")).in(I("lunar_ti_alloy_ingot"), 4).out(I("fusion_ramjet_core")).time(2400).power(400).precise());
+        asm.recipe(r().in(I("ndfeb_magnet"), 6).in(I("niobium_ingot"), 4).in(I("canister_ln2"), 2).in(I("deep_space_computer")).in(I("canister_helium3"), 2)
+                .in(I("vacuum_wafer"), 2).out(I("antimatter_trap")).time(2400).power(500).precise());
+        asm.recipe(r().in(I("graphene_sheet"), 6).in(I("niobium_ingot"), 4).in(I("carbon_fiber"), 4).in(I("copper_wire"), 8).in(I("canister_ln2"), 2)
+                .out(I("magnetic_sail_coil")).time(1600).power(300));
+        asm.recipe(r().in(I("tungsten_ingot"), 4).in(I("lunar_ceramic"), 4).in(I("beryllium_ingot"), 2).in(I("heavy_water"), 2).in(I("europan_salt"), 2)
+                .out(I("dust_shield_plate")).time(1200).power(250));
+        asm.recipe(r().in(I("deep_space_computer")).in(I("canister_ln2"), 2).in(I("tholin"), 4).in(I("plume_crystal"), 2).in(I("plastic"), 4)
+                .in(I("canister_oxygen"), 4).in(I("processor"), 2).out(I("hibernation_pod_core")).time(1600).power(250));
+
         // hot worlds: Mercury day side, Venus — silica/PICA insulation over an Inconel pressure layer
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_helmet")).in(I("lunar_ceramic"), 2).in(I("silver_ingot"), 2).in(I("silicon_nitride")).out(I("thermal_suit_helmet")).time(500).power(120));
         SUIT_FABRICATOR.recipe(r().in(I("mars_suit_chestplate")).in(I("pica"), 3).in(I("inconel_plate"), 2).in(I("canister_ammonia"), 2).in(I("heat_shield_tile")).out(I("thermal_suit_chestplate")).time(700).power(160));

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:sweet_berries",
+    "minecraft:apple",
+    "heliosphere:canister_ln2"
+  ],
+  "result": {
+    "id": "heliosphere:freeze_dried_fruit",
+    "count": 3
+  }
+}
