@@ -419,3 +419,6 @@ for pid, pzh, pc in PLANET_CORES:
 item("planets", "zero_point_cell", "零点能量核", "Zero-Point Energy Core", "chip", "#101830", "#80FFFF")
 
 item("planets", "kinetic_interceptor", "动能拦截弹", "Kinetic Interceptor", "cyl", "#D0D4DA", "#C03030")
+
+item("planets", "alien_alloy", "外星合金", "Alien Alloy", "ingot", "#5A6A90", "#80E0FF")
+item("planets", "alien_chip", "外星芯片", "Alien Chip", "chip", "#202838", "#FF4060")

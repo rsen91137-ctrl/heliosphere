@@ -153,6 +153,7 @@ public final class PlanetsMod implements ModInitializer {
         Stargate.init();
         Reg.blockWithItem("defense_silo", Asteroid.SiloBlock::new, Reg.metal(MapColor.COLOR_GRAY, 20f).explosionResistance(1200f));
         com.heliosphere.core.story.Story.impact = Asteroid::impact;
+        com.heliosphere.planets.enemy.Vanguard.init();
         com.heliosphere.planets.weapon.Weapons.register();
         MachineType.addProvider(PlanetRecipes::register);
         MachineType.addProvider(com.heliosphere.planets.weapon.Weapons::recipes);

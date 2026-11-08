@@ -526,6 +526,9 @@ def gen_rocketry():
         lang('planets', f'item.heliosphere.{gid}', zh, en)
     cube_block('planets', 'stargate', lambda n: B.stargate(n))
     cube_block('planets', 'defense_silo', lambda n: B.silo(n))
+    for eid, zh, en in [('scout_drone', '先遣侦察无人机', 'Vanguard Scout Drone'), ('mech_crawler', '机械虫', 'Mech Crawler'),
+                        ('vanguard_sentinel', '半人马先遣守卫', 'Centaurian Sentinel')]:
+        lang('planets', f'entity.heliosphere.{eid}', zh, en)
     lang('planets', 'block.heliosphere.defense_silo', '行星防御导弹井', 'Planetary Defence Silo')
     loot_self('planets', 'defense_silo')
     data('planets', 'recipe/defense_silo.json', {'type': 'minecraft:crafting_shaped', 'category': 'misc', 'pattern': ['SRS', 'SCS', 'SSS'],

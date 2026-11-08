@@ -91,9 +91,9 @@ public final class PlanetRecipes {
                 }));
         VACUUM_DEPOSITION.recipe(r().in(I("graphite"), 2).in(I("copper_plate")).out(I("graphene_sheet")).time(300).power(120));
         asm.recipe(r().in(I("canister_helium3"), 4).in(I("canister_deuterium"), 4).in(I("ndfeb_magnet"), 4).in(I("tungsten_ingot"), 4)
-                .in(I("bismuth_ingot"), 2).in(I("graphene_sheet"), 2).in(I("engine_controller")).in(I("lunar_ti_alloy_ingot"), 4).out(I("fusion_ramjet_core")).time(2400).power(400).precise());
+                .in(I("bismuth_ingot"), 2).in(I("graphene_sheet"), 2).in(I("alien_alloy"), 4).in(I("lunar_ti_alloy_ingot"), 4).out(I("fusion_ramjet_core")).time(2400).power(400).precise());
         asm.recipe(r().in(I("ndfeb_magnet"), 6).in(I("niobium_ingot"), 4).in(I("canister_ln2"), 2).in(I("deep_space_computer")).in(I("canister_helium3"), 2)
-                .in(I("vacuum_wafer"), 2).out(I("antimatter_trap")).time(2400).power(500).precise());
+                .in(I("vacuum_wafer"), 2).in(I("alien_chip"), 2).out(I("antimatter_trap")).time(2400).power(500).precise());
         asm.recipe(r().in(I("graphene_sheet"), 6).in(I("niobium_ingot"), 4).in(I("carbon_fiber"), 4).in(I("copper_wire"), 8).in(I("canister_ln2"), 2)
                 .out(I("magnetic_sail_coil")).time(1600).power(300));
         asm.recipe(r().in(I("tungsten_ingot"), 4).in(I("lunar_ceramic"), 4).in(I("beryllium_ingot"), 2).in(I("heavy_water"), 2).in(I("europan_salt"), 2)

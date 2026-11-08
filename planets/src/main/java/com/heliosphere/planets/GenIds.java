@@ -71,6 +71,8 @@ public final class GenIds {
         {"neptune_core"},
         {"zero_point_cell"},
         {"kinetic_interceptor"},
+        {"alien_alloy"},
+        {"alien_chip"},
     };
     public static final String[][] MACHINES = {
         {"oxygen_compressor"},
