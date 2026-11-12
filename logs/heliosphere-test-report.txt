@@ -1,0 +1,33 @@
+[ok] 00_intro
+[ok] 01_earth_spawn
+[ok] 02_moon_tranquility
+[ok] 03_moon_sky_earth
+[ok] 04_moon_from_above
+[ok] 05_mars_olympus
+[ok] 06_mars_valles
+[ok] 06a_venus
+[ok] 06b_io
+[ok] 06c_europa
+[ok] 06d_titan
+[ok] 06e_jupiter
+[ok] 06f_saturn
+[ok] 06g_pluto
+[ok] 06h_miranda
+[ok] 07_back_on_earth_rocket
+[ok] 08_launch_console
+[ok] 09_liftoff
+[ok] 10_ascent
+[ok] 11_space_transfer
+[ok] 12_moon_landing
+[ok] 13_machine_screen
+[ok] 14_creative_rocketry_tab
+[ok] 15_creative_industry_tab
+[ok] 16_creative_planets_tab
+[ok] 16b_encyclopedia
+[ok] 17_star_scroll
+--- notes ---
+pad at BlockPos{x=154, y=72, z=160} parts=129 console=BlockPos{x=157, y=72, z=162}
+console menu: RocketMenu
+after launch: vehicle=rocket
+ascent: phase=2 y=72
+before transfer wait: minecraft:overworld y=85 vehicle=rocket phase 2

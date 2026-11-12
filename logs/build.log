@@ -1,0 +1,151 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+Fabric Loom: 1.14.10
+
+> Task :sphereworld:processResources
+> Task :planets:processResources
+> Task :industry:processResources
+> Task :guide:processResources
+> Task :guide:processIncludeJars
+> Task :guide:processTestResources NO-SOURCE
+> Task :planets:exportClasspath
+> Task :industry:exportClasspath
+> Task :guide:validateAccessWidener NO-SOURCE
+> Task :sphereworld:exportClasspath
+> Task :planets:processIncludeJars
+> Task :planets:processTestResources NO-SOURCE
+> Task :planets:validateAccessWidener NO-SOURCE
+> Task :sphereworld:processIncludeJars
+> Task :sphereworld:processTestResources NO-SOURCE
+> Task :sphereworld:validateAccessWidener NO-SOURCE
+> Task :rocketry:processResources
+> Task :industry:processIncludeJars
+> Task :industry:processTestResources NO-SOURCE
+> Task :rocketry:exportClasspath
+> Task :industry:validateAccessWidener NO-SOURCE
+> Task :rocketry:processIncludeJars
+> Task :guide:exportClasspath
+> Task :testmod:processResources
+> Task :rocketry:processTestResources NO-SOURCE
+> Task :rocketry:validateAccessWidener NO-SOURCE
+> Task :testmod:processIncludeJars
+> Task :testmod:processTestResources NO-SOURCE
+> Task :testmod:validateAccessWidener NO-SOURCE
+
+> Task :core:compileJava
+Note: /home/runner/work/heliosphere/heliosphere/core/src/main/java/com/heliosphere/core/machine/MachineBlockEntity.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :core:processResources
+> Task :core:classes
+> Task :core:jar
+> Task :core:processIncludeJars
+> Task :core:compileTestJava NO-SOURCE
+> Task :core:processTestResources NO-SOURCE
+> Task :core:testClasses UP-TO-DATE
+> Task :core:test NO-SOURCE
+> Task :core:validateAccessWidener NO-SOURCE
+> Task :core:check UP-TO-DATE
+> Task :core:exportClasspath
+> Task :industry:compileJava
+> Task :industry:classes
+> Task :industry:jar
+> Task :industry:compileTestJava NO-SOURCE
+> Task :industry:testClasses UP-TO-DATE
+> Task :industry:test NO-SOURCE
+> Task :industry:check UP-TO-DATE
+> Task :sphereworld:compileJava
+> Task :sphereworld:classes
+> Task :sphereworld:jar
+
+> Task :planets:compileJava
+Note: /home/runner/work/heliosphere/heliosphere/planets/src/main/java/com/heliosphere/planets/weapon/GunItem.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :planets:classes
+> Task :planets:jar
+> Task :core:remapJar
+> Task :core:remapSourcesJar SKIPPED
+> Task :core:assemble
+> Task :core:build
+> Task :sphereworld:remapJar
+> Task :planets:compileTestJava NO-SOURCE
+> Task :planets:testClasses UP-TO-DATE
+> Task :planets:test NO-SOURCE
+> Task :planets:check UP-TO-DATE
+> Task :sphereworld:remapSourcesJar SKIPPED
+> Task :sphereworld:assemble
+> Task :sphereworld:compileTestJava NO-SOURCE
+> Task :sphereworld:testClasses UP-TO-DATE
+> Task :sphereworld:test NO-SOURCE
+> Task :sphereworld:check UP-TO-DATE
+> Task :sphereworld:build
+> Task :industry:remapJar
+> Task :industry:remapSourcesJar SKIPPED
+> Task :industry:assemble
+> Task :industry:build
+
+> Task :rocketry:compileJava
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :rocketry:classes
+> Task :rocketry:jar
+> Task :rocketry:compileTestJava NO-SOURCE
+> Task :rocketry:testClasses UP-TO-DATE
+> Task :rocketry:test NO-SOURCE
+> Task :rocketry:check UP-TO-DATE
+> Task :planets:remapJar
+> Task :planets:remapSourcesJar SKIPPED
+> Task :planets:assemble
+> Task :planets:build
+
+> Task :guide:compileJava
+Note: /home/runner/work/heliosphere/heliosphere/guide/src/main/java/com/heliosphere/guide/client/GuideClient.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :guide:classes
+> Task :guide:jar
+> Task :guide:compileTestJava NO-SOURCE
+> Task :guide:testClasses UP-TO-DATE
+> Task :guide:test NO-SOURCE
+> Task :guide:check UP-TO-DATE
+> Task :rocketry:remapJar
+> Task :rocketry:remapSourcesJar SKIPPED
+> Task :rocketry:assemble
+> Task :rocketry:build
+> Task :testmod:compileJava
+> Task :testmod:classes
+> Task :testmod:jar
+> Task :testmod:compileTestJava NO-SOURCE
+> Task :testmod:testClasses UP-TO-DATE
+> Task :testmod:test NO-SOURCE
+> Task :testmod:check UP-TO-DATE
+> Task :guide:remapJar
+> Task :guide:remapSourcesJar SKIPPED
+> Task :guide:assemble
+> Task :guide:build
+> Task :dist
+> Task :testmod:remapJar
+> Task :testmod:remapSourcesJar SKIPPED
+> Task :testmod:assemble
+> Task :testmod:build
+
+[Incubating] Problems report is available at: file:///home/runner/work/heliosphere/heliosphere/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.2.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 27s
+42 actionable tasks: 42 executed
