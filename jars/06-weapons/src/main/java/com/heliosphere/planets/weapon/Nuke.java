@@ -61,10 +61,14 @@ import java.util.WeakHashMap;
  */
 public final class Nuke {
     public static final int CRATER_RADIUS = 72;
-    public static final int SHOCK_RADIUS = 192;
+    public static final int SHOCK_RADIUS = 360;
     public static final int FALLOUT_RADIUS = 128;
     private static final int SCORCH_RADIUS = 136;
-    private static final int THERMAL_RADIUS = 110;
+    private static final int THERMAL_RADIUS = 250;
+    /** Out to here the blast wave knocks down what is built on the ground, less and less with distance. */
+    private static final int FLATTEN_RADIUS = 260;
+    /** Damage at ground zero (at least 10000) and how fast it falls away: 1/e every this many blocks. */
+    private static final float CORE_DAMAGE = 12000f, CORE_FALLOFF = 28f;
     private static final int CRATER_DEPTH = 34;
     private static final float SHOCK_PER_TICK = MushroomCloud.SHOCK_SPEED / 20f;
     private static final long FALLOUT_TICKS = 14400;
@@ -72,6 +76,7 @@ public final class Nuke {
 
     private static final int CRATER_COLUMNS = (2 * CRATER_RADIUS + 1) * (2 * CRATER_RADIUS + 1);
     private static final int SCORCH_COLUMNS = (2 * SCORCH_RADIUS + 1) * (2 * SCORCH_RADIUS + 1);
+    private static final int FLAT_COLUMNS = (2 * FLATTEN_RADIUS + 1) * (2 * FLATTEN_RADIUS + 1);
     /** setBlock flags: tell clients, but no neighbour updates, drops or block-entity side effects. */
     private static final int SILENT = 818;
     private static final TicketType LOAD = new TicketType(100L, TicketType.FLAG_LOADING);
@@ -92,6 +97,12 @@ public final class Nuke {
         /** Next scorch column (spiral index) to treat. */
         int scorch;
         int seed;
+        /** Crater size relative to a ground burst: smaller and shallower the higher the burst (0 in old saves = 1). */
+        float scale;
+        /** Next column (spiral index) the blast wave knocks down. */
+        int flat;
+
+        float k() { return scale <= 0 ? 1 : scale; }
     }
 
     private Nuke() {}
@@ -117,8 +128,16 @@ public final class Nuke {
     private static void save(ServerLevel level, List<Blast> list) { level.setAttached(saved, GSON.toJson(list)); }
 
     public static void detonate(ServerLevel level, Entity source, Vec3 c) {
+        // The warhead may go off in the air (a shot that hit nothing ends in mid-air). The crater is always dug
+        // into the ground below; the higher the burst, the shallower and smaller it is.
+        int gx = (int) Math.floor(c.x), gz = (int) Math.floor(c.z);
+        level.getChunk(gx >> 4, gz >> 4);
+        int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, gx, gz);
+        double height = c.y - ground;
         Blast b = new Blast();
-        b.x = c.x; b.y = c.y; b.z = c.z;
+        b.x = c.x; b.z = c.z;
+        b.y = height > 1.5 ? ground : c.y;
+        b.scale = height > 1.5 ? (float) Math.max(0.12, Math.min(1, 1 - height / 140.0)) : 1f;
         b.start = level.getGameTime();
         b.seed = level.getRandom().nextInt();
         List<Blast> list = blasts(level);
@@ -126,14 +145,14 @@ public final class Nuke {
         list.add(b);
         save(level, list);
 
-        level.explode(source, b.x, b.y, b.z, 12f, Level.ExplosionInteraction.TNT);
-        // thermal pulse: arrives with the light
+        if (height < 40) level.explode(source, b.x, b.y, b.z, 12f, Level.ExplosionInteraction.TNT);
+        // thermal pulse: arrives with the light, burns whatever can see the fireball
         for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(THERMAL_RADIUS))) {
             double d = e.position().distanceTo(c);
             if (d > THERMAL_RADIUS || !sees(level, c, e)) continue;
             float k = (float) (1 - d / THERMAL_RADIUS);
-            e.igniteForSeconds(4 + 10 * k);
-            e.hurtServer(level, level.damageSources().inFire(), 40f * k * k);
+            e.igniteForSeconds(4 + 12 * k);
+            e.hurtServer(level, level.damageSources().inFire(), 60f * k * k * k);
         }
         CombatVfx.send(level, CombatVfx.NUKE, 0, c, new Vec3(b.seed, 0, 0), 1f);
     }
@@ -167,9 +186,10 @@ public final class Nuke {
             if (age * SHOCK_PER_TICK <= HEARD_RADIUS + SHOCK_PER_TICK) shock(level, b, (age - 1) * SHOCK_PER_TICK, age * SHOCK_PER_TICK);
             if (b.column < CRATER_COLUMNS) { carve(level, b, budget); dirty = true; }
             else if (b.scorch < SCORCH_COLUMNS) { scorch(level, b, budget * 2); dirty = true; }
+            if (b.flat < FLAT_COLUMNS) { flatten(level, b, budget, age * SHOCK_PER_TICK); dirty = true; }
             if (age < FALLOUT_TICKS && now % 40 == 0) fallout(level, b, age);
         }
-        if (list.removeIf(b -> now - b.start > FALLOUT_TICKS && b.scorch >= SCORCH_COLUMNS)) dirty = true;
+        if (list.removeIf(b -> now - b.start > FALLOUT_TICKS && b.scorch >= SCORCH_COLUMNS && b.flat >= FLAT_COLUMNS)) dirty = true;
         if (dirty && now % 20 == 0) save(level, list);
     }
 
@@ -180,10 +200,12 @@ public final class Nuke {
             for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, new AABB(c, c).inflate(Math.min(r1, SHOCK_RADIUS) + 1))) {
                 double d = e.position().distanceTo(c);
                 if (d <= r0 || d > r1 || d > SHOCK_RADIUS) continue;
-                double k = Math.pow(1 - d / SHOCK_RADIUS, 1.4);
-                float damage = (float) (180 * k * (sees(level, c, e) ? 1 : 0.3));
+                // overwhelming at the centre (12000), falling off fast; a long, weaker tail out to the safe distance (400)
+                double k = Math.pow(1 - d / SHOCK_RADIUS, 2);
+                float damage = (float) (CORE_DAMAGE * Math.exp(-d / CORE_FALLOFF) + 140 * k * (sees(level, c, e) ? 1 : 0.35));
+                e.invulnerableTime = 0;
                 e.hurtServer(level, level.damageSources().explosion(null, null), damage);
-                e.knockback(3.2 * (1 - d / SHOCK_RADIUS), b.x - e.getX(), b.z - e.getZ());
+                e.knockback(4.5 * (1 - d / SHOCK_RADIUS), b.x - e.getX(), b.z - e.getZ());
                 e.hurtMarked = true;
             }
         }
@@ -247,14 +269,15 @@ public final class Nuke {
         while (budget > 0 && b.column < CRATER_COLUMNS) {
             int[] s = spiral(b.column);
             double r = Math.hypot(s[0], s[1]);
-            if (r > CRATER_RADIUS + 9) { b.column++; continue; }
+            double crater = CRATER_RADIUS * (0.45 + 0.55 * b.k());
+            if (r > crater + 9) { b.column++; continue; }
             int x = cx + s[0], z = cz + s[1];
             LevelChunk chunk = chunk(level, x, z);
             if (chunk == null) return;                                       // wait for it; resume on a later tick
             b.column++;
             int surface = Math.min(level.getMaxY() - 1, chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15));
             float wobble = (noise(b, x, z, 0.09f, 1) - 0.5f) * 0.16f;
-            float rn = (float) (r / CRATER_RADIUS) + wobble;                 // normalised radius with a ragged edge
+            float rn = (float) (r / crater) + wobble;                        // normalised radius with a ragged edge
             int h = Rng.hash(x * 31 + z * 17 + b.seed);
 
             if (rn >= 1f) {                                                  // the rim: ejecta heaped on the old surface
@@ -269,7 +292,7 @@ public final class Nuke {
             }
             // the bowl: deepest in the middle, a little uneven
             float bowl = (float) Math.pow(1 - rn * rn, 0.85);
-            int floor = Math.max(level.getMinY() + 1, cy - 1 - Math.round(CRATER_DEPTH * bowl + (noise(b, x, z, 0.17f, 3) - 0.5f) * 3f));
+            int floor = Math.max(level.getMinY() + 1, cy - 1 - Math.round(CRATER_DEPTH * b.k() * bowl + (noise(b, x, z, 0.17f, 3) - 0.5f) * 3f));
             for (int y = Math.max(surface, floor + 1); y > floor; y--) {
                 p.set(x, y, z);
                 BlockState state = level.getBlockState(p);
@@ -371,6 +394,50 @@ public final class Nuke {
             int top = (h >>> 16) & 255;
             if (air && top < 10 * heat) level.setBlock(p, BaseFireBlock.getState(level, p), 3);
             else if (top < 40 + 150 * Math.min(1, heat)) level.setBlock(p, NukeContent.FALLOUT_ASH.defaultBlockState(), SILENT);
+        }
+    }
+
+    private static boolean ground(BlockState s) {
+        return s.is(BlockTags.DIRT) || s.is(BlockTags.SAND) || s.is(BlockTags.BASE_STONE_OVERWORLD) || s.is(Blocks.GRAVEL)
+                || s.is(Blocks.CLAY) || s.is(BlockTags.TERRACOTTA) || s.is(Blocks.SANDSTONE) || s.is(Blocks.RED_SANDSTONE)
+                || s.is(BlockTags.SNOW) || s.is(BlockTags.ICE) || s.is(NukeContent.SCORCHED_EARTH) || s.is(NukeContent.TRINITITE)
+                || s.is(Blocks.SMOOTH_BASALT) || s.is(Blocks.BLACKSTONE) || s.is(Blocks.MAGMA_BLOCK) || s.is(Blocks.OBSIDIAN)
+                || !s.getFluidState().isEmpty() || s.getDestroySpeed(null, BlockPos.ZERO) < 0;
+    }
+
+    /**
+     * The blast wave knocks down what stands on the ground as it passes: near the crater everything short of
+     * obsidian-grade material goes, further out only timber, glass and the like, at the edge only glass and
+     * leaves. Works outward behind the front ({@code front} blocks from ground zero), never ahead of it.
+     */
+    private static void flatten(ServerLevel level, Blast b, int budget, double front) {
+        BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+        int cx = (int) Math.floor(b.x), cz = (int) Math.floor(b.z);
+        double inner = CRATER_RADIUS * (0.45 + 0.55 * b.k()) * 0.9;
+        while (budget > 0 && b.flat < FLAT_COLUMNS) {
+            int[] s = spiral(b.flat);
+            double r = Math.hypot(s[0], s[1]);
+            if (r > FLATTEN_RADIUS || r < inner) { b.flat++; continue; }
+            if (r > front) return;                                           // the wave has not got here yet
+            int x = cx + s[0], z = cz + s[1];
+            LevelChunk chunk = chunk(level, x, z);
+            if (chunk == null) return;
+            b.flat++;
+            budget--;
+            double sev = 1 - (r - inner) / (FLATTEN_RADIUS - inner);         // 1 at the rim, 0 at the edge
+            sev = Math.max(0, Math.min(1, sev + (noise(b, x, z, 0.05f, 9) - 0.5) * 0.3));
+            // what the wave can still break here, as blast resistance
+            float limit = sev > 0.8 ? 600f : sev > 0.55 ? 7f : sev > 0.3 ? 3.1f : sev > 0.08 ? 0.9f : 0.35f;
+            int top = Math.min(level.getMaxY() - 1, chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15));
+            for (int y = top, guard = 0; y > level.getMinY() && guard < 96; y--, guard++) {
+                BlockState st = level.getBlockState(p.set(x, y, z));
+                if (st.isAir()) continue;
+                if (ground(st)) break;                                       // reached the natural ground
+                if (st.getBlock().getExplosionResistance() <= limit && st.getDestroySpeed(level, p) >= 0) {
+                    level.setBlock(p, Blocks.AIR.defaultBlockState(), SILENT);
+                    budget--;
+                }
+            }
         }
     }
 }

@@ -125,26 +125,48 @@ public final class MushroomCloud {
     }
 
     /** The blast wave: a wall of dust racing outward along the ground, leaving a haze that settles. */
+    /**
+     * The blast wave, visible: a wall of dust rising along the front as it races outward, a faint bright shell
+     * (the compressed air bending the light) arching over it, and the dust it leaves hanging behind.
+     */
     private static void shock(SpriteSink s, double cx, double cy, double cz, float t, float k, int seed, Env env, float day) {
         float front = shockRadius(t);
-        float reach = 200f;
-        if (front > reach + 240) return;
-        if (front < reach + 30) {
-            float a = (1 - smooth(reach * 0.55f, reach + 30, front)) * 0.5f;
-            float size = front * 2 * k / 0.78f;
-            s.ground(cx, cy + 1.2, cz, size, 0, FxAtlas.SHOCK, 0.9f * day, 0.88f * day, 0.84f * day, a * 0.6f, 0.25f * a, 0.24f * a, 0.22f * a);
+        float reach = 380f;
+        if (front > reach + 300) return;
+        float alive = 1 - smooth(reach * 0.75f, reach + 40, front);              // the wave weakens as it spreads
+        if (alive > 0.01f) {
+            // the shell: a dome of thin rings at the front, faint and bright
+            for (int i = 0; i < 6; i++) {
+                float el = (i + 0.5f) / 6 * 1.35f;
+                float rr = front * (float) Math.cos(el), hy = front * (float) Math.sin(el) * 0.55f;
+                float e = alive * 0.10f * (1 - i / 6f);
+                s.ground(cx, cy + 2 + hy, cz, rr * 2 * k / 0.8f, i * 0.6f, FxAtlas.RING, 0, 0, 0, 0, e, e, e * 1.05f);
+            }
+            s.ground(cx, cy + 1.2, cz, front * 2 * k / 0.78f, 0, FxAtlas.SHOCK, 0.92f * day, 0.9f * day, 0.86f * day, alive * 0.45f,
+                    0.22f * alive, 0.21f * alive, 0.2f * alive);
+            // the wall: tall dust right at the front
+            int wall = (int) (140 * env.detail);
+            for (int i = 0; i < wall; i++) {
+                float th = (i + Rng.f(seed, i, 50)) / wall * 6.2832f;
+                float rr = front - 6f * Rng.f(seed, i, 51);
+                float h = (4f + 10f * Rng.f(seed, i, 52)) * (0.5f + 0.5f * alive);
+                float size = (10f + 10f * Rng.f(seed, i, 53)) * (1 + front / 300f);
+                float l = day * (0.7f + 0.2f * Rng.f(seed, i, 54));
+                s.billboard(cx + Math.cos(th) * rr * k, cy + h * 0.6 * k, cz + Math.sin(th) * rr * k, size * k, Rng.s(seed, i, 55) * 0.6f,
+                        FxAtlas.DUST + (i & 1), env.dustR * l * 1.1f, env.dustG * l * 1.1f, env.dustB * l * 1.1f, 0.55f * alive, 0, 0, 0);
+            }
         }
-        int n = (int) (150 * env.detail);
+        int n = (int) (220 * env.detail);
         for (int i = 0; i < n; i++) {
             float ring = 12f + (reach - 12f) * (float) Math.sqrt(Rng.f(seed, i, 40));     // where this puff is kicked up
             float born = ring / SHOCK_SPEED;
             float age = t - born;
-            if (age < 0 || age > 7f) continue;
+            if (age < 0 || age > 9f) continue;
             float th = Rng.f(seed, i, 41) * 6.2832f;
-            float push = ring + 9f * (1 - (float) Math.exp(-age * 1.6f));                 // shoved outward, then stalls
-            float y = 1.5f + (3f + 5f * Rng.f(seed, i, 42)) * (1 - (float) Math.exp(-age * 1.2f));
-            float size = (7f + 9f * Rng.f(seed, i, 43)) * (0.5f + 0.5f * smooth(0, 1.2f, age)) * (1 + age * 0.12f);
-            float a = window(0f, 0.25f, 1.8f, 7f, age) * 0.42f * (1 - 0.5f * ring / reach);
+            float push = ring + 12f * (1 - (float) Math.exp(-age * 1.6f));                // shoved outward, then stalls
+            float y = 1.5f + (3f + 6f * Rng.f(seed, i, 42)) * (1 - (float) Math.exp(-age * 1.2f));
+            float size = (8f + 10f * Rng.f(seed, i, 43)) * (0.5f + 0.5f * smooth(0, 1.2f, age)) * (1 + age * 0.12f);
+            float a = window(0f, 0.25f, 2.5f, 9f, age) * 0.42f * (1 - 0.6f * ring / reach);
             float l = day * (0.8f + 0.2f * Rng.f(seed, i, 44));
             s.billboard(cx + Math.cos(th) * push * k, cy + y * k, cz + Math.sin(th) * push * k, size * k, Rng.s(seed, i, 45) * 0.5f,
                     FxAtlas.DUST + (i & 1), env.dustR * l * 1.15f, env.dustG * l * 1.15f, env.dustB * l * 1.15f, a, 0, 0, 0);

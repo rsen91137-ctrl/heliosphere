@@ -13,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,7 +29,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(value = GunItem.class, remap = false)
 public abstract class GunFxMixin {
-    @Shadow @Final private GunItem.Spec spec;
+    @Shadow @Final @Mutable private GunItem.Spec spec;
+
+    /** The tactical nuke flies 5000 blocks: a shot that meets nothing on the way comes down at the end of its range. */
+    @Inject(method = "<init>", at = @At("RETURN"))
+    private void heliosphere$range(CallbackInfo ci) {
+        GunItem.Spec s = spec;
+        if (s.effect() == GunItem.Effect.NUKE && s.range() < 5000)
+            spec = new GunItem.Spec(s.ammo(), s.damage(), s.pellets(), s.spreadDeg(), 5000, s.interval(), s.auto(), s.explosion(), s.effect(),
+                    s.tracer(), s.sound(), s.pitch(), s.recoil(), s.ammoChance());
+    }
 
     /** Marks the shot so that explosions it causes (see LevelExplodeFxMixin) also get their effect. */
     @Inject(method = "ballistics", at = @At("HEAD"))
