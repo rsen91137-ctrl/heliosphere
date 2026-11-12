@@ -39,7 +39,7 @@ public class EnemyGameTest implements FabricClientGameTest {
     @Override
     public void runTest(ClientGameTestContext ctx) {
         String only = System.getProperty("heliosphere.test.only");
-        if (only != null && (only.equals("guns") || only.equals("fx"))) return;
+        if (only != null && !(only.equals("bestiary") || only.equals("enemies"))) return;
         ctx.runOnClient(mc -> { mc.options.languageCode = "zh_cn"; mc.getLanguageManager().setSelected("zh_cn"); mc.reloadResourcePacks(); });
         ctx.waitTicks(60);
         ResourceKey<WorldPreset> solar = ResourceKey.create(Registries.WORLD_PRESET, Heliosphere.id("solar_system"));
@@ -103,7 +103,7 @@ public class EnemyGameTest implements FabricClientGameTest {
 
             // ---- the bestiary in the scroll
             sp.getServer().runCommand("gamemode creative @a");
-            for (String family : new String[]{null, "地面机械", "末日教团"}) {
+            for (String family : new String[]{null, "地面机械", "Boss"}) {
                 step(ctx, "2" + (family == null ? "0" : family.equals("地面机械") ? "1" : "2") + "_bestiary", () -> {
                     ctx.runOnClient(mc -> {
                         try {

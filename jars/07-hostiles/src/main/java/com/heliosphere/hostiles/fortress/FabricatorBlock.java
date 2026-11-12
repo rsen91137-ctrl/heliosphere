@@ -1,0 +1,32 @@
+package com.heliosphere.hostiles.fortress;
+
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+
+/** A robot fabricator inside a machine fortress. It keeps building robots until it is destroyed. */
+public class FabricatorBlock extends BaseEntityBlock {
+    public FabricatorBlock(Properties p) { super(p); }
+
+    @Override protected MapCodec<? extends BaseEntityBlock> codec() { return simpleCodec(FabricatorBlock::new); }
+    @Override protected RenderShape getRenderShape(BlockState s) { return RenderShape.MODEL; }
+    @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new FabricatorBlockEntity(pos, state); }
+
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return level.isClientSide() || type != Fortresses.FABRICATOR_BE ? null : (l, p, s, be) -> ((FabricatorBlockEntity) be).tick((ServerLevel) l);
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean moved) {
+        super.affectNeighborsAfterRemoval(state, level, pos, moved);
+        Fortresses.fabricatorLost(level, pos);
+    }
+}

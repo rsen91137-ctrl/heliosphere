@@ -4,6 +4,6 @@
   "version": "0",
   "name": "Heliosphere effects game test",
   "environment": "client",
-  "entrypoints": { "fabric-client-gametest": ["com.heliosphere.fxtest.FxGameTest", "com.heliosphere.fxtest.EnemyGameTest"] },
+  "entrypoints": { "fabric-client-gametest": ["com.heliosphere.fxtest.FxGameTest", "com.heliosphere.fxtest.EnemyGameTest", "com.heliosphere.fxtest.WorldGameTest"] },
   "depends": { "heliosphere_weapons": "*", "heliosphere_disasters": "*" }
 }

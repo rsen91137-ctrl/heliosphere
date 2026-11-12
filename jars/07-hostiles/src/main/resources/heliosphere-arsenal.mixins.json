@@ -7,7 +7,8 @@
     "TechRolesMixin",
     "TechFireMixin",
     "TechSpawnMixin",
-    "TechProjectileMixin"
+    "TechProjectileMixin",
+    "CultRetiredMixin"
   ],
   "injectors": {
     "defaultRequire": 1

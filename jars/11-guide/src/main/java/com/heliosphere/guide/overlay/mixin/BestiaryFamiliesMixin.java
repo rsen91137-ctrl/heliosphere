@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * The bestiary's family tabs are a fixed row of three; this narrows them to quarters and adds a fourth tab
- * for the Doomsday Cult, whose entries come from the updated guide/enemies.json.
+ * for the bosses (the released bosses and the fortress wardens), whose entries come from guide/enemies.json.
  *
  * <p>The target is named by string (the class is package-private), which the build cannot remap, so the
  * method is listed under both its development and its production name. The released class has no local
@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  */
 @Mixin(targets = "com.heliosphere.guide.client.BestiaryScreen", remap = false)
 public abstract class BestiaryFamiliesMixin extends Screen {
-    private static final String CULT = "末日教团";
+    private static final String BOSS = "Boss";
 
     @Shadow private String family;
     @Shadow private JsonObject selected;
@@ -42,9 +42,9 @@ public abstract class BestiaryFamiliesMixin extends Screen {
     private int heliosphere$quarterWidth(int three) { return 4; }
 
     @Inject(method = {"init", "method_25426"}, at = @At("TAIL"))
-    private void heliosphere$cultTab(CallbackInfo ci) {
-        button(x + 12 + 3 * (w - 24) / 4, y + 34, (w - 30) / 4, CULT, () -> {
-            family = CULT;
+    private void heliosphere$bossTab(CallbackInfo ci) {
+        button(x + 12 + 3 * (w - 24) / 4, y + 34, (w - 30) / 4, "Boss · 堡垒", () -> {
+            family = BOSS;
             selected = null;
             page = 0;
             rebuildWidgets();

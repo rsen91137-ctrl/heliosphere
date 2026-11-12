@@ -111,6 +111,12 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
                 case "laser_drone" -> new Paint(0xF0F0F0, 0x1A1A1C, 0xD02028, 0xFF2838);
                 case "stalker" -> new Paint(0x5C6470, 0x23262C, 0x9CC8E8, 0x9FD8FF);
                 case "titan_walker" -> new Paint(0x4A4E56, 0x18191C, 0xD8A030, 0xFF8A28);
+                case "plasma_drone" -> new Paint(0x2E3A4A, 0x101418, 0x40D8FF, 0x78E6FF);
+                case "graviton_walker" -> new Paint(0x3A3048, 0x141018, 0x9050E0, 0xB070FF);
+                case "phase_stalker" -> new Paint(0x4A4258, 0x18141E, 0xC080FF, 0xD8A0FF);
+                case "fortress_overseer" -> new Paint(0x2A2E36, 0x0E1014, 0xD02030, 0xFF3040);
+                case "hive_carrier" -> new Paint(0x3C4434, 0x161A12, 0xE0B020, 0xFFC840);
+                case "colossus" -> new Paint(0x1E1E22, 0x0A0A0C, 0xE05010, 0xFF5018);
                 default -> new Paint(0xA0A4A8, 0x303236, 0xE0A020, 0xFF6040);
             };
         }
@@ -235,6 +241,12 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
             case "rail_sentinel" -> heavyWalker(m, s, 0.95, "rail");
             case "mortar_walker" -> heavyWalker(m, s, 0.72, "mortar");
             case "titan_walker" -> titan(m, s);
+            case "plasma_drone" -> { hunter(m, t); plasmaOrbs(m, t); }
+            case "graviton_walker" -> { heavyWalker(m, s, 1.15, "none"); gravRing(m, s); }
+            case "phase_stalker" -> { stalker(m, s); phaseShimmer(m, s); }
+            case "fortress_overseer" -> overseer(m, s);
+            case "hive_carrier" -> carrier(m, t);
+            case "colossus" -> colossus(m, s);
             case "arc_hound" -> hound(m, s);
             case "emp_spider" -> spider(m, s);
             case "repair_automaton" -> tracked(m, s, false);
@@ -501,6 +513,93 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
             for (int i = 0; i < 3; i++) m.cbox(sx * (0.42 + i * 0.13) * k, 1.17 * k, -0.25 * k, 0.09 * k, 0.04, 0.09 * k, PLATE, Slot.ACCENT);
         }
         m.cbox(0, 0.9 * k, 0, 1.4 * k, 0.06 * k, 1.0 * k, HAZARD, Slot.ACCENT);
+        m.pop();
+    }
+
+    private static void plasmaOrbs(Mesh m, float t) {
+        for (int sx = -1; sx <= 1; sx += 2) {
+            double pulse = 0.85 + 0.15 * Math.sin(t * 0.5 + sx);
+            m.cbox(sx * 0.62, 0.55, 0.15, 0.3 * pulse, 0.3 * pulse, 0.3 * pulse, LAMP, Slot.GLOW);
+            m.cbox(sx * 0.62, 0.55, 0.15, 0.36, 0.06, 0.36, JOINT, Slot.METAL);
+        }
+    }
+
+    private static void gravRing(Mesh m, State s) {
+        double k = 1.15, y = 1.35 * k + 0.1 * k + 0.4 * k;
+        m.push(); m.at(0, y, 0); m.ry(s.age * 0.08);
+        for (int i = 0; i < 8; i++) {
+            m.push(); m.ry(i * Math.PI / 4); m.at(0, 0, 1.1);
+            m.cbox(0, 0, 0, 0.18, 0.18, 0.18, LAMP, Slot.GLOW);
+            m.pop();
+        }
+        m.pop();
+        m.cbox(0, 1.35 * k + 0.6 * k, 0.66 * k, 0.5, 0.5, 0.04, EMIT, Slot.GLOW);
+    }
+
+    private static void phaseShimmer(Mesh m, State s) {
+        double pulse = 0.6 + 0.4 * Math.sin(s.age * 0.4);
+        m.cbox(0, 1.4, 0, 0.5 * pulse, 0.05, 0.5 * pulse, EMIT, Slot.GLOW);
+        m.cbox(0, 0.9, 0, 0.6 * pulse, 0.05, 0.6 * pulse, EMIT, Slot.GLOW);
+    }
+
+    /** A tall command walker: armoured torso, a crown of lenses, a lance on one arm and a shield emitter on the other. */
+    private static void overseer(Mesh m, State s) {
+        double k = 1.7;
+        humanoid(m, s, k, true);
+        double hip = 0.95 * k;
+        for (int i = 0; i < 5; i++) {
+            double a = (i - 2) * 0.35;
+            m.push(); m.at(0, hip + 1.08 * k, 0.05); m.ry(a);
+            m.cbox(0, 0.1, 0.18, 0.12, 0.3, 0.06, HEAVY, Slot.SECONDARY);
+            m.plate(0, 0.2, 0.215, 0.08, 0.08, LAMP, Slot.GLOW);
+            m.pop();
+        }
+        m.cbox(0, hip + 0.45 * k, 0.21 * k, 0.5 * k, 0.12, 0.04, EMIT, Slot.GLOW);
+        m.cbox(-0.62 * k, hip + 0.6 * k, 0.1, 0.12 * k, 0.6 * k, 0.5 * k, HEAVY, Slot.ACCENT);      // shield
+        m.cbox(-0.69 * k, hip + 0.6 * k, 0.1, 0.02, 0.45 * k, 0.3 * k, EMIT, Slot.GLOW);
+    }
+
+    /** A flying hull with hangar bays along its belly and engine banks at the stern. */
+    private static void carrier(Mesh m, float t) {
+        m.push(); m.at(0, 1.0 + bob(t, 0.12), 0);
+        m.cbox(0, 0, 0, 2.6, 0.9, 4.2, HEAVY, Slot.PRIMARY);
+        m.cbox(0, 0.55, -0.2, 1.4, 0.3, 2.6, VENT, Slot.SECONDARY);
+        m.cbox(0, 0.85, 1.0, 0.7, 0.4, 0.9, PLATE, Slot.SECONDARY);                               // bridge
+        m.plate(0, 0.88, 1.456, 0.55, 0.12, VISOR, Slot.GLOW);
+        for (int i = 0; i < 4; i++) {
+            double z = -1.4 + i * 0.95;
+            for (int sx = -1; sx <= 1; sx += 2) {
+                m.cbox(sx * 0.7, -0.5, z, 0.7, 0.12, 0.7, DARK, Slot.SECONDARY);                   // bay doors
+                m.cbox(sx * 0.7, -0.57, z, 0.5, 0.02, 0.5, EMIT, Slot.GLOW);
+            }
+        }
+        for (int sx = -1; sx <= 1; sx += 2) {
+            m.cbox(sx * 1.6, 0, -1.6, 0.6, 0.6, 1.2, HEAVY, Slot.SECONDARY);
+            m.plate(sx * 1.6, 0, -2.21, 0.5, 0.5, THRUST, Slot.GLOW);
+            m.cbox(sx * 1.35, 0.1, 0.6, 0.8, 0.12, 1.6, HAZARD, Slot.ACCENT);
+        }
+        m.pop();
+    }
+
+    /** A giant: the titan's frame scaled up, spined, with a molten core showing through its chest. */
+    private static void colossus(Mesh m, State s) {
+        heavyWalker(m, s, 2.9, "none");
+        double k = 2.9, hip = 1.35 * k + 0.1 * k;
+        m.push(); m.at(0, hip, 0);
+        double pulse = 0.8 + 0.2 * Math.sin(s.age * 0.15);
+        m.cbox(0, 0.42 * k, 0.56 * k, 0.5 * k * pulse, 0.4 * k * pulse, 0.04, EMIT, Slot.GLOW);
+        for (int i = 0; i < 5; i++) {
+            m.push(); m.at((i - 2) * 0.28 * k, 0.85 * k, -0.2 * k); m.rx(-0.3);
+            m.cbox(0, 0.3 * k, 0, 0.12 * k, 0.6 * k, 0.12 * k, HEAVY, Slot.ACCENT);                // spines
+            m.pop();
+        }
+        for (int sx = -1; sx <= 1; sx += 2) {
+            m.push(); m.at(sx * 0.95 * k, 0.55 * k, 0); m.rx(-0.2);
+            m.cbox(0, -0.15 * k, 0.15 * k, 0.55 * k, 0.55 * k, 1.0 * k, HEAVY, Slot.SECONDARY);
+            m.cbox(0, -0.15 * k, 0.8 * k, 0.3 * k, 0.3 * k, 0.6 * k, BARREL, Slot.METAL);
+            m.plate(0, -0.15 * k, 1.11 * k, 0.24 * k, 0.24 * k, THRUST, Slot.GLOW);
+            m.pop();
+        }
         m.pop();
     }
 
