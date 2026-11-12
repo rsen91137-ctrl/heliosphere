@@ -3,5 +3,20 @@
   "block.heliosphere.scorched_earth": "Scorched Earth",
   "block.heliosphere.fallout_ash": "Fallout Ash",
   "effect.heliosphere.radiation": "Radiation Sickness",
-  "subtitles.heliosphere.geiger": "Geiger counter clicks"
+  "subtitles.heliosphere.geiger": "Geiger counter clicks",
+  "block.heliosphere.laser_turret": "Laser Turret",
+  "block.heliosphere.sonic_turret": "Sonic Turret",
+  "block.heliosphere.autocannon_turret": "Autocannon Turret",
+  "block.heliosphere.flak_turret": "Flak Turret",
+  "block.heliosphere.missile_turret": "Missile Turret",
+  "block.heliosphere.rail_turret": "Railgun Turret",
+  "block.heliosphere.tesla_turret": "Tesla Coil Turret",
+  "item.heliosphere.turret_kit_mk1": "Turret Upgrade Kit Mk Ⅰ",
+  "item.heliosphere.turret_kit_mk2": "Turret Upgrade Kit Mk Ⅱ",
+  "item.heliosphere.turret_kit_mk3": "Turret Upgrade Kit Mk Ⅲ",
+  "item.heliosphere.turret_kit_mk4": "Turret Upgrade Kit Mk Ⅳ",
+  "item.heliosphere.turret_kit_mk5": "Turret Upgrade Kit Mk Ⅴ (Long-Range Refit)",
+  "message.heliosphere.turret_status": "%s · Mk %s · %s/%s EU · range %s · damage %s · %s shots/s · %s EU a shot",
+  "message.heliosphere.turret_upgraded": "Upgraded to Mk %s",
+  "message.heliosphere.turret_has_mk": "This turret is already Mk %s or better"
 }

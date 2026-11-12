@@ -201,7 +201,7 @@ public final class FxPreview implements SpriteSink {
     static void impact(String[] args, String out) throws Exception {
         float day = args.length > 2 ? Float.parseFloat(args[2]) : 1f;
         double dist = args.length > 3 ? Double.parseDouble(args[3]) : 9000;
-        float[] times = {0.1f, 1.5f, 6f, 20f, 45f, 90f, 160f, 260f};
+        float[] times = {0.5f, 1.5f, 2.6f, 3.1f, 9f, 48f, 93f, 263f};
         if (args.length > 4) { String[] p = args[4].split(","); times = new float[p.length]; for (int i = 0; i < p.length; i++) times[i] = Float.parseFloat(p[i]); }
         int cols = Math.min(4, times.length), rows = (times.length + cols - 1) / cols;
         int cw = 520, ch = 380;
@@ -213,7 +213,7 @@ public final class FxPreview implements SpriteSink {
             p.background(0.25f + 0.75f * day);
             AsteroidImpact.emit(p, 0, 0, 0, times[i], 1f, 99, 0.62f, 0.78f, 0.6f, env);
             p.flush();
-            p.whiteout(AsteroidImpact.flash(times[i], (float) dist, 1f) * 0.95f);
+            p.whiteout(AsteroidImpact.flash(times[i] - AsteroidImpact.ENTRY, (float) dist, 1f) * 0.95f);
             p.blit(sheet, (i % cols) * cw, (i / cols) * ch);
             java.awt.Graphics2D g = sheet.createGraphics();
             g.setColor(java.awt.Color.WHITE);

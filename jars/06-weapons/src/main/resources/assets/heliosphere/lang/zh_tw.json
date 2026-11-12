@@ -3,5 +3,20 @@
   "block.heliosphere.scorched_earth": "焦土",
   "block.heliosphere.fallout_ash": "輻射塵",
   "effect.heliosphere.radiation": "輻射病",
-  "subtitles.heliosphere.geiger": "蓋革計數器喀嗒聲"
+  "subtitles.heliosphere.geiger": "蓋革計數器喀嗒聲",
+  "block.heliosphere.laser_turret": "激光防禦塔",
+  "block.heliosphere.sonic_turret": "聲波防禦塔",
+  "block.heliosphere.autocannon_turret": "機砲防禦塔",
+  "block.heliosphere.flak_turret": "防空高砲塔",
+  "block.heliosphere.missile_turret": "導彈防禦塔",
+  "block.heliosphere.rail_turret": "電磁軌道塔",
+  "block.heliosphere.tesla_turret": "特斯拉線圈塔",
+  "item.heliosphere.turret_kit_mk1": "防禦塔升級套件 Mk Ⅰ",
+  "item.heliosphere.turret_kit_mk2": "防禦塔升級套件 Mk Ⅱ",
+  "item.heliosphere.turret_kit_mk3": "防禦塔升級套件 Mk Ⅲ",
+  "item.heliosphere.turret_kit_mk4": "防禦塔升級套件 Mk Ⅳ",
+  "item.heliosphere.turret_kit_mk5": "防禦塔升級套件 Mk Ⅴ（遠程改裝）",
+  "message.heliosphere.turret_status": "%s · Mk %s · 電量 %s/%s EU · 射程 %s 格 · 傷害 %s · 每秒 %s 發 · 每發 %s EU",
+  "message.heliosphere.turret_upgraded": "已升級到 Mk %s",
+  "message.heliosphere.turret_has_mk": "這座防禦塔已經是 Mk %s 或更高"
 }

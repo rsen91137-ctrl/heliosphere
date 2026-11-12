@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "heliosphere:block/missile_turret"
+    }
+  }
+}

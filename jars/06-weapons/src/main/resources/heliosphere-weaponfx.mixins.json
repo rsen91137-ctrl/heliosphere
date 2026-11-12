@@ -6,7 +6,9 @@
   "mixins": [
     "GunFxMixin",
     "GunBalanceMixin",
-    "LevelExplodeFxMixin"
+    "LevelExplodeFxMixin",
+    "OldTurretMixin",
+    "BenchOcclusionMixin"
   ],
   "injectors": {
     "defaultRequire": 1
