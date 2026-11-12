@@ -1,0 +1,19 @@
+{
+  "block.heliosphere.water_cloud": "Water Ice Cloud",
+  "block.heliosphere.hydrogen_sulfide_cloud": "Hydrogen Sulfide Cloud",
+  "block.heliosphere.deep_haze": "Searing Deep Haze",
+  "block.heliosphere.metallic_hydrogen": "Liquid Metallic Hydrogen",
+  "block.heliosphere.ionic_ocean": "Ionic Water-Ammonia Ocean",
+  "message.heliosphere.giant_layer.gas.0": "Stratosphere, above the thin ammonia haze · %s bar, %s °C",
+  "message.heliosphere.giant_layer.ice.0": "Stratosphere, above the thin methane haze · %s bar, %s °C",
+  "message.heliosphere.giant_layer.gas.1": "Main cloud deck · ammonia clouds and aerostats · %s bar, %s °C",
+  "message.heliosphere.giant_layer.ice.1": "Main cloud deck · methane clouds and aerostats · %s bar, %s °C",
+  "message.heliosphere.giant_layer.gas.2": "Second deck · ammonium hydrosulfide clouds · %s bar, %s °C",
+  "message.heliosphere.giant_layer.ice.2": "Hydrogen sulfide clouds · %s bar, %s °C",
+  "message.heliosphere.giant_layer.gas.3": "Water clouds · where the lightning is born · %s bar, %s °C",
+  "message.heliosphere.giant_layer.ice.3": "Ammonium hydrosulfide and water clouds · %s bar, %s °C",
+  "message.heliosphere.giant_layer.gas.4": "Supercritical depths · hydrogen thick as a liquid · %s bar, %s °C — no suit lasts long here",
+  "message.heliosphere.giant_layer.ice.4": "Supercritical depths · it is raining diamonds · %s bar, %s °C",
+  "message.heliosphere.giant_layer.gas.5": "Above the metallic hydrogen ocean · %s bar, %s °C",
+  "message.heliosphere.giant_layer.ice.5": "Above the ionic ocean · %s bar, %s °C"
+}

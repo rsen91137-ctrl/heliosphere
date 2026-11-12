@@ -1,0 +1,19 @@
+{
+  "block.heliosphere.water_cloud": "水冰雲",
+  "block.heliosphere.hydrogen_sulfide_cloud": "硫化氫雲",
+  "block.heliosphere.deep_haze": "熾熱深層霧靄",
+  "block.heliosphere.metallic_hydrogen": "液態金屬氫",
+  "block.heliosphere.ionic_ocean": "離子水-氨海洋",
+  "message.heliosphere.giant_layer.gas.0": "平流層 · 頂層氨冰薄雲之上，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.0": "平流層 · 頂層甲烷薄雲之上，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.1": "主雲層 · 氨冰雲与浮空平台，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.1": "主雲層 · 甲烷雲与浮空平台，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.2": "第二雲層 · 硫氫化銨雲（棕紅色），氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.2": "硫化氫雲層，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.3": "水冰雲層 · 閃電的發源地，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.3": "硫氫化銨与水冰雲層，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.4": "超臨界深渊 · 氫气已像液体一样濃稠，氣壓 %s bar，%s°C —— 任何太空衣都撐不了多久",
+  "message.heliosphere.giant_layer.ice.4": "超臨界深渊 · 鑽石雨正在落下，氣壓 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.5": "金屬氫海洋上空 · 氣壓 %s bar，%s°C —— 下方是導電的液態金屬氫",
+  "message.heliosphere.giant_layer.ice.5": "離子海洋上空 · 氣壓 %s bar，%s°C —— 下方是滾燙的離子水-氨海洋"
+}

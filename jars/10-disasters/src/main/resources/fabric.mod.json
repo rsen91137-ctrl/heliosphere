@@ -4,8 +4,16 @@
   "version": "0",
   "name": "Overlay for 10 disasters. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
   "entrypoints": {
-    "main": ["com.heliosphere.disasters.tide.TideModule"],
-    "client": ["com.heliosphere.disasters.tide.ImpactFxClient"]
+    "main": [
+      "com.heliosphere.disasters.tide.TideModule"
+    ],
+    "client": [
+      "com.heliosphere.disasters.tide.ImpactFxClient",
+      "com.heliosphere.disasters.giant.GiantSkyClient"
+    ]
   },
-  "mixins": ["heliosphere-tide.mixins.json"]
+  "mixins": [
+    "heliosphere-tide.mixins.json",
+    "heliosphere-giant-sky.mixins.json"
+  ]
 }

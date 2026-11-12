@@ -2,5 +2,7 @@
   "schemaVersion": 1,
   "id": "heliosphere_overlay_sphereworld",
   "version": "0",
-  "name": "Overlay for 12-sphereworld. Resources only."
+  "name": "Overlay for 12 sphereworld. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
+  "entrypoints": {"main": ["com.heliosphere.sphereworld.giant.GiantDepths"]},
+  "mixins": ["heliosphere-giants.mixins.json"]
 }

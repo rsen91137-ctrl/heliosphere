@@ -1,0 +1,19 @@
+{
+  "block.heliosphere.water_cloud": "水冰云",
+  "block.heliosphere.hydrogen_sulfide_cloud": "硫化氢云",
+  "block.heliosphere.deep_haze": "炽热深层雾霭",
+  "block.heliosphere.metallic_hydrogen": "液态金属氢",
+  "block.heliosphere.ionic_ocean": "离子水-氨海洋",
+  "message.heliosphere.giant_layer.gas.0": "平流层 · 顶层氨冰薄云之上，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.0": "平流层 · 顶层甲烷薄云之上，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.1": "主云层 · 氨冰云与浮空平台，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.1": "主云层 · 甲烷云与浮空平台，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.2": "第二云层 · 硫氢化铵云（棕红色），气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.2": "硫化氢云层，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.3": "水冰云层 · 闪电的发源地，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.ice.3": "硫氢化铵与水冰云层，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.4": "超临界深渊 · 氢气已像液体一样浓稠，气压 %s bar，%s°C —— 任何宇航服都撑不了多久",
+  "message.heliosphere.giant_layer.ice.4": "超临界深渊 · 钻石雨正在落下，气压 %s bar，%s°C",
+  "message.heliosphere.giant_layer.gas.5": "金属氢海洋上空 · 气压 %s bar，%s°C —— 下方是导电的液态金属氢",
+  "message.heliosphere.giant_layer.ice.5": "离子海洋上空 · 气压 %s bar，%s°C —— 下方是滚烫的离子水-氨海洋"
+}
