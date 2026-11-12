@@ -1,3 +1,8 @@
 {
-  "message.heliosphere.magma_tide": "§6[日球層] 熔岩正在吞沒地表 · 本地覆蓋 %s%% · 距最近撞擊點 %s 公里"
+  "message.heliosphere.magma_tide": "§6[日球層] 熔岩正在吞沒地表 · 本地覆蓋 %s%% · 距最近撞擊點 %s 公里",
+  "message.heliosphere.impact_wave": "§c§l衝擊波抵達！§r§c建築正在崩塌",
+  "message.heliosphere.rocket_torn": "§4火箭在小行星衝擊波中解體！",
+  "message.heliosphere.impact_far": "§c[日球層] 遠方發生小行星撞擊，距此約 %s 公里。熔岩將逐漸蔓延到這裡。",
+  "message.heliosphere.impact_seen_moon": "§6[深空觀測] 地球表面出現一道刺眼的閃光——小行星撞擊了地球！黑色的撞擊雲正在擴散。",
+  "message.heliosphere.impact_seen_space": "§6[深空網路] 地球遭受小行星撞擊，地表正在被熔岩吞沒。"
 }

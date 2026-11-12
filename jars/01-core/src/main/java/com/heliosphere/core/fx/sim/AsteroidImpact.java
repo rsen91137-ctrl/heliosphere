@@ -27,7 +27,9 @@ import static com.heliosphere.core.fx.sim.Rng.window;
 public final class AsteroidImpact {
     private AsteroidImpact() {}
 
-    public static final float DURATION = 330f;
+    /** Seconds of atmospheric entry drawn before contact. */
+    public static final float ENTRY = 3f;
+    public static final float DURATION = 330f + ENTRY;
     /** Ground wave speed, blocks per second (the server's blast front: 8 blocks a tick). */
     public static final float WAVE_SPEED = 160f;
     public static final float WAVE_REACH = 10000f;
@@ -37,6 +39,10 @@ public final class AsteroidImpact {
     /** Flash brightness for a viewer at distance d with a clear line of sight. */
     public static float flash(float t, float distance, float k) {
         float near = clamp01(1.15f - distance / (24000f * k));
+        if (t < 0) {                                                       // the sky brightening as it comes in
+            float u = clamp01(1 + t / ENTRY);
+            return near * 0.45f * u * u;
+        }
         return near * (t < 0.15f ? 1f : (float) Math.exp(-(t - 0.15f) / 1.1f));
     }
 
@@ -47,6 +53,8 @@ public final class AsteroidImpact {
     public static void emit(SpriteSink s, double x, double y, double z, float t, float k, int seed,
                             float ax, float az, float elevation, MushroomCloud.Env env) {
         if (t < 0 || t > DURATION) return;
+        if (t < ENTRY) { entry(s, x, y, z, t, k, seed, ax, az, elevation); return; }
+        t -= ENTRY;                                                       // from here on, seconds since contact
         float day = 0.18f + 0.82f * env.daylight;
         float[] c = TMP.get();
         float heat = (float) Math.exp(-t / 55f);                         // the crater and fireball cooling
@@ -62,6 +70,44 @@ public final class AsteroidImpact {
             float g = heat * 0.9f;
             s.ground(x, y + 3, z, 900f * k, 0, FxAtlas.GLOW, 0, 0, 0, 0, c[0] * g, c[1] * g, c[2] * g);
             s.billboard(x, y + 60 * k, z, 1500f * k, 0, FxAtlas.GLOW, 0, 0, 0, 0, c[0] * g * 0.45f, c[1] * g * 0.35f, c[2] * g * 0.3f);
+        }
+    }
+
+    /**
+     * The last seconds before contact: a body kilometres across tearing through the atmosphere at tens of
+     * kilometres a second. Its shock-heated head outshines the sun and drags a white-hot column of plasma behind
+     * it, shedding burning fragments.
+     */
+    private static void entry(SpriteSink s, double x, double y, double z, float t, float k, int seed, float ax, float az, float elevation) {
+        float ce = (float) Math.cos(elevation), se = (float) Math.sin(elevation);
+        float length = 9000f * k;
+        float u = t / ENTRY;
+        float along = 1 - (float) Math.pow(u, 1.25);                      // fraction of the path still to go
+        double hx = x + ax * ce * length * along, hy = y + se * length * along, hz = z + az * ce * length * along;
+        double sx = x + ax * ce * length, sy = y + se * length, sz = z + az * ce * length;
+        float heat = 0.55f + 0.45f * u;                                   // brighter as the air thickens
+        // the plasma column it leaves
+        s.ribbon(sx, sy, sz, hx, hy, hz, 900f * k, FxAtlas.BEAM, 0, 0, 0, 0, 0.55f * heat, 0.32f * heat, 0.12f * heat);
+        s.ribbon(sx, sy, sz, hx, hy, hz, 320f * k, FxAtlas.BEAM, 0, 0, 0, 0, heat, 0.86f * heat, 0.6f * heat);
+        s.ribbon(sx, sy, sz, hx, hy, hz, 90f * k, FxAtlas.BEAM, 0, 0, 0, 0, 1, 1, 0.95f);
+        // the head
+        s.billboard(hx, hy, hz, 9000f * k * heat, 0, FxAtlas.GLOW, 0, 0, 0, 0, 0.8f * heat, 0.62f * heat, 0.4f * heat);
+        s.billboard(hx, hy, hz, 2600f * k, 0, FxAtlas.GLOW, 0, 0, 0, 0, 1, 0.97f, 0.9f);
+        s.billboard(hx, hy, hz, 900f * k, 0, FxAtlas.CORE, 0, 0, 0, 0, 1, 1, 1);
+        s.billboard(hx, hy, hz, 14000f * k * heat, t * 0.4f, FxAtlas.FLARE, 0, 0, 0, 0, heat, heat * 0.95f, heat * 0.85f);
+        // fragments shed from the head, burning out behind it
+        float[] c = TMP.get();
+        for (int i = 0; i < 40; i++) {
+            float shed = Rng.f(seed, i, 400) * ENTRY;
+            float age = t - shed;
+            if (age < 0 || age > 2.2f) continue;
+            float a0 = 1 - (float) Math.pow(shed / ENTRY, 1.25);
+            double px = x + ax * ce * length * a0 + Rng.s(seed, i, 401) * 180 * k * age;
+            double py = y + se * length * a0 - 90 * age * age + Rng.s(seed, i, 402) * 120 * k * age;
+            double pz = z + az * ce * length * a0 + Rng.s(seed, i, 403) * 180 * k * age;
+            float e = 1 - age / 2.2f;
+            MushroomCloud.glow(0.5f + 0.5f * e, c);
+            s.billboard(px, py, pz, 180f * k * e + 40f * k, 0, FxAtlas.GLOW, 0, 0, 0, 0, c[0] * e, c[1] * e, c[2] * e);
         }
     }
 

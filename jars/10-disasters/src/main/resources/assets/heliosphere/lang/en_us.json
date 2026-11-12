@@ -1,3 +1,8 @@
 {
-  "message.heliosphere.magma_tide": "§6[Heliosphere] Magma is swallowing the surface · %s%% here · nearest impact %s km"
+  "message.heliosphere.magma_tide": "§6[Heliosphere] Magma is swallowing the surface · %s%% here · nearest impact %s km",
+  "message.heliosphere.impact_wave": "§c§lThe blast wave is here! §r§cBuildings are coming down",
+  "message.heliosphere.rocket_torn": "§4The rocket was torn apart by the impact blast!",
+  "message.heliosphere.impact_far": "§c[Heliosphere] An asteroid struck about %s km from here. The magma will spread here in time.",
+  "message.heliosphere.impact_seen_moon": "§6[Deep space watch] A blinding flash on the Earth: an asteroid has struck it! A black cloud is spreading.",
+  "message.heliosphere.impact_seen_space": "§6[Deep space network] The Earth has been struck by an asteroid; its surface is being swallowed by magma."
 }

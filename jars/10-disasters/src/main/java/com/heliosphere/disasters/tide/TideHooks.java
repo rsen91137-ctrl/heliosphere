@@ -13,5 +13,6 @@ public final class TideHooks {
         for (MagmaTide.Impact i : MagmaTide.impacts(level)) if (i.started() == tick) return;
         float scale = MagmaTide.impacts(level).isEmpty() ? 1f : 0.45f;
         ImpactFx.broadcast(level, x, y, z, (int) age, scale);
+        RemoteImpact.broadcast(level, x, z, scale);
     }
 }

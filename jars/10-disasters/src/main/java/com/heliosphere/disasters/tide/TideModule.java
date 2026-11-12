@@ -7,6 +7,8 @@ public final class TideModule implements ModInitializer {
     @Override
     public void onInitialize() {
         ImpactFx.init();
+        RemoteImpact.init();
         MagmaTide.init();
+        ImpactBlast.init();
     }
 }
