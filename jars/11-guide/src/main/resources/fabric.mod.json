@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_overlay_guide",
+  "version": "0",
+  "name": "Overlay for 11 guide. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
+  "mixins": [{"config": "heliosphere-bestiary.mixins.json", "environment": "client"}]
+}

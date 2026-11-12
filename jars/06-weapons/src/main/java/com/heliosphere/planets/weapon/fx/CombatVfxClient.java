@@ -102,6 +102,25 @@ public final class CombatVfxClient implements ClientModInitializer {
                 }
             }
             case CombatVfx.SHOCK -> shake(0.3f + 0.9f * p.strength());
+            case CombatVfx.FLAME -> FxEngine.add((s, t, env) -> Blasts.flame(s, t, a.x, a.y, a.z, b.x, b.y, b.z, seed));
+            case CombatVfx.WARNING -> {
+                float radius = p.strength(), duration = Math.max(0.5f, p.color() / 20f);
+                FxEngine.add((s, t, env) -> Blasts.warning(s, t, a.x, a.y, a.z, radius, duration));
+            }
+            case CombatVfx.MORTAR -> {
+                float flight = Math.max(0.5f, p.color() / 20f);
+                FxEngine.add((s, t, env) -> Blasts.shell(s, t, a.x, a.y, a.z, b.x, b.y, b.z, flight, seed));
+            }
+            case CombatVfx.SHIELD -> {
+                float radius = p.strength();
+                int c = p.color();
+                FxEngine.add((s, t, env) -> Blasts.shield(s, t, a.x, a.y, a.z, radius, c));
+            }
+            case CombatVfx.SLASH -> {
+                double fx = b.x - a.x, fz = b.z - a.z;
+                FxEngine.add((s, t, env) -> Blasts.slash(s, t, a.x, a.y, a.z, fx, fz, seed));
+                if (dist < 4) shake(0.25f);
+            }
             case CombatVfx.FALLOUT -> { falloutLevel = Math.max(falloutLevel, p.strength()); falloutTicks = 70; }
             default -> { }
         }

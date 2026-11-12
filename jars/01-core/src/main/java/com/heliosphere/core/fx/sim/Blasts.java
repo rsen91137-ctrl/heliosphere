@@ -390,4 +390,111 @@ public final class Blasts {
         }
         return true;
     }
+
+    // ---- enemy weapons ------------------------------------------------------------------------------------------
+
+    /** A flamethrower burst from A towards B: a cone of rolling flame that thickens into smoke at its end. */
+    public static boolean flame(SpriteSink s, float t, double ax, double ay, double az, double bx, double by, double bz, int seed) {
+        float life = 0.9f;
+        if (t > life) return false;
+        double dx = bx - ax, dy = by - ay, dz = bz - az;
+        float len = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (len < 0.01f) return false;
+        float[] c = TMP.get();
+        int n = 26;
+        for (int i = 0; i < n; i++) {
+            float born = Rng.f(seed, i, 1) * 0.25f;
+            float age = t - born;
+            if (age < 0) continue;
+            float u = Math.min(1.1f, age * 2.4f * (0.8f + 0.4f * Rng.f(seed, i, 2)));          // how far along the jet
+            float spread = 0.08f + 0.22f * u;
+            double px = ax + dx * u + Rng.s(seed, i, 3) * len * spread * 0.5;
+            double py = ay + dy * u + Rng.s(seed, i, 4) * len * spread * 0.4 + age * age * 2.5;
+            double pz = az + dz * u + Rng.s(seed, i, 5) * len * spread * 0.5;
+            float heat = Math.max(0, 1.05f - u * 0.7f - age * 0.8f);
+            MushroomCloud.glow(heat, c);
+            float e = clamp01(heat * 1.4f) * (1 - smooth(life * 0.6f, life, t));
+            float smoke = smooth(0.6f, 0.15f, heat);
+            float size = (0.5f + 1.9f * u) * (0.8f + 0.4f * Rng.f(seed, i, 6));
+            s.billboard(px, py, pz, size, Rng.f(seed, i, 7) * 6.28f + age * 3f, heat > 0.35f ? FxAtlas.FIRE + (i & 3) : FxAtlas.SMOKE + (i & 7),
+                    0.12f, 0.1f, 0.09f, smoke * 0.45f * (1 - smooth(0.5f, life, t)), c[0] * e, c[1] * e, c[2] * e);
+        }
+        float k = 1 - t / life;
+        s.billboard(ax, ay, az, 1.4f * k, 0, FxAtlas.GLOW, 0, 0, 0, 0, 0.9f * k, 0.5f * k, 0.15f * k);
+        return true;
+    }
+
+    /** A target marker on the ground: a red ring that pulses faster as the shell comes down. */
+    public static boolean warning(SpriteSink s, float t, double x, double y, double z, float radius, float duration) {
+        if (t > duration) return false;
+        float u = t / duration;
+        float pulse = 0.5f + 0.5f * (float) Math.sin(t * (6 + 22 * u * u));
+        float e = (0.35f + 0.65f * pulse) * smooth(0f, 0.15f, t);
+        s.ground(x, y + 0.06, z, radius * 2 / 0.8f, t, FxAtlas.RING, 0, 0, 0, 0, 1.0f * e, 0.16f * e, 0.1f * e);
+        s.ground(x, y + 0.05, z, radius * 2 * u / 0.8f, 0, FxAtlas.RING, 0, 0, 0, 0, 0.8f * e, 0.2f * e, 0.1f * e);
+        s.ground(x, y + 0.04, z, radius * 2.2f, 0, FxAtlas.GLOW, 0, 0, 0, 0, 0.35f * e * u, 0.04f * e * u, 0.02f * e * u);
+        return true;
+    }
+
+    /** A mortar round on a high arc from A to B over {@code flight} seconds, trailing smoke and a spark of fuze light. */
+    public static boolean shell(SpriteSink s, float t, double ax, double ay, double az, double bx, double by, double bz, float flight, int seed) {
+        if (t > flight + 1.2f) return false;
+        double dx = bx - ax, dz = bz - az;
+        float apex = 8f + (float) Math.sqrt(dx * dx + dz * dz) * 0.35f;
+        for (int i = 0; i < 9; i++) {
+            float tt = Math.min(t, flight) - i * 0.07f;
+            if (tt < 0) break;
+            float u = tt / flight;
+            double px = ax + dx * u, pz = az + dz * u, py = ay + (by - ay) * u + 4 * apex * u * (1 - u);
+            if (i == 0 && t <= flight) {
+                s.billboard(px, py, pz, 0.55f, 0, FxAtlas.GLOW, 0, 0, 0, 0, 1f, 0.55f, 0.2f);
+                s.billboard(px, py, pz, 0.32f, t * 9, FxAtlas.DEBRIS, 0.18f, 0.18f, 0.2f, 1f, 0, 0, 0);
+            } else {
+                float a = (1 - i / 9f) * 0.35f * (1 - smooth(flight, flight + 1.2f, t));
+                s.billboard(px, py + (t - tt) * 0.6, pz, 0.5f + 0.25f * (t - tt) * 4, i + seed, FxAtlas.WISP, 0.7f, 0.7f, 0.7f, a, 0, 0, 0);
+            }
+        }
+        return true;
+    }
+
+    /** A projected shield: a shimmering hexagonal bubble around a point, brightest at its rim. */
+    public static boolean shield(SpriteSink s, float t, double x, double y, double z, float radius, int rgb) {
+        float life = 1.1f;
+        if (t > life) return false;
+        float r = red(rgb), g = green(rgb), b = blue(rgb);
+        float k = window(0f, 0.15f, 0.6f, life, t);
+        int rings = 7;
+        for (int i = 0; i < rings; i++) {                                   // latitude rings of a dome
+            float el = (i + 0.5f) / rings * 1.45f;
+            float rr = radius * (float) Math.cos(el), hy = radius * (float) Math.sin(el);
+            float e = k * (0.35f + 0.65f * (1 - i / (float) rings)) * 0.5f;
+            s.ground(x, y + hy, z, rr * 2 / 0.8f, i * 0.7f + t, FxAtlas.RING, 0, 0, 0, 0, r * e, g * e, b * e);
+        }
+        s.ground(x, y + 0.08, z, radius * 2 / 0.8f, 0, FxAtlas.RING, 0, 0, 0, 0, r * k, g * k, b * k);
+        s.billboard(x, y + radius * 0.4f, z, radius * 2.4f, 0, FxAtlas.GLOW, 0, 0, 0, 0, r * k * 0.15f, g * k * 0.15f, b * k * 0.15f);
+        return true;
+    }
+
+    /** A blade strike: two crossed arcs of cold light that flash and fade. */
+    public static boolean slash(SpriteSink s, float t, double x, double y, double z, double dx, double dz, int seed) {
+        float life = 0.35f;
+        if (t > life) return false;
+        float k = 1 - t / life, sweep = Math.min(1, t / 0.08f);
+        double len = Math.sqrt(dx * dx + dz * dz);
+        if (len < 1e-4) { dx = 1; dz = 0; len = 1; }
+        double rx = -dz / len, rz = dx / len;                               // across the attacker's line
+        for (int arc = 0; arc < 2; arc++) {
+            float tilt = arc == 0 ? 0.7f : -0.7f;
+            int segs = 8;
+            for (int i = 0; i < segs * sweep; i++) {
+                float a0 = -1.2f + 2.4f * i / segs, a1 = -1.2f + 2.4f * (i + 1) / segs;
+                double x0 = x + rx * Math.sin(a0) * 1.1, y0 = y + Math.cos(a0) * 0.9 * tilt + 0.1, z0 = z + rz * Math.sin(a0) * 1.1;
+                double x1 = x + rx * Math.sin(a1) * 1.1, y1 = y + Math.cos(a1) * 0.9 * tilt + 0.1, z1 = z + rz * Math.sin(a1) * 1.1;
+                float e = k * (0.4f + 0.6f * (float) Math.sin(3.14159f * i / segs));
+                s.ribbon(x0, y0, z0, x1, y1, z1, 0.16f, FxAtlas.BEAM, 0, 0, 0, 0, 0.75f * e, 0.9f * e, 1.0f * e);
+            }
+        }
+        s.billboard(x, y, z, 1.6f * k, seed, FxAtlas.FLARE, 0, 0, 0, 0, 0.6f * k, 0.8f * k, k);
+        return true;
+    }
 }

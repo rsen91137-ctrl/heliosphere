@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_overlay_hostiles",
+  "version": "0",
+  "name": "Overlay for 07 hostiles. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
+  "entrypoints": {"main": ["com.heliosphere.hostiles.arsenal.EnemyArsenal"]},
+  "mixins": ["heliosphere-arsenal.mixins.json"]
+}

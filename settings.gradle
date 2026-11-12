@@ -9,7 +9,7 @@ rootProject.name = 'heliosphere'
 include 'core', 'sphereworld', 'industry', 'planets', 'rocketry', 'guide', 'testmod'
 
 // Overlay modules: one per released jar, built on top of the jars in base/ (see jars/README.md, tools/fetch_base.sh).
-def overlays = ['01-core', '06-weapons', '10-disasters']
+def overlays = ['01-core', '06-weapons', '07-hostiles', '10-disasters', '11-guide']
 if (new File(rootDir, 'base').list()?.any { it.endsWith('.jar') }) {
     overlays.each { include "jars:$it" }
     if (new File(rootDir, 'build/dist-overlay').exists()) include 'jars:testrun'

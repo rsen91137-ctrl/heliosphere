@@ -36,6 +36,16 @@ public record CombatVfx(int kind, int color, Vec3 start, Vec3 end, float strengt
     public static final int FALLOUT = 8;
     /** The blast wave of a detonation at start has just reached the viewer; strength 0..1. */
     public static final int SHOCK = 9;
+    /** Flamethrower jet from start to end. */
+    public static final int FLAME = 10;
+    /** Ground target marker at start of radius strength, lasting color ticks. */
+    public static final int WARNING = 11;
+    /** Mortar round from start to end, flight time color ticks. */
+    public static final int MORTAR = 12;
+    /** Projected shield around start of radius strength, tinted color. */
+    public static final int SHIELD = 13;
+    /** Blade strike at start; end - start is the attacker's facing. */
+    public static final int SLASH = 14;
 
     public static final Type<CombatVfx> ID = new Type<>(Identifier.fromNamespaceAndPath("heliosphere", "combat_vfx_v3"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CombatVfx> CODEC = StreamCodec.of(

@@ -1,0 +1,17 @@
+{
+  "entity.heliosphere.swarm_drone": "VI型蜂群自爆机",
+  "item.heliosphere.swarm_drone_deployment": "VI型蜂群自爆机部署器（创造）",
+  "entity.heliosphere.mortar_walker": "迫击炮机甲",
+  "item.heliosphere.mortar_walker_deployment": "迫击炮机甲部署器（创造）",
+  "entity.heliosphere.flame_walker": "焚化者步行机",
+  "item.heliosphere.flame_walker_deployment": "焚化者步行机部署器（创造）",
+  "entity.heliosphere.shield_bearer": "壁垒护盾机",
+  "item.heliosphere.shield_bearer_deployment": "壁垒护盾机部署器（创造）",
+  "entity.heliosphere.laser_drone": "光矛狙击无人机",
+  "item.heliosphere.laser_drone_deployment": "光矛狙击无人机部署器（创造）",
+  "entity.heliosphere.stalker": "幽影刺客",
+  "item.heliosphere.stalker_deployment": "幽影刺客部署器（创造）",
+  "entity.heliosphere.titan_walker": "泰坦重装机甲",
+  "item.heliosphere.titan_walker_deployment": "泰坦重装机甲部署器（创造）",
+  "message.heliosphere.titan_salvo": "§c§l⚠ 泰坦导弹齐射！立刻寻找掩体"
+}

@@ -1,0 +1,17 @@
+{
+  "entity.heliosphere.swarm_drone": "Type VI Swarm Drone",
+  "item.heliosphere.swarm_drone_deployment": "Type VI Swarm Drone Deployer (Creative)",
+  "entity.heliosphere.mortar_walker": "Mortar Walker",
+  "item.heliosphere.mortar_walker_deployment": "Mortar Walker Deployer (Creative)",
+  "entity.heliosphere.flame_walker": "Incinerator Walker",
+  "item.heliosphere.flame_walker_deployment": "Incinerator Walker Deployer (Creative)",
+  "entity.heliosphere.shield_bearer": "Bulwark Shield Unit",
+  "item.heliosphere.shield_bearer_deployment": "Bulwark Shield Unit Deployer (Creative)",
+  "entity.heliosphere.laser_drone": "Lance Sniper Drone",
+  "item.heliosphere.laser_drone_deployment": "Lance Sniper Drone Deployer (Creative)",
+  "entity.heliosphere.stalker": "Shade Stalker",
+  "item.heliosphere.stalker_deployment": "Shade Stalker Deployer (Creative)",
+  "entity.heliosphere.titan_walker": "Titan Heavy Walker",
+  "item.heliosphere.titan_walker_deployment": "Titan Heavy Walker Deployer (Creative)",
+  "message.heliosphere.titan_salvo": "§c§l⚠ Titan missile salvo! Take cover now"
+}

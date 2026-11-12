@@ -7,7 +7,7 @@
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 def overlay = rootProject.fileTree('build/dist-overlay') { include '*.jar' }
-def released = rootProject.fileTree('base') { include '*.jar'; exclude '01-*', '06-*', '10-*' }
+def released = rootProject.fileTree('base') { include '*.jar'; exclude '01-*', '06-*', '07-*', '10-*', '11-*' }
 
 configurations { prodMods { transitive = false } }
 
