@@ -1,25 +1,27 @@
-// In-game check of the overlay jars: runs the released mods, with 01/06/10 replaced by build/dist-overlay,
-// under the Fabric client game test harness and saves screenshots. Not part of any release.
+// In-game check of the overlay jars. The released jars are mapped for production (their mixins carry
+// intermediary names and no refmap), so they cannot run in the dev environment; this runs a real
+// production client instead: Fabric Loader, Fabric API, the released mods with 01/06/10 replaced by
+// build/dist-overlay, and this test mod, under the client game test harness, saving screenshots.
 //   gradle :jars:01-core:mergeJar :jars:06-weapons:mergeJar :jars:10-disasters:mergeJar
-//   xvfb-run -a gradle :jars:testrun:runFxTest
+//   gradle :jars:testrun:prodFxTest          (needs xvfb-run on Linux)
+import net.fabricmc.loom.task.prod.ClientProductionRunTask
+
 def overlay = rootProject.fileTree('build/dist-overlay') { include '*.jar' }
 def released = rootProject.fileTree('base') { include '*.jar'; exclude '01-*', '06-*', '10-*' }
 
+configurations { prodMods { transitive = false } }
+
 dependencies {
-    modImplementation files(overlay)
-    modImplementation files(released)
+    modCompileOnly files(overlay)
+    modCompileOnly files(released)
+    prodMods "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    // the client game test harness is not bundled in the fabric-api jar; take the module the build already uses
+    prodMods fabricApi.module('fabric-client-gametest-api-v1', fabric_version)
 }
 
-loom {
-    runs {
-        fxTest {
-            client()
-            name = 'Effects game test'
-            vmArg '-Dfabric.client.gametest'
-            vmArg '-Dheliosphere.skipIntro=true'
-            vmArg '-Dfabric.client.gametest.disableNetworkSynchronizer=true'
-            runDir 'run-fx'
-            ideConfigGenerated false
-        }
-    }
+tasks.register('prodFxTest', ClientProductionRunTask) {
+    mods.from(overlay, released, configurations.prodMods, tasks.named('remapJar'))
+    jvmArgs.addAll('-Dfabric.client.gametest', '-Dfabric.client.gametest.disableNetworkSynchronizer=true', '-Dheliosphere.skipIntro=true', '-Xmx4G')
+    runDir = project.layout.projectDirectory.dir('run-fx')
+    useXVFB = true
 }

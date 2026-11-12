@@ -29,5 +29,5 @@ gradle :jars:01-core:mergeJar :jars:06-weapons:mergeJar :jars:10-disasters:merge
 ```bash
 tools/fxpreview/run.sh nuke out.png          # 离线渲染蘑菇云各时刻（不需要游戏）
 tools/fxpreview/run.sh impact out.png        # 离线渲染小行星撞击
-xvfb-run -a gradle :jars:testrun:runFxTest   # 游戏内测试，截图在 jars/testrun/run-fx/screenshots/
+gradle :jars:testrun:prodFxTest              # 游戏内测试（正式版环境，需要 xvfb-run），截图在 jars/testrun/run-fx/screenshots/
 ```

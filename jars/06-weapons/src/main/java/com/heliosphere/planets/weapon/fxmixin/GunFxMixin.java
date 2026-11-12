@@ -30,7 +30,9 @@ public abstract class GunFxMixin {
             target = "Lnet/minecraft/server/level/ServerLevel;explode(Lnet/minecraft/world/entity/Entity;DDDFLnet/minecraft/world/level/Level$ExplosionInteraction;)V"))
     private void heliosphere$burst(ServerLevel level, Entity source, double x, double y, double z, float power, Level.ExplosionInteraction mode) {
         level.explode(source, x, y, z, power, mode);
+        // draw the burst a block out of whatever it hit, so the wall does not hide half of it
         Vec3 at = new Vec3(x, y, z);
+        if (source != null) at = at.add(source.getEyePosition().subtract(at).normalize());
         switch (spec.effect()) {
             case ANTIMATTER -> CombatVfx.send(level, CombatVfx.ANTIMATTER, 0xC8A0FF, at, at, power);
             case FIRE -> CombatVfx.send(level, CombatVfx.PLASMA, spec.ammo().contains("plasma") ? 0x78E6FF : 0xFFA050, at, at, power);
@@ -44,7 +46,8 @@ public abstract class GunFxMixin {
      */
     @Inject(method = "singularity", at = @At("HEAD"))
     private static void heliosphere$singularity(ServerLevel level, Player player, Vec3 at, CallbackInfo ci) {
-        CombatVfx.send(level, CombatVfx.SINGULARITY, 0x7030C0, at, at, 10f);
+        Vec3 shown = at.add(player.getEyePosition().subtract(at).normalize().scale(2.5));
+        CombatVfx.send(level, CombatVfx.SINGULARITY, 0x7030C0, shown, shown, 14f);
         for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(12), en -> en != player && en.isAlive())) {
             double d = e.position().distanceTo(at);
             if (d > 12) continue;

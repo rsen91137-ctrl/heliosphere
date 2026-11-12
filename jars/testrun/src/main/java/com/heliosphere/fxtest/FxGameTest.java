@@ -68,15 +68,13 @@ public class FxGameTest implements FabricClientGameTest {
             gun(ctx, sp, "assault_rifle", "08_rifle_third_person", 5, 3);
             ctx.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
 
-            // ---- tactical nuke 260 blocks east, watched from here
+            // ---- tactical nuke 260 blocks east, watched from the pad
             sp.getServer().runOnServer(s -> {
                 ServerPlayer p = player(s);
                 ServerLevel l = p.level();
-                int x = p.getBlockX() + 260, z = p.getBlockZ();
-                l.getChunk(new BlockPos(x, 0, z));
-                int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-                p.teleportTo(p.getX(), p.getY(), p.getZ());
-                Nuke.detonate(l, p, new Vec3(x + 0.5, y, z + 0.5));
+                origin = p.blockPosition();
+                int x = origin.getX() + 260, z = origin.getZ();
+                Nuke.detonate(l, p, new Vec3(x + 0.5, surface(l, x, z), z + 0.5));
             });
             look(ctx, -90, -14);
             int waited = 0;
@@ -85,57 +83,53 @@ public class FxGameTest implements FabricClientGameTest {
                 waited = at;
                 shot(ctx, String.format("1%d_nuke_t%04.1f", at < 100 ? 0 : 1, at / 20f));
             }
-            // the crater from above
+            // the crater from above its rim, then from its floor
             step(ctx, "19_nuke_crater", () -> {
-                sp.getServer().runOnServer(s -> { ServerPlayer p = player(s); p.teleportTo(p.getX() + 260 - 60, p.getY() + 90, p.getZ() - 60); });
-                ctx.waitTicks(60);
+                hover(sp, 260 - 95, -95, 75);
+                ctx.waitTicks(80);
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, -45, 52);
+                look(ctx, -45, 32);
                 ctx.waitTicks(40);
             });
             step(ctx, "19b_nuke_crater_floor", () -> {
-                sp.getServer().runOnServer(s -> { ServerPlayer p = player(s); p.teleportTo(p.getX() + 45, p.getY() - 70, p.getZ() + 45); });
+                hover(sp, 260 + 30, 0, 3);
                 ctx.waitTicks(40);
                 sp.getClientWorld().waitForChunksRender();
-                look(ctx, -45, 25);
+                look(ctx, 90, 18);
                 ctx.waitTicks(20);
             });
 
-            // ---- asteroid impact 7000 blocks north, and the magma tide
-            sp.getServer().runOnServer(s -> {
-                ServerPlayer p = player(s);
-                p.teleportTo(p.getX() - 300, p.getY() + 40, p.getZ());
-            });
+            // ---- asteroid impact 7000 blocks north, watched from 40 blocks above the pad
+            hover(sp, -40, 0, 40);
             ctx.waitTicks(60);
             sp.getClientWorld().waitForChunksRender();
             sp.getServer().runOnServer(s -> {
-                ServerPlayer p = player(s);
-                ServerLevel l = p.level();
-                ImpactExpansionLedger.record(l, p.getBlockX(), p.getBlockY() - 40, p.getBlockZ() - 7000, l.getGameTime());
+                ServerLevel l = player(s).level();
+                int x = origin.getX(), z = origin.getZ() - 7000;
+                ImpactExpansionLedger.record(l, x, surface(l, x, z), z, l.getGameTime());
             });
-            look(ctx, 180, -8);
+            look(ctx, 180, -6);
             waited = 0;
             for (int at : new int[]{3, 40, 160, 500, 1000, 1900, 3200}) {
                 ctx.waitTicks(at - waited);
                 waited = at;
                 shot(ctx, String.format("2%d_impact_t%05.1f", at < 1000 ? 0 : 1, at / 20f));
             }
-            // a second, older impact 18000 blocks away, five days ago: the magma tide has had time to spread
+            // an older impact 18000 blocks east, five days ago: the magma tide has had time to spread here
             sp.getServer().runOnServer(s -> {
-                ServerPlayer p = player(s);
-                ServerLevel l = p.level();
-                ImpactExpansionLedger.record(l, p.getBlockX() + 18000, 64, p.getBlockZ(), l.getGameTime() - 5 * 24000L);
-                p.teleportTo(p.getX(), p.getY() + 60, p.getZ());
+                ServerLevel l = player(s).level();
+                ImpactExpansionLedger.record(l, origin.getX() + 18000, 64, origin.getZ(), l.getGameTime() - 5 * 24000L);
             });
+            hover(sp, 0, 0, 55);
             for (int i = 0; i < 4; i++) {
+                look(ctx, 90 * i, 50);
                 ctx.waitTicks(400);
                 shot(ctx, "3" + i + "_magma_tide_from_above");
-                look(ctx, 90 * i, 60);
             }
             step(ctx, "35_magma_tide_ground", () -> {
-                sp.getServer().runOnServer(s -> { ServerPlayer p = player(s); p.teleportTo(p.getX(), p.getY() - 50, p.getZ()); });
+                hover(sp, 0, 0, 2);
                 ctx.waitTicks(40);
-                look(ctx, 30, 15);
+                look(ctx, 30, 12);
                 ctx.waitTicks(20);
             });
         } catch (Throwable t) {
@@ -147,6 +141,25 @@ public class FxGameTest implements FabricClientGameTest {
     }
 
     private static ServerPlayer player(MinecraftServer s) { return s.getPlayerList().getPlayers().get(0); }
+
+    private static BlockPos origin = BlockPos.ZERO;
+
+    /** Height of the ground (ignoring leaves) at x, z, loading the chunk if need be. */
+    private static int surface(ServerLevel l, int x, int z) {
+        l.getChunk(new BlockPos(x, 0, z));
+        return l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+    }
+
+    /** Puts the player, flying, {@code up} blocks above the ground at origin + (dx, dz). */
+    private static void hover(TestSingleplayerContext sp, int dx, int dz, int up) {
+        sp.getServer().runOnServer(s -> {
+            ServerPlayer p = player(s);
+            int x = origin.getX() + dx, z = origin.getZ() + dz;
+            p.getAbilities().flying = true;
+            p.onUpdateAbilities();
+            p.teleportTo(x + 0.5, surface(p.level(), x, z) + up, z + 0.5);
+        });
+    }
 
     private static void stage(MinecraftServer s) {
         ServerPlayer p = player(s);
@@ -170,10 +183,12 @@ public class FxGameTest implements FabricClientGameTest {
         step(ctx, name, () -> {
             sp.getServer().runOnServer(s -> {
                 ServerPlayer p = player(s);
-                p.setItemInHand(InteractionHand.MAIN_HAND, new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("heliosphere", id))));
+                ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("heliosphere", id)));
+                p.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                com.heliosphere.planets.tech.Attachments.reload(p, p.getMainHandItem());   // a fresh gun comes with an empty magazine
             });
             look(ctx, -90, 2);
-            ctx.waitTicks(10);
+            ctx.waitTicks(120);
             for (int i = 0; i < shots; i++) {
                 sp.getServer().runOnServer(s -> {
                     ServerPlayer p = player(s);
