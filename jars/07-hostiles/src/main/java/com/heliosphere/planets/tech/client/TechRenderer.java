@@ -48,7 +48,7 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
     public void extractRenderState(T e, State s, float partial) {
         super.extractRenderState(e, s, partial);
         s.age = e.tickCount + partial;
-        s.yaw = e instanceof LivingEntity le ? le.yBodyRot : e.getYRot();
+        s.yaw = e.getYRot();                                    // machines turn their whole body (head yaw), not a separate torso
         s.width = e.getBbWidth();
         s.height = e.getBbHeight();
         Vec3 v = e.getDeltaMovement();
@@ -76,8 +76,13 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
         }
         Paint paint = Paint.of(s.id);
         boolean ghost = s.isInvisible;
-        if (!ghost) out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(TEX), (p, vc) -> build(new Mesh(p, vc, s.lightCoords, false, paint, s), s));
-        out.submitCustomGeometry(pose, RenderTypes.eyes(TEX), (p, vc) -> build(new Mesh(p, vc, 0xF000F0, true, paint, s), s));
+        if (!ghost) {
+            // lights are drawn solid at full brightness: a depth-writing pass cannot be painted over by the body
+            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(TEX), (p, vc) -> build(new Mesh(p, vc, s.lightCoords, false, paint, s), s));
+            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(TEX), (p, vc) -> build(new Mesh(p, vc, 0xF000F0, true, paint, s), s));
+        } else {
+            out.submitCustomGeometry(pose, RenderTypes.eyes(TEX), (p, vc) -> build(new Mesh(p, vc, 0xF000F0, true, paint, s), s));   // a cloaked stalker: only a shimmer
+        }
         pose.popPose();
         super.submit(s, pose, out, camera);
     }
@@ -104,7 +109,7 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
                 case "flame_walker" -> new Paint(0x3A3430, 0x7A3C1E, 0xE87018, 0xFF7A18);
                 case "shield_bearer" -> new Paint(0x6A88B0, 0xE0E6EE, 0x30B0E0, 0x70C8FF);
                 case "laser_drone" -> new Paint(0xF0F0F0, 0x1A1A1C, 0xD02028, 0xFF2838);
-                case "stalker" -> new Paint(0x3C4048, 0x141518, 0x9CC8E8, 0x9FD8FF);
+                case "stalker" -> new Paint(0x5C6470, 0x23262C, 0x9CC8E8, 0x9FD8FF);
                 case "titan_walker" -> new Paint(0x4A4E56, 0x18191C, 0xD8A030, 0xFF8A28);
                 default -> new Paint(0xA0A4A8, 0x303236, 0xE0A020, 0xFF6040);
             };
@@ -191,7 +196,8 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
             if ((slot == Slot.GLOW) != bright) return;
             int c = colour(slot);
             float u0 = (tile % 8) / 8f, v0 = (tile / 8) / 8f, s = 1 / 8f;
-            face(cx - w / 2, cy - h / 2, cz, cx + w / 2, cy - h / 2, cz, cx + w / 2, cy + h / 2, cz, cx - w / 2, cy + h / 2, cz, 0, 0, 1, u0, v0, s, s, c);
+            double z = cz + 0.008;                                            // stand clear of the face behind it
+            face(cx - w / 2, cy - h / 2, z, cx + w / 2, cy - h / 2, z, cx + w / 2, cy + h / 2, z, cx - w / 2, cy + h / 2, z, 0, 0, 1, u0, v0, s, s, c);
         }
 
         private void face(double ax, double ay, double az, double bx, double by, double bz, double cx, double cy, double cz,

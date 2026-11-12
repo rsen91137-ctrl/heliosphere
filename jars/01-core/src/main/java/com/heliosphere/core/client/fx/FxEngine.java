@@ -230,6 +230,12 @@ public final class FxEngine {
             float h = size * 0.5f;
             if (d < -h || (a <= 0 && er + eg + eb <= 0.004f)) return;
             if (h < d * 0.0006f) return;            // under a pixel
+            if (d < h * 1.3f) {                     // soft near plane: smoke the eye is inside of fades out instead of filling the view
+                float k = Math.max(0, (d - 0.2f) / (h * 1.3f));
+                k *= k;
+                r *= k; g *= k; b *= k; a *= k; er *= k; eg *= k; eb *= k;
+                if (a <= 0.004f && er + eg + eb <= 0.004f) return;
+            }
             float c = (float) Math.cos(roll) * h, s = (float) Math.sin(roll) * h;
             float ax = rx * c + ux * s, ay = ry * c + uy * s, az = rz * c + uz * s;       // rotated "right"
             float bx = -rx * s + ux * c, by = -ry * s + uy * c, bz = -rz * s + uz * c;    // rotated "up"

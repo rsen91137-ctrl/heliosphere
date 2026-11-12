@@ -24,4 +24,5 @@ tasks.register('prodFxTest', ClientProductionRunTask) {
     jvmArgs.addAll('-Dfabric.client.gametest', '-Dfabric.client.gametest.disableNetworkSynchronizer=true', '-Dheliosphere.skipIntro=true', '-Xmx4G')
     runDir = project.layout.projectDirectory.dir('run-fx')
     useXVFB = true
+    if (project.hasProperty('only')) jvmArgs.add("-Dheliosphere.test.only=${project.property('only')}")
 }

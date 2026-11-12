@@ -52,6 +52,8 @@ public class EnemyGameTest implements FabricClientGameTest {
             sp.getServer().runOnServer(EnemyGameTest::arena);
             ctx.waitTicks(40);
             sp.getClientWorld().waitForChunksRender();
+            boolean all = !"bestiary".equals(System.getProperty("heliosphere.test.only"));
+            if (all) {
 
             // ---- the lineup, frozen, photographed in three stretches
             sp.getServer().runOnServer(s -> {
@@ -95,6 +97,7 @@ public class EnemyGameTest implements FabricClientGameTest {
             attack(ctx, sp, "siege_walker", 18, "15_shielded_group", 60);
             attack(ctx, sp, "titan_walker", 30, "16_titan", 140);
             sp.getServer().runCommand("kill @e[type=!player]");
+            }
 
             // ---- the bestiary in the scroll
             sp.getServer().runCommand("gamemode creative @a");

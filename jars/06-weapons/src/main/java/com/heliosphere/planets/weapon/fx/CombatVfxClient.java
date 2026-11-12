@@ -49,7 +49,7 @@ public final class CombatVfxClient implements ClientModInitializer {
                 int c = p.color();
                 boolean warhead = ((c >> 16) & 255) > (c & 255) + 40;
                 if (warhead) {
-                    float power = Math.max(1.5f, p.strength() * 0.75f);
+                    float power = Math.max(1.2f, p.strength() * 0.45f);         // machine shells: a little smaller than a grenade
                     FxEngine.add((s, t, env) -> Blasts.explosion(s, t, a.x, a.y, a.z, power, seed, env.daylight));
                     shake((float) (power * 0.14f * Math.max(0, 1 - dist / (power * 12))));
                 } else {
