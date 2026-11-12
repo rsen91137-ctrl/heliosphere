@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /** Right-click boards the cabin; a boarded rocket holds its countdown until the crew starts it. */
-@Mixin(RocketEntity.class)
+@Mixin(value = RocketEntity.class, priority = 900)
 public abstract class RocketHoldMixin implements Boarding.RocketPhaseAccess {
     @Shadow(remap = false) private int ticks;
     @Shadow(remap = false) abstract void setPhase(int phase);
