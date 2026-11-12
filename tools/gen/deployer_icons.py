@@ -26,8 +26,42 @@ def matte(white, black):
     return np.clip(col, 0, 1), alpha
 
 
+def components(m):
+    """Labels 4-connected regions of a boolean mask (iterative flood fill)."""
+    lab = np.zeros(m.shape, np.int32); n = 0
+    H, W = m.shape
+    for y0, x0 in zip(*np.nonzero(m)):
+        if lab[y0, x0]: continue
+        n += 1; stack = [(y0, x0)]; lab[y0, x0] = n
+        while stack:
+            y, x = stack.pop()
+            for yy, xx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                if 0 <= yy < H and 0 <= xx < W and m[yy, xx] and not lab[yy, xx]:
+                    lab[yy, xx] = n; stack.append((yy, xx))
+    return lab, n
+
+
 def icon(white, black, size=32):
     col, a = matte(white, black)
+    solid = a > 0.8
+    # the machine is the big connected shape near the middle; stray particles and the backdrop seam are not
+    lab, n = components(solid)
+    if n == 0: return None
+    sizes = np.bincount(lab.ravel())[1:]
+    H, W = a.shape
+    best = max(range(1, n + 1), key=lambda k: sizes[k - 1] / (1 + np.hypot(*(np.mean(np.nonzero(lab == k), axis=1) - (H / 2, W / 2))) / 200))
+    keep = np.zeros_like(solid)
+    by, bx = np.nonzero(lab == best)
+    y0b, y1b, x0b, x1b = by.min(), by.max(), bx.min(), bx.max()
+    pad = max(y1b - y0b, x1b - x0b) // 8
+    for k in range(1, n + 1):
+        if sizes[k - 1] < sizes[best - 1] * 0.1 and k != best: continue
+        ky, kx = np.nonzero(lab == k)
+        if ky.min() > y1b + pad or ky.max() < y0b - pad or kx.min() > x1b + pad or kx.max() < x0b - pad: continue
+        if (ky.max() - ky.min()) < 6 and (kx.max() - kx.min()) > 4 * (ky.max() - ky.min() + 1) and k != best: continue   # thin seams
+        keep |= lab == k
+    a = np.where(keep, a, 0)
+    col = np.clip(col ** 0.8 * 1.1, 0, 1)
     ys, xs = np.nonzero(a > 0.35)
     if len(ys) == 0: return None
     y0, y1, x0, x1 = ys.min(), ys.max(), xs.min(), xs.max()
@@ -55,7 +89,6 @@ def icon(white, black, size=32):
         ring |= np.roll(np.roll(m, dy, 0), dx, 1)
     ring &= ~m
     out[ring] = (0.08, 0.08, 0.1, 1)
-    out[..., :3] = np.clip(out[..., :3] * 1.12, 0, 1)        # inventory lighting is flat; lift the shadows a little
     return (out * 255).astype(np.uint8)
 
 
