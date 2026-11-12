@@ -5,5 +5,6 @@
   "message.heliosphere.cabin_leave": "[離開座艙]",
   "message.heliosphere.cabin_counting": "倒數開始！10 秒後點火。",
   "message.heliosphere.cabin_left": "你離開了座艙。",
-  "message.heliosphere.cabin_checks": "火箭未通過發射檢查，請先在火箭選單（Shift + 右鍵）中查看並補給。"
+  "message.heliosphere.cabin_checks": "火箭未通過發射檢查，請先在火箭選單（Shift + 右鍵）中查看並補給。",
+  "hud.heliosphere.window_hint": "WASD 艙內走動 · 移動滑鼠環顧四周"
 }
