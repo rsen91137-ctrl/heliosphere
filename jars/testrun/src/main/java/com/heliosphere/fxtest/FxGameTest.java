@@ -38,6 +38,8 @@ public class FxGameTest implements FabricClientGameTest {
 
     @Override
     public void runTest(ClientGameTestContext ctx) {
+        String only = System.getProperty("heliosphere.test.only");
+        if (only == null || !(only.equals("guns") || only.equals("fx"))) return;
         ctx.runOnClient(mc -> { mc.options.languageCode = "zh_cn"; mc.getLanguageManager().setSelected("zh_cn"); mc.reloadResourcePacks(); });
         ctx.waitTicks(60);
         ResourceKey<WorldPreset> solar = ResourceKey.create(Registries.WORLD_PRESET, Heliosphere.id("solar_system"));
@@ -67,6 +69,7 @@ public class FxGameTest implements FabricClientGameTest {
             ctx.runOnClient(mc -> mc.options.setCameraType(CameraType.THIRD_PERSON_BACK));
             gun(ctx, sp, "assault_rifle", "08_rifle_third_person", 5, 3);
             ctx.runOnClient(mc -> mc.options.setCameraType(CameraType.FIRST_PERSON));
+            if (only.equals("guns")) { writeReport(); return; }
 
             // ---- tactical nuke 260 blocks east, watched from the pad
             sp.getServer().runOnServer(s -> {

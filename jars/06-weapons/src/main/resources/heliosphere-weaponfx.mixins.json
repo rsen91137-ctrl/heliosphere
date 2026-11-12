@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "GunFxMixin",
-    "GunBalanceMixin"
+    "GunBalanceMixin",
+    "LevelExplodeFxMixin"
   ],
   "injectors": {
     "defaultRequire": 1
