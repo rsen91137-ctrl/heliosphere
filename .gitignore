@@ -8,3 +8,4 @@ tools/devlibs/gradle.properties
 /libs/
 run-test/
 __pycache__/
+/base/

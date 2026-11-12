@@ -1,0 +1,61 @@
+// Shared by every overlay module (jars/NN-name). An overlay holds only the classes and resources that
+// differ from the released jar base/NN-*.jar: it compiles against the released jars, and `mergeJar` lays
+// its output over the released jar to produce a drop-in replacement in build/dist-overlay/.
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
+
+def number = project.name.substring(0, 2)
+def baseJar = rootProject.fileTree('base') { include "${number}-*.jar" }.singleFile
+
+base { archivesName = "overlay-${project.name}" }
+
+dependencies {
+    // every released jar is visible at compile time, already remapped to Mojang names by Loom
+    modCompileOnly files(rootProject.fileTree('base') { include '*.jar' })
+}
+
+// JSON files that are merged key by key instead of replaced (the overlay only lists its additions).
+def merged = { String name -> name ==~ /assets\/[^\/]+\/lang\/.*\.json/ || name ==~ /assets\/[^\/]+\/sounds\.json/ }
+
+tasks.register('mergeJar') {
+    dependsOn tasks.named('remapJar')
+    def overlayJar = tasks.named('remapJar').flatMap { it.archiveFile }
+    def out = rootProject.layout.buildDirectory.file("dist-overlay/${baseJar.name}")
+    inputs.file(baseJar); inputs.file(overlayJar); outputs.file(out)
+    doLast {
+        def over = new ZipFile(overlayJar.get().asFile), under = new ZipFile(baseJar)
+        def overNames = over.entries().collect { it.name }.findAll { !it.endsWith('/') } as Set
+        out.get().asFile.parentFile.mkdirs()
+        def zip = new ZipOutputStream(new FileOutputStream(out.get().asFile))
+        def put = { String name, byte[] bytes -> def e = new ZipEntry(name); e.time = 315532800000L; zip.putNextEntry(e); zip.write(bytes); zip.closeEntry() }
+        def json = new JsonSlurper()
+        under.entries().findAll { !it.name.endsWith('/') }.each { e ->
+            def bytes = under.getInputStream(e).bytes
+            if (e.name == 'fabric.mod.json' && overNames.contains('fabric.mod.json')) {
+                // the overlay may append mixin configs and entrypoints; everything else stays as released
+                def mod = json.parse(bytes, 'UTF-8'), patch = json.parse(over.getInputStream(over.getEntry('fabric.mod.json')).bytes, 'UTF-8')
+                (patch.mixins ?: []).each { m -> if (!(mod.mixins ?: []).contains(m)) { mod.mixins = (mod.mixins ?: []) + [m] } }
+                (patch.entrypoints ?: [:]).each { k, v -> mod.entrypoints[k] = ((mod.entrypoints[k] ?: []) + v).unique() }
+                bytes = JsonOutput.prettyPrint(JsonOutput.toJson(mod)).getBytes('UTF-8')
+            } else if (overNames.contains(e.name)) {
+                if (merged(e.name)) {
+                    def a = json.parse(bytes, 'UTF-8'), b = json.parse(over.getInputStream(over.getEntry(e.name)).bytes, 'UTF-8')
+                    a.putAll(b)
+                    bytes = JsonOutput.prettyPrint(JsonOutput.toJson(a)).replaceAll(/\\u([0-9a-f]{4})/) { all, hex -> (char) Integer.parseInt(hex, 16) }.getBytes('UTF-8')
+                } else return                       // replaced by the overlay's copy below
+            }
+            put(e.name, bytes)
+        }
+        def underNames = under.entries().collect { it.name } as Set
+        over.entries().findAll { !it.name.endsWith('/') }.each { e ->
+            if (e.name == 'fabric.mod.json' || e.name.startsWith('META-INF/')) return
+            if (merged(e.name) && underNames.contains(e.name)) return
+            put(e.name, over.getInputStream(e).bytes)
+        }
+        zip.close(); over.close(); under.close()
+        println "merged -> ${out.get().asFile}"
+    }
+}
