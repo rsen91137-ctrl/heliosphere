@@ -9,3 +9,4 @@ tools/devlibs/gradle.properties
 run-test/
 __pycache__/
 /base/
+run-fx/

@@ -10,4 +10,7 @@ include 'core', 'sphereworld', 'industry', 'planets', 'rocketry', 'guide', 'test
 
 // Overlay modules: one per released jar, built on top of the jars in base/ (see jars/README.md, tools/fetch_base.sh).
 def overlays = ['01-core', '06-weapons', '10-disasters']
-if (new File(rootDir, 'base').list()?.any { it.endsWith('.jar') }) overlays.each { include "jars:$it" }
+if (new File(rootDir, 'base').list()?.any { it.endsWith('.jar') }) {
+    overlays.each { include "jars:$it" }
+    if (new File(rootDir, 'build/dist-overlay').exists()) include 'jars:testrun'
+}

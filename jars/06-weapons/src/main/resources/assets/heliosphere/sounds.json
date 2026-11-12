@@ -1,0 +1,11 @@
+{
+  "geiger_click": {
+    "sounds": [
+      {
+        "name": "heliosphere:geiger_click",
+        "volume": 1.0
+      }
+    ],
+    "subtitle": "subtitles.heliosphere.geiger"
+  }
+}

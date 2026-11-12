@@ -4,8 +4,10 @@ import com.heliosphere.planets.weapon.GunItem;
 import com.heliosphere.planets.weapon.fx.CombatVfx;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,8 +38,19 @@ public abstract class GunFxMixin {
         }
     }
 
+    /**
+     * The singularity tears at everything within 12 blocks: on top of the released pull (30 damage), up to 110
+     * more at the centre, falling off with distance. Robots are not spared their armour, it is a gravity well.
+     */
     @Inject(method = "singularity", at = @At("HEAD"))
     private static void heliosphere$singularity(ServerLevel level, Player player, Vec3 at, CallbackInfo ci) {
         CombatVfx.send(level, CombatVfx.SINGULARITY, 0x7030C0, at, at, 10f);
+        for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(12), en -> en != player && en.isAlive())) {
+            double d = e.position().distanceTo(at);
+            if (d > 12) continue;
+            e.invulnerableTime = 0;
+            e.hurtServer(level, level.damageSources().indirectMagic(player, player), (float) (20 + 90 * (1 - d / 12)));
+            e.invulnerableTime = 0;
+        }
     }
 }

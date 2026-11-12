@@ -146,6 +146,7 @@ public final class FxEngine {
         ParticleStatus status = mc.options.particles().get();
         ENV.detail = status == ParticleStatus.ALL ? 1f : status == ParticleStatus.DECREASED ? 0.65f : 0.4f;
 
+        BATCH.proxy = Math.max(256f, Math.min(1500f, mc.options.getEffectiveRenderDistance() * 16f * 2f));
         BATCH.begin(camera);
         for (Iterator<Live> it = LIVE.iterator(); it.hasNext(); ) {
             Live l = it.next();
@@ -180,6 +181,20 @@ public final class FxEngine {
         int count;
         double cx, cy, cz;
         float rx, ry, rz, ux, uy, uz, fx, fy, fz;
+        /**
+         * Sprites further than this are drawn scaled towards the camera by proxy / distance. Scaling about the
+         * eye leaves the picture unchanged but keeps a cloud kilometres away inside the far clip plane.
+         */
+        float proxy = 600f;
+
+        /** Pulls the quad just written at offset o towards the camera if its centre (mx, my, mz) is too far. */
+        private void pull(int o, float mx, float my, float mz) {
+            float l = (float) Math.sqrt(mx * mx + my * my + mz * mz);
+            if (l <= proxy) return;
+            float k = proxy / l;
+            for (int i = 0; i < 12; i++) data[o + i] *= k;
+            depth[o / STRIDE] *= k;
+        }
 
         void begin(Camera camera) {
             count = 0;
@@ -224,6 +239,7 @@ public final class FxEngine {
             data[o + 6] = px + ax - bx; data[o + 7] = py + ay - by; data[o + 8] = pz + az - bz;    // bottom-right
             data[o + 9] = px + ax + bx; data[o + 10] = py + ay + by; data[o + 11] = pz + az + bz;  // top-right
             colour(o, tile, r, g, b, a, er, eg, eb);
+            pull(o, px, py, pz);
         }
 
         @Override
@@ -246,6 +262,7 @@ public final class FxEngine {
             data[o + 6] = p1x - sx; data[o + 7] = p1y - sy; data[o + 8] = p1z - sz;
             data[o + 9] = p1x + sx; data[o + 10] = p1y + sy; data[o + 11] = p1z + sz;
             colour(o, tile, r, g, b, a, er, eg, eb);
+            pull(o, mx, my, mz);
         }
 
         @Override
@@ -259,6 +276,7 @@ public final class FxEngine {
             data[o + 6] = px + c - s; data[o + 7] = py; data[o + 8] = pz + s + c;
             data[o + 9] = px + c + s; data[o + 10] = py; data[o + 11] = pz + s - c;
             colour(o, tile, r, g, b, a, er, eg, eb);
+            pull(o, px, py, pz);
         }
 
         void draw(VertexConsumer vc) {

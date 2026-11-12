@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.disasters.tide.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["ImpactRecordMixin"],
+  "injectors": {"defaultRequire": 1}
+}

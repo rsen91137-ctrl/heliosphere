@@ -3,6 +3,11 @@
   "minVersion": "0.8",
   "package": "com.heliosphere.planets.weapon.fxmixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["GunFxMixin"],
-  "injectors": {"defaultRequire": 1}
+  "mixins": [
+    "GunFxMixin",
+    "GunBalanceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

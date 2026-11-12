@@ -1,3 +1,4 @@
+import com.heliosphere.core.fx.sim.AsteroidImpact;
 import com.heliosphere.core.fx.sim.FxAtlas;
 import com.heliosphere.core.fx.sim.MushroomCloud;
 import com.heliosphere.core.fx.sim.SpriteSink;
@@ -171,6 +172,7 @@ public final class FxPreview implements SpriteSink {
             ImageIO.write(img, "png", new File(out));
             return;
         }
+        if (mode.equals("impact")) { impact(args, out); return; }
         float day = args.length > 2 ? Float.parseFloat(args[2]) : 1f;
         double dist = args.length > 3 ? Double.parseDouble(args[3]) : 330;
         float[] times = {0.12f, 0.6f, 1.4f, 3f, 6f, 10f, 16f, 26f, 45f, 70f};
@@ -190,6 +192,32 @@ public final class FxPreview implements SpriteSink {
             java.awt.Graphics2D g = sheet.createGraphics();
             g.setColor(java.awt.Color.WHITE);
             g.drawString(String.format("t = %.1f s", times[i]), (i % cols) * cw + 8, (i / cols) * ch + 16);
+            g.dispose();
+        }
+        ImageIO.write(sheet, "png", new File(out));
+    }
+
+    /** impact out.png [daylight] [distance] [t1,t2,...] */
+    static void impact(String[] args, String out) throws Exception {
+        float day = args.length > 2 ? Float.parseFloat(args[2]) : 1f;
+        double dist = args.length > 3 ? Double.parseDouble(args[3]) : 9000;
+        float[] times = {0.1f, 1.5f, 6f, 20f, 45f, 90f, 160f, 260f};
+        if (args.length > 4) { String[] p = args[4].split(","); times = new float[p.length]; for (int i = 0; i < p.length; i++) times[i] = Float.parseFloat(p[i]); }
+        int cols = Math.min(4, times.length), rows = (times.length + cols - 1) / cols;
+        int cw = 520, ch = 380;
+        BufferedImage sheet = new BufferedImage(cols * cw, rows * ch, BufferedImage.TYPE_INT_ARGB);
+        MushroomCloud.Env env = new MushroomCloud.Env();
+        env.daylight = day;
+        for (int i = 0; i < times.length; i++) {
+            FxPreview p = new FxPreview(cw, ch, new double[]{0, 60, -dist}, new double[]{0, dist * 0.22, 0}, 75, 0);
+            p.background(0.25f + 0.75f * day);
+            AsteroidImpact.emit(p, 0, 0, 0, times[i], 1f, 99, 0.62f, 0.78f, 0.6f, env);
+            p.flush();
+            p.whiteout(AsteroidImpact.flash(times[i], (float) dist, 1f) * 0.95f);
+            p.blit(sheet, (i % cols) * cw, (i / cols) * ch);
+            java.awt.Graphics2D g = sheet.createGraphics();
+            g.setColor(java.awt.Color.WHITE);
+            g.drawString(String.format("t = %.1f s  (%.0f blocks away)", times[i], dist), (i % cols) * cw + 8, (i / cols) * ch + 16);
             g.dispose();
         }
         ImageIO.write(sheet, "png", new File(out));

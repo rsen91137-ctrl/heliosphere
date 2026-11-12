@@ -1,0 +1,25 @@
+// In-game check of the overlay jars: runs the released mods, with 01/06/10 replaced by build/dist-overlay,
+// under the Fabric client game test harness and saves screenshots. Not part of any release.
+//   gradle :jars:01-core:mergeJar :jars:06-weapons:mergeJar :jars:10-disasters:mergeJar
+//   xvfb-run -a gradle :jars:testrun:runFxTest
+def overlay = rootProject.fileTree('build/dist-overlay') { include '*.jar' }
+def released = rootProject.fileTree('base') { include '*.jar'; exclude '01-*', '06-*', '10-*' }
+
+dependencies {
+    modImplementation files(overlay)
+    modImplementation files(released)
+}
+
+loom {
+    runs {
+        fxTest {
+            client()
+            name = 'Effects game test'
+            vmArg '-Dfabric.client.gametest'
+            vmArg '-Dheliosphere.skipIntro=true'
+            vmArg '-Dfabric.client.gametest.disableNetworkSynchronizer=true'
+            runDir 'run-fx'
+            ideConfigGenerated false
+        }
+    }
+}
