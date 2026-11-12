@@ -1,0 +1,9 @@
+{
+  "message.heliosphere.cabin_boarded": "已进入座舱（目的地：%s）。WASD 在舱内走动，移动鼠标环顾四周，倒计时暂停中。",
+  "message.heliosphere.cabin_go": "[开始倒计时]",
+  "message.heliosphere.cabin_go_hint": "点击后 10 秒点火升空",
+  "message.heliosphere.cabin_leave": "[离开座舱]",
+  "message.heliosphere.cabin_counting": "倒计时开始！10 秒后点火。",
+  "message.heliosphere.cabin_left": "你离开了座舱。",
+  "message.heliosphere.cabin_checks": "火箭未通过发射检查，请先在火箭菜单（Shift + 右键）中查看并补给。"
+}

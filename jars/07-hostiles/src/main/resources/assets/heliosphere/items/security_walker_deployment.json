@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "heliosphere:item/security_walker_deployment"
+  }
+}

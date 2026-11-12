@@ -129,9 +129,12 @@ def main():
         'en_us': ('Trinitite', 'Scorched Earth', 'Fallout Ash', 'Radiation Sickness', 'Geiger counter clicks'),
     }
     for code, (t, s, f, r, g) in lang.items():
-        write(f'{A}/lang/{code}.json', {
+        path = f'{A}/lang/{code}.json'
+        have = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {}   # other tools add keys here too
+        have.update({
             'block.heliosphere.trinitite': t, 'block.heliosphere.scorched_earth': s, 'block.heliosphere.fallout_ash': f,
             'effect.heliosphere.radiation': r, 'subtitles.heliosphere.geiger': g})
+        write(path, have)
 
 if __name__ == '__main__':
     main()

@@ -1,0 +1,9 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.rocketry.cabin.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["RocketHoldMixin"],
+  "client": ["CockpitFreeLookMixin"],
+  "injectors": {"defaultRequire": 1}
+}

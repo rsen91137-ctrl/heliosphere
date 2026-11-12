@@ -252,16 +252,23 @@ public class WorldGameTest implements FabricClientGameTest {
             if (list.isEmpty()) return;
             var rocket = list.get(0);
             report.add("[info] parts: " + rocket.structure().parts().stream().map(com.heliosphere.rocketry.entity.RocketStructure.Part::spec).toList());
-            var body = com.heliosphere.core.env.Planets.bodyOf(l);
-            var rep = com.heliosphere.rocketry.launch.MissionControl.analyze(rocket.structure(), body, "moon");
-            var sites = com.heliosphere.rocketry.flight.LandingSites.of("moon");
             p.getAbilities().flying = false; p.onUpdateAbilities();
             p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
             p.teleportTo(at[0] + 3.5, at[1], at[2] + 0.5);
-            rocket.begin(p, body, "moon", sites.isEmpty() ? "" : sites.get(0).id(), rep, false);
+            var res = rocket.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            report.add("[info] right-click: " + res + " tags " + rocket.getTags());
             report.add("[info] launched, phase " + rocket.phase() + ", vehicle " + p.getVehicle());
         });
         cmd(sp, "effect give @a resistance infinite 4 true");
+        ctx.waitTicks(60);
+        shot(ctx, "r_boarded_hold");
+        ctx.runOnClient(mc -> mc.options.keyUp.setDown(true));
+        ctx.waitTicks(30);
+        ctx.runOnClient(mc -> mc.options.keyUp.setDown(false));
+        ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 120); });
+        ctx.waitTicks(100);
+        shot(ctx, "r_boarded_walk");
+        cmd(sp, "execute as @p run hsrocket go");
         int[] times = {20, 60, 120, 200, 300, 420, 560, 760};
         int last = 0;
         for (int i = 0; i < times.length; i++) {
