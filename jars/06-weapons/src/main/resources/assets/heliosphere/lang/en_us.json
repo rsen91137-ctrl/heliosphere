@@ -18,5 +18,8 @@
   "item.heliosphere.turret_kit_mk5": "Turret Upgrade Kit Mk Ⅴ (Long-Range Refit)",
   "message.heliosphere.turret_status": "%s · Mk %s · %s/%s EU · range %s · damage %s · %s shots/s · %s EU a shot",
   "message.heliosphere.turret_upgraded": "Upgraded to Mk %s",
-  "message.heliosphere.turret_has_mk": "This turret is already Mk %s or better"
+  "message.heliosphere.turret_has_mk": "This turret is already Mk %s or better",
+  "message.heliosphere.lock_on": "§a§lTarget locked: %s",
+  "message.heliosphere.lock_lost": "§eLock lost",
+  "message.heliosphere.seeker_search": "§7No lock · seeker searching"
 }

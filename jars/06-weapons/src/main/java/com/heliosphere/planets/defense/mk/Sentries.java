@@ -38,6 +38,7 @@ public final class Sentries implements ModInitializer {
         for (String kit : KITS) Reg.item(kit);
         MachineType.addProvider(Sentries::recipes);
         ServerTickEvents.END_WORLD_TICK.register(Sentries::tick);
+        com.heliosphere.planets.weapon.guided.SmartLauncher.init();
     }
 
     /** Upgrade level of a kit item (the released Mk II and Mk III kits count too), or 0. */

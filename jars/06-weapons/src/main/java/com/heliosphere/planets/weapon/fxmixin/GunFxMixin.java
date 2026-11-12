@@ -40,6 +40,13 @@ public abstract class GunFxMixin {
                     s.tracer(), s.sound(), s.pitch(), s.recoil(), s.ammoChance());
     }
 
+    /** The guided missile launcher: lock-on or fire-and-forget (see SmartLauncher). */
+    @Inject(method = "smartLaunch", at = @At("HEAD"), cancellable = true)
+    private void heliosphere$smartLaunch(ServerLevel level, ServerPlayer player, CallbackInfo ci) {
+        ci.cancel();
+        com.heliosphere.planets.weapon.guided.SmartLauncher.launch(level, player, ((GunItem) (Object) this).stats().damage());
+    }
+
     /** Marks the shot so that explosions it causes (see LevelExplodeFxMixin) also get their effect. */
     @Inject(method = "ballistics", at = @At("HEAD"))
     private void heliosphere$shotBegins(ServerLevel level, ServerPlayer player, ItemStack stack, CallbackInfo ci) {

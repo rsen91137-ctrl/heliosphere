@@ -67,8 +67,13 @@ public record CombatVfx(int kind, int color, Vec3 start, Vec3 end, float strengt
         return switch (kind) { case NUKE -> 1024; case EXPLOSION, PLASMA, ANTIMATTER, SINGULARITY -> 256; default -> 192; };
     }
 
+    /** Told of every effect sent, before it goes out (other modules use it to react to impacts). */
+    public interface Listener { void sent(ServerLevel level, int kind, int color, Vec3 start, Vec3 end, float strength); }
+    public static final java.util.List<Listener> LISTENERS = new java.util.concurrent.CopyOnWriteArrayList<>();
+
     /** Sends the effect to every player of the level close enough to see it. */
     public static void send(ServerLevel level, int kind, int color, Vec3 start, Vec3 end, float strength) {
+        for (Listener l : LISTENERS) l.sent(level, kind, color, start, end, strength);
         CombatVfx p = new CombatVfx(kind, color, start, end, strength);
         double r = reach(kind), r2 = r * r;
         for (ServerPlayer player : level.players()) {

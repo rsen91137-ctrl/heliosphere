@@ -16,6 +16,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
@@ -41,6 +42,7 @@ public final class EnemyArsenal implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerTickEvents.END_WORLD_TICK.register(EnemyArsenal::tick);
+        Missiles.init();
     }
 
     private static void later(ServerLevel level, int ticks, Runnable r) {
@@ -61,6 +63,8 @@ public final class EnemyArsenal implements ModInitializer {
             }
         }
         if (level.getGameTime() % 10 == 0) cloak(level);
+        if (level.getGameTime() % 20 == 0) bossBars(level);
+        if (level.getGameTime() % 1200 == 600) outerPatrols(level);
     }
 
     private static TechCombat.Role role(TechMob mob) { return mob.role(); }
@@ -105,6 +109,12 @@ public final class EnemyArsenal implements ModInitializer {
             case EnemyRoster.AEGIS -> aegis(mob, level, r);
             case EnemyRoster.TITAN -> titan(mob, level, target, r, eye);
             case EnemyRoster.BLADE -> blade(mob, level, target, r);
+            case EnemyRoster.PLASMA -> plasmaBolt(mob, level, target, r.damage(), 3.2f);
+            case EnemyRoster.GRAVITY -> gravity(mob, level, target, r);
+            case EnemyRoster.PHASE -> phase(mob, level, target, r);
+            case EnemyRoster.OVERSEER -> overseer(mob, level, target, r);
+            case EnemyRoster.CARRIER -> carrier(mob, level, target, r);
+            case EnemyRoster.COLOSSUS -> colossus(mob, level, target, r);
             default -> { return false; }
         }
         return true;
@@ -228,6 +238,175 @@ public final class EnemyArsenal implements ModInitializer {
         target.hurtServer(level, level.damageSources().mobAttack(mob), r.damage());
         target.addEffect(new MobEffectInstance(MobEffects.WITHER, 60, 0));
         target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 30, 1));
+    }
+
+    // ---- Mk VII and up ---------------------------------------------------------------------------------------
+
+    /** A plasma bolt: a searing beam and a burst that also melts what it hits (level 7 machines break obsidian). */
+    private static void plasmaBolt(TechMob mob, ServerLevel level, LivingEntity target, float damage, float radius) {
+        Vec3 from = mob.getEyePosition();
+        Vec3 at = target.getBoundingBox().getCenter().add(level.random.nextGaussian() * 0.6, 0, level.random.nextGaussian() * 0.6);
+        Vec3 end = level.clip(new ClipContext(from, at, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, mob)).getLocation();
+        CombatVfx.send(level, CombatVfx.BEAM, 0x78E6FF, from, end, 2.0f);
+        CombatVfx.send(level, CombatVfx.PLASMA, 0x78E6FF, end, end, radius * 0.7f);
+        level.playSound(null, mob.blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.HOSTILE, 1.6f, 0.6f);
+        blast(level, mob, end, radius, damage);
+        MachineBlast.breakBlocks(level, end, 1.6f, EnemyRoster.tier(role(mob).id()));
+    }
+
+    /** The graviton walker drags its target in and crushes it. */
+    private static void gravity(TechMob mob, ServerLevel level, LivingEntity target, TechCombat.Role r) {
+        Vec3 pull = mob.position().subtract(target.position()).normalize().scale(1.1);
+        target.push(pull.x, 0.25, pull.z);
+        target.hurtMarked = true;
+        CombatVfx.send(level, CombatVfx.BEAM, 0xB070FF, mob.getEyePosition(), target.getEyePosition(), 1.6f);
+        CombatVfx.send(level, CombatVfx.SHIELD, 0xB070FF, target.position(), target.position(), 1.6f);
+        level.playSound(null, mob.blockPosition(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.HOSTILE, 1.4f, 0.7f);
+        if (shootable(target) && mob.distanceTo(target) < r.range()) {
+            target.hurtServer(level, level.damageSources().mobAttack(mob), r.damage());
+            target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2));
+        }
+    }
+
+    /** The phase stalker steps through space to stand behind its target, then cuts. */
+    private static void phase(TechMob mob, ServerLevel level, LivingEntity target, TechCombat.Role r) {
+        Vec3 behind = target.position().subtract(target.getLookAngle().multiply(1, 0, 1).normalize().scale(1.6));
+        CombatVfx.send(level, CombatVfx.PLASMA, 0xC080FF, mob.getBoundingBox().getCenter(), mob.getBoundingBox().getCenter(), 0.8f);
+        if (level.noCollision(mob, mob.getBoundingBox().move(behind.subtract(mob.position())))) mob.teleportTo(behind.x, behind.y, behind.z);
+        CombatVfx.send(level, CombatVfx.PLASMA, 0xC080FF, mob.getBoundingBox().getCenter(), mob.getBoundingBox().getCenter(), 0.8f);
+        level.playSound(null, mob.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.2f, 0.6f);
+        blade(mob, level, target, r);
+    }
+
+    // ---- bosses -------------------------------------------------------------------------------------------------
+
+    /** The overseer: three telegraphed lances, a wave of swarm drones, and its own shield. */
+    private static void overseer(TechMob mob, ServerLevel level, LivingEntity target, TechCombat.Role r) {
+        int phase = (mob.tickCount / Math.max(1, r.interval())) % 3;
+        switch (phase) {
+            case 0 -> {
+                for (int i = 0; i < 3; i++) later(level, i * 10, () -> { if (mob.isAlive() && target.isAlive()) lance(mob, level, target, r); });
+            }
+            case 1 -> {
+                for (int i = 0; i < 3; i++)
+                    TechCombat.spawn(level, "swarm_drone", mob.getX() + level.random.nextGaussian() * 2, mob.getY() + 3, mob.getZ() + level.random.nextGaussian() * 2, target);
+                level.playSound(null, mob.blockPosition(), SoundEvents.BEACON_DEACTIVATE, SoundSource.HOSTILE, 2f, 0.6f);
+            }
+            default -> {
+                aegis(mob, level, r);
+                mob.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, 80, 1, true, false, false));
+                if (mob.getAbsorptionAmount() < 40) mob.setAbsorptionAmount(mob.getAbsorptionAmount() + 20);
+            }
+        }
+    }
+
+    /** The carrier launches swarm drones from its bays and fires missile salvos. */
+    private static void carrier(TechMob mob, ServerLevel level, LivingEntity target, TechCombat.Role r) {
+        if ((mob.tickCount / Math.max(1, r.interval())) % 2 == 0) {
+            for (int i = 0; i < 4; i++)
+                TechCombat.spawn(level, "swarm_drone", mob.getX() + (i % 2 == 0 ? -2 : 2), mob.getY() - 1, mob.getZ() + (i < 2 ? -1.5 : 1.5), target);
+            level.playSound(null, mob.blockPosition(), SoundEvents.PISTON_EXTEND, SoundSource.HOSTILE, 2f, 0.5f);
+        } else {
+            for (int i = 0; i < 6; i++) {
+                int shot = i;
+                later(level, i * 4, () -> {
+                    if (!mob.isAlive() || !target.isAlive()) return;
+                    Vec3 from = mob.position().add((shot % 2 == 0 ? -1.8 : 1.8), 0.4, 0);
+                    TechProjectile.launch(level, mob, target, from, from.add(level.random.nextGaussian() * 0.4, 1.0, level.random.nextGaussian() * 0.4), 3, r.damage() * 0.6f);
+                });
+            }
+            if (target instanceof ServerPlayer p) p.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.heliosphere.titan_salvo"), true);
+        }
+    }
+
+    /** The colossus: a plasma barrage, a ground slam that throws everyone near it, and mortar rain. */
+    private static void colossus(TechMob mob, ServerLevel level, LivingEntity target, TechCombat.Role r) {
+        int phase = (mob.tickCount / Math.max(1, r.interval())) % 3;
+        switch (phase) {
+            case 0 -> {
+                for (int i = 0; i < 5; i++) later(level, i * 6, () -> { if (mob.isAlive() && target.isAlive()) plasmaBolt(mob, level, target, r.damage() * 0.7f, 3.6f); });
+            }
+            case 1 -> {
+                Vec3 at = mob.position();
+                CombatVfx.send(level, CombatVfx.RING, 0xFFB060, at, at, 12f);
+                CombatVfx.send(level, CombatVfx.SHOCK, 0, at, at, 0.8f);
+                level.playSound(null, mob.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 3f, 0.5f);
+                for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, mob.getBoundingBox().inflate(12))) {
+                    if (e instanceof TechMob || !shootable(e)) continue;
+                    double d = e.distanceTo(mob);
+                    if (d > 12) continue;
+                    e.hurtServer(level, level.damageSources().mobAttack(mob), (float) (r.damage() * (1 - d / 14)));
+                    Vec3 push = e.position().subtract(at).normalize().scale(1.8 * (1 - d / 14));
+                    e.push(push.x, 0.9, push.z);
+                    e.hurtMarked = true;
+                }
+            }
+            default -> {
+                for (int i = 0; i < 4; i++) later(level, i * 12, () -> { if (mob.isAlive() && target.isAlive()) mortar(mob, level, target, r); });
+            }
+        }
+    }
+
+    // ---- boss bars --------------------------------------------------------------------------------------------
+
+    private static final Map<java.util.UUID, net.minecraft.server.level.ServerBossEvent> BARS = new java.util.HashMap<>();
+
+    private static void bossBars(ServerLevel level) {
+        for (Iterator<Map.Entry<java.util.UUID, net.minecraft.server.level.ServerBossEvent>> it = BARS.entrySet().iterator(); it.hasNext(); ) {
+            var e = it.next();
+            Entity ent = level.getEntity(e.getKey());
+            if (ent == null && level.getServer().getAllLevels().iterator().hasNext() && level.dimension() == Level.OVERWORLD) {
+                boolean anywhere = false;
+                for (ServerLevel l : level.getServer().getAllLevels()) if (l.getEntity(e.getKey()) != null) { anywhere = true; break; }
+                if (!anywhere) { e.getValue().removeAllPlayers(); it.remove(); }
+            }
+        }
+        for (ServerPlayer p : level.players()) {
+            for (TechMob mob : level.getEntitiesOfClass(TechMob.class, p.getBoundingBox().inflate(72))) {
+                TechCombat.Role r = role(mob);
+                if (r == null || !EnemyRoster.BOSSES.contains(r.id())) continue;
+                var bar = BARS.computeIfAbsent(mob.getUUID(), id -> {
+                    var b = new net.minecraft.server.level.ServerBossEvent(net.minecraft.network.chat.Component.translatable("entity.heliosphere." + r.id()),
+                            net.minecraft.world.BossEvent.BossBarColor.RED, net.minecraft.world.BossEvent.BossBarOverlay.NOTCHED_10);
+                    b.setDarkenScreen(true);
+                    return b;
+                });
+                bar.setProgress(Math.max(0, mob.getHealth() / mob.getMaxHealth()));
+                if (!bar.getPlayers().contains(p)) bar.addPlayer(p);
+                if (!mob.isAlive()) bar.removeAllPlayers();
+            }
+            for (var bar : BARS.values()) if (bar.getPlayers().contains(p) && !near(level, p, bar)) bar.removePlayer(p);
+        }
+    }
+
+    private static boolean near(ServerLevel level, ServerPlayer p, net.minecraft.server.level.ServerBossEvent bar) {
+        for (var e : BARS.entrySet()) if (e.getValue() == bar) {
+            Entity ent = level.getEntity(e.getKey());
+            return ent != null && ent.isAlive() && ent.distanceTo(p) < 96;
+        }
+        return false;
+    }
+
+    // ---- patrols on other worlds ----------------------------------------------------------------------------
+
+    /** Every minute or so, a player on a solid world other than Earth may meet a patrol of that world's machines. */
+    private static void outerPatrols(ServerLevel level) {
+        if (level.dimension() == Level.OVERWORLD || com.heliosphere.core.env.Planets.isSpace(level) || com.heliosphere.core.env.Planets.isGasGiant(level)) return;
+        var body = com.heliosphere.core.env.Planets.bodyOf(level);
+        if (body == null) return;
+        int difficulty = WorldTiers.base(body.id);
+        for (ServerPlayer p : level.players()) {
+            if (p.isCreative() || p.isSpectator() || level.random.nextFloat() > 0.45f) continue;
+            if (level.getEntitiesOfClass(TechMob.class, p.getBoundingBox().inflate(64)).size() >= 6) continue;
+            List<String> pool = EnemyRoster.pool(difficulty);
+            int n = 1 + level.random.nextInt(2 + difficulty / 5);
+            double a = level.random.nextDouble() * Math.PI * 2, d = 40 + level.random.nextDouble() * 24;
+            int x = (int) (p.getX() + Math.cos(a) * d), z = (int) (p.getZ() + Math.sin(a) * d);
+            if (level.getChunkSource().getChunkNow(x >> 4, z >> 4) == null) continue;
+            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            for (int i = 0; i < n; i++)
+                TechCombat.spawn(level, pool.get(level.random.nextInt(pool.size())), x + level.random.nextGaussian() * 2, y + 1, z + level.random.nextGaussian() * 2, p);
+        }
     }
 
     /** Stalkers fade from sight while nobody is near them. */

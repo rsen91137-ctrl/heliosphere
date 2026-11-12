@@ -18,5 +18,8 @@
   "item.heliosphere.turret_kit_mk5": "防禦塔升級套件 Mk Ⅴ（遠程改裝）",
   "message.heliosphere.turret_status": "%s · Mk %s · 電量 %s/%s EU · 射程 %s 格 · 傷害 %s · 每秒 %s 發 · 每發 %s EU",
   "message.heliosphere.turret_upgraded": "已升級到 Mk %s",
-  "message.heliosphere.turret_has_mk": "這座防禦塔已經是 Mk %s 或更高"
+  "message.heliosphere.turret_has_mk": "這座防禦塔已經是 Mk %s 或更高",
+  "message.heliosphere.lock_on": "§a§l目標鎖定：%s",
+  "message.heliosphere.lock_lost": "§e目標丟失",
+  "message.heliosphere.seeker_search": "§7未鎖定 · 導引頭搜索目標中"
 }
