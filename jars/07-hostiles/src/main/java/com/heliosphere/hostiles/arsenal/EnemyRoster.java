@@ -54,7 +54,7 @@ public final class EnemyRoster {
 
     /**
      * Technology level of each machine, 1 to 10: what a fortress of a given difficulty fields, and what its
-     * weapons can break (level 7 and up cut through obsidian and ancient debris).
+     * weapons can break (level 5 and up cut through obsidian and ancient debris).
      */
     public static final Map<String, Integer> TIER = Map.ofEntries(
             Map.entry("patrol_drone", 1), Map.entry("assault_drone", 2), Map.entry("swarm_drone", 2), Map.entry("security_walker", 2),

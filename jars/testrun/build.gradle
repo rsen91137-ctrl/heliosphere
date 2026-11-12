@@ -7,7 +7,8 @@
 import net.fabricmc.loom.task.prod.ClientProductionRunTask
 
 def overlay = rootProject.fileTree('build/dist-overlay') { include '*.jar' }
-def released = rootProject.fileTree('base') { include '*.jar'; exclude '01-*', '06-*', '07-*', '10-*', '11-*' }
+def replaced = (new File(rootDir, 'build/dist-overlay').list() ?: []).findAll { it.endsWith('.jar') }.collect { it.substring(0, 3) + '*' }
+def released = rootProject.fileTree('base') { include '*.jar'; replaced.each { exclude it } }
 
 configurations { prodMods { transitive = false } }
 

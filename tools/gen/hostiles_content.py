@@ -101,6 +101,38 @@ CULT_INTRO = ('开始建造火箭后，末日教团会派突袭队袭击你（�
               '据点有重兵把守，摧毁据点核心（战术核弹也行）后教团在这一带瓦解，并能缴获铀、钚和炸药。')
 
 
+# mirrors EnemyRoster.TIER / pool / boss and WorldTiers.base
+TIER = {'patrol_drone': 1, 'assault_drone': 2, 'swarm_drone': 2, 'security_walker': 2, 'repair_automaton': 2, 'siege_drone': 3,
+        'arc_hound': 3, 'emp_spider': 3, 'missile_drone': 4, 'mortar_walker': 4, 'flame_walker': 4, 'shield_bearer': 5,
+        'siege_walker': 5, 'hunter_drone': 5, 'laser_drone': 5, 'stalker': 5, 'rail_sentinel': 6, 'titan_walker': 7,
+        'plasma_drone': 7, 'graviton_walker': 8, 'phase_stalker': 8, 'fortress_overseer': 9, 'hive_carrier': 9, 'colossus': 10}
+BOSS_FROM = {'rail_sentinel': 6, 'titan_walker': 8, 'fortress_overseer': 10, 'hive_carrier': 12, 'colossus': 14}
+WORLDS = [('地球', 1, 8), ('月球', 3, 8), ('火星与火卫', 5, 10), ('水星/金星', 7, 12), ('谷神星/灶神星/木卫', 8, 13),
+          ('土卫六/土卫二', 10, 15), ('外太阳系（天卫/海卫/冥王星/阋神星）', 12, 15)]
+MISSILE_USERS = {'missile_drone', 'hunter_drone', 'titan_walker', 'hive_carrier'}
+
+
+def pool_range(t):
+    ds = [d for d in range(1, 16) if max(1, d // 3) <= t <= min(8, -(-d * 6 // 10) + 1)]
+    return (ds[0], ds[-1]) if ds else None
+
+
+def dossier(rid):
+    t = TIER[rid]
+    parts = [f'§b技术等级 {t}/10§r']
+    rng = None if rid in ('fortress_overseer', 'hive_carrier', 'colossus') else pool_range(t)
+    if rng: parts.append(f'堡垒难度 {rng[0]}～{rng[1]} 的守军与制造站产物')
+    if rid in BOSS_FROM: parts.append(f'难度 {BOSS_FROM[rid]} 起担任堡垒守将（显示 Boss 血条）')
+    lo = rng[0] if rng else BOSS_FROM.get(rid, 15)
+    hi = rng[1] if rng else 15
+    worlds = [w for w, a, b in WORLDS if not (b < lo or a > hi)]
+    if worlds: parts.append('可能出现于：' + '、'.join(worlds))
+    if rid in MISSILE_USERS:
+        parts.append('导弹会炸毁方块' + ('，且能炸穿黑曜石和远古残骸' if t >= 5 else '，但炸不动黑曜石和远古残骸（用它们加固避难所）'))
+    parts.append('也会参加对避难所的围攻')
+    return '\n' + '；'.join(parts) + '。'
+
+
 def bestiary():
     base = released('11', 'assets/heliosphere/guide/enemies.json')
     out = []
@@ -123,6 +155,9 @@ def bestiary():
         out.append({'id': f'heliosphere:{rid}', 'name': name, 'family': family, 'summary': stats,
                     'description': stats + '。' + text + '\n可用创造模式物品栏「科技敌人」中的部署器召唤测试。'})
     out = [e for e in out if e.get('family') != '末日教团']
+    for e in out:
+        rid = e['id'].split(':')[1]
+        if rid in TIER: e['description'] += dossier(rid)
     write(f'{G}/guide/enemies.json', out)
     return out
 

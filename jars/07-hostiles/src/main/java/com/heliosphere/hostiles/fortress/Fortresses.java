@@ -94,6 +94,7 @@ public final class Fortresses implements ModInitializer {
                             int tier = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "tier");
                             Vec3 at = src.getPosition();
                             forceAt(src.getLevel(), (int) at.x + 40, (int) at.z, tier);
+                            src.sendSuccess(() -> Component.literal("Fortress (difficulty " + tier + ") built at " + ((int) at.x + 40) + ", " + (int) at.z), true);
                             return 1;
                         }))));
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
