@@ -78,5 +78,12 @@
   "item.heliosphere.alien_helmet": "外星合金 外星合金頭盔",
   "item.heliosphere.alien_chestplate": "外星合金 外星合金胸甲",
   "item.heliosphere.alien_leggings": "外星合金 外星合金護腿",
-  "item.heliosphere.alien_boots": "外星合金 外星合金戰靴"
+  "item.heliosphere.alien_boots": "外星合金 外星合金戰靴",
+  "block.heliosphere.sam_battery": "防空電池組",
+  "item.heliosphere.sam_battery.charge": "電量 %s FE（%s%%）",
+  "item.heliosphere.sam_battery.hint": "放在防空車 %s 格內即可無線供電，無需電纜；白天頂部太陽能板會慢慢充電",
+  "message.heliosphere.sam_battery_status": "防空電池組 · 電量 %s/%s FE（%s%%）· 正在供電 %s 輛防空車（%s 格內）· %s",
+  "message.heliosphere.sam_battery_sun": "太陽能充電中",
+  "message.heliosphere.sam_battery_dark": "無日照",
+  "message.heliosphere.sam_no_power": "§e沒有電。在 %s 格內放一個「防空電池組」即可無線供電（裝配站製造，出廠滿電），也可以用電纜接到車輛中心方塊。"
 }

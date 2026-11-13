@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heliosphere:block/sam_battery"
+    },
+    "facing=east": {
+      "model": "heliosphere:block/sam_battery",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "heliosphere:block/sam_battery",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "heliosphere:block/sam_battery",
+      "y": 270
+    }
+  }
+}

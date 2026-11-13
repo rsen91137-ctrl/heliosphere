@@ -19,12 +19,14 @@ import net.minecraft.world.level.material.MapColor;
 import java.util.EnumMap;
 import java.util.Map;
 
-/** Registers the guided missile, the six air-defence vehicles, their hull and recipes. */
+/** Registers the guided missile, the six air-defence vehicles, their hull, the battery pack and recipes. */
 public final class SamSites implements ModInitializer {
     public static EntityType<GuidedMissile> MISSILE;
     public static final Map<SamKind, SamBlock> BLOCKS = new EnumMap<>(SamKind.class);
     public static Block HULL;
     public static BlockEntityType<SamBlockEntity> BLOCK_ENTITY;
+    public static Block BATTERY;
+    public static BlockEntityType<FieldBatteryBlockEntity> BATTERY_ENTITY;
 
     @Override
     public void onInitialize() {
@@ -38,6 +40,9 @@ public final class SamSites implements ModInitializer {
             BLOCKS.put(k, Reg.blockWithItem(k.id, p -> new SamBlock(p, k), Reg.metal(MapColor.COLOR_GREEN, 8f)));
         HULL = Reg.block("sam_hull", SamHullBlock::new, Reg.metal(MapColor.COLOR_GREEN, 8f).noLootTable());
         BLOCK_ENTITY = Reg.blockEntity("sam_vehicle", SamBlockEntity::new, BLOCKS.values().toArray(Block[]::new));
+        BATTERY = Reg.block("sam_battery", FieldBatteryBlock::new, Reg.metal(MapColor.COLOR_GREEN, 5f).noLootTable());
+        Reg.blockItem(BATTERY, "sam_battery", FieldBatteryItem::new, new Item.Properties().stacksTo(16));
+        BATTERY_ENTITY = Reg.blockEntity("sam_battery", FieldBatteryBlockEntity::new, BATTERY);
         MachineType.addProvider(SamSites::recipes);
         com.heliosphere.planets.weapon.ammo.AmmoBox.init();
         com.heliosphere.planets.weapon.armor.Armory.init();
@@ -54,5 +59,6 @@ public final class SamSites implements ModInitializer {
         asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 20).in(I("guidance_computer"), 8).in(I("rdx"), 32).in(I("processor"), 8).in(I("inconel_plate"), 6).out(I("samp_tel")).time(1800).power(240));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 18).in(I("circuit_board"), 10).in(I("processor"), 6).in(I("copper_wire"), 28).in(I("ndfeb_magnet"), 4).out(I("iris_tads")).time(1000).power(140));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 20).in(I("guidance_computer"), 4).in(I("rdx"), 16).in(I("processor"), 4).in(I("electric_motor"), 2).out(I("iris_tel")).time(1100).power(150));
+        asm.recipe(MachineRecipe.of().in(I("battery_cell"), 16).in(I("solar_cell"), 6).in(I("steel_plate"), 10).in(I("copper_wire"), 24).in(I("circuit_board"), 4).out(I("sam_battery")).time(600).power(80));
     }
 }

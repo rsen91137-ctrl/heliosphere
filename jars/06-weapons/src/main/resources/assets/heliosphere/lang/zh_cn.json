@@ -78,5 +78,12 @@
   "item.heliosphere.alien_helmet": "外星合金 外星合金头盔",
   "item.heliosphere.alien_chestplate": "外星合金 外星合金胸甲",
   "item.heliosphere.alien_leggings": "外星合金 外星合金护腿",
-  "item.heliosphere.alien_boots": "外星合金 外星合金战靴"
+  "item.heliosphere.alien_boots": "外星合金 外星合金战靴",
+  "block.heliosphere.sam_battery": "防空电池组",
+  "item.heliosphere.sam_battery.charge": "电量 %s FE（%s%%）",
+  "item.heliosphere.sam_battery.hint": "放在防空车 %s 格内即可无线供电，无需电缆；白天顶部太阳能板会慢慢充电",
+  "message.heliosphere.sam_battery_status": "防空电池组 · 电量 %s/%s FE（%s%%）· 正在供电 %s 辆防空车（%s 格内）· %s",
+  "message.heliosphere.sam_battery_sun": "太阳能充电中",
+  "message.heliosphere.sam_battery_dark": "无日照",
+  "message.heliosphere.sam_no_power": "§e没有电。在 %s 格内放一个「防空电池组」即可无线供电（装配站制造，出厂满电），也可以用电缆接到车辆中心方块。"
 }

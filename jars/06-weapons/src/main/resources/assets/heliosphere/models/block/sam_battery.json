@@ -1,0 +1,251 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "heliosphere:block/sam_battery/side",
+    "front": "heliosphere:block/sam_battery/front",
+    "side": "heliosphere:block/sam_battery/side",
+    "bottom": "heliosphere:block/sam_battery/bottom",
+    "solar": "heliosphere:block/sam_battery/solar",
+    "edge": "heliosphere:block/sam_battery/edge",
+    "parts": "heliosphere:block/sam_battery/parts"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        2
+      ],
+      "to": [
+        15,
+        10,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "uv": [
+            1,
+            6,
+            15,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            1,
+            6,
+            15,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#side",
+          "uv": [
+            2,
+            6,
+            14,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#side",
+          "uv": [
+            2,
+            6,
+            14,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#bottom",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#bottom"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        10,
+        1
+      ],
+      "to": [
+        16,
+        12,
+        15
+      ],
+      "faces": {
+        "up": {
+          "texture": "#solar",
+          "uv": [
+            0,
+            1,
+            16,
+            15
+          ]
+        },
+        "down": {
+          "texture": "#edge"
+        },
+        "north": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ]
+        },
+        "south": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            1,
+            0,
+            15,
+            2
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            1,
+            0,
+            15,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        7,
+        1
+      ],
+      "to": [
+        4,
+        9,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#parts",
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        "east": {
+          "texture": "#parts",
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        "west": {
+          "texture": "#parts",
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        "up": {
+          "texture": "#parts",
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ]
+        },
+        "down": {
+          "texture": "#parts",
+          "uv": [
+            0,
+            0,
+            2,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        7,
+        1
+      ],
+      "to": [
+        14,
+        9,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#parts",
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ]
+        },
+        "east": {
+          "texture": "#parts",
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ]
+        },
+        "west": {
+          "texture": "#parts",
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ]
+        },
+        "up": {
+          "texture": "#parts",
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ]
+        },
+        "down": {
+          "texture": "#parts",
+          "uv": [
+            4,
+            0,
+            6,
+            2
+          ]
+        }
+      }
+    }
+  ]
+}

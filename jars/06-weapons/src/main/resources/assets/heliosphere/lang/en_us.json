@@ -78,5 +78,12 @@
   "item.heliosphere.alien_helmet": "Alien Alloy Alien Alloy Helmet",
   "item.heliosphere.alien_chestplate": "Alien Alloy Alien Alloy Chestplate",
   "item.heliosphere.alien_leggings": "Alien Alloy Alien Alloy Leggings",
-  "item.heliosphere.alien_boots": "Alien Alloy Alien Alloy Boots"
+  "item.heliosphere.alien_boots": "Alien Alloy Alien Alloy Boots",
+  "block.heliosphere.sam_battery": "Air Defence Battery Pack",
+  "item.heliosphere.sam_battery.charge": "Charge %s FE (%s%%)",
+  "item.heliosphere.sam_battery.hint": "Powers air-defence vehicles within %s blocks without cables; the solar lid recharges it in daylight",
+  "message.heliosphere.sam_battery_status": "Battery pack · %s/%s FE (%s%%) · powering %s vehicles (within %s blocks) · %s",
+  "message.heliosphere.sam_battery_sun": "solar charging",
+  "message.heliosphere.sam_battery_dark": "no sunlight",
+  "message.heliosphere.sam_no_power": "§eNo power. Put an Air Defence Battery Pack within %s blocks to power it without cables (made at the assembly station, comes fully charged), or run a cable to the vehicle's centre block."
 }

@@ -78,6 +78,16 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         if (level != null && LOADED.containsKey(level)) LOADED.get(level).remove(this);
     }
 
+    /** Vehicles loaded in this level whose centre is within {@code r} of {@code c}. */
+    static List<SamBlockEntity> near(Level level, Vec3 c, double r) {
+        List<SamBlockEntity> out = new ArrayList<>();
+        Set<SamBlockEntity> all = LOADED.get(level);
+        if (all == null) return out;
+        for (SamBlockEntity v : new ArrayList<>(all))
+            if (!v.isRemoved() && v.origin().distanceToSqr(c) <= r * r) out.add(v);
+        return out;
+    }
+
     // ---- energy ----
     @Override public long energy() { return power; }
     @Override public long capacity() { return kind().radar ? 20000 : kind().energy * 12L; }
@@ -244,6 +254,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
 
     void status(Player p) {
         SamKind k = kind();
+        if (power < 3) p.displayClientMessage(Component.translatable("message.heliosphere.sam_no_power", (int) FieldBatteryBlockEntity.RANGE), false);
         if (k.radar) {
             p.displayClientMessage(Component.translatable("message.heliosphere.sam_radar_status", Component.translatable("block.heliosphere." + k.id),
                     active ? Component.translatable("message.heliosphere.sam_on") : Component.translatable("message.heliosphere.sam_off"),

@@ -54,6 +54,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "armor" -> armor(ctx, sp);
                     case "neptune" -> giant(ctx, sp, "neptune");
                     case "collapse" -> collapse(ctx, sp);
+                    case "battery" -> battery(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -658,6 +659,68 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         ctx.waitTicks(20);
         shot(ctx, "collapse_portals");
+    }
+
+    /** The air-defence battery pack powers a radar and a launcher nearby without cables, and keeps its charge when picked up. */
+    private void battery(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 2400 140 2400");
+        ctx.waitTicks(60);
+        sp.getClientWorld().waitForChunksRender();
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0 + 10);
+            for (int dx = -14; dx <= 14; dx++) for (int dz = -2; dz <= 22; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+                for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var radar = new net.minecraft.core.BlockPos(x0 - 6, g, z0 + 12);
+            var launcher = new net.minecraft.core.BlockPos(x0 + 6, g, z0 + 12);
+            for (var e : java.util.Map.of(radar, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, launcher, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR).entrySet()) {
+                var b = com.heliosphere.planets.defense.sam.SamSites.BLOCKS.get(e.getValue());
+                var st = b.defaultBlockState().setValue(com.heliosphere.planets.defense.sam.SamBlock.FACING, net.minecraft.core.Direction.NORTH);
+                l.setBlock(e.getKey(), st, 3);
+                b.setPlacedBy(l, e.getKey(), st, p, new net.minecraft.world.item.ItemStack(b));
+            }
+            var bat = new net.minecraft.core.BlockPos(x0, g, z0 + 6);
+            var bs = com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState();
+            l.setBlock(bat, bs, 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, bs, p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            p.teleportTo(x0 + 0.5, g + 2.5, z0 - 3.5);
+        });
+        look(ctx, 0, 18);
+        ctx.waitTicks(120);
+        server(sp, s -> {
+            var l = s.overworld();
+            long r = ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] - 6, o[1], o[2] + 12))).energy();
+            long t = ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 6, o[1], o[2] + 12))).energy();
+            long b = ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 6))).energy();
+            var radarBe = (com.heliosphere.planets.defense.sam.SamBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] - 6, o[1], o[2] + 12));
+            report.add("[info] battery after 6 s: radar " + r + " (on " + radarBe.active() + "), launcher " + t + ", battery " + b);
+            ServerPlayer p = player(s);
+            var bp = new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 6);
+            l.getBlockState(bp).useWithoutItem(l, p, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(bp), net.minecraft.core.Direction.UP, bp, false));
+        });
+        ctx.waitTicks(5);
+        shot(ctx, "battery_field");
+        look(ctx, 0, 40);
+        server(sp, s -> player(s).teleportTo(o[0] + 0.5, o[1] + 1.2, o[2] + 3.6));
+        ctx.waitTicks(10);
+        shot(ctx, "battery_close");
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var pos = new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 6);
+            boolean broke = p.gameMode.destroyBlock(pos);
+            var drops = s.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(3));
+            String what = drops.stream().map(e -> e.getItem().getItem() + " x" + e.getItem().getCount() + " energy "
+                    + com.heliosphere.planets.defense.sam.FieldBatteryItem.stored(e.getItem())).toList().toString();
+            report.add("[info] battery picked up: broke=" + broke + " drops " + what);
+        });
+        cmd(sp, "gamemode creative @a");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }
