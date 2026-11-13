@@ -1,0 +1,13 @@
+{
+  "type": "heliosphere:flight_deck",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "heliosphere:flight_deck",
+      "features": false,
+      "lakes": false,
+      "layers": [],
+      "structure_overrides": []
+    }
+  }
+}

@@ -31,10 +31,13 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Launch and landing in a real room. When you board, you step into the crew cabin built of real blocks (in a quiet
- * corner of the space dimension): you walk, jump, open the lockers and pull the launch lever exactly as anywhere else
- * in the world. The rocket flies on by itself; what changes is the view outside (the sky and the planet, drawn
- * from the rocket's altitude) and your coordinates on the flight display.
+ * Launch and landing in a real room. When you board, you step into the crew cabin built of real blocks in its own
+ * dimension, the flight deck: you walk, jump, look around, open the lockers and pull the launch lever exactly as
+ * anywhere else in the world, with your own keys, view and sounds. The rocket itself flies on in the real world, so
+ * everyone on the ground watches it climb away and come down. Outside the windows is the flight as it looked in the
+ * old launch sequence: the real ground around the pad falling away beneath you (a snapshot of the terrain, see
+ * {@link DeckGround}), then the planet's landscape, clouds, haze and the curve of the horizon, the sky darkening into
+ * space; your altitude, speed and the rocket's coordinates are on the flight display.
  *
  * <p>Between worlds the released cruise cabin takes over (also a real room). On arrival you are back in this room
  * for the descent, and at touchdown you step out next to the rocket.
@@ -42,15 +45,20 @@ import java.util.UUID;
 public final class FlightRoom {
     private FlightRoom() {}
 
-    /** Room origins: one slot per player, far from everything else in the space dimension. */
-    private static final int BASE_X = 22_000_000, BASE_Z = -22_000_000, Y = 160, SLOT = 48;
+    /** The flight deck: an empty world with an open sky, one room per player. */
+    public static final ResourceKey<Level> DECK = ResourceKey.create(net.minecraft.core.registries.Registries.DIMENSION,
+            net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "flight_deck"));
+    private static final int BASE_X = 0, BASE_Z = 0, Y = 120, SLOT = 64;
+    /** Where the rocket's axis passes through the room (room frame): under the glass panel in the deck. */
+    static final BlockPos AXIS = new BlockPos(0, 0, -4);
     private static final TicketType TICKET = new TicketType(40L, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE);
 
     static final class Crew {
         final UUID player;
         UUID rocket;
         BlockPos origin;
-        boolean inRoom, flown, handedOver, launch;
+        boolean inRoom, flown, handedOver, launch, groundDone;
+        int groundAt = -1000;
         int missing, phase = -1;
         ResourceKey<Level> lastDim;
         Vec3 lastPos = Vec3.ZERO;
@@ -62,6 +70,7 @@ public final class FlightRoom {
 
     public static void init() {
         PayloadTypeRegistry.playS2C().register(FlightTelemetry.TYPE, FlightTelemetry.CODEC);
+        PayloadTypeRegistry.playS2C().register(DeckGround.TYPE, DeckGround.CODEC);
         ServerTickEvents.END_SERVER_TICK.register(FlightRoom::tick);
         ServerLifecycleEvents.SERVER_STOPPED.register(s -> CREW.clear());
         // pressurised and heated: the environment treats the room like the capsule (as the cruise cabin does)
@@ -117,17 +126,33 @@ public final class FlightRoom {
     }
 
     private static void moveIn(MinecraftServer server, Crew c, ServerPlayer p, RocketEntity rocket) {
-        ServerLevel space = server.getLevel(Planets.SPACE);
-        if (space == null) return;
+        ServerLevel deck = server.getLevel(DECK);
+        if (deck == null) return;
         if (c.origin == null) {
             int slot = Math.floorMod(p.getUUID().hashCode(), 4096);
             c.origin = new BlockPos(BASE_X + (slot % 64) * SLOT, Y, BASE_Z + (slot / 64) * SLOT);
         }
-        build(space, c.origin);
+        build(deck, c.origin);
         c.ground = groundUnder(rocket);
+        sendGround(c, p, rocket);                                       // the view out of the windows first
         if (p.isPassenger()) p.stopRiding();
-        p.teleportTo(space, c.origin.getX() + 0.0, c.origin.getY(), c.origin.getZ() - 2.5, Set.of(), 0, 5, true);
+        p.teleportTo(deck, c.origin.getX() + 0.5, c.origin.getY(), c.origin.getZ() - 2.5, Set.of(), 0, 5, true);
         c.inRoom = true;
+    }
+
+    /** How high the crew deck is above the rocket's base. */
+    static float seat(RocketEntity rocket) {
+        double[] s = rocket.structure().seat();
+        return s != null && s.length > 1 ? (float) s[1] : Math.max(2f, rocket.getBbHeight() - 3f);
+    }
+
+    /** The ground around the rocket for the windows: taken again while chunks under a descent are still coming in. */
+    private static void sendGround(Crew c, ServerPlayer p, RocketEntity rocket) {
+        if (!(rocket.level() instanceof ServerLevel l) || c.origin == null) return;
+        DeckGround g = DeckGround.take(l, rocket.getX(), rocket.getZ(), c.origin.offset(AXIS), seat(rocket));
+        ServerPlayNetworking.send(p, g);
+        c.groundDone = g.coverage() > 0.97;
+        c.groundAt = p.level().getServer().getTickCount();
     }
 
     /** Steps out beside the rocket where it stands now. */
@@ -176,13 +201,12 @@ public final class FlightRoom {
 
     // ---- every tick -------------------------------------------------------------------------------------------
 
-    /**
-     * Off: launch and landing are flown aboard the rocket (the walkable block cabin, the real view outside, as the
-     * old flight looked); the room stays available for a future use.
-     */
-    static final boolean ENABLED = false;
+    /** Launch and landing are flown from the room on the flight deck (the rocket flies on in the real world). */
+    static final boolean ENABLED = true;
 
     private static final java.util.Set<String> CRUISING = new java.util.HashSet<>();
+    /** Crew still sitting in a rocket that has just landed: not boarded again until they get out. */
+    private static final java.util.Set<UUID> LANDED = new java.util.HashSet<>();
 
     /** Crew riding into the transfer go straight into the released cruise cabin (a real room), not an orbit shot. */
     private static void cruise(MinecraftServer server) {
@@ -195,14 +219,18 @@ public final class FlightRoom {
 
     private static void tick(MinecraftServer server) {
         cruise(server);
-        // crew who went up some other way (the rocket menu) get the room too
+        // whoever gets into a crewed rocket goes to the room: on the pad (boarding: the countdown waits for the lever)
+        // or already under way (the rocket menu)
         if (ENABLED && server.getTickCount() % 5 == 0)
-            for (ServerPlayer p : server.getPlayerList().getPlayers())
-                if (p.getVehicle() instanceof RocketEntity r && !CREW.containsKey(p.getUUID())) {
-                    int ph = r.phase();
-                    if ((ph == RocketEntity.COUNTDOWN || ph == RocketEntity.ASCENT || ph == RocketEntity.DESCENT || ph == RocketEntity.SUBORBITAL)
-                            && r.structure().parts().stream().anyMatch(x -> "crew_capsule".equals(x.spec()))) enter(r, p);
+            for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+                if (!(p.getVehicle() instanceof RocketEntity r)) { LANDED.remove(p.getUUID()); continue; }
+                if (CREW.containsKey(p.getUUID()) || r.structure().parts().stream().noneMatch(x -> "crew_capsule".equals(x.spec()))) continue;
+                int ph = r.phase();
+                if (ph == RocketEntity.COUNTDOWN || ph == RocketEntity.ASCENT || ph == RocketEntity.DESCENT || ph == RocketEntity.SUBORBITAL) enter(r, p);
+                else if (ph == RocketEntity.LANDED && !LANDED.contains(p.getUUID()) && !r.getTags().contains(Boarding.HOLD)) {
+                    if (!Boarding.board(r, p)) LANDED.add(p.getUUID());     // checks failed: not again until they get out
                 }
+            }
         if (CREW.isEmpty()) return;
         var it = CREW.values().iterator();
         while (it.hasNext()) {
@@ -229,7 +257,7 @@ public final class FlightRoom {
                 ((ServerLevel) r.level()).getChunkSource().addTicketWithRadius(TICKET, new ChunkPos(r.blockPosition()), 2);
             if (p == null) continue;
             int phase = r.phase();
-            if (phase != c.phase) { c.phase = phase; if (phase == RocketEntity.DESCENT) c.ground = Double.NaN; }
+            if (phase != c.phase) { c.phase = phase; if (phase == RocketEntity.DESCENT) { c.ground = Double.NaN; c.groundDone = false; } }
             if (phase >= RocketEntity.ASCENT && phase != RocketEntity.DEBRIS) c.flown = true;
 
             if (phase == RocketEntity.TRANSIT) {
@@ -242,7 +270,7 @@ public final class FlightRoom {
             }
             if (phase == RocketEntity.LANDED || phase == RocketEntity.DEBRIS) {
                 if (c.inRoom) stepOut(server, c, p, r);
-                if (c.flown || phase == RocketEntity.DEBRIS) it.remove();
+                if (c.flown || phase == RocketEntity.DEBRIS) { it.remove(); LANDED.add(c.player); }
                 continue;
             }
             // countdown, ascent, sub-orbital hop, descent: in the room
@@ -251,6 +279,11 @@ public final class FlightRoom {
                 else continue;
             }
             if (Double.isNaN(c.ground)) c.ground = groundUnder(r);
+            // coming down: load the ground under the landing site and keep the windows' view of it up to date
+            if ((phase == RocketEntity.DESCENT || phase == RocketEntity.SUBORBITAL) && !c.groundDone && server.getTickCount() - c.groundAt >= 40) {
+                ((ServerLevel) r.level()).getChunkSource().addTicketWithRadius(TICKET, new ChunkPos(r.blockPosition()), 9);
+                sendGround(c, p, r);
+            }
             // a moment before touchdown the crew is back aboard, so the landing goes as it always has
             if ((phase == RocketEntity.DESCENT || phase == RocketEntity.SUBORBITAL && r.getDeltaMovement().y < 0) && c.flown
                     && !Double.isNaN(c.ground) && r.getY() - c.ground < 3.0) {
@@ -264,7 +297,7 @@ public final class FlightRoom {
                 if (st.hasProperty(net.minecraft.world.level.block.LeverBlock.POWERED) && st.getValue(net.minecraft.world.level.block.LeverBlock.POWERED)) c.launch = true;
             }
             if (c.launch && r.getTags().contains(Boarding.HOLD)) { Boarding.go(r, p); c.launch = false; }
-            if (server.getTickCount() % 2 == 0) telemetry(c, p, r);
+            telemetry(c, p, r);
         }
     }
 
@@ -277,9 +310,9 @@ public final class FlightRoom {
 
     private static void keepInside(Crew c, ServerPlayer p) {
         Vec3 at = p.position().subtract(Vec3.atLowerCornerOf(c.origin));
-        if (p.level().dimension() != Planets.SPACE || at.x < -5 || at.x > 5 || at.z < -11 || at.z > 3 || at.y < -3 || at.y > 7) {
-            ServerLevel space = p.level().getServer().getLevel(Planets.SPACE);
-            if (space != null) p.teleportTo(space, c.origin.getX() + 0.0, c.origin.getY(), c.origin.getZ() - 2.5, Set.of(), p.getYRot(), p.getXRot(), true);
+        if (p.level().dimension() != DECK || at.x < -5 || at.x > 5 || at.z < -11 || at.z > 3 || at.y < -3 || at.y > 7) {
+            ServerLevel deck = p.level().getServer().getLevel(DECK);
+            if (deck != null) p.teleportTo(deck, c.origin.getX() + 0.5, c.origin.getY(), c.origin.getZ() - 2.5, Set.of(), p.getYRot(), p.getXRot(), true);
             p.fallDistance = 0;
         }
     }
@@ -313,7 +346,7 @@ public final class FlightRoom {
             BlockPos at = origin.offset(part.at());
             if (!level.getBlockState(at).is(part.state().getBlock())) level.setBlock(at, part.state(), Block.UPDATE_CLIENTS);
         }
-        // a solid wall behind the door: outside the ship is empty space
+        // a solid wall behind the door: the rest of the ship
         for (int x = -4; x <= 3; x++) for (int y = -1; y <= 4; y++) {
             BlockPos at = origin.offset(x, y, -10);
             if (level.getBlockState(at).isAir()) level.setBlock(at, net.minecraft.world.level.block.Blocks.WHITE_CONCRETE.defaultBlockState(), Block.UPDATE_CLIENTS);
@@ -321,7 +354,7 @@ public final class FlightRoom {
     }
 
     public static boolean inAnyRoom(Level level, BlockPos pos) {
-        if (level.dimension() != Planets.SPACE) return false;
+        if (level.dimension() != DECK) return false;
         int dx = pos.getX() - BASE_X, dz = pos.getZ() - BASE_Z;
         return dx >= -SLOT && dz >= -SLOT && dx < 64 * SLOT + SLOT && dz < 64 * SLOT + SLOT && Math.abs(pos.getY() - Y) < 12;
     }

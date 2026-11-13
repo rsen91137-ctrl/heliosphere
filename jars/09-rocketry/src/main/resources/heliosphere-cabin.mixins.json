@@ -16,7 +16,9 @@
     "WalkHeadingMixin",
     "CabinRocketRenderMixin",
     "CabinHudMixin",
-    "CabinCinematicMixin"
+    "CabinCinematicMixin",
+    "DeckSkyMixin",
+    "DeckFogMixin"
   ],
   "injectors": {
     "defaultRequire": 1
