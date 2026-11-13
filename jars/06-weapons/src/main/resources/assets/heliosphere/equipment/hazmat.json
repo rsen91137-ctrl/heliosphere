@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "heliosphere:hazmat"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "heliosphere:hazmat"
+      }
+    ]
+  }
+}

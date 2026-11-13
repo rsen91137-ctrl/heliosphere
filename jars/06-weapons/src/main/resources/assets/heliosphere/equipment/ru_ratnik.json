@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "heliosphere:ru_ratnik"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "heliosphere:ru_ratnik"
+      }
+    ]
+  }
+}

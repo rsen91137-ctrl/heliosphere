@@ -56,6 +56,7 @@ public class FabricatorBlockEntity extends BlockEntity {
         String id = pool.get(level.random.nextInt(pool.size()));
         TechMob m = TechCombat.spawn(level, id, at.getX() + 0.5, at.getY(), at.getZ() + 0.5, near);
         if (m == null) return;
+        m.addTag("heliosphere.fortress");
         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.getX() + 0.5, at.getY() + 0.8, at.getZ() + 0.5, 30, 0.4, 0.6, 0.4, 0.15);
         level.sendParticles(ParticleTypes.LARGE_SMOKE, at.getX() + 0.5, at.getY() + 0.5, at.getZ() + 0.5, 8, 0.3, 0.3, 0.3, 0.02);
         level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.HOSTILE, 0.8f, 0.6f);

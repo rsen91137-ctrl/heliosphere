@@ -41,6 +41,7 @@ public final class EnemyArsenal implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        EnemyDays.init();
         ServerTickEvents.END_WORLD_TICK.register(EnemyArsenal::tick);
         Missiles.init();
     }

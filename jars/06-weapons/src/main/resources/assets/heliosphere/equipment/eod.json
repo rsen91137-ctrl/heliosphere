@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "heliosphere:eod"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "heliosphere:eod"
+      }
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "heliosphere:pla_starry"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "heliosphere:pla_starry"
+      }
+    ]
+  }
+}

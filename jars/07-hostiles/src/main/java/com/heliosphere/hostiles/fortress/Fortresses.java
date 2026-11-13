@@ -64,9 +64,18 @@ public final class Fortresses implements ModInitializer {
     static final class Fort {
         int x, y, z, tier;
         List<long[]> fabs = new ArrayList<>();
-        String boss;
+        String boss;                       // the only warden of fortresses built before several were possible
+        List<String> bosses = new ArrayList<>();
         boolean bossDead, conquered;
         int keepY;
+
+        /** Wardens still standing (reads old saves too). */
+        List<String> wardens() {
+            if (bosses == null) bosses = new ArrayList<>();
+            if (boss != null && !bossDead && !bosses.contains(boss)) bosses.add(boss);
+            boss = null;
+            return bosses;
+        }
 
         BlockPos center() { return new BlockPos(x, y, z); }
     }
@@ -77,6 +86,10 @@ public final class Fortresses implements ModInitializer {
     }
 
     private static final Map<ServerLevel, State> STATES = new HashMap<>();
+    private record Pending(FortressBuilder.Job job, int tier) {}
+    private static final Map<ServerLevel, List<Pending>> JOBS = new HashMap<>();
+    /** Blocks placed per tick per fortress under construction. */
+    private static final int BUDGET = 9000;
     private static final Map<UUID, Set<Long>> ANNOUNCED = new HashMap<>();
 
     @Override
@@ -93,8 +106,9 @@ public final class Fortresses implements ModInitializer {
                             var src = c.getSource();
                             int tier = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "tier");
                             Vec3 at = src.getPosition();
-                            forceAt(src.getLevel(), (int) at.x + 40, (int) at.z, tier);
-                            src.sendSuccess(() -> Component.literal("Fortress (difficulty " + tier + ") built at " + ((int) at.x + 40) + ", " + (int) at.z), true);
+                            int off = FortressBuilder.radius(tier) + 24;
+                            forceAt(src.getLevel(), (int) at.x + off, (int) at.z, tier);
+                            src.sendSuccess(() -> Component.literal("Fortress (difficulty " + tier + ") under construction at " + ((int) at.x + off) + ", " + (int) at.z), true);
                             return 1;
                         }))));
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
@@ -132,6 +146,24 @@ public final class Fortresses implements ModInitializer {
     }
 
     private static void tick(ServerLevel level) {
+        List<Pending> jobs = JOBS.get(level);
+        if (jobs != null && !jobs.isEmpty()) {
+            Pending pj = jobs.getFirst();
+            if (pj.job().step(BUDGET)) {
+                jobs.removeFirst();
+                FortressBuilder.Result res = pj.job().finish();
+                State st = state(level);
+                Fort f = new Fort();
+                f.x = pj.job().cx; f.z = pj.job().cz; f.tier = pj.tier();
+                f.y = pj.job().y0;
+                f.keepY = res.keepTop().getY();
+                for (BlockPos b : res.fabricators()) f.fabs.add(new long[]{b.asLong()});
+                f.bosses = new ArrayList<>(res.bosses());
+                f.bossDead = f.bosses.isEmpty();
+                st.forts.add(f);
+                save(level);
+            }
+        }
         long t = level.getGameTime();
         if (t % 40 != 7 || level.players().isEmpty() || !hosts(level)) return;
         State st = state(level);
@@ -153,25 +185,20 @@ public final class Fortresses implements ModInitializer {
         if (st.regions.contains(key)) return false;
         RandomSource r = RandomSource.create(level.getSeed() ^ key * 0x9E3779B97F4A7C15L ^ level.dimension().identifier().hashCode());
         if (r.nextFloat() > 0.6f) { st.regions.add(key); return true; }
-        int x = rx * REGION + 80 + r.nextInt(REGION - 160), z = rz * REGION + 80 + r.nextInt(REGION - 160);
+        int tier = tier(level, rx * REGION + REGION / 2, rz * REGION + REGION / 2, r);
+        int R = FortressBuilder.radius(tier);
+        int margin = R + 48;                                                   // big fortresses never reach into the next region's
+        int x = rx * REGION + margin + r.nextInt(Math.max(1, REGION - 2 * margin)), z = rz * REGION + margin + r.nextInt(Math.max(1, REGION - 2 * margin));
         double dx = p.getX() - x, dz = p.getZ() - z;
-        if (dx * dx + dz * dz > 176 * 176) return false;
-        int tier = tier(level, x, z, r);
-        int span = 9 + tier + 6;
+        double trigger = 200 + R;
+        if (dx * dx + dz * dz > trigger * trigger) return false;
+        int span = R + 10;
         for (int cx = (x - span) >> 4; cx <= (x + span) >> 4; cx++)
             for (int cz = (z - span) >> 4; cz <= (z + span) >> 4; cz++)
                 if (level.getChunkSource().getChunkNow(cx, cz) == null) return false;
         st.regions.add(key);
         if (!fits(level, x, z, span)) return true;
-        FortressBuilder.Result res = FortressBuilder.build(level, x, z, tier, FortressStyle.of(bodyId(level)), r);
-        Fort f = new Fort();
-        f.x = x; f.z = z; f.tier = tier;
-        f.y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-        f.keepY = res.keepTop().getY();
-        for (BlockPos b : res.fabricators()) f.fabs.add(new long[]{b.asLong()});
-        f.boss = res.boss();
-        f.bossDead = res.boss() == null;
-        st.forts.add(f);
+        JOBS.computeIfAbsent(level, l -> new ArrayList<>()).add(new Pending(FortressBuilder.plan(level, x, z, tier, FortressStyle.of(bodyId(level)), r), tier));
         return true;
     }
 
@@ -179,9 +206,9 @@ public final class Fortresses implements ModInitializer {
         if (level.dimension() == Level.OVERWORLD) {
             BlockPos spawn = level.getRespawnData().pos();
             double d = Math.sqrt(spawn.distSqr(new BlockPos(x, spawn.getY(), z)));
-            return Mth.clamp(1 + (int) (d / 900) + r.nextInt(3) - 1, 1, 8);
+            return Mth.clamp(2 + (int) (d / 700) + r.nextInt(3) - 1, 1, 10);
         }
-        return Mth.clamp(WorldTiers.base(bodyId(level)) + r.nextInt(6) - 1, 1, 15);
+        return Mth.clamp(WorldTiers.base(bodyId(level)) + 1 + r.nextInt(6), 1, 15);
     }
 
     /** No fortress near the Overworld spawn, in the sea, in lava or across a planet's seam or pole. */
@@ -223,8 +250,9 @@ public final class Fortresses implements ModInitializer {
             if (!level.getBlockState(b).is(FABRICATOR)) { it.remove(); dirty = true; }
         }
         if (!f.bossDead && f.fabs.isEmpty() && best < 96 * 96) {
-            Entity boss = f.boss == null ? null : level.getEntity(UUID.fromString(f.boss));
-            if (boss == null || !boss.isAlive()) { f.bossDead = true; dirty = true; }
+            boolean removed = f.wardens().removeIf(id -> { Entity b = level.getEntity(UUID.fromString(id)); return b == null || !b.isAlive(); });
+            if (f.wardens().isEmpty()) { f.bossDead = true; dirty = true; }
+            else if (removed) dirty = true;
         }
         if (f.fabs.isEmpty() && f.bossDead) { conquer(level, f); dirty = true; }
         return dirty;
@@ -264,7 +292,15 @@ public final class Fortresses implements ModInitializer {
         String id = e.getUUID().toString();
         State st = state(level);
         for (Fort f : st.forts) {
-            if (f.conquered || f.bossDead || !id.equals(f.boss)) continue;
+            if (f.conquered || f.bossDead || !f.wardens().contains(id)) continue;
+            f.wardens().remove(id);
+            if (!f.wardens().isEmpty()) {
+                for (ServerPlayer p : level.players())
+                    if (p.distanceToSqr(e) < 160 * 160)
+                        p.displayClientMessage(Component.translatable("message.heliosphere.fortress_boss_down", e.getDisplayName()).withStyle(ChatFormatting.GOLD), false);
+                save(level);
+                return;
+            }
             f.bossDead = true;
             for (ServerPlayer p : level.players())
                 if (p.distanceToSqr(e) < 160 * 160)
@@ -303,16 +339,6 @@ public final class Fortresses implements ModInitializer {
 
     /** Builds a fortress of the given difficulty right here (used by the test run and /heliosphere commands). */
     public static void forceAt(ServerLevel level, int x, int z, int tier) {
-        State st = state(level);
-        FortressBuilder.Result res = FortressBuilder.build(level, x, z, tier, FortressStyle.of(bodyId(level)), level.random);
-        Fort f = new Fort();
-        f.x = x; f.z = z; f.tier = tier;
-        f.y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-        f.keepY = res.keepTop().getY();
-        for (BlockPos b : res.fabricators()) f.fabs.add(new long[]{b.asLong()});
-        f.boss = res.boss();
-        f.bossDead = res.boss() == null;
-        st.forts.add(f);
-        save(level);
+        JOBS.computeIfAbsent(level, l -> new ArrayList<>()).add(new Pending(FortressBuilder.plan(level, x, z, tier, FortressStyle.of(bodyId(level)), level.random), tier));
     }
 }

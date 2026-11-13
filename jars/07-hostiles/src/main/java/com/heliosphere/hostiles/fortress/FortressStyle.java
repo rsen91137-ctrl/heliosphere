@@ -38,5 +38,45 @@ public record FortressStyle(String name, BlockState wall, BlockState trim, Block
         };
     }
 
+    /** A second wall block mixed in for texture. */
+    public BlockState wall2() {
+        return switch (name) {
+            case "lunar" -> Blocks.STONE_BRICKS.defaultBlockState();
+            case "martian" -> Blocks.RED_NETHER_BRICKS.defaultBlockState();
+            case "volcanic" -> Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS.defaultBlockState();
+            case "glacial" -> Blocks.PRISMARINE.defaultBlockState();
+            case "xeno" -> Blocks.PURPUR_PILLAR.defaultBlockState();
+            default -> Blocks.CRACKED_DEEPSLATE_TILES.defaultBlockState();
+        };
+    }
+
+    public BlockState roof() {
+        return switch (name) {
+            case "lunar" -> Blocks.LIGHT_GRAY_CONCRETE.defaultBlockState();
+            case "martian" -> Blocks.CUT_COPPER.defaultBlockState();
+            case "volcanic" -> Blocks.POLISHED_BLACKSTONE.defaultBlockState();
+            case "glacial" -> Blocks.DARK_PRISMARINE.defaultBlockState();
+            case "xeno" -> Blocks.END_STONE_BRICKS.defaultBlockState();
+            default -> Blocks.POLISHED_DEEPSLATE.defaultBlockState();
+        };
+    }
+
+    public BlockState pillar() {
+        return switch (name) {
+            case "martian" -> Blocks.WAXED_OXIDIZED_COPPER.defaultBlockState();
+            case "volcanic" -> Blocks.BASALT.defaultBlockState();
+            case "glacial" -> Blocks.PACKED_ICE.defaultBlockState();
+            case "xeno" -> Blocks.PURPUR_PILLAR.defaultBlockState();
+            default -> Blocks.IRON_BLOCK.defaultBlockState();
+        };
+    }
+
+    /** What fills the moat: water on Earth, lava on the hot worlds, nothing where there is no air. */
+    public BlockState moat(boolean air) {
+        if (name.equals("volcanic")) return Blocks.LAVA.defaultBlockState();
+        if (name.equals("bunker") && air) return Blocks.WATER.defaultBlockState();
+        return Blocks.AIR.defaultBlockState();
+    }
+
     static BlockState fabricator() { return Reg.getBlock("robot_fabricator").defaultBlockState(); }
 }
