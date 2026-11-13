@@ -47,6 +47,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "icons" -> icons(ctx, sp);
                     case "rocket" -> rocket(ctx, sp, false);
                     case "room" -> rocket(ctx, sp, true);
+                    case "ride" -> ride(ctx, sp);
                     case "giant" -> giant(ctx, sp, "jupiter");
                     case "sam" -> sam(ctx, sp);
                     case "nuke" -> nuke(ctx, sp);
@@ -997,6 +998,54 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] wrench: " + r + ", radar block now " + l.getBlockState(q).getBlock() + ", radar items in inventory " + n);
         });
         cmd(sp, "gamemode creative @a");
+    }
+
+
+
+    /** The flight aboard: boarded through the cabin, the countdown started, the ascent seen from the walkable cabin. */
+    private void ride(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 300 120 300");
+        ctx.waitTicks(40);
+        sp.getClientWorld().waitForChunksRender();
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x = p.getBlockX() + 12, z = p.getBlockZ();
+            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            for (int dx = -9; dx <= 9; dx++) for (int dz = -9; dz <= 9; dz++) {           // a clear pad with a console
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y - 1, z + dz), Math.abs(dx) <= 2 && Math.abs(dz) <= 2
+                        ? com.heliosphere.core.Reg.getBlock("launch_pad").defaultBlockState() : net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState());
+                for (int dy = 0; dy < 60; dy++) l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y + dy, z + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+            }
+            var console = new net.minecraft.core.BlockPos(x - 4, y, z);
+            l.setBlockAndUpdate(console, com.heliosphere.core.Reg.getBlock("launch_console").defaultBlockState());
+            var stack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("rocket_qiming_1"));
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
+            var hit = new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3(x + 0.5, y, z + 0.5), net.minecraft.core.Direction.UP, new net.minecraft.core.BlockPos(x, y - 1, z), false);
+            report.add("[info] place: " + stack.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)));
+            var list = l.getEntitiesOfClass(com.heliosphere.rocketry.entity.RocketEntity.class, new net.minecraft.world.phys.AABB(x - 10, y - 4, z - 10, x + 10, y + 60, z + 10));
+            if (list.isEmpty()) { report.add("[FAIL] no rocket"); return; }
+            var r = list.get(0);
+            report.add("[info] right-click (menu): " + r.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND) + " screen menu " + p.containerMenu.getClass().getSimpleName());
+            p.closeContainer();
+            var ch = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(console), net.minecraft.core.Direction.UP, console, false);
+            report.add("[info] console: " + l.getBlockState(console).useWithoutItem(l, p, ch) + " menu " + p.containerMenu.getClass().getSimpleName()
+                    + " rocket entity menu? " + (p.containerMenu instanceof com.heliosphere.rocketry.menu.RocketMenu));
+            p.closeContainer();
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.teleportTo(r.getX() + 3, r.getY(), r.getZ());
+            report.add("[info] boarded: " + com.heliosphere.rocketry.cabin.Boarding.board(r, p) + " vehicle " + p.getVehicle());
+        });
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        ctx.waitTicks(40);
+        shot(ctx, "ride_board");
+        cmd(sp, "execute as @a run hsrocket go");
+        int last = 0;
+        for (int t : new int[]{200, 360, 600, 900, 1300}) {
+            ctx.waitTicks(t - last); last = t;
+            server(sp, s -> { var p = player(s); report.add("[info] t" + 0 + ": vehicle " + p.getVehicle() + " y " + (int) p.getY()); });
+            shot(ctx, "ride_" + t);
+        }
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

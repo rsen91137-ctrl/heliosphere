@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Right-click boards the cabin; a boarded rocket holds its countdown until the crew starts it. */
+/** A boarded rocket holds its countdown until the crew starts it; the crew is aboard before the rocket leaves for space. */
 @Mixin(value = RocketEntity.class, priority = 900)
 public abstract class RocketHoldMixin implements Boarding.RocketPhaseAccess {
     @Shadow(remap = false) private int ticks;
@@ -22,13 +22,6 @@ public abstract class RocketHoldMixin implements Boarding.RocketPhaseAccess {
     @Inject(method = "countdown", at = @At("HEAD"), cancellable = true, remap = false)
     private void heliosphere$hold(CallbackInfo ci) {
         if (((RocketEntity) (Object) this).getTags().contains(Boarding.HOLD)) { ticks = 1; ci.cancel(); }
-    }
-
-    @Inject(method = "interact", at = @At("HEAD"), cancellable = true)
-    private void heliosphere$board(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
-        RocketEntity self = (RocketEntity) (Object) this;
-        if (player.isShiftKeyDown() || self.phase() != 0) return;
-        if (player instanceof ServerPlayer sp && Boarding.board(self, sp)) cir.setReturnValue(InteractionResult.SUCCESS);
     }
 
     /** The crew walks back from the flight room before the rocket is carried off into space. */

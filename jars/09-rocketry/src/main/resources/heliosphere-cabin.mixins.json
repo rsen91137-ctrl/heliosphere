@@ -6,14 +6,17 @@
   "mixins": [
     "RocketHoldMixin",
     "LandingWalkMixin",
-    "FlightRoomSealMixin"
+    "FlightRoomSealMixin",
+    "ConsoleRocketMixin"
   ],
   "client": [
     "CockpitFreeLookMixin",
     "CabinCameraMixin",
     "CockpitHideMixin",
     "WalkHeadingMixin",
-    "CabinRocketRenderMixin"
+    "CabinRocketRenderMixin",
+    "CabinHudMixin",
+    "CabinCinematicMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -14,5 +14,6 @@ public final class SamClient implements ClientModInitializer {
         EntityRendererRegistry.register(SamSites.SEAT, net.minecraft.client.renderer.entity.NoopRenderer::new);
         EntityRendererRegistry.register(SamSites.DRIVE, SamDriveRenderer::new);
         SamOperatorClient.init();
+        com.heliosphere.planets.weapon.guided.client.LockScreenClient.init();
     }
 }

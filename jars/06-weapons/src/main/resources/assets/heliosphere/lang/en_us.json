@@ -137,5 +137,8 @@
   "screen.heliosphere.sam_iff_on": "IFF on: hostile targets only",
   "screen.heliosphere.sam_iff_off": "IFF off: players in the air can be locked",
   "hud.heliosphere.sam_iff_on": "IFF on",
-  "hud.heliosphere.sam_iff_off": "IFF off"
+  "hud.heliosphere.sam_iff_off": "IFF off",
+  "hud.heliosphere.l7_search": "Seeker searching: hold a target in the ring for a second",
+  "hud.heliosphere.l7_lock": "LOCK",
+  "hud.heliosphere.l7_locking": "Locking %s%%"
 }

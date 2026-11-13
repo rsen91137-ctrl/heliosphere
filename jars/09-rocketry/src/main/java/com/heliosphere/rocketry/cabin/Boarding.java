@@ -60,8 +60,7 @@ public final class Boarding implements ModInitializer {
         com.heliosphere.core.progress.Achievements.grant(p, "cabin");
         rocket.addTag(HOLD);
         rocket.begin(p, here, dest, site, report, false);
-        FlightRoom.enter(rocket, p);                           // into the real cabin: walk about, pull the lever to launch
-        p.displayClientMessage(FlightRoom.hint(), false);
+        FlightRoom.enter(rocket, p);
         MutableComponent go = Component.translatable("message.heliosphere.cabin_go").withStyle(s -> s.withColor(ChatFormatting.GREEN).withBold(true)
                 .withClickEvent(new ClickEvent.RunCommand("/hsrocket go")).withHoverEvent(new HoverEvent.ShowText(Component.translatable("message.heliosphere.cabin_go_hint"))));
         MutableComponent leave = Component.translatable("message.heliosphere.cabin_leave").withStyle(s -> s.withColor(ChatFormatting.GRAY)

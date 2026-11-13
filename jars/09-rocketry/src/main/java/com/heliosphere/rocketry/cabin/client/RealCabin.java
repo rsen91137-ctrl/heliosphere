@@ -28,13 +28,19 @@ public final class RealCabin {
     private RealCabin() {}
 
     /** Whether the local player is walking a rocket's crew deck right now (first person). */
+    /** Set while the HUD draws and the cabin is active (see CabinHudMixin). */
+    public static final ThreadLocal<Boolean> HUD_PASS = ThreadLocal.withInitial(() -> false);
+
     public static boolean active() {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || !(mc.player.getVehicle() instanceof RocketEntity r)) return false;
-        if (!mc.options.getCameraType().isFirstPerson()) return false;
         int phase = r.phase();
-        if (phase != RocketEntity.COUNTDOWN && phase != RocketEntity.ASCENT && phase != RocketEntity.DESCENT && phase != RocketEntity.SUBORBITAL) return false;
-        return r.structure().parts().stream().anyMatch(p -> "crew_capsule".equals(p.spec()));
+        if (phase != RocketEntity.COUNTDOWN && phase != RocketEntity.ASCENT && phase != RocketEntity.DESCENT && phase != RocketEntity.SUBORBITAL
+                && phase != RocketEntity.TRANSIT) return false;
+        if (!r.structure().parts().stream().anyMatch(p -> "crew_capsule".equals(p.spec()))) return false;
+        // in the cabin you are always your own eyes: no outside camera, no cutscene
+        if (!mc.options.getCameraType().isFirstPerson()) mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+        return true;
     }
 
     public static RocketEntity rocket() {

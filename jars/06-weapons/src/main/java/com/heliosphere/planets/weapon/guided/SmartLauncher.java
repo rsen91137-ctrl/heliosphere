@@ -37,7 +37,29 @@ public final class SmartLauncher {
     private static final class Lock { UUID candidate; int ticks; UUID locked; long lostAt; }
     private static final Map<UUID, Lock> LOCKS = new HashMap<>();
 
-    public static void init() { ServerTickEvents.END_WORLD_TICK.register(SmartLauncher::tick); }
+    /** The seeker picture for the lock screen: the target's centre, lock progress (1 = locked), range, guidance, name. */
+    public record Seeker(boolean on, double x, double y, double z, float progress, boolean locked, int range, boolean fast, String name)
+            implements net.minecraft.network.protocol.common.custom.CustomPacketPayload {
+        public static final Type<Seeker> TYPE = new Type<>(net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "l7_seeker"));
+        public static final Seeker OFF = new Seeker(false, 0, 0, 0, 0, false, 0, false, "");
+        public static final net.minecraft.network.codec.StreamCodec<net.minecraft.network.RegistryFriendlyByteBuf, Seeker> CODEC = net.minecraft.network.codec.StreamCodec.of((b, k) -> {
+            b.writeBoolean(k.on); b.writeDouble(k.x); b.writeDouble(k.y); b.writeDouble(k.z); b.writeFloat(k.progress); b.writeBoolean(k.locked);
+            b.writeVarInt(k.range); b.writeBoolean(k.fast); b.writeUtf(k.name);
+        }, b -> new Seeker(b.readBoolean(), b.readDouble(), b.readDouble(), b.readDouble(), b.readFloat(), b.readBoolean(), b.readVarInt(), b.readBoolean(), b.readUtf()));
+        @Override public Type<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> type() { return TYPE; }
+    }
+
+    public static void init() {
+        net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry.playS2C().register(Seeker.TYPE, Seeker.CODEC);
+        ServerTickEvents.END_WORLD_TICK.register(SmartLauncher::tick);
+    }
+
+    private static void picture(ServerPlayer p, LivingEntity t, float progress, boolean locked) {
+        if (t == null) { net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(p, new Seeker(true, 0, 0, 0, 0, false, 0, false, "")); return; }
+        Vec3 c = t.getBoundingBox().getCenter();
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(p, new Seeker(true, c.x, c.y, c.z, progress, locked, (int) c.distanceTo(p.getEyePosition()),
+                t.getDeltaMovement().length() > 0.35, t.getDisplayName().getString()));
+    }
 
     private static boolean holding(ServerPlayer p) {
         return p.getMainHandItem().getItem() instanceof GunItem g && "smart_launcher".equals(BuiltInRegistries.ITEM.getKey(g).getPath());
@@ -46,7 +68,7 @@ public final class SmartLauncher {
     private static void tick(ServerLevel level) {
         long now = level.getGameTime();
         for (ServerPlayer p : level.players()) {
-            if (!holding(p)) { LOCKS.remove(p.getUUID()); continue; }
+            if (!holding(p)) { if (LOCKS.remove(p.getUUID()) != null) net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(p, Seeker.OFF); continue; }
             Lock lock = LOCKS.computeIfAbsent(p.getUUID(), k -> new Lock());
             LivingEntity locked = lock.locked == null ? null : level.getEntity(lock.locked) instanceof LivingEntity le ? le : null;
             if (locked != null) {
@@ -63,6 +85,11 @@ public final class SmartLauncher {
                         level.playSound(null, p.blockPosition(), SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 0.35f, 1.9f);
                     }
                 }
+            }
+            if (now % 2 == 0) {                                          // the lock screen: locked target, else the one being locked
+                LivingEntity shown = locked != null && locked.isAlive() ? locked : lock.candidate == null ? null
+                        : level.getEntity(lock.candidate) instanceof LivingEntity le ? le : null;
+                picture(p, shown, shown == locked && locked != null ? 1f : Math.min(1f, lock.ticks / (float) LOCK_TICKS), shown == locked && locked != null);
             }
             if (!GunItem.isAiming(p)) { lock.candidate = null; lock.ticks = 0; continue; }
             LivingEntity aim = underSight(level, p);

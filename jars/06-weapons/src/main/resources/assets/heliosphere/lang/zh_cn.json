@@ -137,5 +137,8 @@
   "screen.heliosphere.sam_iff_on": "敌我识别：开（只打敌对目标）",
   "screen.heliosphere.sam_iff_off": "敌我识别：关（可以锁定空中的玩家）",
   "hud.heliosphere.sam_iff_on": "IFF 开",
-  "hud.heliosphere.sam_iff_off": "IFF 关"
+  "hud.heliosphere.sam_iff_off": "IFF 关",
+  "hud.heliosphere.l7_search": "导引头搜索中：瞄准目标保持 1 秒锁定",
+  "hud.heliosphere.l7_lock": "锁定",
+  "hud.heliosphere.l7_locking": "锁定中 %s%%"
 }

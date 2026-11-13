@@ -108,6 +108,7 @@ public final class FlightRoom {
 
     /** Takes a boarded crew member from the rocket into the room. */
     public static void enter(RocketEntity rocket, ServerPlayer p) {
+        if (!ENABLED) return;
         Crew c = CREW.computeIfAbsent(p.getUUID(), u -> new Crew(u, rocket.getUUID()));
         c.lastDim = rocket.level().dimension();
         c.lastPos = rocket.position();
@@ -175,9 +176,27 @@ public final class FlightRoom {
 
     // ---- every tick -------------------------------------------------------------------------------------------
 
+    /**
+     * Off: launch and landing are flown aboard the rocket (the walkable block cabin, the real view outside, as the
+     * old flight looked); the room stays available for a future use.
+     */
+    static final boolean ENABLED = false;
+
+    private static final java.util.Set<String> CRUISING = new java.util.HashSet<>();
+
+    /** Crew riding into the transfer go straight into the released cruise cabin (a real room), not an orbit shot. */
+    private static void cruise(MinecraftServer server) {
+        if (server.getTickCount() % 5 != 0) return;
+        for (ServerPlayer p : server.getPlayerList().getPlayers())
+            if (p.getVehicle() instanceof RocketEntity r && r.phase() == RocketEntity.TRANSIT && CRUISING.add(r.getUUID() + "/" + p.getUUID()))
+                CruiseCabinAccess.open(r, p);
+        if (CRUISING.size() > 256) CRUISING.clear();
+    }
+
     private static void tick(MinecraftServer server) {
+        cruise(server);
         // crew who went up some other way (the rocket menu) get the room too
-        if (server.getTickCount() % 5 == 0)
+        if (ENABLED && server.getTickCount() % 5 == 0)
             for (ServerPlayer p : server.getPlayerList().getPlayers())
                 if (p.getVehicle() instanceof RocketEntity r && !CREW.containsKey(p.getUUID())) {
                     int ph = r.phase();
