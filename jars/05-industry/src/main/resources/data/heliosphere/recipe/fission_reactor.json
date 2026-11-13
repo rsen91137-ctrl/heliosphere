@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SLS",
+    "GPG",
+    "IBI"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_plate",
+    "L": "heliosphere:lead_ingot",
+    "G": "heliosphere:graphite",
+    "P": "heliosphere:processor",
+    "I": "heliosphere:inconel_plate",
+    "B": "heliosphere:turbine_blade"
+  },
+  "result": {
+    "id": "heliosphere:fission_reactor",
+    "count": 1
+  }
+}

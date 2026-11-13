@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "WCW",
+    "SBS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_plate",
+    "G": "heliosphere:graphite",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board",
+    "B": "heliosphere:battery_cell"
+  },
+  "result": {
+    "id": "heliosphere:hydrogen_fuel_cell",
+    "count": 1
+  }
+}

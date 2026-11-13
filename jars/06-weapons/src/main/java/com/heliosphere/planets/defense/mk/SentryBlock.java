@@ -44,7 +44,10 @@ public class SentryBlock extends BaseEntityBlock {
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-        if (level.getBlockEntity(pos) instanceof SentryBlockEntity be && placer instanceof Player p) be.owner(p.getUUID());
+        if (level.getBlockEntity(pos) instanceof SentryBlockEntity be && placer instanceof Player p) {
+            be.owner(p.getUUID());
+            if (p.isCreative()) be.creative(true);                 // creative mode: fights at once, no power needed
+        }
     }
 
     @Override

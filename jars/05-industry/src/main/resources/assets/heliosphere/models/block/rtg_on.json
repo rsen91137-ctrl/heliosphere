@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/power/rtg_top",
+    "front": "heliosphere:block/power/rtg_front_on",
+    "side": "heliosphere:block/power/rtg_side"
+  }
+}

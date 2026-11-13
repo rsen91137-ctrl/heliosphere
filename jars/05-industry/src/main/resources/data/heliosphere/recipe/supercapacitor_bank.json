@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GAG",
+    "WCW",
+    "GFG"
+  ],
+  "key": {
+    "G": "heliosphere:graphite",
+    "A": "heliosphere:al_li_plate",
+    "W": "heliosphere:copper_wire",
+    "C": "heliosphere:circuit_board",
+    "F": "heliosphere:carbon_fiber"
+  },
+  "result": {
+    "id": "heliosphere:supercapacitor_bank",
+    "count": 1
+  }
+}

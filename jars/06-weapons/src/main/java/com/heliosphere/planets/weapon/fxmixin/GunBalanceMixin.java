@@ -41,6 +41,14 @@ public abstract class GunBalanceMixin {
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void heliosphere$balance(CallbackInfo ci) {
+        // the M-80 rotary cannon becomes the HM14.5/1930 heavy machine gun (14.5x130.5): no spin-up, heavier rounds,
+        // a slower rate, a 60-round belt box, harder kick
+        GunStats r = TABLE.get("rotary_cannon");
+        if (r != null)
+            TABLE.put("rotary_cannon", new GunStats(18f, r.headMul(), 0.55f, r.falloffStart() * 1.5f, r.falloffEnd() * 1.5f, r.minMul(),
+                    Math.max(3, r.interval() + 1), r.burst(), r.burstDelay(), 0, r.hipSpread(), r.adsSpread() * 0.8f, r.moveSpread(), r.bloom(), r.bloomMax(),
+                    r.recoilV() * 1.6f, r.recoilH() * 1.3f, r.kick() * 1.5f, r.shake() * 1.4f, r.adsZoom(), r.adsTicks(), 60, r.reloadTicks(), r.adsSpeed(),
+                    r.knockback() * 1.5f, r.sound()));
         for (Object[] row : BALANCE) {
             GunStats g = TABLE.get((String) row[0]);
             if (g == null) continue;

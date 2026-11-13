@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BBB",
+    "BCB",
+    "SWS"
+  ],
+  "key": {
+    "B": "heliosphere:battery_cell",
+    "C": "heliosphere:circuit_board",
+    "S": "heliosphere:steel_plate",
+    "W": "heliosphere:copper_wire"
+  },
+  "result": {
+    "id": "heliosphere:lithium_battery_cabinet",
+    "count": 1
+  }
+}

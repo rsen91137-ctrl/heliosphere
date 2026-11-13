@@ -1,0 +1,21 @@
+{
+  "block.heliosphere.wind_turbine": "Wind Turbine",
+  "block.heliosphere.geothermal_generator": "Geothermal Generator",
+  "block.heliosphere.rtg": "Radioisotope Thermoelectric Generator",
+  "block.heliosphere.hydrogen_fuel_cell": "Hydrogen Fuel Cell",
+  "block.heliosphere.fission_reactor": "Small Fission Reactor",
+  "block.heliosphere.lithium_battery_cabinet": "Lithium Battery Cabinet",
+  "block.heliosphere.supercapacitor_bank": "Supercapacitor Bank",
+  "block.heliosphere.grid_storage_array": "Grid Storage Array",
+  "message.heliosphere.power_running": "generating %s FE/t",
+  "message.heliosphere.power_no_air": "no atmosphere: a wind turbine needs air",
+  "message.heliosphere.power_sheltered": "sheltered: put it up high with 2 blocks of open air around it",
+  "message.heliosphere.power_no_heat": "no lava or magma within 4 blocks below",
+  "message.heliosphere.power_no_coolant": "no coolant: the reactor needs water next to it",
+  "message.heliosphere.power_no_fuel": "out of fuel: right-click with fuel to load it",
+  "message.heliosphere.power_fuel_full": "Fuel full (%s at most)",
+  "message.heliosphere.power_fueled": "Loaded %s · fuel %s/%s",
+  "message.heliosphere.power_status": "%s · %s · stored %s FE",
+  "message.heliosphere.power_fuel_status": "%s · %s · stored %s FE · fuel %s/%s (about %s days)",
+  "message.heliosphere.power_battery_status": "%s · stored %s FE (%s%%) · output up to %s FE/t"
+}

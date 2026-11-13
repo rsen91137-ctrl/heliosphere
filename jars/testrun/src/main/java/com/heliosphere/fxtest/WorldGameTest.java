@@ -62,6 +62,10 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "operate" -> operate(ctx, sp);
                     case "airdef_samp" -> airdef(ctx, sp, "samp");
                     case "airdef_iris" -> airdef(ctx, sp, "iris");
+                    case "power" -> power(ctx, sp);
+                    case "skins" -> skins(ctx, sp);
+                    case "jetpack" -> jetpack(ctx, sp);
+                    case "dump" -> dump(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -375,6 +379,8 @@ public class WorldGameTest implements FabricClientGameTest {
             ctx.waitTicks(times[i] - last);
             last = times[i];
             where.accept("ascent t" + times[i]);
+            ctx.runOnClient(mc -> report.add("[info] deck: darken " + com.heliosphere.rocketry.cabin.client.DeckView.skyDarken() + " onDeck " + com.heliosphere.rocketry.cabin.client.DeckView.onDeck()
+                    + " dim " + mc.level.dimension().identifier() + " sky live " + com.heliosphere.core.client.sky.SkyHooks.live()));
             if (i % 2 == 1) look(ctx, 180, 75); else look(ctx, 0, 8);     // out of the front window / down through the deck glass
             ctx.waitTicks(3);
             shot(ctx, "r_ascent_" + i);
@@ -703,6 +709,182 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         ctx.waitTicks(20);
         shot(ctx, "collapse_portals");
+    }
+
+    /** Every machine recipe and every item of the mod, as the running game has them (for the guide's encyclopedia). */
+    private void dump(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        server(sp, s -> {
+            com.heliosphere.core.machine.MachineType.ensureLoaded();
+            StringBuilder b = new StringBuilder("{\"machines\": [");
+            boolean first = true;
+            for (var t : com.heliosphere.core.machine.MachineType.all()) {
+                for (var r : t.recipes()) {
+                    if (!first) b.append(",\n");
+                    first = false;
+                    b.append("{\"m\": \"heliosphere:").append(t.id).append("\", \"i\": [");
+                    for (int k = 0; k < r.inputs.size(); k++) {
+                        var in = r.inputs.get(k);
+                        String id = in.item() != null ? net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(in.item()).toString() : "#" + in.tag().location();
+                        b.append(k > 0 ? ", " : "").append("[\"").append(id).append("\", ").append(in.count()).append("]");
+                    }
+                    b.append("], \"o\": [");
+                    for (int k = 0; k < r.outputs.size(); k++) {
+                        var o = r.outputs.get(k);
+                        try {
+                            var f = o.getClass().getDeclaredField("stack"); f.setAccessible(true);
+                            var st = (net.minecraft.world.item.ItemStack) f.get(o);
+                            var c = o.getClass().getDeclaredField("chance"); c.setAccessible(true);
+                            b.append(k > 0 ? ", " : "").append("[\"").append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(st.getItem())).append("\", ").append(st.getCount()).append(", ").append(c.getFloat(o)).append("]");
+                        } catch (ReflectiveOperationException e) { b.append("[]"); }
+                    }
+                    b.append("], \"t\": ").append(r.ticks / 20.0).append(", \"p\": ").append(r.power).append("}");
+                }
+            }
+            b.append("],\n\"items\": [");
+            first = true;
+            for (var id : net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet()) {
+                if (!id.getNamespace().equals("heliosphere")) continue;
+                b.append(first ? "" : ", ").append("\"").append(id).append("\"");
+                first = false;
+            }
+            b.append("]}");
+            try { Files.writeString(Path.of("game-recipes.json"), b.toString()); } catch (IOException e) { report.add("[FAIL] dump " + e); }
+            report.add("[info] dumped machine recipes and items");
+        });
+    }
+
+    /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */
+    private void jetpack(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "gamemode survival @a");
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        String[][] runs = {{"jetpack", "minecraft:overworld"}, {"heavy_jetpack", "minecraft:overworld"}, {"rcs_pack", "minecraft:overworld"}, {"rcs_pack", "heliosphere:moon"}, {"adaptive_jetpack", "heliosphere:moon"}};
+        for (String[] run : runs) {
+            cmd(sp, "execute in " + run[1] + " run tp @p 7600 200 7600");
+            ctx.waitTicks(40);
+            double[] y0 = new double[1];
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                int g = Math.max(170, l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ()) + 3);   // a stone platform in the open air (not the sea)
+                for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+                    l.setBlock(new net.minecraft.core.BlockPos(p.getBlockX() + dx, g - 1, p.getBlockZ() + dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                p.teleportTo(p.getBlockX() + 0.5, g + 0.1, p.getBlockZ() + 0.5);
+                p.getAbilities().flying = false; p.onUpdateAbilities();
+                var pack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(run[0]));
+                com.heliosphere.planets.gear.JetpackItem.setFuel(pack, com.heliosphere.planets.gear.JetpackItem.TANK);
+                p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, pack);
+                y0[0] = g;
+            });
+            ctx.waitTicks(10);
+            ctx.runOnClient(mc -> mc.options.keyJump.setDown(true));
+            ctx.waitTicks(40);
+            if (run[0].equals("jetpack")) { ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK)); ctx.waitTicks(2); shot(ctx, "jetpack_flight"); ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON)); }
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                report.add("[info] " + run[0] + " in " + run[1] + " (g " + String.format("%.2f", com.heliosphere.core.env.Environment.gravity(p.level())) + "): risen "
+                        + String.format("%.1f", p.getY() - y0[0]) + " blocks in 2 s, fuel left " + com.heliosphere.planets.gear.JetpackItem.fuel(p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST)) + ", kicked " + !p.connection.isAcceptingMessages());
+            });
+            ctx.runOnClient(mc -> mc.options.keyJump.setDown(false));
+            if (run[0].equals("rcs_pack") && run[1].contains("moon")) {           // sneak holds still in the air
+                ctx.runOnClient(mc -> mc.options.keyShift.setDown(true));
+                double[] yh = new double[1];
+                server(sp, s -> yh[0] = player(s).getY());
+                ctx.waitTicks(30);
+                server(sp, s -> report.add("[info] rcs hold on the Moon: moved " + String.format("%.2f", player(s).getY() - yh[0]) + " blocks in 1.5 s"));
+                ctx.runOnClient(mc -> mc.options.keyShift.setDown(false));
+            }
+            ctx.waitTicks(60);
+        }
+        cmd(sp, "gamemode creative @a");
+        server(sp, s -> player(s).setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY));
+    }
+
+    /** The guns rebuilt after the sketches, in hand: hip, aimed down the sights for two of them, and seen from outside. */
+    private void skins(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 7000 140 7000");
+        cmd(sp, "time set 6000");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -6; dx <= 6; dx++) for (int dz = -6; dz <= 30; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 2);
+                for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.getAbilities().flying = false; p.onUpdateAbilities();
+        });
+        look(ctx, 0, 0);
+        String[] guns = {"assault_rifle", "battle_rifle", "burst_carbine", "compact_smg", "smg", "machine_pistol", "designated_marksman_rifle", "bolt_rifle", "sniper_rifle", "light_machine_gun", "rotary_cannon"};
+        for (String id : guns) {
+            server(sp, s -> player(s).setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(id))));
+            ctx.waitTicks(12);
+            shot(ctx, "skin_" + id);
+        }
+        for (String id : new String[]{"assault_rifle", "bolt_rifle"}) {
+            server(sp, s -> player(s).setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(id))));
+            ctx.runOnClient(mc -> mc.options.keyUse.setDown(true));
+            ctx.waitTicks(25);
+            shot(ctx, "skin_aim_" + id);
+            ctx.runOnClient(mc -> mc.options.keyUse.setDown(false));
+            ctx.waitTicks(5);
+        }
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+        for (String id : new String[]{"rotary_cannon", "battle_rifle"}) {
+            server(sp, s -> player(s).setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(id))));
+            ctx.waitTicks(12);
+            shot(ctx, "skin_third_" + id);
+        }
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+    }
+
+    /** The grid: an RTG feeds a battery bank 300 blocks of cable away; a wind turbine up on a mast; a lithium cabinet. */
+    private void power(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 6400 140 6400");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 3;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+            var cable = com.heliosphere.core.Reg.getBlock("cable").defaultBlockState();
+            for (int cx = (x0 >> 4) - 1; cx <= ((x0 + 302) >> 4) + 1; cx++) l.setChunkForced(cx, z0 >> 4, true);   // the whole line stays loaded
+            for (int i = 0; i <= 302; i++) {                             // a long line on a stone causeway
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0), stone, 2);
+                if (i >= 1 && i <= 300) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g, z0), cable, 3);
+            }
+            var rtg = new net.minecraft.core.BlockPos(x0, g, z0);
+            l.setBlock(rtg, com.heliosphere.core.Reg.getBlock("rtg").defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0 + 301, g, z0), com.heliosphere.core.Reg.getBlock("battery_bank").defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0, g, z0 + 1), com.heliosphere.core.Reg.getBlock("lithium_battery_cabinet").defaultBlockState(), 3);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("plutonium_238"), 2));
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(rtg), net.minecraft.core.Direction.UP, rtg, false);
+            report.add("[info] rtg fuelled: " + p.gameMode.useItemOn(p, l, p.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND, hit) + " hand " + p.getMainHandItem().getCount());
+            // a wind turbine on a 30-block mast
+            for (int dy = 0; dy < 30; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 - 6, g + dy, z0 - 4), net.minecraft.world.level.block.Blocks.IRON_BARS.defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0 - 6, g + 30, z0 - 4), com.heliosphere.core.Reg.getBlock("wind_turbine").defaultBlockState(), 3);
+            p.teleportTo(x0 - 6.5, g + 28, z0 + 4.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        look(ctx, 180, -20);
+        ctx.waitTicks(200);
+        server(sp, s -> {
+            var l = s.overworld();
+            var bank = l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 301, o[1], o[2]));
+            var cab = l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 1));
+            var rtg = l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            var wind = l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] - 6, o[1] + 30, o[2] - 4));
+            report.add("[info] grid: sinks found from the RTG " + com.heliosphere.core.machine.GridNet.sinks(l, new net.minecraft.core.BlockPos(o[0], o[1], o[2])));
+            report.add("[info] power after 10 s: bank 300 blocks away " + ((com.heliosphere.core.machine.EnergyNode) bank).energy()
+                    + ", lithium cabinet " + ((com.heliosphere.core.machine.EnergyNode) cab).energy() + ", rtg " + ((com.heliosphere.core.machine.EnergyNode) rtg).energy()
+                    + ", wind rate " + ((com.heliosphere.industry.power.PowerBlockEntity) wind).rate());
+        });
+        shot(ctx, "power_turbine");
     }
 
     /** The air-defence battery pack powers a radar and a launcher nearby without cables, and keeps its charge when picked up. */

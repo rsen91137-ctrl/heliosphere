@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SLS",
+    "LPL",
+    "SLS"
+  ],
+  "key": {
+    "S": "heliosphere:stainless_steel_plate",
+    "L": "heliosphere:lithium_battery_cabinet",
+    "P": "heliosphere:processor"
+  },
+  "result": {
+    "id": "heliosphere:grid_storage_array",
+    "count": 1
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "heliosphere:block/grid_storage_array"
+  }
+}

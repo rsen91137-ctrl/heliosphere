@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IBI",
+    "WEW",
+    "IPI"
+  ],
+  "key": {
+    "I": "heliosphere:inconel_plate",
+    "B": "heliosphere:turbine_blade",
+    "W": "heliosphere:copper_wire",
+    "E": "heliosphere:electric_motor",
+    "P": "heliosphere:steel_plate"
+  },
+  "result": {
+    "id": "heliosphere:geothermal_generator",
+    "count": 1
+  }
+}

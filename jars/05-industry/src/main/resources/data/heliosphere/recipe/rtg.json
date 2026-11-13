@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LLL",
+    "TCT",
+    "LWL"
+  ],
+  "key": {
+    "L": "heliosphere:lead_ingot",
+    "T": "heliosphere:tungsten_ingot",
+    "C": "heliosphere:circuit_board",
+    "W": "heliosphere:copper_wire"
+  },
+  "result": {
+    "id": "heliosphere:rtg",
+    "count": 1
+  }
+}

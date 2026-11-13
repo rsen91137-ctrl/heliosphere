@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "WMW",
+    "SCS"
+  ],
+  "key": {
+    "P": "heliosphere:steel_plate",
+    "W": "heliosphere:copper_wire",
+    "M": "heliosphere:ndfeb_magnet",
+    "S": "heliosphere:steel_ingot",
+    "C": "heliosphere:circuit_board"
+  },
+  "result": {
+    "id": "heliosphere:wind_turbine",
+    "count": 1
+  }
+}

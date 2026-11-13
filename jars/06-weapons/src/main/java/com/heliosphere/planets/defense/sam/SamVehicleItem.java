@@ -42,8 +42,9 @@ public class SamVehicleItem extends Item {
         }
         ItemStack stack = ctx.getItemInHand();
         var data = stack.get(DataComponents.CUSTOM_DATA);
-        if (SamVehicle.place(level, kind, pos, yaw, p == null ? null : p.getUUID(), data == null ? null : data.copyTag(), EntitySpawnReason.SPAWN_ITEM_USE) == null)
-            return InteractionResult.FAIL;
+        SamVehicle v = SamVehicle.place(level, kind, pos, yaw, p == null ? null : p.getUUID(), data == null ? null : data.copyTag(), EntitySpawnReason.SPAWN_ITEM_USE);
+        if (v == null) return InteractionResult.FAIL;
+        if (p != null && p.isCreative()) v.creative(true);
         SamSites.markBuilt(level);
         if (p == null || !p.isCreative()) stack.shrink(1);
         level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.NETHERITE_BLOCK_PLACE, SoundSource.BLOCKS, 1.2f, 0.6f);

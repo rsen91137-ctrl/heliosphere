@@ -81,6 +81,9 @@ public class SamVehicle extends Entity {
     /** Identification friend or foe: on, only hostile machines and monsters; off, players too. */
     private boolean iff = true;
     private boolean fireQueued, registered;
+    /** Set down in creative mode: needs no power. */
+    private boolean creative;
+    public void creative(boolean on) { creative = on; if (on) power = capacity(); }
     private record Engagement(UUID missile, long since) {}
     private final Map<UUID, Engagement> engaged = new HashMap<>();
     private ChunkPos forcedAt;
@@ -244,6 +247,7 @@ public class SamVehicle extends Entity {
     private void serverTick(ServerLevel level) {
         if (!registered) { LOADED.computeIfAbsent(level, l -> Collections.newSetFromMap(new WeakHashMap<>())).add(this); registered = true; }
         SamKind k = kind();
+        if (creative) power = capacity();
         ServerPlayer op = getFirstPassenger() instanceof ServerPlayer sp ? sp : null;
         Input in = op == null ? Input.EMPTY : op.getLastClientInput();
         if (in.forward() || in.backward() || in.left() || in.right()) moveClock = 40;
@@ -593,6 +597,7 @@ public class SamVehicle extends Entity {
         tube = in.getIntOr("tube", 0);
         String o = in.getStringOr("owner", "");
         owner = o.isEmpty() ? null : UUID.fromString(o);
+        creative = in.getBooleanOr("creative", false);
         if (in.getBooleanOr("forced", false)) forcedAt = new ChunkPos(in.getIntOr("fx", 0), in.getIntOr("fz", 0));
     }
 
@@ -607,6 +612,7 @@ public class SamVehicle extends Entity {
         out.putFloat("raise", raise); out.putFloat("turret", turret); out.putFloat("elev", elev);
         out.putInt("tube", tube);
         if (owner != null) out.putString("owner", owner.toString());
+        if (creative) out.putBoolean("creative", true);
         if (forcedAt != null) { out.putBoolean("forced", true); out.putInt("fx", forcedAt.x); out.putInt("fz", forcedAt.z); }
     }
 }

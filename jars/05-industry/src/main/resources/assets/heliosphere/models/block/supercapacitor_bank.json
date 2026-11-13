@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/power/supercapacitor_bank_top",
+    "front": "heliosphere:block/power/supercapacitor_bank_front",
+    "side": "heliosphere:block/power/supercapacitor_bank_side"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "block.heliosphere.wind_turbine": "风力发电机",
+  "block.heliosphere.geothermal_generator": "地热发电机",
+  "block.heliosphere.rtg": "放射性同位素热电机（RTG）",
+  "block.heliosphere.hydrogen_fuel_cell": "氢燃料电池",
+  "block.heliosphere.fission_reactor": "小型裂变反应堆",
+  "block.heliosphere.lithium_battery_cabinet": "锂电池柜",
+  "block.heliosphere.supercapacitor_bank": "超级电容组",
+  "block.heliosphere.grid_storage_array": "大型储能阵列",
+  "message.heliosphere.power_running": "发电中 %s FE/t",
+  "message.heliosphere.power_no_air": "没有大气：风力发电机只能在有空气的地方工作",
+  "message.heliosphere.power_sheltered": "四周被挡住了：放在高处、周围 2 格内留空",
+  "message.heliosphere.power_no_heat": "下方 4 格内没有岩浆或岩浆块",
+  "message.heliosphere.power_no_coolant": "没有冷却水：反应堆旁边需要有水",
+  "message.heliosphere.power_no_fuel": "没有燃料：手持燃料右键装填",
+  "message.heliosphere.power_fuel_full": "燃料已满（最多 %s 份）",
+  "message.heliosphere.power_fueled": "已装填 %s · 燃料 %s/%s",
+  "message.heliosphere.power_status": "%s · %s · 储能 %s FE",
+  "message.heliosphere.power_fuel_status": "%s · %s · 储能 %s FE · 燃料 %s/%s（约可用 %s 天）",
+  "message.heliosphere.power_battery_status": "%s · 储能 %s FE（%s%%）· 最大输出 %s FE/t"
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "ACA",
+    "NTN",
+    "A A"
+  ],
+  "key": {
+    "A": "heliosphere:al_li_plate",
+    "C": "heliosphere:circuit_board",
+    "N": "heliosphere:copper_wire",
+    "T": "heliosphere:canister_hydrogen"
+  },
+  "result": {
+    "id": "heliosphere:rcs_pack",
+    "count": 1
+  }
+}

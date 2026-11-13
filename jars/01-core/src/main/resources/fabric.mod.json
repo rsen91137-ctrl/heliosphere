@@ -3,6 +3,16 @@
   "id": "heliosphere_overlay_core",
   "version": "0",
   "name": "Overlay for 01 core. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
-  "entrypoints": {"client": ["com.heliosphere.core.client.fx.FxClient"]},
-  "mixins": [{"config": "heliosphere-fx.mixins.json", "environment": "client"}]
+  "entrypoints": {
+    "client": [
+      "com.heliosphere.core.client.fx.FxClient"
+    ]
+  },
+  "mixins": [
+    {
+      "config": "heliosphere-fx.mixins.json",
+      "environment": "client"
+    },
+    "heliosphere-grid.mixins.json"
+  ]
 }

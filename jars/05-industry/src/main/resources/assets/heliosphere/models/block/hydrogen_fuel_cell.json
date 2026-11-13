@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/power/hydrogen_fuel_cell_top",
+    "front": "heliosphere:block/power/hydrogen_fuel_cell_front",
+    "side": "heliosphere:block/power/hydrogen_fuel_cell_side"
+  }
+}

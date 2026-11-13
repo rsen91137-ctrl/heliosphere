@@ -63,8 +63,14 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
     @Override public boolean canReceive() { return true; }
     @Override public boolean canExtract() { return false; }
 
+    /** Set down in creative mode: runs without power, from the moment it is placed. */
+    private boolean creative;
+    public void creative(boolean on) { creative = on; if (on) power = capacity(); setChanged(); }
+    public boolean creative() { return creative; }
+
     // ---- combat ----
     void tick(ServerLevel level) {
+        if (creative && power < capacity()) power = capacity();
         if (cooldown > 0) { cooldown--; return; }
         TurretKind k = kind();
         if (power < k.energy) { cooldown = 10; return; }
@@ -213,6 +219,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
     protected void loadAdditional(ValueInput in) {
         super.loadAdditional(in);
         power = in.getLongOr("power", 0);
+        creative = in.getBooleanOr("creative", false);
         mk = in.getIntOr("mk", 0);
         yaw = in.getFloatOr("yaw", 0);
         pitch = in.getFloatOr("pitch", 0);
@@ -225,6 +232,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
     protected void saveAdditional(ValueOutput out) {
         super.saveAdditional(out);
         out.putLong("power", power);
+        if (creative) out.putBoolean("creative", true);
         out.putInt("mk", mk);
         out.putFloat("yaw", yaw);
         out.putFloat("pitch", pitch);

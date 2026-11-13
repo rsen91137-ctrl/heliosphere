@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/power/wind_turbine_top",
+    "front": "heliosphere:block/power/wind_turbine_front_on",
+    "side": "heliosphere:block/power/wind_turbine_side"
+  }
+}

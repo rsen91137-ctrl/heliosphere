@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "PCP",
+    "THT",
+    "I I"
+  ],
+  "key": {
+    "P": "heliosphere:steel_plate",
+    "C": "heliosphere:circuit_board",
+    "T": "heliosphere:canister_hydrogen",
+    "H": "heliosphere:battery_cell",
+    "I": "heliosphere:inconel_plate"
+  },
+  "result": {
+    "id": "heliosphere:jetpack",
+    "count": 1
+  }
+}

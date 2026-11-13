@@ -35,6 +35,10 @@ public abstract class OldTurretMixin {
         UUID who = owner;
         int mk = Math.max(0, tier() - 1);
         level.setBlock(pos, Sentries.BLOCKS.get(kind).defaultBlockState(), 3);
-        if (level.getBlockEntity(pos) instanceof SentryBlockEntity be) be.adopt(stored, mk, who);
+        if (level.getBlockEntity(pos) instanceof SentryBlockEntity be) {
+            be.adopt(stored, mk, who);
+            var owner = who == null ? null : level.getServer().getPlayerList().getPlayer(who);
+            if (owner != null && owner.isCreative() && owner.distanceToSqr(pos.getCenter()) < 64 * 64) be.creative(true);   // just set down in creative mode
+        }
     }
 }

@@ -69,6 +69,11 @@ public final class Sentries implements ModInitializer {
     private static void recipes() {
         MachineType asm = MachineType.get("assembly_station");
         if (asm == null) return;
+        // the laser and sonic turrets: as the released ones were made (those, placed, become these)
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 4).in(I("electric_motor"), 2).in(I("circuit_board")).in(net.minecraft.world.item.Items.IRON_INGOT).in(net.minecraft.world.item.Items.REDSTONE)
+                .out(I("laser_turret")).time(300).power(60));
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 3).in(I("electric_motor"), 2).in(I("circuit_board"), 2).in(I("processor")).in(net.minecraft.world.item.Items.AMETHYST_SHARD)
+                .out(I("sonic_turret")).time(400).power(80));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 6).in(I("rifle_round"), 32).in(I("circuit_board"), 2).in(I("electric_motor"), 2).out(I("autocannon_turret")).time(400).power(80));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 8).in(I("grenade_40mm"), 8).in(I("processor")).in(I("electric_motor"), 2).out(I("flak_turret")).time(500).power(100));
         asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 6).in(I("guidance_computer")).in(I("rdx"), 8).in(I("processor"), 2).out(I("missile_turret")).time(700).power(150));

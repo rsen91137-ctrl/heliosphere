@@ -14,5 +14,6 @@ public final class SamClient implements ClientModInitializer {
         EntityRendererRegistry.register(SamSites.VEHICLE, SamVehicleRenderer::new);
         SamOperatorClient.init();
         com.heliosphere.planets.weapon.guided.client.LockScreenClient.init();
+        com.heliosphere.planets.gear.client.JetpackClient.init();
     }
 }

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "FHF",
+    "PRP",
+    "F F"
+  ],
+  "key": {
+    "F": "heliosphere:carbon_fiber",
+    "H": "heliosphere:heavy_jetpack",
+    "R": "heliosphere:rcs_pack",
+    "P": "heliosphere:processor"
+  },
+  "result": {
+    "id": "heliosphere:adaptive_jetpack",
+    "count": 1
+  }
+}
