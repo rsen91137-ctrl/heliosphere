@@ -240,10 +240,59 @@ def wrench_and_drops():
                     'message.heliosphere.sam_packed': 'Packed up %s (%s missiles, %s FE)', 'message.heliosphere.sam_packed_simple': 'Packed up %s'})
 
 
+def operation_lang():
+    merge('zh_cn', {
+        'message.heliosphere.sam_taken': '这辆车已经有人在操作了', 'message.heliosphere.sam_mode_manual': '手动', 'message.heliosphere.sam_mode_auto': '自动',
+        'message.heliosphere.sam_boarded': '已登上 %s（%s 模式）· R 切换目标 · F 发射 · W/A/S/D 开动 · Shift 下车',
+        'message.heliosphere.sam_fire_auto': '自动模式下由车辆自行开火：右键车辆打开面板切换到手动', 'message.heliosphere.sam_fire_empty': '没有导弹了：去弹药箱补弹',
+        'message.heliosphere.sam_fire_none': '没有选中目标：按 R 选择', 'message.heliosphere.sam_driving': '行进中：武器与雷达收起，停稳 2 秒自动展开',
+        'screen.heliosphere.sam_auto': '自动模式', 'screen.heliosphere.sam_manual': '手动模式', 'screen.heliosphere.sam_board': '上车操控',
+        'screen.heliosphere.sam_mode': '当前：%s', 'screen.heliosphere.sam_ammo': '导弹 %s/%s · 附近弹药箱 %s 枚', 'screen.heliosphere.sam_power': '电量 %s/%s',
+        'screen.heliosphere.sam_help': '空手左键车辆也能直接上车 · 手动模式下 R 切换目标、F 发射',
+        'hud.heliosphere.sam_driving': '行进中（武器收起）', 'hud.heliosphere.sam_tracks': '雷达跟踪 %s 个目标',
+        'hud.heliosphere.sam_state': '%s · 导弹 %s/%s · 目标 %s', 'hud.heliosphere.sam_keys': 'R 切换目标 · F 发射（山毛榉手动：炮塔跟随视角）· WASD 开动 · Shift 下车',
+        'hud.heliosphere.sam_keys_drive': 'W/S 前进后退 · A/D 转向 · 停稳 2 秒展开 · Shift 下车',
+        'key.heliosphere.sam_next': '防空：切换目标', 'key.heliosphere.sam_fire': '防空：发射', 'key.category.heliosphere.air_defence': '日球层 · 防空车',
+        'entity.heliosphere.sam_seat': '防空车舱口', 'entity.heliosphere.sam_drive': '行进中的防空车',
+        'screen.heliosphere.sam_iff_toggle': '敌我识别开/关', 'screen.heliosphere.sam_iff_on': '敌我识别：开（只打敌对目标）', 'screen.heliosphere.sam_iff_off': '敌我识别：关（可以锁定空中的玩家）',
+        'hud.heliosphere.sam_iff_on': 'IFF 开', 'hud.heliosphere.sam_iff_off': 'IFF 关'})
+    merge('zh_tw', {
+        'message.heliosphere.sam_taken': '這輛車已經有人在操作了', 'message.heliosphere.sam_mode_manual': '手動', 'message.heliosphere.sam_mode_auto': '自動',
+        'message.heliosphere.sam_boarded': '已登上 %s（%s 模式）· R 切換目標 · F 發射 · W/A/S/D 開動 · Shift 下車',
+        'message.heliosphere.sam_fire_auto': '自動模式下由車輛自行開火：右鍵車輛打開面板切換到手動', 'message.heliosphere.sam_fire_empty': '沒有導彈了：去彈藥箱補彈',
+        'message.heliosphere.sam_fire_none': '沒有選中目標：按 R 選擇', 'message.heliosphere.sam_driving': '行進中：武器與雷達收起，停穩 2 秒自動展開',
+        'screen.heliosphere.sam_auto': '自動模式', 'screen.heliosphere.sam_manual': '手動模式', 'screen.heliosphere.sam_board': '上車操控',
+        'screen.heliosphere.sam_mode': '目前：%s', 'screen.heliosphere.sam_ammo': '導彈 %s/%s · 附近彈藥箱 %s 枚', 'screen.heliosphere.sam_power': '電量 %s/%s',
+        'screen.heliosphere.sam_help': '空手左鍵車輛也能直接上車 · 手動模式下 R 切換目標、F 發射',
+        'hud.heliosphere.sam_driving': '行進中（武器收起）', 'hud.heliosphere.sam_tracks': '雷達追蹤 %s 個目標',
+        'hud.heliosphere.sam_state': '%s · 導彈 %s/%s · 目標 %s', 'hud.heliosphere.sam_keys': 'R 切換目標 · F 發射 · WASD 開動 · Shift 下車',
+        'hud.heliosphere.sam_keys_drive': 'W/S 前進後退 · A/D 轉向 · 停穩 2 秒展開 · Shift 下車',
+        'key.heliosphere.sam_next': '防空：切換目標', 'key.heliosphere.sam_fire': '防空：發射', 'key.category.heliosphere.air_defence': '日球層 · 防空車',
+        'entity.heliosphere.sam_seat': '防空車艙口', 'entity.heliosphere.sam_drive': '行進中的防空車',
+        'screen.heliosphere.sam_iff_toggle': '敵我識別開/關', 'screen.heliosphere.sam_iff_on': '敵我識別：開（只打敵對目標）', 'screen.heliosphere.sam_iff_off': '敵我識別：關（可以鎖定空中的玩家）',
+        'hud.heliosphere.sam_iff_on': 'IFF 開', 'hud.heliosphere.sam_iff_off': 'IFF 關'})
+    merge('en_us', {
+        'message.heliosphere.sam_taken': 'Someone is already operating this vehicle', 'message.heliosphere.sam_mode_manual': 'manual', 'message.heliosphere.sam_mode_auto': 'automatic',
+        'message.heliosphere.sam_boarded': 'Aboard %s (%s) · R next target · F fire · W/A/S/D drive · Shift leave',
+        'message.heliosphere.sam_fire_auto': 'In automatic mode the vehicle fires by itself: right-click it to switch to manual', 'message.heliosphere.sam_fire_empty': 'No missiles left: rearm at an ammo crate',
+        'message.heliosphere.sam_fire_none': 'No target selected: press R', 'message.heliosphere.sam_driving': 'On the move: weapons and radar stowed; stop for 2 s to deploy',
+        'screen.heliosphere.sam_auto': 'Automatic', 'screen.heliosphere.sam_manual': 'Manual', 'screen.heliosphere.sam_board': 'Take the hatch',
+        'screen.heliosphere.sam_mode': 'Mode: %s', 'screen.heliosphere.sam_ammo': 'Missiles %s/%s · nearby crate %s', 'screen.heliosphere.sam_power': 'Power %s/%s',
+        'screen.heliosphere.sam_help': 'Left-click a vehicle empty-handed to board · manual: R next target, F fire',
+        'hud.heliosphere.sam_driving': 'On the move (weapons stowed)', 'hud.heliosphere.sam_tracks': 'Radar tracking %s',
+        'hud.heliosphere.sam_state': '%s · missiles %s/%s · targets %s', 'hud.heliosphere.sam_keys': 'R next · F fire · WASD drive · Shift leave',
+        'hud.heliosphere.sam_keys_drive': 'W/S drive · A/D steer · stop 2 s to deploy · Shift leave',
+        'key.heliosphere.sam_next': 'Air defence: next target', 'key.heliosphere.sam_fire': 'Air defence: fire', 'key.category.heliosphere.air_defence': 'Heliosphere · Air defence',
+        'entity.heliosphere.sam_seat': 'Vehicle hatch', 'entity.heliosphere.sam_drive': 'Air defence vehicle (moving)',
+        'screen.heliosphere.sam_iff_toggle': 'IFF on/off', 'screen.heliosphere.sam_iff_on': 'IFF on: hostile targets only', 'screen.heliosphere.sam_iff_off': 'IFF off: players in the air can be locked',
+        'hud.heliosphere.sam_iff_on': 'IFF on', 'hud.heliosphere.sam_iff_off': 'IFF off'})
+
+
 if __name__ == '__main__':
     crate_textures(); crate_model()
     for rid, spec in ROUNDS.items(): round_icon(rid, *spec)
     lang()
     part_icons()
     wrench_and_drops()
+    operation_lang()
     print('sam ammo assets written')

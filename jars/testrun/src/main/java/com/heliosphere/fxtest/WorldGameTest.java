@@ -58,6 +58,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "battery" -> battery(ctx, sp);
                     case "ammo" -> ammo(ctx, sp);
                     case "airdef" -> airdef(ctx, sp, "buk");
+                    case "operate" -> operate(ctx, sp);
                     case "airdef_samp" -> airdef(ctx, sp, "samp");
                     case "airdef_iris" -> airdef(ctx, sp, "iris");
                     default -> extra(ctx, sp, part);
@@ -907,6 +908,95 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] airdef " + system + ": missiles fired " + missiles.size() + ", most at one target at once " + maxPer + " | " + b);
         });
         shot(ctx, "airdef_" + system + "_after");
+    }
+
+    /** Manual operation: the panel, boarding, target boxes, R/F, driving off and deploying again, the wrench. */
+    private void operate(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 5000 140 5000");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -16; dx <= 16; dx++) for (int dz = -24; dz <= 16; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+                for (int dy = 0; dy < 10; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (var e : java.util.Map.of(new net.minecraft.core.BlockPos(x0 - 8, g, z0), com.heliosphere.planets.defense.sam.SamKind.BUK_TADS,
+                    new net.minecraft.core.BlockPos(x0 + 4, g, z0), com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR).entrySet()) {
+                var b = com.heliosphere.planets.defense.sam.SamSites.BLOCKS.get(e.getValue());
+                var st = b.defaultBlockState().setValue(com.heliosphere.planets.defense.sam.SamBlock.FACING, net.minecraft.core.Direction.NORTH);
+                l.setBlock(e.getKey(), st, 3);
+                b.setPlacedBy(l, e.getKey(), st, p, new net.minecraft.world.item.ItemStack(b));
+            }
+            var bat = new net.minecraft.core.BlockPos(x0 - 2, g, z0 + 8);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            ((com.heliosphere.planets.defense.sam.SamBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(x0 + 4, g, z0))).setManual(true);
+            for (String id : new String[]{"patrol_drone", "assault_drone"}) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, id, x0 + (id.startsWith("p") ? -15 : 15), g + 40, z0 - 60, null);
+                if (m != null) { m.setNoAi(true); m.setPersistenceRequired(); }
+            }
+            // the control panel, as a right-click would open it
+            var lp = new net.minecraft.core.BlockPos(x0 + 4, g, z0);
+            l.getBlockState(lp).useWithoutItem(l, p, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(lp), net.minecraft.core.Direction.UP, lp, false));
+            p.teleportTo(x0 + 4.5, g + 1, z0 + 6.5);
+        });
+        ctx.waitTicks(30);
+        shot(ctx, "operate_panel");
+        ctx.runOnClient(mc -> mc.setScreen(null));
+        server(sp, s -> com.heliosphere.planets.defense.sam.SamOperation.board(player(s), new net.minecraft.core.BlockPos(o[0] + 4, o[1], o[2])));
+        ctx.waitTicks(40);
+        look(ctx, 180, -25);
+        ctx.waitTicks(10);
+        shot(ctx, "operate_boxes");
+        ctx.runOnClient(mc -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new com.heliosphere.planets.defense.sam.SamNet.Action(com.heliosphere.planets.defense.sam.SamNet.NEXT, net.minecraft.core.BlockPos.ZERO)));
+        ctx.waitTicks(5);
+        ctx.runOnClient(mc -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new com.heliosphere.planets.defense.sam.SamNet.Action(com.heliosphere.planets.defense.sam.SamNet.FIRE, net.minecraft.core.BlockPos.ZERO)));
+        ctx.waitTicks(30);
+        shot(ctx, "operate_fired");
+        ctx.waitTicks(100);
+        server(sp, s -> {
+            var l = s.overworld();
+            var be = (com.heliosphere.planets.defense.sam.SamBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 4, o[1], o[2]));
+            int drones = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 60, o[1], o[2] - 120, o[0] + 60, o[1] + 80, o[2] + 20)).size();
+            report.add("[info] operate: manual " + be.manual() + " ammo " + be.ammo() + "/6, drones left " + drones + ", vehicle " + player(s).getVehicle());
+        });
+        // drive off
+        ctx.runOnClient(mc -> mc.options.keyUp.setDown(true));
+        ctx.waitTicks(60);
+        server(sp, s -> report.add("[info] driving: vehicle " + player(s).getVehicle()));
+        look(ctx, 180, 20);
+        shot(ctx, "operate_drive");
+        ctx.runOnClient(mc -> mc.options.keyUp.setDown(false));
+        ctx.waitTicks(80);
+        server(sp, s -> {
+            var l = s.overworld();
+            int found = 0;
+            String where = "";
+            for (int dx = -20; dx <= 20; dx++) for (int dz = -40; dz <= 10; dz++) for (int dy = -2; dy <= 3; dy++) {
+                var q = new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz);
+                if (l.getBlockEntity(q) instanceof com.heliosphere.planets.defense.sam.SamBlockEntity v && v.kind() == com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR) { found++; where = q.toShortString() + " manual " + v.manual() + " ammo " + v.ammo(); }
+            }
+            report.add("[info] deployed again: " + found + " at " + where + ", player vehicle " + player(s).getVehicle());
+        });
+        shot(ctx, "operate_deployed");
+        // the wrench packs the radar up
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            p.stopRiding();
+            var l = s.overworld();
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("sam_wrench")));
+            var q = new net.minecraft.core.BlockPos(o[0] - 8, o[1], o[2]);
+            var r = p.gameMode.useItemOn(p, l, p.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(q), net.minecraft.core.Direction.UP, q, false));
+            int n = 0; for (var st : p.getInventory().getNonEquipmentItems()) if (st.getItem() == com.heliosphere.planets.defense.sam.SamSites.BLOCKS.get(com.heliosphere.planets.defense.sam.SamKind.BUK_TADS).asItem()) n += st.getCount();
+            report.add("[info] wrench: " + r + ", radar block now " + l.getBlockState(q).getBlock() + ", radar items in inventory " + n);
+        });
+        cmd(sp, "gamemode creative @a");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

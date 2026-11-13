@@ -56,6 +56,7 @@ public class AmmoCrateBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (stack.getItem() instanceof SamWrenchItem) return InteractionResult.PASS;
         String system = SamSites.systemOf(stack);
         if (system == null) return InteractionResult.TRY_WITH_EMPTY_HAND;
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof AmmoCrateBlockEntity be) {

@@ -48,6 +48,12 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
     private int ammo = -1, reloadTicks, cooldown, idle, scanClock;
     private UUID owner;
     private final List<UUID> tracks = new ArrayList<>();
+    /** Manual mode: the operator picks the target and gives the order to fire. */
+    boolean manual;
+    /** Identification friend or foe: on, only hostile machines and monsters; off, players in the air too. */
+    boolean iff = true;
+    private UUID manualTarget;
+    private boolean fireQueued;
     private record Engagement(UUID missile, long since) {}
     private final Map<UUID, Engagement> engaged = new HashMap<>();
     private BlockPos radar;
@@ -138,6 +144,9 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
             if (!visible(level, eye, m)) continue;
             tracks.add(m.getUUID());
         }
+        for (net.minecraft.server.level.ServerPlayer pl : level.players())                  // players in the air (sorted out by IFF)
+            if (AirTargets.airbornePlayer(pl) && pl.getBoundingBox().getCenter().distanceTo(eye) <= k.radarRange && visible(level, eye, pl))
+                tracks.add(pl.getUUID());
     }
 
     private void launcherTick(ServerLevel level, SamKind k) {
@@ -162,12 +171,15 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         SamBlockEntity link = radar != null && level.getBlockEntity(radar) instanceof SamBlockEntity r && r.kind().radar && r.active ? r : null;
         double range = link != null ? k.linkedRange : k.ownRange;
 
-        if (level.getGameTime() % 5 == 0) current = choose(level, k, link, range);
+        if (level.getGameTime() % 5 == 0) current = manual ? manualPick(level, range) : choose(level, k, link, range);
         Entity target = current == null ? null : level.getEntity(current);
         if (target != null && !target.isAlive()) { target = null; current = null; }
 
+        // in manual mode the Buk's operator lays the turret by looking: any bearing, 0-85 degrees
+        Player aimer = manual && k == SamKind.BUK_TELAR ? SamOperation.operatorOf(level, worldPosition) : null;
+
         // lay the launcher
-        boolean wantUp = target != null && ammo > 0;
+        boolean wantUp = (target != null || aimer != null) && ammo > 0;
         if (wantUp) idle = 0; else idle++;
         float raiseGoal = wantUp || (raise > 0 && idle < 200) ? 1f : 0f;
         float before = raise;
@@ -175,16 +187,20 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         boolean laid = raise >= 0.995f;
         if (k == SamKind.BUK_TELAR) {
             float wantYaw = 0, wantElev = (float) Math.toRadians(5);
-            if (target != null) {
+            if (aimer != null) {
+                Vec3 local = SamKind.toLocal(Vec3.directionFromRotation(aimer.getXRot(), aimer.getYRot()), facing());
+                wantYaw = (float) Math.atan2(local.x, local.z);
+                wantElev = (float) Math.max(0, Math.min(Math.toRadians(85), Math.atan2(local.y, Math.hypot(local.x, local.z))));
+            } else if (target != null) {
                 Vec3 local = SamKind.toLocal(target.getBoundingBox().getCenter().subtract(world(SamKind.BUK_TURRET)), facing());
                 wantYaw = (float) Math.atan2(local.x, local.z);
                 double pitch = Math.atan2(local.y, Math.hypot(local.x, local.z));
                 wantElev = (float) Math.max(Math.toRadians(18), Math.min(Math.toRadians(70), pitch + Math.toRadians(15)));
             }
             float dy = wrap(wantYaw - yaw);
-            float step = (float) Math.toRadians(4);
+            float step = (float) Math.toRadians(aimer != null ? 9 : 4);
             yaw = wrap(yaw + Math.max(-step, Math.min(step, dy)));
-            elev += Math.max(-0.05f, Math.min(0.05f, wantElev - elev)) * Math.min(1f, raise * 2);
+            elev += Math.max(-0.09f, Math.min(0.09f, wantElev - elev)) * Math.min(1f, raise * 2);
             laid = laid && Math.abs(dy) < Math.toRadians(4) && Math.abs(wantElev - elev) < 0.06;
         }
         if (Math.abs(raise - before) > 1e-4 || k == SamKind.BUK_TELAR && (Math.abs(yaw - yawO) > 1e-4 || Math.abs(elev - elevO) > 1e-4)) {
@@ -194,7 +210,75 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         if (nowActive != active) { active = nowActive; sync(); }
 
         // fire
-        if (target != null && laid && cooldown == 0 && ammo > 0) launch(level, k, target);
+        if (aimer != null) {                                   // the operator fires where the turret points (guided onto the selection, if any)
+            if (fireQueued && raise >= 0.995f && cooldown == 0 && ammo > 0) { launch(level, k, target); fireQueued = false; }
+        } else if (target != null && laid && cooldown == 0 && ammo > 0 && (!manual || fireQueued)) { launch(level, k, target); fireQueued = false; }
+    }
+
+    // ---- operated by hand -------------------------------------------------------------------------------------
+
+    private UUID manualPick(ServerLevel level, double range) {
+        if (manualTarget == null) return null;
+        Entity e = level.getEntity(manualTarget);
+        if (e == null || !e.isAlive() || e.getBoundingBox().getCenter().distanceTo(origin()) > Math.max(range, 64)) { manualTarget = null; fireQueued = false; return null; }
+        return manualTarget;
+    }
+
+    /** What this vehicle can engage or show right now: its radar's tracks (or its own, for a radar), else its own sensor's. */
+    public List<Entity> sensed(ServerLevel level) {
+        SamKind k = kind();
+        List<Entity> out = new ArrayList<>();
+        if (k.radar) { for (UUID id : tracks) { Entity e = level.getEntity(id); if (e != null && e.isAlive()) out.add(e); } return out; }
+        SamBlockEntity link = linkedRadar(level);
+        if (link != null) { for (UUID id : link.tracks) { Entity e = level.getEntity(id); if (e != null && e.isAlive()) out.add(e); } }
+        else if (k.ownRange > 0) {
+            Vec3 eye = sensor();
+            for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(eye, eye).inflate(k.ownRange)))
+                if (AirTargets.is(m) && visible(level, eye, m)) out.add(m);
+        }
+        out.removeIf(e -> !engages(e));
+        out.sort(java.util.Comparator.comparingDouble(e -> e.distanceToSqr(origin())));
+        return out;
+    }
+
+    /** Whether this vehicle may engage {@code e}: players only with IFF off, and never its owner or its operator. */
+    boolean engages(Entity e) {
+        if (!(e instanceof net.minecraft.world.entity.player.Player pl)) return true;
+        if (iff || pl.isCreative() || pl.isSpectator() || pl.getUUID().equals(owner)) return false;
+        return !(pl.getVehicle() instanceof SamSeat) && !(pl.getVehicle() instanceof SamDriveEntity);
+    }
+
+    public boolean iff() { return iff; }
+    public void setIff(boolean on) { iff = on; manualTarget = null; fireQueued = false; setChanged(); }
+
+    public boolean manual() { return manual; }
+    public void setManual(boolean on) { manual = on; manualTarget = null; fireQueued = false; setChanged(); sync(); }
+    public void select(UUID target) { manualTarget = target; fireQueued = false; }
+    public UUID selected() { return manualTarget; }
+
+    /** The operator's order to fire at the selected target (the launcher lays on it first). */
+    public boolean order() {
+        if (kind().radar || ammo() <= 0) return false;
+        if (manualTarget == null && kind() != SamKind.BUK_TELAR) return false;          // the Buk can fire where its turret points
+        fireQueued = true;
+        return true;
+    }
+
+    /** What a packed or driven vehicle carries: missiles, charge, mode. */
+    public CompoundTag carry() {
+        CompoundTag t = new CompoundTag();
+        t.putInt("sam_ammo", ammo()); t.putLong("sam_power", power); t.putBoolean("sam_manual", manual); t.putBoolean("sam_iff", iff);
+        if (owner != null) t.putString("sam_owner", owner.toString());
+        return t;
+    }
+
+    public void restore(CompoundTag t) {
+        unpack(t.getIntOr("sam_ammo", kind().magazine), t.getLongOr("sam_power", 0));
+        manual = t.getBooleanOr("sam_manual", false);
+        iff = t.getBooleanOr("sam_iff", true);
+        String o = t.getStringOr("sam_owner", "");
+        if (!o.isEmpty()) try { owner = UUID.fromString(o); } catch (IllegalArgumentException ignored) {}
+        setChanged();
     }
 
     private SamBlockEntity linkedRadar(ServerLevel level) {
@@ -227,6 +311,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         UUID best = null;
         double bestScore = 0;
         for (Entity e : candidates) {
+            if (!engages(e)) continue;
             if (!e.isAlive() || engaged.containsKey(e.getUUID()) && !e.getUUID().equals(current)) continue;
             if (engaged.containsKey(e.getUUID())) continue;
             if (GuidedMissile.hunted(level, e.getUUID())) continue;                 // a missile from another launcher or turret has it
@@ -249,7 +334,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         Vec3 axis = SamKind.toWorld(k.axis(yaw, elev, raise), facing());
         Player p = owner == null ? null : level.getPlayerByUUID(owner);
         GuidedMissile m = GuidedMissile.launch(level, k.missile, p, GuidedMissile.Side.DEFENCE, target, mouth, axis, k.damage, 0);
-        engaged.put(target.getUUID(), new Engagement(m.getUUID(), level.getGameTime()));
+        if (target != null) engaged.put(target.getUUID(), new Engagement(m.getUUID(), level.getGameTime()));
         ammo--;
         tube++;
         cooldown = k.interval;
@@ -260,7 +345,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         sync();
     }
 
-    private static boolean visible(ServerLevel level, Vec3 from, Mob m) {
+    private static boolean visible(ServerLevel level, Vec3 from, Entity m) {
         AABB b = m.getBoundingBox();
         for (Vec3 p : new Vec3[]{b.getCenter(), new Vec3(b.getCenter().x, b.maxY - 0.1, b.getCenter().z)})
             if (clear(level, from, p)) return true;
@@ -355,6 +440,8 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         super.loadAdditional(in);
         power = in.getLongOr("power", 0);
         ammo = in.getIntOr("ammo", -1);
+        manual = in.getBooleanOr("manual", false);
+        iff = in.getBooleanOr("iff", true);
         reloadTicks = in.getIntOr("reload", 0);
         raise = in.getFloatOr("raise", 0);
         yaw = in.getFloatOr("yaw", 0);
@@ -371,6 +458,8 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         super.saveAdditional(out);
         out.putLong("power", power);
         out.putInt("ammo", ammo);
+        out.putBoolean("manual", manual);
+        out.putBoolean("iff", iff);
         out.putInt("reload", reloadTicks);
         out.putFloat("raise", raise);
         out.putFloat("yaw", yaw);

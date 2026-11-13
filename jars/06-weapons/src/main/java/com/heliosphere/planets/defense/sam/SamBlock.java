@@ -99,7 +99,15 @@ public class SamBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof SamBlockEntity be) be.status(player);
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof SamBlockEntity be) {
+            be.status(player);
+            if (player instanceof net.minecraft.server.level.ServerPlayer sp) SamOperation.panel(sp, be);
+        }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        return stack.getItem() instanceof SamWrenchItem ? InteractionResult.PASS : InteractionResult.TRY_WITH_EMPTY_HAND;   // the wrench works on it
     }
 }

@@ -74,6 +74,11 @@ public class FieldBatteryBlock extends BaseEntityBlock {
     }
 
     @Override
+    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        return stack.getItem() instanceof SamWrenchItem ? InteractionResult.PASS : InteractionResult.TRY_WITH_EMPTY_HAND;
+    }
+
+    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof FieldBatteryBlockEntity be) be.status(player);
         return InteractionResult.SUCCESS;

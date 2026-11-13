@@ -11,5 +11,8 @@ public final class SamClient implements ClientModInitializer {
         EntityRendererRegistry.register(SamSites.MISSILE, MissileRenderer::new);
         BlockEntityRenderers.register(SamSites.BLOCK_ENTITY, SamRenderer::new);
         MissileTrails.init();
+        EntityRendererRegistry.register(SamSites.SEAT, net.minecraft.client.renderer.entity.NoopRenderer::new);
+        EntityRendererRegistry.register(SamSites.DRIVE, SamDriveRenderer::new);
+        SamOperatorClient.init();
     }
 }

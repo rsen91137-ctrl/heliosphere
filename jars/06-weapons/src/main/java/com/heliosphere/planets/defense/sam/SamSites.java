@@ -26,6 +26,8 @@ public final class SamSites implements ModInitializer {
     public static final Map<SamKind, SamBlock> BLOCKS = new EnumMap<>(SamKind.class);
     public static Block HULL;
     public static BlockEntityType<SamBlockEntity> BLOCK_ENTITY;
+    public static EntityType<SamSeat> SEAT;
+    public static EntityType<SamDriveEntity> DRIVE;
     public static Block BATTERY, CRATE;
     public static BlockEntityType<AmmoCrateBlockEntity> CRATE_ENTITY;
     /** The three systems and the missile round each one fires. */
@@ -50,6 +52,15 @@ public final class SamSites implements ModInitializer {
         MISSILE = Registry.register(BuiltInRegistries.ENTITY_TYPE, key,
                 EntityType.Builder.<GuidedMissile>of(GuidedMissile::new, MobCategory.MISC).sized(0.5f, 0.5f)
                         .clientTrackingRange(32).updateInterval(1).noSave().build(key));
+        Identifier seatId = Identifier.fromNamespaceAndPath("heliosphere", "sam_seat");
+        ResourceKey<EntityType<?>> seatKey = ResourceKey.create(Registries.ENTITY_TYPE, seatId);
+        SEAT = Registry.register(BuiltInRegistries.ENTITY_TYPE, seatKey, EntityType.Builder.<SamSeat>of(SamSeat::new, MobCategory.MISC).sized(0.4f, 0.4f)
+                .clientTrackingRange(8).build(seatKey));                // ridable entities must be savable; an empty seat removes itself
+        Identifier driveId = Identifier.fromNamespaceAndPath("heliosphere", "sam_drive");
+        ResourceKey<EntityType<?>> driveKey = ResourceKey.create(Registries.ENTITY_TYPE, driveId);
+        DRIVE = Registry.register(BuiltInRegistries.ENTITY_TYPE, driveKey, EntityType.Builder.<SamDriveEntity>of(SamDriveEntity::new, MobCategory.MISC).sized(3.0f, 2.6f)
+                .clientTrackingRange(12).updateInterval(1).build(driveKey));
+        SamOperation.init();
         Reg.tab("weapons");
         for (SamKind k : SamKind.values())
             BLOCKS.put(k, Reg.blockWithItem(k.id, p -> new SamBlock(p, k), Reg.metal(MapColor.COLOR_GREEN, 8f)));

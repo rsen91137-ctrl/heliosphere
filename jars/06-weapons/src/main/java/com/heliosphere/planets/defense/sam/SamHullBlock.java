@@ -42,7 +42,15 @@ public class SamHullBlock extends Block {
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         BlockPos m = master(level, pos);
-        if (m != null && level.getBlockEntity(m) instanceof SamBlockEntity be) be.status(player);
+        if (m != null && level.getBlockEntity(m) instanceof SamBlockEntity be) {
+            be.status(player);
+            if (player instanceof net.minecraft.server.level.ServerPlayer sp) SamOperation.panel(sp, be);
+        }
         return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
+        return stack.getItem() instanceof SamWrenchItem ? InteractionResult.PASS : InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 }

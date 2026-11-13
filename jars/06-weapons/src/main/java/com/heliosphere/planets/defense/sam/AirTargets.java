@@ -25,6 +25,14 @@ public final class AirTargets {
     /** Adds a rule naming further flying hostiles. */
     public static void register(Predicate<Mob> flyer) { FLYERS.add(flyer); }
 
+    /** A player flying (elytra, flight) or well clear of the ground: a radar contact when IFF is off. */
+    public static boolean airbornePlayer(net.minecraft.world.entity.player.Player p) {
+        if (!p.isAlive() || p.isSpectator() || p.isCreative()) return false;
+        if (p.isFallFlying() || p.getAbilities().flying) return true;
+        var l = p.level();
+        return p.getY() - l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, p.getBlockX(), p.getBlockZ()) > 4;
+    }
+
     public static boolean is(Mob m) {
         if (!(m instanceof Enemy) || !m.isAlive()) return false;
         if (VANILLA.contains(m.getType()) || m.getNavigation() instanceof FlyingPathNavigation) return true;
