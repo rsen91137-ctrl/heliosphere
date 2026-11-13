@@ -103,5 +103,9 @@
   "item.heliosphere.sam_chassis": "防空车辆底盘",
   "item.heliosphere.phased_array_antenna": "相控阵雷达天线",
   "item.heliosphere.fire_control_computer": "防空火控计算机",
-  "item.heliosphere.launcher_module": "导弹发射架"
+  "item.heliosphere.launcher_module": "导弹发射架",
+  "item.heliosphere.sam_wrench": "防空车回收扳手",
+  "item.heliosphere.sam_wrench.hint": "右键防空车、防空电池组或弹药箱：连同弹药、电量一起收回背包，方便换地方放置",
+  "message.heliosphere.sam_packed": "已回收 %s（导弹 %s 枚，电量 %s）",
+  "message.heliosphere.sam_packed_simple": "已回收 %s"
 }

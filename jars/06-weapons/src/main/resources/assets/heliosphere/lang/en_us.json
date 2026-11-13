@@ -103,5 +103,9 @@
   "item.heliosphere.sam_chassis": "Air Defence Vehicle Chassis",
   "item.heliosphere.phased_array_antenna": "Phased-Array Radar Antenna",
   "item.heliosphere.fire_control_computer": "Air Defence Fire-Control Computer",
-  "item.heliosphere.launcher_module": "Missile Launcher Rack"
+  "item.heliosphere.launcher_module": "Missile Launcher Rack",
+  "item.heliosphere.sam_wrench": "Air Defence Recovery Wrench",
+  "item.heliosphere.sam_wrench.hint": "Right-click a vehicle, battery pack or ammo crate to pack it up with its missiles, charge or rounds",
+  "message.heliosphere.sam_packed": "Packed up %s (%s missiles, %s FE)",
+  "message.heliosphere.sam_packed_simple": "Packed up %s"
 }

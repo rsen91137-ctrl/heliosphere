@@ -214,9 +214,36 @@ def part_icons():
                     'item.heliosphere.fire_control_computer': 'Air Defence Fire-Control Computer', 'item.heliosphere.launcher_module': 'Missile Launcher Rack'})
 
 
+def wrench_and_drops():
+    img = np.zeros((16, 16, 4), float)
+    def px(x, y, c):
+        if 0 <= x < 16 and 0 <= y < 16: img[y, x] = (*c, 255)
+    steel, dark, grip = (170, 176, 180), (96, 100, 104), (200, 150, 40)
+    for i in range(3, 12):                                   # the handle, diagonal
+        px(i, 15 - i, steel); px(i + 1, 15 - i, dark)
+    for i in range(1, 5): px(i, 15 - i + 1, grip); px(i + 1, 15 - i + 1, (150, 110, 30))
+    for (x, y) in ((11, 2), (12, 1), (13, 1), (14, 2), (14, 3), (13, 4), (12, 3), (11, 4), (10, 4), (12, 5), (13, 5)):
+        px(x, y, steel)
+    px(12, 2, (0, 0, 0)); px(13, 2, (0, 0, 0)); px(13, 3, (0, 0, 0))
+    img[2, 12] = img[2, 13] = img[3, 13] = (0, 0, 0, 0)        # the open jaw
+    Image.fromarray(img.astype(np.uint8), 'RGBA').save(f'{A}/textures/item/sam_wrench.png')
+    write(f'{A}/models/item/sam_wrench.json', {'parent': 'minecraft:item/handheld', 'textures': {'layer0': 'heliosphere:item/sam_wrench'}})
+    write(f'{A}/items/sam_wrench.json', {'model': {'type': 'minecraft:model', 'model': 'heliosphere:item/sam_wrench'}})
+    for v in ('buk_telar', 'buk_tads', 'samp_tel', 'samp_tads', 'iris_tel', 'iris_tads'):
+        write(f'{D}/loot_table/blocks/{v}.json', {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'bonus_rolls': 0,
+            'entries': [{'type': 'minecraft:item', 'name': f'heliosphere:{v}'}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
+    merge('zh_cn', {'item.heliosphere.sam_wrench': '防空车回收扳手', 'item.heliosphere.sam_wrench.hint': '右键防空车、防空电池组或弹药箱：连同弹药、电量一起收回背包，方便换地方放置',
+                    'message.heliosphere.sam_packed': '已回收 %s（导弹 %s 枚，电量 %s）', 'message.heliosphere.sam_packed_simple': '已回收 %s'})
+    merge('zh_tw', {'item.heliosphere.sam_wrench': '防空車回收扳手', 'item.heliosphere.sam_wrench.hint': '右鍵防空車、防空電池組或彈藥箱：連同彈藥、電量一起收回背包，方便換地方放置',
+                    'message.heliosphere.sam_packed': '已回收 %s（導彈 %s 枚，電量 %s）', 'message.heliosphere.sam_packed_simple': '已回收 %s'})
+    merge('en_us', {'item.heliosphere.sam_wrench': 'Air Defence Recovery Wrench', 'item.heliosphere.sam_wrench.hint': 'Right-click a vehicle, battery pack or ammo crate to pack it up with its missiles, charge or rounds',
+                    'message.heliosphere.sam_packed': 'Packed up %s (%s missiles, %s FE)', 'message.heliosphere.sam_packed_simple': 'Packed up %s'})
+
+
 if __name__ == '__main__':
     crate_textures(); crate_model()
     for rid, spec in ROUNDS.items(): round_icon(rid, *spec)
     lang()
     part_icons()
+    wrench_and_drops()
     print('sam ammo assets written')

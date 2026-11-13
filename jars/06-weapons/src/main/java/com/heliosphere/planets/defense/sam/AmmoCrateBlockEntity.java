@@ -1,6 +1,7 @@
 package com.heliosphere.planets.defense.sam;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
@@ -52,6 +53,15 @@ public class AmmoCrateBlockEntity extends BlockEntity {
         int put = Math.min(room, n);
         if (put > 0) { rounds.merge(system, put, Integer::sum); setChanged(); }
         return put;
+    }
+
+    /** Empties the crate without dropping anything (the wrench carries the rounds in the item). */
+    void clearForPacking() { rounds.clear(); setChanged(); }
+
+    /** Restores rounds carried in a packed crate item. */
+    void unpack(CompoundTag t) {
+        for (String s : SamSites.SYSTEMS) { int n = t.getIntOr("rounds_" + s, 0); if (n > 0) rounds.merge(s, n, Integer::sum); }
+        setChanged();
     }
 
     /** Takes one round for a launcher, if the crate has one. */

@@ -103,5 +103,9 @@
   "item.heliosphere.sam_chassis": "防空車輛底盤",
   "item.heliosphere.phased_array_antenna": "相控陣雷達天線",
   "item.heliosphere.fire_control_computer": "防空火控電腦",
-  "item.heliosphere.launcher_module": "導彈發射架"
+  "item.heliosphere.launcher_module": "導彈發射架",
+  "item.heliosphere.sam_wrench": "防空車回收扳手",
+  "item.heliosphere.sam_wrench.hint": "右鍵防空車、防空電池組或彈藥箱：連同彈藥、電量一起收回背包，方便換地方放置",
+  "message.heliosphere.sam_packed": "已回收 %s（導彈 %s 枚，電量 %s）",
+  "message.heliosphere.sam_packed_simple": "已回收 %s"
 }

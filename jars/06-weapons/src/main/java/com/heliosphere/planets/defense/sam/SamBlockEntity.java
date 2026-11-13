@@ -66,6 +66,20 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
     public int ammo() { return ammo < 0 ? kind().magazine : ammo; }
     void owner(UUID id) { owner = id; setChanged(); }
 
+    /** Restores what a packed vehicle carried (the recovery wrench keeps missiles and charge). */
+    void unpack(int ammo, long power) { this.ammo = Math.max(0, Math.min(kind().magazine, ammo)); this.power = Math.max(0, Math.min(capacity(), power)); setChanged(); }
+
+    /** Whether another vehicle still standing keeps this chunk loaded. */
+    static boolean anotherNear(Level level, BlockPos self, int cx, int cz) {
+        Set<SamBlockEntity> all = LOADED.get(level);
+        if (all == null) return false;
+        for (SamBlockEntity v : new ArrayList<>(all)) {
+            if (v.isRemoved() || v.getBlockPos().equals(self)) continue;
+            if (Math.abs((v.getBlockPos().getX() >> 4) - cx) <= SamBlock.FORCE && Math.abs((v.getBlockPos().getZ() >> 4) - cz) <= SamBlock.FORCE) return true;
+        }
+        return false;
+    }
+
     @Override
     public void setLevel(Level level) {
         super.setLevel(level);
@@ -256,7 +270,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
     /**
      * Line of sight over up to 500 blocks without loading anything: a vanilla ray cast would load (or generate) every
      * chunk on the way and stall the server. The ray is marched in half-block steps through chunks already in memory;
-     * a chunk that is not loaded counts as blocking.
+     * a chunk that is not in memory does not block.
      */
     static boolean clear(ServerLevel level, Vec3 a, Vec3 b) {
         Vec3 d = b.subtract(a);
@@ -274,7 +288,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
             if (level.isOutsideBuildHeight(ly)) continue;
             int cx = lx >> 4, cz = lz >> 4;
             if (cx != ccx || cz != ccz) { chunk = level.getChunkSource().getChunkNow(cx, cz); ccx = cx; ccz = cz; }
-            if (chunk == null) return false;
+            if (chunk == null) continue;                                      // not in memory: nothing known to block
             BlockState s = chunk.getBlockState(at);
             if (!s.isAir() && !s.getCollisionShape(level, at).isEmpty()) return false;
         }

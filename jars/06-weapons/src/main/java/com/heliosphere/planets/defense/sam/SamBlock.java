@@ -32,6 +32,8 @@ public class SamBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public final SamKind kind;
     static boolean removing;
+    /** Chunks kept loaded around a vehicle (radius, in chunks): it keeps watch while its owner is far away. */
+    static final int FORCE = 2;
 
     public SamBlock(Properties p, SamKind kind) {
         super(p.noOcclusion());
@@ -65,13 +67,23 @@ public class SamBlock extends BaseEntityBlock {
         if (level.isClientSide()) return;
         for (BlockPos p : kind.footprint(pos, state.getValue(FACING)))
             if (!p.equals(pos)) level.setBlock(p, SamSites.HULL.defaultBlockState(), 3);
-        if (level.getBlockEntity(pos) instanceof SamBlockEntity be && placer instanceof Player p) be.owner(p.getUUID());
+        if (level.getBlockEntity(pos) instanceof SamBlockEntity be) {
+            if (placer instanceof Player p) be.owner(p.getUUID());
+            var data = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+            if (data != null) { var t = data.copyTag(); if (t.contains("sam_ammo")) be.unpack(t.getIntOr("sam_ammo", kind.magazine), t.getLongOr("sam_power", 0)); }
+        }
+        if (level instanceof ServerLevel sl)
+            for (int dx = -FORCE; dx <= FORCE; dx++) for (int dz = -FORCE; dz <= FORCE; dz++) sl.setChunkForced((pos.getX() >> 4) + dx, (pos.getZ() >> 4) + dz, true);
         if (level instanceof ServerLevel sl) SamSites.markBuilt(sl);
     }
 
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean moved) {
         super.affectNeighborsAfterRemoval(state, level, pos, moved);
+        for (int dx = -FORCE; dx <= FORCE; dx++) for (int dz = -FORCE; dz <= FORCE; dz++) {     // let the chunks go unless another vehicle needs them
+            int cx = (pos.getX() >> 4) + dx, cz = (pos.getZ() >> 4) + dz;
+            if (!SamBlockEntity.anotherNear(level, pos, cx, cz)) level.setChunkForced(cx, cz, false);
+        }
         if (removing) return;
         removing = true;
         try {

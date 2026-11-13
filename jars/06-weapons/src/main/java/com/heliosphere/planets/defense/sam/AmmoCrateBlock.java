@@ -49,6 +49,12 @@ public class AmmoCrateBlock extends BaseEntityBlock {
     }
 
     @Override
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, net.minecraft.world.entity.LivingEntity placer, ItemStack stack) {
+        var data = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        if (!level.isClientSide() && data != null && level.getBlockEntity(pos) instanceof AmmoCrateBlockEntity be) be.unpack(data.copyTag());
+    }
+
+    @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         String system = SamSites.systemOf(stack);
         if (system == null) return InteractionResult.TRY_WITH_EMPTY_HAND;

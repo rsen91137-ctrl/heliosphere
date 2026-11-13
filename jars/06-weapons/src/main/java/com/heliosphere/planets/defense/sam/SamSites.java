@@ -61,6 +61,7 @@ public final class SamSites implements ModInitializer {
         CRATE = Reg.blockWithItem("sam_ammo_crate", AmmoCrateBlock::new, Reg.metal(MapColor.COLOR_GREEN, 4f));
         CRATE_ENTITY = Reg.blockEntity("sam_ammo_crate", AmmoCrateBlockEntity::new, CRATE);
         for (String r : ROUNDS.values()) Reg.item(r, Item::new, new Item.Properties().stacksTo(16));
+        Reg.item("sam_wrench", SamWrenchItem::new, new Item.Properties().stacksTo(1));
         for (String part : List.of("sam_chassis", "phased_array_antenna", "fire_control_computer", "launcher_module")) Reg.item(part, Item::new, new Item.Properties());
         MachineType.addProvider(SamSites::recipes);
         com.heliosphere.planets.weapon.ammo.AmmoBox.init();
@@ -107,6 +108,7 @@ public final class SamSites implements ModInitializer {
         asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("phased_array_antenna"), 2).in(I("fire_control_computer"), 1).in(I("al_li_plate"), 8).out(I("iris_tads")).time(2800).power(280));
         asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("launcher_module"), 1).in(I("fire_control_computer"), 1).in(I("steel_plate"), 12).out(I("iris_tel")).time(2800).power(280));
         // ammunition is simple: a case, a charge and a guidance board
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 4).in(I("electric_motor"), 1).out(I("sam_wrench")).time(200).power(30));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 10).in(I("copper_wire"), 8).in(I("circuit_board"), 2).out(I("sam_ammo_crate")).time(300).power(40));
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 2).in(I("rdx"), 2).in(I("circuit_board"), 1).out(I("missile_9m317ma"), 2).time(200).power(40));
         asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 2).in(I("rdx"), 2).in(I("circuit_board"), 1).out(I("missile_aster30"), 2).time(240).power(50));
