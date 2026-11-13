@@ -46,7 +46,7 @@ public class FieldBatteryBlockEntity extends BlockEntity implements EnergyNode {
         if (sun && energy < CAPACITY) energy = Math.min(CAPACITY, energy + (long) SOLAR * STEP);
         Vec3 c = Vec3.atCenterOf(worldPosition);
         int n = 0;
-        for (SamBlockEntity v : SamBlockEntity.near(level, c, RANGE)) {
+        for (SamVehicle v : SamVehicle.near(level, c, RANGE)) {
             n++;
             long want = Math.min(PER_VEHICLE, v.capacity() - v.energy());
             long give = Math.min(want, energy);
@@ -54,7 +54,7 @@ public class FieldBatteryBlockEntity extends BlockEntity implements EnergyNode {
             v.setEnergy(v.energy() + give);
             energy -= give;
             if (level.getRandom().nextInt(6) == 0) {                        // a faint spark at the vehicle being fed
-                Vec3 at = Vec3.atCenterOf(v.getBlockPos()).add(0, 0.6, 0);
+                Vec3 at = v.position().add(0, 1.4, 0);
                 level.sendParticles(ParticleTypes.ELECTRIC_SPARK, at.x, at.y, at.z, 3, 0.4, 0.3, 0.4, 0.05);
             }
         }

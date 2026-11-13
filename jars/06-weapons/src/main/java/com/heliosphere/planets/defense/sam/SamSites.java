@@ -28,6 +28,9 @@ public final class SamSites implements ModInitializer {
     public static BlockEntityType<SamBlockEntity> BLOCK_ENTITY;
     public static EntityType<SamSeat> SEAT;
     public static EntityType<SamDriveEntity> DRIVE;
+    public static EntityType<SamVehicle> VEHICLE;
+    /** The vehicles as items (placing one sets down the entity). */
+    public static final Map<SamKind, Item> VEHICLE_ITEMS = new EnumMap<>(SamKind.class);
     public static Block BATTERY, CRATE;
     public static BlockEntityType<AmmoCrateBlockEntity> CRATE_ENTITY;
     /** The three systems and the missile round each one fires. */
@@ -60,10 +63,16 @@ public final class SamSites implements ModInitializer {
         ResourceKey<EntityType<?>> driveKey = ResourceKey.create(Registries.ENTITY_TYPE, driveId);
         DRIVE = Registry.register(BuiltInRegistries.ENTITY_TYPE, driveKey, EntityType.Builder.<SamDriveEntity>of(SamDriveEntity::new, MobCategory.MISC).sized(3.0f, 2.6f)
                 .clientTrackingRange(12).updateInterval(1).build(driveKey));
+        Identifier vehicleId = Identifier.fromNamespaceAndPath("heliosphere", "sam_vehicle");
+        ResourceKey<EntityType<?>> vehicleKey = ResourceKey.create(Registries.ENTITY_TYPE, vehicleId);
+        VEHICLE = Registry.register(BuiltInRegistries.ENTITY_TYPE, vehicleKey, EntityType.Builder.<SamVehicle>of(SamVehicle::new, MobCategory.MISC).sized(2.9f, 2.4f)
+                .fireImmune().clientTrackingRange(16).updateInterval(2).build(vehicleKey));
         SamOperation.init();
         Reg.tab("weapons");
-        for (SamKind k : SamKind.values())
-            BLOCKS.put(k, Reg.blockWithItem(k.id, p -> new SamBlock(p, k), Reg.metal(MapColor.COLOR_GREEN, 8f)));
+        for (SamKind k : SamKind.values()) {
+            BLOCKS.put(k, Reg.block(k.id, p -> new SamBlock(p, k), Reg.metal(MapColor.COLOR_GREEN, 8f).noLootTable()));   // as saved by earlier versions
+            VEHICLE_ITEMS.put(k, Reg.item(k.id, p -> new SamVehicleItem(p, k), new Item.Properties().stacksTo(1).useBlockDescriptionPrefix()));
+        }
         HULL = Reg.block("sam_hull", SamHullBlock::new, Reg.metal(MapColor.COLOR_GREEN, 8f).noLootTable());
         BLOCK_ENTITY = Reg.blockEntity("sam_vehicle", SamBlockEntity::new, BLOCKS.values().toArray(Block[]::new));
         BATTERY = Reg.block("sam_battery", FieldBatteryBlock::new, Reg.metal(MapColor.COLOR_GREEN, 5f).noLootTable());

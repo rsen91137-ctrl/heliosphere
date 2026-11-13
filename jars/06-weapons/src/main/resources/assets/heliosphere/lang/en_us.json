@@ -127,7 +127,7 @@
   "hud.heliosphere.sam_tracks": "Radar tracking %s",
   "hud.heliosphere.sam_state": "%s · missiles %s/%s · targets %s",
   "hud.heliosphere.sam_keys": "R next · F fire · WASD drive · Shift leave",
-  "hud.heliosphere.sam_keys_drive": "W/S drive · A/D steer · stop 2 s to deploy · Shift leave",
+  "hud.heliosphere.sam_keys_drive": "W/S drive · A/D steer · deploys when stopped · Shift leave",
   "key.heliosphere.sam_next": "Air defence: next target",
   "key.heliosphere.sam_fire": "Air defence: fire",
   "key.category.heliosphere.air_defence": "Heliosphere · Air defence",
@@ -140,5 +140,8 @@
   "hud.heliosphere.sam_iff_off": "IFF off",
   "hud.heliosphere.l7_search": "Seeker searching: hold a target in the ring for a second",
   "hud.heliosphere.l7_lock": "LOCK",
-  "hud.heliosphere.l7_locking": "Locking %s%%"
+  "hud.heliosphere.l7_locking": "Locking %s%%",
+  "hud.heliosphere.sam_stowing": "Stowing the launcher; you can drive off once it is down",
+  "item.heliosphere.sam_vehicle.hint": "Use on the ground to set it down (facing your way) · left-click empty-handed to board · right-click for the panel · the recovery wrench packs it up",
+  "item.heliosphere.sam_vehicle.carried": "Aboard: missiles %s/%s · charge %s FE"
 }

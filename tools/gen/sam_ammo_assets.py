@@ -240,6 +240,31 @@ def wrench_and_drops():
                     'message.heliosphere.sam_packed': 'Packed up %s (%s missiles, %s FE)', 'message.heliosphere.sam_packed_simple': 'Packed up %s'})
 
 
+def vehicle_lang():
+    """Vehicles are entities: placing them, stowing before driving off."""
+    merge('zh_cn', {
+        'hud.heliosphere.sam_stowing': '正在收起发射架，收好后即可开动',
+        'hud.heliosphere.sam_keys_drive': 'W/S 前进后退 · A/D 转向 · 停车后自动展开 · Shift 下车',
+        'message.heliosphere.sam_driving': '行进中：武器与雷达收起，停车 2 秒后自动展开',
+        'item.heliosphere.sam_vehicle.hint': '对地面使用即可放下（朝你面对的方向）· 空手左键上车 · 右键打开控制面板 · 回收扳手右键收回',
+        'item.heliosphere.sam_vehicle.carried': '车内：导弹 %s/%s · 电量 %s FE',
+    })
+    merge('zh_tw', {
+        'hud.heliosphere.sam_stowing': '正在收起發射架，收好後即可開動',
+        'hud.heliosphere.sam_keys_drive': 'W/S 前進後退 · A/D 轉向 · 停車後自動展開 · Shift 下車',
+        'message.heliosphere.sam_driving': '行進中：武器與雷達收起，停車 2 秒後自動展開',
+        'item.heliosphere.sam_vehicle.hint': '對地面使用即可放下（朝你面對的方向）· 空手左鍵上車 · 右鍵打開控制面板 · 回收扳手右鍵收回',
+        'item.heliosphere.sam_vehicle.carried': '車內：導彈 %s/%s · 電量 %s FE',
+    })
+    merge('en_us', {
+        'hud.heliosphere.sam_stowing': 'Stowing the launcher; you can drive off once it is down',
+        'hud.heliosphere.sam_keys_drive': 'W/S drive · A/D steer · deploys when stopped · Shift leave',
+        'message.heliosphere.sam_driving': 'On the move: weapons and radar stowed; stop for 2 s to deploy',
+        'item.heliosphere.sam_vehicle.hint': 'Use on the ground to set it down (facing your way) · left-click empty-handed to board · right-click for the panel · the recovery wrench packs it up',
+        'item.heliosphere.sam_vehicle.carried': 'Aboard: missiles %s/%s · charge %s FE',
+    })
+
+
 def operation_lang():
     merge('zh_cn', {
         'message.heliosphere.sam_taken': '这辆车已经有人在操作了', 'message.heliosphere.sam_mode_manual': '手动', 'message.heliosphere.sam_mode_auto': '自动',
@@ -295,4 +320,5 @@ if __name__ == '__main__':
     part_icons()
     wrench_and_drops()
     operation_lang()
+    vehicle_lang()
     print('sam ammo assets written')

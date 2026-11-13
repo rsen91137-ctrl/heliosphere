@@ -29,19 +29,19 @@ public final class SamPanelScreen extends Screen {
             addRenderableWidget(Button.builder(Component.translatable("screen.heliosphere.sam_manual"), b -> set(true)).bounds(cx - 50, y, 100, 20).build());
         }
         addRenderableWidget(Button.builder(Component.translatable("screen.heliosphere.sam_board"), b -> {
-            ClientPlayNetworking.send(new SamNet.Action(SamNet.BOARD, p.pos()));
+            ClientPlayNetworking.send(new SamNet.Action(SamNet.BOARD, p.entity()));
             onClose();
         }).bounds(radar ? cx - 50 : cx + 54, y, 100, 20).build());
         if (!radar) addRenderableWidget(Button.builder(Component.translatable("screen.heliosphere.sam_iff_toggle"), b -> {
             iff = !iff;
-            ClientPlayNetworking.send(new SamNet.Action(iff ? SamNet.IFF_ON : SamNet.IFF_OFF, p.pos()));
+            ClientPlayNetworking.send(new SamNet.Action(iff ? SamNet.IFF_ON : SamNet.IFF_OFF, p.entity()));
         }).bounds(cx - 154, y + 28, 100, 20).build());
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), b -> onClose()).bounds(cx - 50, y + 28, 100, 20).build());
     }
 
     private void set(boolean on) {
         manual = on;
-        ClientPlayNetworking.send(new SamNet.Action(on ? SamNet.MANUAL : SamNet.AUTO, p.pos()));
+        ClientPlayNetworking.send(new SamNet.Action(on ? SamNet.MANUAL : SamNet.AUTO, p.entity()));
     }
 
     @Override

@@ -12,7 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-/** The hidden, solid body of an air-defence vehicle. It never hides its neighbours' faces (no x-ray holes). */
+/** The hidden body of an air-defence vehicle saved as blocks by an earlier version (it goes when the vehicle turns into an entity). */
 public class SamHullBlock extends Block {
     public SamHullBlock(Properties p) { super(p.noOcclusion()); }
 
@@ -39,18 +39,7 @@ public class SamHullBlock extends Block {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.isClientSide()) return InteractionResult.SUCCESS;
-        BlockPos m = master(level, pos);
-        if (m != null && level.getBlockEntity(m) instanceof SamBlockEntity be) {
-            be.status(player);
-            if (player instanceof net.minecraft.server.level.ServerPlayer sp) SamOperation.panel(sp, be);
-        }
-        return InteractionResult.SUCCESS;
-    }
-
-    @Override
     protected InteractionResult useItemOn(net.minecraft.world.item.ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, net.minecraft.world.InteractionHand hand, BlockHitResult hit) {
-        return stack.getItem() instanceof SamWrenchItem ? InteractionResult.PASS : InteractionResult.TRY_WITH_EMPTY_HAND;
+        return InteractionResult.TRY_WITH_EMPTY_HAND;
     }
 }

@@ -1,19 +1,8 @@
 package com.heliosphere.planets.defense.sam.client;
 
 import com.heliosphere.core.client.fx.BoxMesh;
-import com.heliosphere.planets.defense.sam.SamBlockEntity;
 import com.heliosphere.planets.defense.sam.SamKind;
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
-import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaternionf;
 
 /**
  * Draws the air-defence vehicles after the real ones: the Buk-M3 on its tracked chassis (TELAR with six containers
@@ -21,46 +10,14 @@ import org.joml.Quaternionf;
  * and the SAMP/T and IRIS-T SLM on 8x8 trucks (launchers with eight canisters that rise to the vertical; radar
  * trucks with a shelter and a turning antenna). Built facing +Z in blocks, origin at the centre of the master block.
  */
-public final class SamRenderer implements BlockEntityRenderer<SamBlockEntity, SamRenderer.State> {
-    public SamRenderer(BlockEntityRendererProvider.Context ctx) { }
+public final class SamRenderer {
+    private SamRenderer() {}
 
-    public static final class State extends BlockEntityRenderState {
+    public static final class State {
         SamKind kind = SamKind.BUK_TELAR;
-        Direction facing = Direction.SOUTH;
         float raise, yaw, elev, age, sinceLaunch;
-        int ammo;
+        int ammo, lightCoords;
         boolean active;
-    }
-
-    @Override public State createRenderState() { return new State(); }
-
-    @Override
-    public void extractRenderState(SamBlockEntity be, State s, float partial, Vec3 camera, ModelFeatureRenderer.CrumblingOverlay crumbling) {
-        BlockEntityRenderState.extractBase(be, s, crumbling);
-        float[] v = be.view();
-        s.kind = be.kind();
-        s.facing = be.facing();
-        s.raise = v[0];
-        s.yaw = v[1];
-        s.elev = v[2];
-        s.ammo = be.ammo();
-        s.active = be.active();
-        long now = be.getLevel() == null ? 0 : be.getLevel().getGameTime();
-        s.age = now + partial;
-        s.sinceLaunch = now - be.lastLaunch() + partial;
-    }
-
-    @Override public boolean shouldRenderOffScreen() { return true; }
-    @Override public int getViewDistance() { return 192; }
-
-    @Override
-    public void submit(State s, PoseStack pose, SubmitNodeCollector out, CameraRenderState camera) {
-        pose.pushPose();
-        pose.translate(0.5, 0, 0.5);
-        pose.mulPose(new Quaternionf().rotateY((float) Math.toRadians(-s.facing.toYRot())));
-        out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, s.lightCoords, false), s));
-        out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, 0xF000F0, true), s));
-        pose.popPose();
     }
 
     static final int BUK = 0x55603A, BUK_DARK = 0x3E4629, SAMP = 0x66674A, SAMP_DARK = 0x4A4B35, IRIS = 0x3E4A35, IRIS_DARK = 0x2C3526,

@@ -11,7 +11,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
@@ -36,8 +35,8 @@ public final class SamOperatorClient {
         ClientPlayNetworking.registerGlobalReceiver(SamNet.Panel.TYPE, (p, ctx) -> ctx.client().execute(() -> ctx.client().setScreen(new SamPanelScreen(p))));
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             if (!operating()) { while (next.consumeClick()) { } while (fire.consumeClick()) { } return; }
-            while (next.consumeClick()) ClientPlayNetworking.send(new SamNet.Action(SamNet.NEXT, BlockPos.ZERO));
-            while (fire.consumeClick()) ClientPlayNetworking.send(new SamNet.Action(SamNet.FIRE, BlockPos.ZERO));
+            while (next.consumeClick()) ClientPlayNetworking.send(new SamNet.Action(SamNet.NEXT, 0));
+            while (fire.consumeClick()) ClientPlayNetworking.send(new SamNet.Action(SamNet.FIRE, 0));
         });
         HudRenderCallback.EVENT.register((g, delta) -> hud(g));
     }
@@ -74,7 +73,7 @@ public final class SamOperatorClient {
         int x = w / 2 - 115, y = 6;                                         // top centre: clear of the chat and the hotbar
         g.fill(x - 4, y - 4, x + 230, y + 46, 0x90101418);
         g.drawString(mc.font, Component.translatable("block.heliosphere." + kind.id), x, y, 0xFFFFFFFF);
-        Component state = p.driving() ? Component.translatable("hud.heliosphere.sam_driving")
+        Component state = p.driving() ? Component.translatable(p.stowing() ? "hud.heliosphere.sam_stowing" : "hud.heliosphere.sam_driving")
                 : kind.radar ? Component.translatable("hud.heliosphere.sam_tracks", p.targets().size())
                 : Component.translatable("hud.heliosphere.sam_state", Component.translatable(p.manual() ? "message.heliosphere.sam_mode_manual" : "message.heliosphere.sam_mode_auto"),
                         p.ammo(), p.magazine(), p.targets().size());
