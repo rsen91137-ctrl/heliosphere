@@ -35,6 +35,9 @@ public final class EnemyRoster {
             Map.entry("siege_walker", new float[]{280, 21}),
             Map.entry("rail_sentinel", new float[]{360, 34}));
 
+    /** Released id -> first day, where it changed: the Mk V hunter drone now turns up from day 50. */
+    private static final Map<String, Integer> FIRST_DAY = Map.of("hunter_drone", 50);
+
     public static final List<Role> NEW = List.of(
             new Role("swarm_drone", "VI型蜂群自爆机", 20, 12, 0, 16, KAMIKAZE, 10, 2.0f, true, 0.6f, 0.45f),
             new Role("mortar_walker", "迫击炮机甲", 28, 140, 12, 16, MORTAR, 80, 56, false, 1.5f, 2.0f),
@@ -92,7 +95,9 @@ public final class EnemyRoster {
         List<Role> out = new ArrayList<>();
         for (Role r : released) {
             float[] b = REBALANCE.get(r.id());
-            out.add(b == null ? r : new Role(r.id(), r.name(), r.day(), b[0], r.armor(), b[1], r.mode(), r.interval(), r.range(), r.flying(), r.width(), r.height()));
+            int day = FIRST_DAY.getOrDefault(r.id(), r.day());
+            out.add(b == null && day == r.day() ? r : new Role(r.id(), r.name(), day, b == null ? r.hp() : b[0], r.armor(), b == null ? r.damage() : b[1],
+                    r.mode(), r.interval(), r.range(), r.flying(), r.width(), r.height()));
         }
         for (Role r : NEW) if (out.stream().noneMatch(o -> o.id().equals(r.id()))) out.add(r);
         return List.copyOf(out);

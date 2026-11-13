@@ -66,6 +66,7 @@ public class SamBlock extends BaseEntityBlock {
         for (BlockPos p : kind.footprint(pos, state.getValue(FACING)))
             if (!p.equals(pos)) level.setBlock(p, SamSites.HULL.defaultBlockState(), 3);
         if (level.getBlockEntity(pos) instanceof SamBlockEntity be && placer instanceof Player p) be.owner(p.getUUID());
+        if (level instanceof ServerLevel sl) SamSites.markBuilt(sl);
     }
 
     @Override

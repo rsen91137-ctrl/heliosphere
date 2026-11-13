@@ -135,7 +135,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         }
         engaged.values().removeIf(e -> {
             Entity m = level.getEntity(e.missile);
-            return m == null || !m.isAlive() || level.getGameTime() - e.since > 240;
+            return m == null || !m.isAlive() || level.getGameTime() - e.since > 420;
         });
         // the battery: find a radar of this system nearby now and then
         if (radar == null || level.getGameTime() % 100 == 0) radar = findRadar(level, k);
@@ -242,8 +242,36 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
     private static boolean visible(ServerLevel level, Vec3 from, Mob m) {
         AABB b = m.getBoundingBox();
         for (Vec3 p : new Vec3[]{b.getCenter(), new Vec3(b.getCenter().x, b.maxY - 0.1, b.getCenter().z)})
-            if (level.clip(new ClipContext(from, p, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, m)).getType() == HitResult.Type.MISS) return true;
+            if (clear(level, from, p)) return true;
         return false;
+    }
+
+    /**
+     * Line of sight over up to 500 blocks without loading anything: a vanilla ray cast would load (or generate) every
+     * chunk on the way and stall the server. The ray is marched in half-block steps through chunks already in memory;
+     * a chunk that is not loaded counts as blocking.
+     */
+    static boolean clear(ServerLevel level, Vec3 a, Vec3 b) {
+        Vec3 d = b.subtract(a);
+        double len = d.length();
+        if (len < 1) return true;
+        int n = (int) (len * 2);
+        net.minecraft.core.BlockPos.MutableBlockPos at = new net.minecraft.core.BlockPos.MutableBlockPos();
+        net.minecraft.world.level.chunk.LevelChunk chunk = null;
+        int ccx = Integer.MIN_VALUE, ccz = Integer.MIN_VALUE, lx = Integer.MIN_VALUE, ly = 0, lz = 0;
+        for (int i = 1; i < n; i++) {
+            double t = i / (double) n;
+            at.set(a.x + d.x * t, a.y + d.y * t, a.z + d.z * t);
+            if (at.getX() == lx && at.getY() == ly && at.getZ() == lz) continue;
+            lx = at.getX(); ly = at.getY(); lz = at.getZ();
+            if (level.isOutsideBuildHeight(ly)) continue;
+            int cx = lx >> 4, cz = lz >> 4;
+            if (cx != ccx || cz != ccz) { chunk = level.getChunkSource().getChunkNow(cx, cz); ccx = cx; ccz = cz; }
+            if (chunk == null) return false;
+            BlockState s = chunk.getBlockState(at);
+            if (!s.isAir() && !s.getCollisionShape(level, at).isEmpty()) return false;
+        }
+        return true;
     }
 
     private static float wrap(float a) {

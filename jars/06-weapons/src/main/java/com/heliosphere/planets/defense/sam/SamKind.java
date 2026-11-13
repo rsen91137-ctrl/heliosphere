@@ -17,12 +17,12 @@ import java.util.List;
  */
 public enum SamKind {
     //        id            system  radar  L  W  H  missile                 mag interval reload energy own  linked radarRange damage
-    BUK_TELAR("buk_telar",  "buk",  false, 7, 3, 2, MissileSpec.BUK_9M317MA, 6,  40,     300,   1500,  64,  150,  0,   400f),
-    BUK_TADS ("buk_tads",   "buk",  true,  7, 3, 2, null,                    0,   0,       0,      0,   0,    0, 190,     0f),
-    SAMP_TEL ("samp_tel",   "samp", false, 9, 3, 2, MissileSpec.ASTER_30,    8,  15,     400,   2000,   0,  180,  0,   320f),
-    SAMP_TADS("samp_tads",  "samp", true,  9, 3, 3, null,                    0,   0,       0,      0,   0,    0, 210,     0f),
-    IRIS_TEL ("iris_tel",   "iris", false, 9, 3, 2, MissileSpec.IRIS_T_SL,   8,  20,     240,   1200,  40,  120,  0,   240f),
-    IRIS_TADS("iris_tads",  "iris", true,  9, 3, 3, null,                    0,   0,       0,      0,   0,    0, 160,     0f);
+    BUK_TELAR("buk_telar",  "buk",  false, 7, 3, 2, MissileSpec.BUK_9M317MA, 6,  40,     300,   1500,  96,  500,  0,   400f),
+    BUK_TADS ("buk_tads",   "buk",  true,  7, 3, 2, null,                    0,   0,       0,      0,   0,    0, 520,     0f),
+    SAMP_TEL ("samp_tel",   "samp", false, 9, 3, 2, MissileSpec.ASTER_30,    8,  15,     400,   2000,   0,  500,  0,   320f),
+    SAMP_TADS("samp_tads",  "samp", true,  9, 3, 3, null,                    0,   0,       0,      0,   0,    0, 520,     0f),
+    IRIS_TEL ("iris_tel",   "iris", false, 9, 3, 2, MissileSpec.IRIS_T_SL,   8,  20,     240,   1200,  64,  500,  0,   240f),
+    IRIS_TADS("iris_tads",  "iris", true,  9, 3, 3, null,                    0,   0,       0,      0,   0,    0, 520,     0f);
 
     /** How far a launcher looks for its radar. */
     public static final int LINK = 48;

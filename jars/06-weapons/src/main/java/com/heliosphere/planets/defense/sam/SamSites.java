@@ -48,6 +48,25 @@ public final class SamSites implements ModInitializer {
         com.heliosphere.planets.weapon.armor.Armory.init();
     }
 
+    private static final Identifier STORY = Identifier.fromNamespaceAndPath("heliosphere", "story");
+    private static final String BUILT = "air_defence_built";
+
+    /** Whether anyone has set up an air-defence vehicle in this world: the machines answer with more raids. */
+    public static boolean airDefenceBuilt(net.minecraft.server.MinecraftServer server) {
+        return server.getCommandStorage().get(STORY).getBooleanOr(BUILT, false);
+    }
+
+    static void markBuilt(net.minecraft.server.level.ServerLevel level) {
+        var server = level.getServer();
+        if (airDefenceBuilt(server)) return;
+        var t = server.getCommandStorage().get(STORY);
+        t.putBoolean(BUILT, true);
+        server.getCommandStorage().set(STORY, t);
+        for (var p : server.getPlayerList().getPlayers())
+            p.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.heliosphere.sam_noticed")
+                    .withStyle(net.minecraft.ChatFormatting.RED), false);
+    }
+
     private static Item I(String id) { return Reg.get(id); }
 
     private static void recipes() {

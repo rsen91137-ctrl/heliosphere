@@ -85,5 +85,6 @@
   "message.heliosphere.sam_battery_status": "Battery pack · %s/%s FE (%s%%) · powering %s vehicles (within %s blocks) · %s",
   "message.heliosphere.sam_battery_sun": "solar charging",
   "message.heliosphere.sam_battery_dark": "no sunlight",
-  "message.heliosphere.sam_no_power": "§eNo power. Put an Air Defence Battery Pack within %s blocks to power it without cables (made at the assembly station, comes fully charged), or run a cable to the vehicle's centre block."
+  "message.heliosphere.sam_no_power": "§eNo power. Put an Air Defence Battery Pack within %s blocks to power it without cables (made at the assembly station, comes fully charged), or run a cable to the vehicle's centre block.",
+  "message.heliosphere.sam_noticed": "⚠ The machines have detected your air defence: from now on they deploy and besiege your shelter twice as often."
 }

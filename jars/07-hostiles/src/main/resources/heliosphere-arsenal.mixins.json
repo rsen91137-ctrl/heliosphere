@@ -9,7 +9,8 @@
     "TechSpawnMixin",
     "TechProjectileMixin",
     "CultRetiredMixin",
-    "TechDeploymentMixin"
+    "TechDeploymentMixin",
+    "TechDespawnMixin"
   ],
   "injectors": {
     "defaultRequire": 1

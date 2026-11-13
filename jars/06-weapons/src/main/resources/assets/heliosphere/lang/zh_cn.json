@@ -85,5 +85,6 @@
   "message.heliosphere.sam_battery_status": "防空电池组 · 电量 %s/%s FE（%s%%）· 正在供电 %s 辆防空车（%s 格内）· %s",
   "message.heliosphere.sam_battery_sun": "太阳能充电中",
   "message.heliosphere.sam_battery_dark": "无日照",
-  "message.heliosphere.sam_no_power": "§e没有电。在 %s 格内放一个「防空电池组」即可无线供电（装配站制造，出厂满电），也可以用电缆接到车辆中心方块。"
+  "message.heliosphere.sam_no_power": "§e没有电。在 %s 格内放一个「防空电池组」即可无线供电（装配站制造，出厂满电），也可以用电缆接到车辆中心方块。",
+  "message.heliosphere.sam_noticed": "⚠ 机器侦测到了你的防空系统——此后机械部署与对避难所的围攻都会更加频繁。"
 }

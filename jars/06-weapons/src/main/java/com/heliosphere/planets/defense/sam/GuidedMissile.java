@@ -185,6 +185,10 @@ public class GuidedMissile extends Entity {
             Entity hit = fuseCheck(level, spec, t, from, to);
             if (hit != null) { detonate(level, closest(from, to, hit.getBoundingBox().getCenter()), hit); return; }
         }
+        if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL) {
+            // a battery reaches 500 blocks, past the area players keep running: keep the missile's own chunk ticking
+            if (age % 10 == 0) level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to.add(v.scale(10)))), 2);
+        }
         if (spec == MissileSpec.NUKE_ROCKET) {
             // keep the way ahead loaded (without stalling the server: the tickets load in the background)
             Vec3 ahead = to.add(v.scale(12));
@@ -207,6 +211,8 @@ public class GuidedMissile extends Entity {
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.HOSTILE, 0.6f, 0.5f + (float) speed * 0.05f);
     }
 
+    private static final net.minecraft.server.level.TicketType SAM_TICKET = new net.minecraft.server.level.TicketType(40L,
+            net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
     private static final net.minecraft.server.level.TicketType FLIGHT_TICKET = new net.minecraft.server.level.TicketType(60L, net.minecraft.server.level.TicketType.FLAG_LOADING);
 
     private void nukeAt(ServerLevel level, Vec3 at) {
@@ -250,7 +256,7 @@ public class GuidedMissile extends Entity {
         Entity best = null;
         double bestScore = Double.MAX_VALUE;
         for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(spec.seekRange))) {
-            if (!hostile(e)) continue;
+            if (!prey(e)) continue;
             Vec3 to = e.getBoundingBox().getCenter().subtract(position());
             double d = to.length();
             if (d > spec.seekRange || d < 1e-3) continue;
@@ -265,19 +271,37 @@ public class GuidedMissile extends Entity {
         return best;
     }
 
-    /** Whether this missile's warhead is meant for {@code e}. */
+    /** Whether the seeker may pick {@code e} by itself: monsters for the defence, everyone else for the machines. */
+    public boolean prey(Entity e) {
+        if (!(e instanceof LivingEntity le) || !le.isAlive() || e.getUUID().equals(owner)) return false;
+        if (e instanceof Player p && (p.isCreative() || p.isSpectator())) return false;
+        if (side == Side.DEFENCE) return e instanceof Enemy;
+        return !(e instanceof Enemy);                                      // machines do not shoot each other
+    }
+
+    /**
+     * Whether the warhead hurts {@code e}. Besides its prey, a missile always hurts what it was sent after (a player
+     * can lock onto any creature), and a hand-held launcher's warhead hurts everything in the blast but the shooter
+     * and the shooter's own pets; a battery or turret missile spares animals, villagers and players.
+     */
     public boolean hostile(Entity e) {
         if (!(e instanceof LivingEntity le) || !le.isAlive() || e.getUUID().equals(owner)) return false;
-        if (side == Side.DEFENCE) return e instanceof Enemy;
-        if (e instanceof Enemy) return false;                             // machines do not shoot each other
-        return !(e instanceof Player p) || !(p.isCreative() || p.isSpectator());
+        if (e instanceof Player p && (p.isCreative() || p.isSpectator())) return false;
+        if (prey(e)) return true;
+        if (target != null && e.getUUID().equals(target)) return true;
+        if (side == Side.DEFENCE && spec() == MissileSpec.PLAYER)
+            return !(e instanceof net.minecraft.world.entity.OwnableEntity o && o.getOwner() != null && o.getOwner().getUUID().equals(owner));
+        return false;
     }
 
     private Entity fuseCheck(ServerLevel level, MissileSpec spec, Entity t, Vec3 from, Vec3 to) {
         if (t != null && distToSegment(from, to, t.getBoundingBox().getCenter()) <= spec.fuse + t.getBbWidth() * 0.5) return t;
+        // flying into something it may hurt sets it off whatever the seeker was after
+        for (Entity e : level.getEntities(this, new AABB(from, to).inflate(1.5), this::hostile))
+            if (e.getBoundingBox().inflate(0.3).clip(from, to).isPresent() || e.getBoundingBox().inflate(0.3).contains(to)) return e;
         if (age < spec.guideStart + 4) return null;
         AABB box = new AABB(from, to).inflate(spec.fuse * 0.6);
-        for (Entity e : level.getEntities(this, box, this::hostile))
+        for (Entity e : level.getEntities(this, box, this::prey))
             if (distToSegment(from, to, e.getBoundingBox().getCenter()) <= spec.fuse * 0.6 + e.getBbWidth() * 0.5) return e;
         return null;
     }

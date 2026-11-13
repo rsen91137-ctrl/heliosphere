@@ -65,7 +65,7 @@ public final class SmartLauncher {
                 }
             }
             if (!GunItem.isAiming(p)) { lock.candidate = null; lock.ticks = 0; continue; }
-            Mob aim = underSight(level, p);
+            LivingEntity aim = underSight(level, p);
             if (aim == null) { lock.candidate = null; lock.ticks = 0; continue; }
             if (aim.getUUID().equals(lock.candidate)) lock.ticks++;
             else { lock.candidate = aim.getUUID(); lock.ticks = 0; }
@@ -80,13 +80,15 @@ public final class SmartLauncher {
         }
     }
 
-    /** The enemy nearest the line of sight within 5 degrees and 160 blocks, with nothing in the way. */
-    private static Mob underSight(ServerLevel level, ServerPlayer p) {
+    /** The creature nearest the line of sight within 5 degrees and 160 blocks, with nothing in the way (any mob or player). */
+    private static LivingEntity underSight(ServerLevel level, ServerPlayer p) {
         Vec3 eye = p.getEyePosition(), look = p.getLookAngle();
-        Mob best = null;
+        LivingEntity best = null;
         double bestDot = CONE;
-        for (Mob m : level.getEntitiesOfClass(Mob.class, p.getBoundingBox().inflate(RANGE))) {
-            if (!(m instanceof Enemy) || !m.isAlive()) continue;
+        for (LivingEntity m : level.getEntitiesOfClass(LivingEntity.class, p.getBoundingBox().inflate(RANGE))) {
+            if (m == p || !m.isAlive() || m instanceof net.minecraft.world.entity.decoration.ArmorStand) continue;
+            if (!(m instanceof Mob) && !(m instanceof net.minecraft.world.entity.player.Player)) continue;
+            if (m instanceof net.minecraft.world.entity.player.Player o && (o.isCreative() || o.isSpectator())) continue;
             Vec3 to = m.getBoundingBox().getCenter().subtract(eye);
             if (to.length() > RANGE) continue;
             double dot = to.normalize().dot(look);

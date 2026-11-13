@@ -144,7 +144,8 @@ public final class Sieges implements ModInitializer {
             learn(p, m);
             if (p.isCreative() || busy(p)) { save(p, m); continue; }
             long now = server.overworld().getGameTime();
-            if (m.next < 0) m.next = now + 36000 + p.getRandom().nextInt(36000);
+            int gap = com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(server) ? 18000 : 36000;   // twice as often once air defence exists
+            if (m.next < 0) m.next = now + gap + p.getRandom().nextInt(gap);
             Cell home = shelter(m);
             if (home != null && day >= 3 && now >= m.next && home.dim.equals(dim(p.level()))) {
                 BlockPos c = home.center(p.level());
@@ -152,7 +153,7 @@ public final class Sieges implements ModInitializer {
                     int d = difficulty(p, m, day);
                     begin(p, p.level(), c, pick(p.getRandom(), d, m), d);
                     m.launched++;
-                    m.next = now + 36000 + p.getRandom().nextInt(36000);
+                    m.next = now + gap + p.getRandom().nextInt(gap);
                 }
             }
             save(p, m);

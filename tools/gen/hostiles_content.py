@@ -90,10 +90,11 @@ FORTRESS_TIP = ('§c机械堡垒：§r主世界与所有固态星球上会随机
 
 SAM_TIP = ('§b防空系统：§r装配站可制造三套防空系统，每套由一辆雷达车和一辆发射车组成（放在 48 格内会自动组网）：'
            '「山毛榉 M3」导弹快、射程远，6 联装；「紫菀-30」两级导弹（助推器分离后高速飞行），机动性最强；'
-           '「IRIS-T SLM」红外制导，近程反应快。雷达和发射车都需要电：在车辆 20 格内放一个「防空电池组」即可无线供电，不用拉电缆'
+           '「IRIS-T SLM」红外制导，反应快。三套系统联网后的覆盖半径都是 500 格（雷达探测 520 格）。雷达和发射车都需要电：在车辆 20 格内放一个「防空电池组」即可无线供电，不用拉电缆'
            '（装配站制造，出厂满电，可供一部雷达连续工作约两周，白天顶部太阳能板还会自充，拆下时保留电量）。'
            '发射车会自动挑选威胁最大的机器人目标，导弹按比例导引法追踪并有过载上限，'
-           '急转弯的目标有机会甩掉它。机器人的导弹同样可以靠急转、绕到掩体后面来躲避——等级越高的机器人导弹越难躲、爆炸越大。')
+           '急转弯的目标有机会甩掉它。'
+           '§c注意：§r一旦造出防空系统，机器就会察觉——此后机械部署和对避难所的围攻都会变得更频繁。机器人的导弹同样可以靠急转、绕到掩体后面来躲避——等级越高的机器人导弹越难躲、爆炸越大。')
 
 ARMOR_TIP = ('§a护具：§r宇航服之外，太空服制造台还能做多套地面护具：美军 OCP 作战服、俄军「战士」、中国星空迷彩（防弹）、'
              'SWAT 重型防弹服、EOD 排爆服（大幅减免爆炸伤害但更慢）、防化服（全套免疫辐射、中毒与凋零）、吉利服（潜行时不易被发现）、'
@@ -151,6 +152,9 @@ def dossier(rid):
     return '\n' + '；'.join(parts) + '。'
 
 
+FIRST_DAY = {'hunter_drone': 50}
+
+
 def bestiary():
     base = released('11', 'assets/heliosphere/guide/enemies.json')
     out = []
@@ -163,6 +167,9 @@ def bestiary():
                 e[k] = re.sub(r'伤害\d+(\.\d+)?', f'伤害{dmg}', e[k], count=1)
             if rid in WEAPON_NOTES:
                 e['description'] += '\n§6武器强化：§r' + WEAPON_NOTES[rid]
+        if rid in FIRST_DAY:
+            for k in ('summary', 'description'):
+                e[k] = re.sub(r'第\d+天起', f'第{FIRST_DAY[rid]}天起', e[k], count=1)
         out.append(e)
     for rid, name, family, day, hp, armour, dmg, _, text in NEW:
         stats = f'第{day}天起 · 生命{hp} · 护甲{armour}' + (f' · 伤害{dmg}' if dmg else ' · 不攻击')

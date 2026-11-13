@@ -85,5 +85,6 @@
   "message.heliosphere.sam_battery_status": "防空電池組 · 電量 %s/%s FE（%s%%）· 正在供電 %s 輛防空車（%s 格內）· %s",
   "message.heliosphere.sam_battery_sun": "太陽能充電中",
   "message.heliosphere.sam_battery_dark": "無日照",
-  "message.heliosphere.sam_no_power": "§e沒有電。在 %s 格內放一個「防空電池組」即可無線供電（裝配站製造，出廠滿電），也可以用電纜接到車輛中心方塊。"
+  "message.heliosphere.sam_no_power": "§e沒有電。在 %s 格內放一個「防空電池組」即可無線供電（裝配站製造，出廠滿電），也可以用電纜接到車輛中心方塊。",
+  "message.heliosphere.sam_noticed": "⚠ 機器偵測到了你的防空系統——此後機械部署與對避難所的圍攻都會更加頻繁。"
 }
