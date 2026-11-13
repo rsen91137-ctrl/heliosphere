@@ -28,13 +28,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CabinCameraMixin {
     @Shadow protected abstract void setPosition(Vec3 pos);
     @Shadow protected abstract void setRotation(float yaw, float pitch);
+    @Shadow private boolean detached;
 
     @Unique private static long heliosphere$tick = Long.MIN_VALUE;
     @Unique private static Vec3 heliosphere$prev = Vec3.ZERO, heliosphere$cur = Vec3.ZERO;
 
     @Inject(method = "setup", at = @At("TAIL"))
-    private void heliosphere$ownEyes(Level level, Entity entity, boolean detached, boolean mirrored, float partial, CallbackInfo ci) {
-        if (detached || !RealCabin.active()) { heliosphere$tick = Long.MIN_VALUE; return; }
+    private void heliosphere$ownEyes(Level level, Entity entity, boolean thirdPerson, boolean mirrored, float partial, CallbackInfo ci) {
+        if (thirdPerson || !RealCabin.active()) { heliosphere$tick = Long.MIN_VALUE; return; }
         var p = Minecraft.getInstance().player;
         if (p == null || entity != p) return;
         RocketEntity rocket = RealCabin.rocket();
@@ -51,5 +52,6 @@ public abstract class CabinCameraMixin {
         Vec3 off = new Vec3(local.x * c - local.z * s, local.y, local.x * s + local.z * c);
         setPosition(rocket.getPosition(partial).add(off).add(0, p.getEyeHeight(), 0));
         setRotation(p.getViewYRot(partial), p.getViewXRot(partial));
+        this.detached = false;                // the released descent camera shows the rider; in the cabin you are the eyes
     }
 }

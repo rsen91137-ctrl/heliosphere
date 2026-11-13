@@ -140,9 +140,16 @@ public class WorldGameTest implements FabricClientGameTest {
         server(sp, s -> {
             ServerPlayer p = player(s);
             var l = p.level();
+            int bx = p.getBlockX(), bz = p.getBlockZ();
+            int gy = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, bx, bz + 4);
+            for (int dx = -11; dx <= 11; dx++) for (int dz = -2; dz <= 7; dz++) {      // a clean stage in front of the player
+                l.setBlock(new net.minecraft.core.BlockPos(bx + dx, gy - 1, bz + dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 3);
+                for (int dy = 0; dy < 5; dy++) l.setBlock(new net.minecraft.core.BlockPos(bx + dx, gy + dy, bz + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            p.teleportTo(bx + 0.5, gy + 1.0, bz + 0.5);
             int i = 0;
             for (var set : com.heliosphere.planets.weapon.armor.ArmorSet.values()) {
-                var stand = new net.minecraft.world.entity.decoration.ArmorStand(l, p.getX() - 8 + i * 2, p.getY(), p.getZ() + 4);
+                var stand = new net.minecraft.world.entity.decoration.ArmorStand(l, bx - 7.5 + i * 2, gy, bz + 4.5);
                 stand.setYRot(180); stand.setYBodyRot(180);
                 var items = com.heliosphere.planets.weapon.armor.Armory.PIECES.get(set);
                 stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(items[0]));
@@ -153,9 +160,9 @@ public class WorldGameTest implements FabricClientGameTest {
                 i++;
             }
             p.getAbilities().flying = true; p.onUpdateAbilities();
-            p.teleportTo(p.getX(), p.getY() + 0.5, p.getZ() - 4);
+            p.teleportTo(bx + 0.5, gy + 1.2, bz - 3.5);
         });
-        look(ctx, 0, 10);
+        look(ctx, 0, 12);
         ctx.waitTicks(30);
         shot(ctx, "armor_row");
         cmd(sp, "kill @e[type=armor_stand]");
@@ -342,18 +349,20 @@ public class WorldGameTest implements FabricClientGameTest {
         }
         // follow the flight to its landing: screenshots while coming down in the cabin
         int landShots = 0;
-        for (int i = 0; i < 45 && landShots < 6; i++) {
-            ctx.waitTicks(i < 2 ? 100 : 200);
+        boolean landed = false;
+        for (int i = 0; i < 70 && !landed; i++) {
+            ctx.waitTicks(i < 2 ? 100 : landShots > 0 ? 100 : 200);
             int[] st = new int[2];
             String[] where = new String[1];
             server(sp, s -> {
                 ServerPlayer p = player(s);
                 st[0] = p.getVehicle() instanceof com.heliosphere.rocketry.entity.RocketEntity r ? r.phase() : -1;
-                where[0] = p.level().dimension().identifier() + " " + p.position();
+                where[0] = p.level().dimension().identifier() + " " + p.position() + " vehicle " + (p.getVehicle() == null ? "-" : p.getVehicle().getClass().getSimpleName());
             });
             report.add("[info] flight +" + i + " phase " + st[0] + " at " + where[0]);
-            if (st[0] == -1) break;
-            if (st[0] == 6 || st[0] == 8) {
+            if ((st[0] == 0 || st[0] == -1) && landShots > 0) { landed = true; shot(ctx, "r_landed"); }
+            if (i % 6 == 5 && st[0] != 6 && st[0] != 8) shot(ctx, "r_cruise_" + i);
+            if ((st[0] == 6 || st[0] == 8) && landShots < 8) {
                 if (landShots % 2 == 1) ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 150); });
                 shot(ctx, "r_land_" + landShots++);
             }
