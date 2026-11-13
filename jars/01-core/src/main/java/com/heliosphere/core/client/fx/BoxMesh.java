@@ -54,6 +54,61 @@ public final class BoxMesh {
         box(cx - w / 2, cy - h / 2, cz - d / 2, cx + w / 2, cy + h / 2, cz + d / 2, tile, rgb, true);
     }
 
+    /**
+     * A round body along the local Z axis from z0 to z1: radius r0 at z0 and r1 at z1 (r1 = 0 makes a cone), centred
+     * on (x, y), with {@code sides} facets; ends are capped where the radius is not zero.
+     */
+    public void cyl(double x, double y, double z0, double z1, double r0, double r1, int sides, int tile, int rgb) { cyl(x, y, z0, z1, r0, r1, sides, tile, rgb, false); }
+
+    public void cylGlow(double x, double y, double z0, double z1, double r0, double r1, int sides, int tile, int rgb) { cyl(x, y, z0, z1, r0, r1, sides, tile, rgb, true); }
+
+    private void cyl(double x, double y, double z0, double z1, double r0, double r1, int sides, int tile, int rgb, boolean lit) {
+        if (lit != bright) return;
+        int c = 0xFF000000 | rgb;
+        float u0 = (tile % 8) / 8f, v0 = (tile / 8) / 8f, s = 1 / 8f;
+        double len = z1 - z0, slope = (r0 - r1) / Math.max(1e-6, Math.abs(len));
+        for (int i = 0; i < sides; i++) {
+            double a0 = Math.PI * 2 * i / sides, a1 = Math.PI * 2 * (i + 1) / sides, am = (a0 + a1) / 2;
+            double c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+            float nx = (float) Math.cos(am), ny = (float) Math.sin(am), nz = (float) slope;
+            float ua = u0 + s * i / sides, ub = u0 + s * (i + 1) / sides;
+            vertex(x + r0 * c0, y + r0 * s0, z0, ua, v0 + s, nx, ny, nz, c);
+            vertex(x + r0 * c1, y + r0 * s1, z0, ub, v0 + s, nx, ny, nz, c);
+            vertex(x + r1 * c1, y + r1 * s1, z1, ub, v0, nx, ny, nz, c);
+            vertex(x + r1 * c0, y + r1 * s0, z1, ua, v0, nx, ny, nz, c);
+            if (r0 > 0) {          // cap at z0, facing -Z
+                vertex(x, y, z0, u0 + s / 2, v0 + s / 2, 0, 0, -1, c);
+                vertex(x, y, z0, u0 + s / 2, v0 + s / 2, 0, 0, -1, c);
+                vertex(x + r0 * c1, y + r0 * s1, z0, u0 + s * (float) (0.5 + 0.5 * c1), v0 + s * (float) (0.5 + 0.5 * s1), 0, 0, -1, c);
+                vertex(x + r0 * c0, y + r0 * s0, z0, u0 + s * (float) (0.5 + 0.5 * c0), v0 + s * (float) (0.5 + 0.5 * s0), 0, 0, -1, c);
+            }
+            if (r1 > 0) {          // cap at z1, facing +Z
+                vertex(x, y, z1, u0 + s / 2, v0 + s / 2, 0, 0, 1, c);
+                vertex(x + r1 * c0, y + r1 * s0, z1, u0 + s * (float) (0.5 + 0.5 * c0), v0 + s * (float) (0.5 + 0.5 * s0), 0, 0, 1, c);
+                vertex(x + r1 * c1, y + r1 * s1, z1, u0 + s * (float) (0.5 + 0.5 * c1), v0 + s * (float) (0.5 + 0.5 * s1), 0, 0, 1, c);
+                vertex(x, y, z1, u0 + s / 2, v0 + s / 2, 0, 0, 1, c);
+            }
+        }
+    }
+
+    /** A thin flat fin in the local plane through the Z axis at angle {@code roll}: root chord at r0, tip chord at r1. */
+    public void fin(double roll, double r0, double r1, double rootFront, double rootBack, double tipFront, double tipBack, double thick, int tile, int rgb) {
+        if (bright) return;
+        int c = 0xFF000000 | rgb;
+        float u0 = (tile % 8) / 8f, v0 = (tile / 8) / 8f, s = 1 / 8f;
+        double cr = Math.cos(roll), sr = Math.sin(roll), px = -sr * thick / 2, py = cr * thick / 2;
+        double[][] q = {{r0, rootBack}, {r0, rootFront}, {r1, tipFront}, {r1, tipBack}};
+        for (int side = -1; side <= 1; side += 2) {
+            float nx = (float) (-sr * side), ny = (float) (cr * side);
+            double ox = px * side, oy = py * side;
+            int[] order = side > 0 ? new int[]{0, 1, 2, 3} : new int[]{3, 2, 1, 0};
+            for (int k : order) {
+                double r = q[k][0], z = q[k][1];
+                vertex(cr * r + ox, sr * r + oy, z, u0 + s * (float) ((r - r0) / Math.max(1e-6, r1 - r0)), v0 + s * (k < 2 ? 1 : 0), nx, ny, 0, c);
+            }
+        }
+    }
+
     private void box(double x0, double y0, double z0, double x1, double y1, double z1, int tile, int rgb, boolean lit) {
         if (lit != bright) return;
         int c = 0xFF000000 | rgb;

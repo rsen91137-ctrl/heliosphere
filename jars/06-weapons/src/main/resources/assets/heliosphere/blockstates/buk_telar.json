@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heliosphere:block/sam_vehicle"
+    },
+    "facing=south": {
+      "model": "heliosphere:block/sam_vehicle"
+    },
+    "facing=east": {
+      "model": "heliosphere:block/sam_vehicle"
+    },
+    "facing=west": {
+      "model": "heliosphere:block/sam_vehicle"
+    }
+  }
+}

@@ -8,10 +8,12 @@
   ],
   "entrypoints": {
     "main": [
-      "com.heliosphere.planets.defense.mk.Sentries"
+      "com.heliosphere.planets.defense.mk.Sentries",
+      "com.heliosphere.planets.defense.sam.SamSites"
     ],
     "client": [
-      "com.heliosphere.planets.defense.mk.SentryClient"
+      "com.heliosphere.planets.defense.mk.SentryClient",
+      "com.heliosphere.planets.defense.sam.client.SamClient"
     ]
   }
 }

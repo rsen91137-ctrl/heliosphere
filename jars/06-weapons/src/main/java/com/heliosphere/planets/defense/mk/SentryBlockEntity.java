@@ -158,16 +158,12 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
                 level.playSound(null, worldPosition, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.9f, 1.7f);
             }
             case MISSILE -> {
-                int flight = 10 + (int) (head.distanceTo(at) / 4);
-                CombatVfx.send(level, CombatVfx.MORTAR, flight, muzzle, at, 1f);
-                level.playSound(null, worldPosition, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.BLOCKS, 1.2f, 0.7f);
-                Sentries.later(level, flight, () -> {
-                    Vec3 end = t.isAlive() ? t.getBoundingBox().getCenter() : at;
-                    CombatVfx.send(level, CombatVfx.EXPLOSION, k.colour, end, end, 2.2f);
-                    for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(end, end).inflate(4.5)))
-                        if (m instanceof Enemy && m.isAlive()) hit(level, m, dmg * (float) Math.max(0.35, 1 - m.position().distanceTo(end) / 4.5));
-                    level.playSound(null, end.x, end.y, end.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.6f, 1.0f);
-                });
+                // a real guided missile (see GuidedMissile, TURRET): it climbs out of the pod and chases the target
+                Player p = owner == null ? null : level.getPlayerByUUID(owner);
+                Vec3 up = at.subtract(muzzle).normalize().add(0, 0.5, 0).normalize();
+                com.heliosphere.planets.defense.sam.GuidedMissile.launch(level, com.heliosphere.planets.defense.sam.MissileSpec.TURRET, p,
+                        com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, t, head.add(0, 0.5, 0), up, dmg, 0);
+                level.playSound(null, worldPosition, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.BLOCKS, 1.4f, 0.7f);
             }
             case RAIL -> {
                 Vec3 dir = at.subtract(muzzle).normalize();

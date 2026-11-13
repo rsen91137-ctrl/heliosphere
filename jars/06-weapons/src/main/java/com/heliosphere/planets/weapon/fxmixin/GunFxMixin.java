@@ -47,9 +47,26 @@ public abstract class GunFxMixin {
         com.heliosphere.planets.weapon.guided.SmartLauncher.launch(level, player, ((GunItem) (Object) this).stats().damage());
     }
 
-    /** Marks the shot so that explosions it causes (see LevelExplodeFxMixin) also get their effect. */
-    @Inject(method = "ballistics", at = @At("HEAD"))
+    /**
+     * Marks the shot so that explosions it causes (see LevelExplodeFxMixin) also get their effect. The tactical
+     * nuke does not hit-scan at all: a 5000-block ray would load every chunk along it on the spot and stall the
+     * server mid-shot (the round then seemed not to be spent and the launcher hung). It fires a warhead rocket
+     * that flies the distance instead (see GuidedMissile, NUKE_ROCKET).
+     */
+    @Inject(method = "ballistics", at = @At("HEAD"), cancellable = true)
     private void heliosphere$shotBegins(ServerLevel level, ServerPlayer player, ItemStack stack, CallbackInfo ci) {
+        if (spec.effect() == GunItem.Effect.NUKE) {
+            ci.cancel();
+            net.minecraft.world.phys.Vec3 look = player.getLookAngle();
+            net.minecraft.world.phys.Vec3 from = player.getEyePosition().add(look.scale(1.2)).add(0, -0.15, 0);
+            com.heliosphere.planets.defense.sam.GuidedMissile.launch(level, com.heliosphere.planets.defense.sam.MissileSpec.NUKE_ROCKET, player,
+                    com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, null, from, look, 0, 0);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_LARGE_BLAST,
+                    net.minecraft.sounds.SoundSource.PLAYERS, 3f, 0.45f);
+            level.playSound(null, player.getX(), player.getY(), player.getZ(), net.minecraft.sounds.SoundEvents.GENERIC_EXPLODE.value(),
+                    net.minecraft.sounds.SoundSource.PLAYERS, 1.2f, 1.6f);
+            return;
+        }
         GunBurst.begin(spec);
     }
 

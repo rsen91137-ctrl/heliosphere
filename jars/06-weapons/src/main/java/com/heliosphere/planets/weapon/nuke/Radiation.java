@@ -27,6 +27,7 @@ public final class Radiation {
     /** Fraction of the dose that reaches the body. A sealed suit stops nearly all of it; better suits, more. */
     public static float exposure(LivingEntity e) {
         if (e instanceof Player p && (p.isCreative() || p.isSpectator())) return 0;
+        if (com.heliosphere.planets.weapon.armor.ArmorEffects.radiationProof(e)) return 0;
         SpaceSuits.Protection suit = SpaceSuits.of(e);
         if (!suit.sealed()) return 1f;
         return suit.tier() >= 3 ? 0f : suit.tier() == 2 ? 0.05f : 0.15f;

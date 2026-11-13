@@ -38,7 +38,21 @@ public final class Missiles {
 
     public static void end() { CURRENT.remove(); }
 
+    /** A machine fires a guided missile of its technology level (see MissileSpec.machine and MachineWarheads). */
+    public static void fire(ServerLevel level, TechMob mob, LivingEntity target, Vec3 from, Vec3 dir, float damage) {
+        int tier = mob.role() != null ? EnemyRoster.tier(mob.role().id()) : 3;
+        com.heliosphere.planets.defense.sam.GuidedMissile.launch(level, com.heliosphere.planets.defense.sam.MissileSpec.machine(tier), mob,
+                com.heliosphere.planets.defense.sam.GuidedMissile.Side.MACHINE, target, from, dir, damage, tier);
+        level.playSound(null, from.x, from.y, from.z, net.minecraft.sounds.SoundEvents.FIREWORK_ROCKET_LAUNCH, net.minecraft.sounds.SoundSource.HOSTILE, 1.6f, 0.6f);
+    }
+
     static void init() {
+        com.heliosphere.planets.defense.sam.GuidedMissile.BLAST_HOOKS.add((level, missile, at) -> {
+            if (missile.side() != com.heliosphere.planets.defense.sam.GuidedMissile.Side.MACHINE) return;
+            int tier = com.heliosphere.planets.defense.sam.MachineWarheads.clamp(missile.tier());
+            MachineBlast.crater(level, at, com.heliosphere.planets.defense.sam.MachineWarheads.crater(tier),
+                    com.heliosphere.planets.defense.sam.MachineWarheads.resistanceLimit(tier));
+        });
         CombatVfx.LISTENERS.add((level, kind, color, start, end, strength) -> {
             TechProjectile p = CURRENT.get();
             if (p == null || kind != CombatVfx.RING || p.mode() != 3) return;

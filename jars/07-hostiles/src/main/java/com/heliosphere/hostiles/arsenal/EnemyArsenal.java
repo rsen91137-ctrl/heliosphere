@@ -97,6 +97,16 @@ public final class EnemyArsenal implements ModInitializer {
     /** Returns true when this overlay handled the attack (the released code must not run). */
     public static boolean fire(TechMob mob, ServerLevel level, LivingEntity target, Vec3 aim) {
         TechCombat.Role r = role(mob);
+        if (r != null && r.mode() == 3) {                                  // missiles: the new guided missile replaces the old round
+            Vec3 from = mob.getEyePosition().add(0, 0.3, 0);
+            Missiles.fire(level, mob, target, from, target.getEyePosition().subtract(from).normalize().add(0, 0.6, 0), r.damage());
+            later(level, 8, () -> {                                        // and its pair
+                if (!mob.isAlive() || !target.isAlive()) return;
+                Vec3 f2 = mob.getEyePosition().add(0, 0.3, 0);
+                Missiles.fire(level, mob, target, f2, target.getEyePosition().subtract(f2).normalize().add(0.15, 0.6, -0.15), r.damage());
+            });
+            return true;
+        }
         if (r == null || r.mode() < EnemyRoster.FLAME) return false;
         Vec3 eye = mob.getEyePosition();
         switch (r.mode()) {
@@ -220,7 +230,7 @@ public final class EnemyArsenal implements ModInitializer {
                     if (!mob.isAlive() || !target.isAlive()) return;
                     Vec3 from = mob.getEyePosition().add((shot % 2 == 0 ? -1 : 1) * 1.1, 0.8, 0);
                     Vec3 dir = new Vec3(level.random.nextGaussian() * 0.25, 1.2, level.random.nextGaussian() * 0.25);
-                    TechProjectile.launch(level, mob, target, from, from.add(dir), 3, r.damage() * 0.55f);
+                    Missiles.fire(level, mob, target, from, dir, r.damage() * 0.55f);
                 });
             }
             if (target instanceof ServerPlayer p) p.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.heliosphere.titan_salvo"), true);
@@ -312,7 +322,7 @@ public final class EnemyArsenal implements ModInitializer {
                 later(level, i * 4, () -> {
                     if (!mob.isAlive() || !target.isAlive()) return;
                     Vec3 from = mob.position().add((shot % 2 == 0 ? -1.8 : 1.8), 0.4, 0);
-                    TechProjectile.launch(level, mob, target, from, from.add(level.random.nextGaussian() * 0.4, 1.0, level.random.nextGaussian() * 0.4), 3, r.damage() * 0.6f);
+                    Missiles.fire(level, mob, target, from, new Vec3(level.random.nextGaussian() * 0.4, 1.0, level.random.nextGaussian() * 0.4), r.damage() * 0.6f);
                 });
             }
             if (target instanceof ServerPlayer p) p.displayClientMessage(net.minecraft.network.chat.Component.translatable("message.heliosphere.titan_salvo"), true);
@@ -442,7 +452,8 @@ public final class EnemyArsenal implements ModInitializer {
             case 3 -> later(level, 8, () -> {                       // missiles: launched in pairs
                 if (!mob.isAlive() || !target.isAlive()) return;
                 Vec3 from = mob.getEyePosition().add(0, 0.3, 0);
-                TechProjectile.launch(level, mob, target, from, from.add(0, 1.5, 0), 3, r.damage());
+                Vec3 dir = target.getEyePosition().subtract(from).normalize().add(0, 0.6, 0);
+                Missiles.fire(level, mob, target, from, dir, r.damage());
             });
             case 6 -> {                                            // rail: the slug's impact bursts
                 Vec3 from = mob.getEyePosition();

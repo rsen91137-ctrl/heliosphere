@@ -50,9 +50,10 @@ import java.util.WeakHashMap;
  *   <li>The instant: thermal flash (anything in line of sight within the fire radius burns) and the fireball.</li>
  *   <li>The blast wave leaves ground zero at the speed the cloud effect draws it, and hurts, throws and
  *       deafens whatever it reaches when it reaches it, not before.</li>
- *   <li>The crater is dug a slice at a time so the server keeps its tick rate: a bowl whose floor is zoned
- *       from the centre out: a pool of melt and fused glass, a ring of glassed and baked rock, then rubble
- *       thrown up into a rim.</li>
+ *   <li>The crater is dug a slice at a time so the server keeps its tick rate. Every column is dug down from its
+ *       own ground (or from ground zero where it stands higher), so the crater follows the terrain; its floor is
+ *       zoned from the centre out: melt and fused glass, glassed and baked rock, then rubble thrown into a rim.
+ *       Nothing is ever placed in open air.</li>
  *   <li>Beyond the crater the surface is scorched: vegetation burns off, soil bakes, fires start, and
  *       radioactive ash settles.</li>
  *   <li>Fallout: for twelve minutes the area doses anyone without a sealed suit; the glass and ash stay
@@ -276,41 +277,55 @@ public final class Nuke {
             if (chunk == null) return;                                       // wait for it; resume on a later tick
             b.column++;
             int surface = Math.min(level.getMaxY() - 1, chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15));
+            // this column's own natural ground: below its trees, buildings and plants
+            int groundY = surface;
+            for (int guard = 0; guard < 160 && groundY > level.getMinY() + 1; guard++, groundY--) {
+                BlockState st = level.getBlockState(p.set(x, groundY, z));
+                if (!st.isAir() && ground(st)) break;
+            }
             float wobble = (noise(b, x, z, 0.09f, 1) - 0.5f) * 0.16f;
             float rn = (float) (r / crater) + wobble;                        // normalised radius with a ragged edge
             int h = Rng.hash(x * 31 + z * 17 + b.seed);
 
-            if (rn >= 1f) {                                                  // the rim: ejecta heaped on the old surface
+            if (rn >= 1f) {                                                  // the rim: ejecta heaped on the real ground
+                if (!ground(level.getBlockState(p.set(x, groundY, z)))) continue;
                 int pile = Math.round((1.14f - rn) / 0.14f * (2.2f + 2.5f * noise(b, x, z, 0.21f, 2)));
-                for (int i = 1; i <= pile && surface + i < level.getMaxY(); i++) {
-                    p.set(x, surface + i, z);
-                    if (!level.getBlockState(p).isAir()) break;
+                for (int i = 1; i <= pile && groundY + i < level.getMaxY(); i++) {
+                    p.set(x, groundY + i, z);
+                    BlockState above = level.getBlockState(p);
+                    if (!above.isAir() && !above.canBeReplaced()) break;
                     level.setBlock(p, rubble(h + i * 7), SILENT);
                     budget--;
                 }
                 continue;
             }
-            // the bowl: deepest in the middle, a little uneven
+            // the bowl, measured from this column's ground (or from ground zero where the column stands higher):
+            // the crater follows the terrain instead of being stamped at one height
             float bowl = (float) Math.pow(1 - rn * rn, 0.85);
-            int floor = Math.max(level.getMinY() + 1, cy - 1 - Math.round(CRATER_DEPTH * b.k() * bowl + (noise(b, x, z, 0.17f, 3) - 0.5f) * 3f));
-            for (int y = Math.max(surface, floor + 1); y > floor; y--) {
+            int ref = Math.min(groundY, cy);
+            int depth = Math.round(CRATER_DEPTH * b.k() * bowl + (noise(b, x, z, 0.17f, 3) - 0.5f) * 3f);
+            int floor = Math.max(level.getMinY() + 1, ref - Math.max(1, depth));
+            for (int y = surface; y > floor; y--) {                          // everything above the floor goes, trees and buildings too
                 p.set(x, y, z);
                 BlockState state = level.getBlockState(p);
                 if (state.isAir() || state.getDestroySpeed(level, p) < 0) continue;
                 level.setBlock(p, Blocks.AIR.defaultBlockState(), SILENT);
                 budget--;
             }
-            // the floor: two blocks of whatever the heat made of the rock here
+            // the floor: the rock that is there turns to glass, slag and baked stone; nothing is set in open air,
+            // so a cave below simply opens up
             for (int y = floor; y > floor - 2 && y > level.getMinY(); y--) {
                 p.set(x, y, z);
                 BlockState state = level.getBlockState(p);
-                if (state.getDestroySpeed(level, p) < 0) continue;
-                level.setBlock(p, floorBlock(rn, h + y * 13, y == floor, b, x, z), SILENT);
+                if (state.isAir() || !state.getFluidState().isEmpty() && !state.is(Blocks.WATER) || state.getDestroySpeed(level, p) < 0) continue;
+                BlockState glass = floorBlock(rn, h + y * 13, y == floor, b, x, z);
+                if (glass.is(Blocks.LAVA) && level.getBlockState(p.below()).isAir()) glass = NukeContent.TRINITITE.defaultBlockState();
+                level.setBlock(p, glass, SILENT);
                 budget--;
             }
             if (air && rn > 0.45f && (h >>> 9) % 23 == 0) {
                 p.set(x, floor + 1, z);
-                if (level.getBlockState(p).isAir()) level.setBlock(p, BaseFireBlock.getState(level, p), 3);
+                if (level.getBlockState(p).isAir() && !level.getBlockState(p.below()).isAir()) level.setBlock(p, BaseFireBlock.getState(level, p), 3);
             }
         }
     }

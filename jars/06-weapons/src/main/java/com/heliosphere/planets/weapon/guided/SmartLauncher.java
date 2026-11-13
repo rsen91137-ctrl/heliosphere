@@ -1,6 +1,7 @@
 package com.heliosphere.planets.weapon.guided;
 
-import com.heliosphere.planets.tech.TechProjectile;
+import com.heliosphere.planets.defense.sam.GuidedMissile;
+import com.heliosphere.planets.defense.sam.MissileSpec;
 import com.heliosphere.planets.weapon.GunItem;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,8 +23,10 @@ import java.util.UUID;
 
 /**
  * The guided missile launcher. Aim down the sights at an enemy for a second and it locks (a tone and a message);
- * the missile then hunts that target. Fired without a lock, the missile flies on and its seeker turns onto the
- * first enemy that comes into its view (see Missiles in the hostiles module).
+ * while locked a steady tone plays and the bar shows range and the guidance the missile will fly: pure pursuit
+ * against a slow target, proportional navigation against a fast one (see GuidedMissile; a fast, hard-turning target
+ * can still out-turn it). Fired without a lock, the missile flies on and its seeker turns onto the first enemy that
+ * comes into view.
  */
 public final class SmartLauncher {
     private SmartLauncher() {}
@@ -50,7 +53,16 @@ public final class SmartLauncher {
                 Vec3 to = locked.getBoundingBox().getCenter().subtract(p.getEyePosition());
                 boolean inView = locked.isAlive() && to.length() < RANGE * 1.25 && to.normalize().dot(p.getLookAngle()) > KEEP;
                 if (!inView && now - lock.lostAt > HOLD_TICKS) { lock.locked = null; p.displayClientMessage(Component.translatable("message.heliosphere.lock_lost"), true); }
-                else if (inView) lock.lostAt = now;
+                else if (inView) {
+                    lock.lostAt = now;
+                    if (now % 10 == 0) {
+                        Vec3 v = locked.getDeltaMovement();
+                        boolean fast = v.length() > 0.35;
+                        p.displayClientMessage(Component.translatable("message.heliosphere.lock_hold", locked.getDisplayName(), (int) to.length(),
+                                Component.translatable(fast ? "message.heliosphere.guidance_pn" : "message.heliosphere.guidance_pursuit")), true);
+                        level.playSound(null, p.blockPosition(), SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.PLAYERS, 0.35f, 1.9f);
+                    }
+                }
             }
             if (!GunItem.isAiming(p)) { lock.candidate = null; lock.ticks = 0; continue; }
             Mob aim = underSight(level, p);
@@ -90,9 +102,10 @@ public final class SmartLauncher {
     public static void launch(ServerLevel level, ServerPlayer p, float damage) {
         Lock lock = LOCKS.get(p.getUUID());
         LivingEntity target = lock == null || lock.locked == null ? null : level.getEntity(lock.locked) instanceof LivingEntity le && le.isAlive() ? le : null;
-        Vec3 from = p.getEyePosition().add(p.getLookAngle().scale(1.2)).add(0, -0.2, 0);
-        TechProjectile.launch(level, p, target, from, from.add(p.getLookAngle().scale(10)).add(0, 1.2, 0), 3, damage);
-        level.playSound(null, p.blockPosition(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.PLAYERS, 1.4f, 0.7f);
+        Vec3 look = p.getLookAngle();
+        Vec3 from = p.getEyePosition().add(look.scale(1.4)).add(0, -0.2, 0);
+        GuidedMissile.launch(level, MissileSpec.PLAYER, p, GuidedMissile.Side.DEFENCE, target, from, look.add(0, 0.06, 0), damage * 1.6f, 0);
+        level.playSound(null, p.blockPosition(), SoundEvents.FIREWORK_ROCKET_LARGE_BLAST, SoundSource.PLAYERS, 1.6f, 0.7f);
         if (target == null) p.displayClientMessage(Component.translatable("message.heliosphere.seeker_search"), true);
     }
 }

@@ -47,6 +47,9 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "icons" -> icons(ctx, sp);
                     case "rocket" -> rocket(ctx, sp);
                     case "giant" -> giant(ctx, sp, "jupiter");
+                    case "sam" -> sam(ctx, sp);
+                    case "nuke" -> nuke(ctx, sp);
+                    case "dodge" -> dodge(ctx, sp);
                     case "neptune" -> giant(ctx, sp, "neptune");
                     default -> extra(ctx, sp, part);
                 }
@@ -306,6 +309,150 @@ public class WorldGameTest implements FabricClientGameTest {
                         + " block below " + p.level().getBlockState(p.blockPosition().below(3)));
             });
         }
+    }
+
+    /** Three batteries (radar + launcher each) on a flat range; drones come in from the north. */
+    private void sam(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -30; dx <= 30; dx++) for (int dz = -20; dz <= 20; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, y - 1, z0 + dz), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 2);
+                for (int dy = 0; dy < 20; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, y + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            o[0] = x0; o[1] = y; o[2] = z0;
+            String[][] batteries = {{"buk_tads", "buk_telar"}, {"samp_tads", "samp_tel"}, {"iris_tads", "iris_tel"}};
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 2; j++) {
+                    var pos = new net.minecraft.core.BlockPos(x0 - 18 + i * 18 + (j == 0 ? -3 : 3), y, z0 + 6);
+                    var block = com.heliosphere.core.Reg.getBlock(batteries[i][j]);
+                    var state = block.defaultBlockState().setValue(com.heliosphere.planets.defense.sam.SamBlock.FACING, net.minecraft.core.Direction.NORTH);
+                    l.setBlock(pos, state, 3);
+                    block.setPlacedBy(l, pos, state, p, new net.minecraft.world.item.ItemStack(block.asItem()));
+                    if (l.getBlockEntity(pos) instanceof com.heliosphere.planets.defense.sam.SamBlockEntity be) be.setEnergy(be.capacity());
+                }
+            }
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            p.teleportTo(x0 + 0.5, y + 7, z0 + 24.5);
+        });
+        look(ctx, 180, 12);
+        ctx.waitTicks(40);
+        sp.getClientWorld().waitForChunksRender();
+        shot(ctx, "sam_batteries");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            p.teleportTo(o[0] + 9.5, o[1] + 3, o[2] + 14.5);
+        });
+        look(ctx, 160, 8);
+        ctx.waitTicks(10);
+        shot(ctx, "sam_close");
+        // targets: drones approaching from the north at altitude
+        server(sp, s -> {
+            var l = player(s).level();
+            String[] ids = {"plasma_drone", "hunter_drone", "missile_drone", "plasma_drone", "assault_drone", "hunter_drone"};
+            for (int i = 0; i < ids.length; i++) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, ids[i], o[0] - 40 + i * 16, o[1] + 30 + (i % 3) * 8, o[2] - 90 - (i % 2) * 20, null);
+                if (m != null) { m.setNoAi(false); m.setDeltaMovement(0, 0, 0.4); }
+            }
+        });
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            p.teleportTo(o[0] + 0.5, o[1] + 10, o[2] + 30.5);
+        });
+        look(ctx, 180, -12);
+        int[] waits = {30, 20, 20, 30, 40, 60, 80};
+        for (int i = 0; i < waits.length; i++) {
+            ctx.waitTicks(waits[i]);
+            shot(ctx, "sam_engage_" + i);
+        }
+        server(sp, s -> {
+            var l = player(s).level();
+            int alive = 0;
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 200, o[1] - 50, o[2] - 250, o[0] + 200, o[1] + 150, o[2] + 100))) alive++;
+            report.add("[info] drones left after engagement: " + alive);
+        });
+        cmd(sp, "kill @e[type=!player]");
+    }
+
+    /** The nuke against a hillside: the crater must follow the ground and leave nothing hanging in the air. */
+    private void nuke(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x0 = p.getBlockX() + 400, z0 = p.getBlockZ();
+            l.getChunk(x0 >> 4, z0 >> 4);
+            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            o[0] = x0; o[1] = y; o[2] = z0;
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            p.teleportTo(x0 - 160.5, y + 60, z0 + 0.5);
+            var look = new net.minecraft.world.phys.Vec3(160, -60, 0).normalize();
+            com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.NUKE_ROCKET, p,
+                    com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, null, p.getEyePosition().add(look.scale(2)), look, 0, 0);
+        });
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        cmd(sp, "gamemode creative @a");
+        look(ctx, -90, 20);
+        ctx.waitTicks(25);
+        shot(ctx, "nuke_flight");
+        ctx.waitTicks(1200);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            p.teleportTo(o[0] - 110.5, o[1] + 70, o[2] + 0.5);
+            // count blocks with air under them inside the crater area: floating debris
+            var l = p.level();
+            int floating = 0;
+            for (int dx = -80; dx <= 80; dx += 2) for (int dz = -80; dz <= 80; dz += 2) {
+                int x = o[0] + dx, z = o[2] + dz;
+                int top = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z);
+                for (int yy = top - 1; yy > top - 6; yy--) {
+                    var pos = new net.minecraft.core.BlockPos(x, yy, z);
+                    if (l.getBlockState(pos).isAir() && !l.getBlockState(pos.above()).isAir() && l.getBlockState(pos.above()).isSolid()) { floating++; break; }
+                }
+            }
+            report.add("[info] nuke crater columns with a hanging block: " + floating);
+        });
+        look(ctx, -90, 30);
+        ctx.waitTicks(80);
+        sp.getClientWorld().waitForChunksRender();
+        shot(ctx, "nuke_crater");
+        look(ctx, -60, 45);
+        ctx.waitTicks(20);
+        shot(ctx, "nuke_crater2");
+    }
+
+    /** Machine missiles of three levels against a player standing in the open: they hit, but cover saves you. */
+    private void dodge(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "gamemode survival @a");
+        cmd(sp, "effect give @a resistance infinite 3 true");
+        cmd(sp, "effect give @a regeneration infinite 4 true");
+        for (int tier : new int[]{2, 6, 10}) {
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                p.getAbilities().flying = false; p.onUpdateAbilities();
+                var mob = com.heliosphere.planets.tech.TechCombat.spawn(l, tier >= 9 ? "colossus" : tier >= 5 ? "hunter_drone" : "missile_drone",
+                        p.getX() + 30, p.getY() + 12, p.getZ(), null);
+                if (mob != null) {
+                    mob.setNoAi(true);
+                    var dir = p.getEyePosition().subtract(mob.getEyePosition()).normalize().add(0, 0.5, 0);
+                    com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.machine(tier), mob,
+                            com.heliosphere.planets.defense.sam.GuidedMissile.Side.MACHINE, p, mob.getEyePosition(), dir, 10, tier);
+                }
+            });
+            look(ctx, -90, -10);
+            ctx.waitTicks(12);
+            shot(ctx, "dodge_t" + tier + "_flight");
+            ctx.waitTicks(40);
+            look(ctx, -90, 30);
+            shot(ctx, "dodge_t" + tier + "_after");
+            cmd(sp, "kill @e[type=!player,type=!item]");
+            ctx.waitTicks(10);
+        }
+        cmd(sp, "gamemode creative @a");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }
