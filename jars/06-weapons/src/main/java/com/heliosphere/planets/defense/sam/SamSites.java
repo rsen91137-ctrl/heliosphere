@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.MapColor;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /** Registers the guided missile, the six air-defence vehicles, their hull, the battery pack and recipes. */
@@ -25,7 +26,21 @@ public final class SamSites implements ModInitializer {
     public static final Map<SamKind, SamBlock> BLOCKS = new EnumMap<>(SamKind.class);
     public static Block HULL;
     public static BlockEntityType<SamBlockEntity> BLOCK_ENTITY;
-    public static Block BATTERY;
+    public static Block BATTERY, CRATE;
+    public static BlockEntityType<AmmoCrateBlockEntity> CRATE_ENTITY;
+    /** The three systems and the missile round each one fires. */
+    public static final List<String> SYSTEMS = List.of("buk", "samp", "iris");
+    private static final Map<String, String> ROUNDS = Map.of("buk", "missile_9m317ma", "samp", "missile_aster30", "iris", "missile_iris_t_sl");
+
+    public static String roundOf(String system) { return ROUNDS.get(system); }
+
+    /** The system a missile round belongs to, or null if the stack is no round. */
+    public static String systemOf(net.minecraft.world.item.ItemStack stack) {
+        if (stack.isEmpty()) return null;
+        String id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+        for (Map.Entry<String, String> e : ROUNDS.entrySet()) if (e.getValue().equals(id)) return e.getKey();
+        return null;
+    }
     public static BlockEntityType<FieldBatteryBlockEntity> BATTERY_ENTITY;
 
     @Override
@@ -43,6 +58,10 @@ public final class SamSites implements ModInitializer {
         BATTERY = Reg.block("sam_battery", FieldBatteryBlock::new, Reg.metal(MapColor.COLOR_GREEN, 5f).noLootTable());
         Reg.blockItem(BATTERY, "sam_battery", FieldBatteryItem::new, new Item.Properties().stacksTo(16));
         BATTERY_ENTITY = Reg.blockEntity("sam_battery", FieldBatteryBlockEntity::new, BATTERY);
+        CRATE = Reg.blockWithItem("sam_ammo_crate", AmmoCrateBlock::new, Reg.metal(MapColor.COLOR_GREEN, 4f));
+        CRATE_ENTITY = Reg.blockEntity("sam_ammo_crate", AmmoCrateBlockEntity::new, CRATE);
+        for (String r : ROUNDS.values()) Reg.item(r, Item::new, new Item.Properties().stacksTo(16));
+        for (String part : List.of("sam_chassis", "phased_array_antenna", "fire_control_computer", "launcher_module")) Reg.item(part, Item::new, new Item.Properties());
         MachineType.addProvider(SamSites::recipes);
         com.heliosphere.planets.weapon.ammo.AmmoBox.init();
         com.heliosphere.planets.weapon.armor.Armory.init();
@@ -72,12 +91,26 @@ public final class SamSites implements ModInitializer {
     private static void recipes() {
         MachineType asm = MachineType.get("assembly_station");
         if (asm == null) return;
-        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 24).in(I("circuit_board"), 12).in(I("processor"), 6).in(I("copper_wire"), 32).in(I("ndfeb_magnet"), 6).out(I("buk_tads")).time(1200).power(160));
-        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 28).in(I("guidance_computer"), 4).in(I("rdx"), 24).in(I("electric_motor"), 4).in(I("processor"), 4).out(I("buk_telar")).time(1400).power(180));
-        asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 16).in(I("circuit_board"), 16).in(I("processor"), 10).in(I("copper_wire"), 40).in(I("ndfeb_magnet"), 10).out(I("samp_tads")).time(1600).power(220));
-        asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 20).in(I("guidance_computer"), 8).in(I("rdx"), 32).in(I("processor"), 8).in(I("inconel_plate"), 6).out(I("samp_tel")).time(1800).power(240));
-        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 18).in(I("circuit_board"), 10).in(I("processor"), 6).in(I("copper_wire"), 28).in(I("ndfeb_magnet"), 4).out(I("iris_tads")).time(1000).power(140));
-        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 20).in(I("guidance_computer"), 4).in(I("rdx"), 16).in(I("processor"), 4).in(I("electric_motor"), 2).out(I("iris_tel")).time(1100).power(150));
+        // the vehicles are strong, so they are built from four major assemblies, each a project of its own
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 24).in(I("stainless_steel_plate"), 8).in(I("electric_motor"), 6).in(I("battery_cell"), 8).in(I("carbon_fiber"), 4)
+                .out(I("sam_chassis")).time(1600).power(200));
+        asm.recipe(MachineRecipe.of().in(I("silicon_wafer"), 8).in(I("rad_hard_chip"), 4).in(I("copper_wire"), 32).in(I("ndfeb_magnet"), 8).in(I("al_li_plate"), 6)
+                .out(I("phased_array_antenna")).time(2000).power(260));
+        asm.recipe(MachineRecipe.of().in(I("processor"), 8).in(I("guidance_computer"), 4).in(I("rad_hard_chip"), 2).in(I("circuit_board"), 8)
+                .out(I("fire_control_computer")).time(1800).power(240));
+        asm.recipe(MachineRecipe.of().in(I("inconel_plate"), 6).in(I("steel_plate"), 16).in(I("electric_motor"), 4).in(I("carbon_fiber"), 4)
+                .out(I("launcher_module")).time(1400).power(200));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("phased_array_antenna"), 2).in(I("fire_control_computer"), 1).in(I("steel_plate"), 12).out(I("buk_tads")).time(3000).power(300));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("launcher_module"), 1).in(I("phased_array_antenna"), 1).in(I("fire_control_computer"), 1).in(I("steel_plate"), 12).out(I("buk_telar")).time(3200).power(300));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("phased_array_antenna"), 3).in(I("fire_control_computer"), 2).in(I("ti64_plate"), 12).out(I("samp_tads")).time(3600).power(340));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("launcher_module"), 2).in(I("fire_control_computer"), 1).in(I("ti64_plate"), 12).in(I("inconel_plate"), 6).out(I("samp_tel")).time(3400).power(320));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("phased_array_antenna"), 2).in(I("fire_control_computer"), 1).in(I("al_li_plate"), 8).out(I("iris_tads")).time(2800).power(280));
+        asm.recipe(MachineRecipe.of().in(I("sam_chassis"), 1).in(I("launcher_module"), 1).in(I("fire_control_computer"), 1).in(I("steel_plate"), 12).out(I("iris_tel")).time(2800).power(280));
+        // ammunition is simple: a case, a charge and a guidance board
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 10).in(I("copper_wire"), 8).in(I("circuit_board"), 2).out(I("sam_ammo_crate")).time(300).power(40));
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 2).in(I("rdx"), 2).in(I("circuit_board"), 1).out(I("missile_9m317ma"), 2).time(200).power(40));
+        asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 2).in(I("rdx"), 2).in(I("circuit_board"), 1).out(I("missile_aster30"), 2).time(240).power(50));
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 2).in(I("rdx"), 1).in(I("circuit_board"), 1).out(I("missile_iris_t_sl"), 2).time(160).power(40));
         asm.recipe(MachineRecipe.of().in(I("battery_cell"), 16).in(I("solar_cell"), 6).in(I("steel_plate"), 10).in(I("copper_wire"), 24).in(I("circuit_board"), 4).out(I("sam_battery")).time(600).power(80));
     }
 }

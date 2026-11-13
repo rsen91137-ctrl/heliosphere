@@ -118,7 +118,7 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         tracks.clear();
         Vec3 eye = sensor();
         for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(eye, eye).inflate(k.radarRange))) {
-            if (!(m instanceof Enemy) || !m.isAlive()) continue;
+            if (!AirTargets.is(m)) continue;                                    // air targets only
             Vec3 c = m.getBoundingBox().getCenter();
             if (c.distanceTo(eye) > k.radarRange) continue;
             if (!visible(level, eye, m)) continue;
@@ -129,9 +129,15 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
     private void launcherTick(ServerLevel level, SamKind k) {
         if (cooldown > 0) cooldown--;
         // reload from the grid
+        // rearm from an ammunition crate nearby (as in War Thunder): no crate with our rounds, no reload
         if (ammo < k.magazine) {
-            long per = Math.max(1, k.energy / Math.max(1, k.reload));
-            if (power >= per) { power -= per; if (++reloadTicks >= k.reload) { ammo++; reloadTicks = 0; sync(); } }
+            int time = Math.max(20, k.reload / 2);
+            long per = Math.max(1, k.energy / Math.max(1, time));
+            AmmoCrateBlockEntity crate = AmmoCrateBlockEntity.near(level, origin(), k.system);
+            if (crate != null && power >= per) {
+                power -= per;
+                if (++reloadTicks >= time) { reloadTicks = 0; if (crate.take(k.system)) { ammo++; sync(); } }
+            }
         }
         engaged.values().removeIf(e -> {
             Entity m = level.getEntity(e.missile);
@@ -202,13 +208,14 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
         } else {
             Vec3 eye = sensor();
             for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(eye, eye).inflate(range)))
-                if (m instanceof Enemy && m.isAlive() && visible(level, eye, m)) candidates.add(m);
+                if (AirTargets.is(m) && visible(level, eye, m)) candidates.add(m);
         }
         UUID best = null;
         double bestScore = 0;
         for (Entity e : candidates) {
             if (!e.isAlive() || engaged.containsKey(e.getUUID()) && !e.getUUID().equals(current)) continue;
             if (engaged.containsKey(e.getUUID())) continue;
+            if (GuidedMissile.hunted(level, e.getUUID())) continue;                 // a missile from another launcher or turret has it
             Vec3 c = e.getBoundingBox().getCenter();
             double d = c.distanceTo(site);
             if (d > range || d < 6) continue;
@@ -288,6 +295,11 @@ public class SamBlockEntity extends BlockEntity implements EnergyNode {
                     active ? Component.translatable("message.heliosphere.sam_on") : Component.translatable("message.heliosphere.sam_off"),
                     tracks.size(), k.radarRange, power, capacity()), true);
             return;
+        }
+        if (ammo() < k.magazine && level != null) {
+            AmmoCrateBlockEntity crate = AmmoCrateBlockEntity.near(level, origin(), k.system);
+            p.displayClientMessage(crate == null ? Component.translatable("message.heliosphere.sam_no_crate", Component.translatable("item.heliosphere." + SamSites.roundOf(k.system)), (int) AmmoCrateBlockEntity.RANGE)
+                    : Component.translatable("message.heliosphere.sam_rearming", crate.count(k.system)), false);
         }
         boolean linked = level instanceof ServerLevel sl && linkedRadar(sl) != null;
         p.displayClientMessage(Component.translatable("message.heliosphere.sam_launcher_status", Component.translatable("block.heliosphere." + k.id),

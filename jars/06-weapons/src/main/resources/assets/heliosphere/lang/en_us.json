@@ -86,5 +86,22 @@
   "message.heliosphere.sam_battery_sun": "solar charging",
   "message.heliosphere.sam_battery_dark": "no sunlight",
   "message.heliosphere.sam_no_power": "§eNo power. Put an Air Defence Battery Pack within %s blocks to power it without cables (made at the assembly station, comes fully charged), or run a cable to the vehicle's centre block.",
-  "message.heliosphere.sam_noticed": "⚠ The machines have detected your air defence: from now on they deploy and besiege your shelter twice as often."
+  "message.heliosphere.sam_noticed": "⚠ The machines have detected your air defence: from now on they deploy and besiege your shelter twice as often.",
+  "block.heliosphere.sam_ammo_crate": "Air Defence Ammo Crate",
+  "item.heliosphere.missile_9m317ma": "9M317MA Missile (Buk)",
+  "item.heliosphere.missile_aster30": "Aster 30 Missile",
+  "item.heliosphere.missile_iris_t_sl": "IRIS-T SL Missile",
+  "message.heliosphere.sam_crate_line": "%s x%s",
+  "message.heliosphere.sam_crate_status": "Ammo crate %2$s/%3$s · %4$s (rearms within %5$s blocks)",
+  "message.heliosphere.sam_crate_loaded": "Loaded %1$s · crate %2$s/%3$s · %4$s",
+  "message.heliosphere.sam_no_crate": "§eNot full: put an Air Defence Ammo Crate within %2$s blocks and load it with %1$s to rearm.",
+  "message.heliosphere.sam_rearming": "§aRearming from the ammo crate (%s left in it)",
+  "message.heliosphere.sam_crate_empty": "empty",
+  "message.heliosphere.sam_round.buk": "9M317MA",
+  "message.heliosphere.sam_round.samp": "Aster 30",
+  "message.heliosphere.sam_round.iris": "IRIS-T",
+  "item.heliosphere.sam_chassis": "Air Defence Vehicle Chassis",
+  "item.heliosphere.phased_array_antenna": "Phased-Array Radar Antenna",
+  "item.heliosphere.fire_control_computer": "Air Defence Fire-Control Computer",
+  "item.heliosphere.launcher_module": "Missile Launcher Rack"
 }

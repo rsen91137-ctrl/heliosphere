@@ -90,6 +90,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
             Vec3 c = m.getBoundingBox().getCenter();
             if (c.distanceToSqr(head) > range * range) continue;
             if (k.target == TurretKind.Target.AIR && !airborne(level, m)) continue;
+            if (k == TurretKind.MISSILE && com.heliosphere.planets.defense.sam.GuidedMissile.hunted(level, m.getUUID())) continue;   // another missile has it
             if (!sees(level, head, m)) continue;
             out.add(m);
         }

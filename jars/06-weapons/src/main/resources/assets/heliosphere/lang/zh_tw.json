@@ -86,5 +86,22 @@
   "message.heliosphere.sam_battery_sun": "太陽能充電中",
   "message.heliosphere.sam_battery_dark": "無日照",
   "message.heliosphere.sam_no_power": "§e沒有電。在 %s 格內放一個「防空電池組」即可無線供電（裝配站製造，出廠滿電），也可以用電纜接到車輛中心方塊。",
-  "message.heliosphere.sam_noticed": "⚠ 機器偵測到了你的防空系統——此後機械部署與對避難所的圍攻都會更加頻繁。"
+  "message.heliosphere.sam_noticed": "⚠ 機器偵測到了你的防空系統——此後機械部署與對避難所的圍攻都會更加頻繁。",
+  "block.heliosphere.sam_ammo_crate": "防空彈藥箱",
+  "item.heliosphere.missile_9m317ma": "9M317MA 防空導彈（山毛櫸）",
+  "item.heliosphere.missile_aster30": "紫菀-30 防空導彈",
+  "item.heliosphere.missile_iris_t_sl": "IRIS-T SL 防空導彈",
+  "message.heliosphere.sam_crate_line": "%s ×%s",
+  "message.heliosphere.sam_crate_status": "防空彈藥箱 %2$s/%3$s 枚 · %4$s（%5$s 格內補彈）",
+  "message.heliosphere.sam_crate_loaded": "已裝入 %1$s 枚 · 箱內 %2$s/%3$s · %4$s",
+  "message.heliosphere.sam_no_crate": "§e彈藥未滿：在 %2$s 格內放一個「防空彈藥箱」並裝入 %1$s 才能補彈。",
+  "message.heliosphere.sam_rearming": "§a正在從彈藥箱補彈（箱內還有 %s 枚）",
+  "message.heliosphere.sam_crate_empty": "空",
+  "message.heliosphere.sam_round.buk": "9M317MA",
+  "message.heliosphere.sam_round.samp": "紫菀-30",
+  "message.heliosphere.sam_round.iris": "IRIS-T",
+  "item.heliosphere.sam_chassis": "防空車輛底盤",
+  "item.heliosphere.phased_array_antenna": "相控陣雷達天線",
+  "item.heliosphere.fire_control_computer": "防空火控電腦",
+  "item.heliosphere.launcher_module": "導彈發射架"
 }

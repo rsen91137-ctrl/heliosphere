@@ -86,5 +86,22 @@
   "message.heliosphere.sam_battery_sun": "太阳能充电中",
   "message.heliosphere.sam_battery_dark": "无日照",
   "message.heliosphere.sam_no_power": "§e没有电。在 %s 格内放一个「防空电池组」即可无线供电（装配站制造，出厂满电），也可以用电缆接到车辆中心方块。",
-  "message.heliosphere.sam_noticed": "⚠ 机器侦测到了你的防空系统——此后机械部署与对避难所的围攻都会更加频繁。"
+  "message.heliosphere.sam_noticed": "⚠ 机器侦测到了你的防空系统——此后机械部署与对避难所的围攻都会更加频繁。",
+  "block.heliosphere.sam_ammo_crate": "防空弹药箱",
+  "item.heliosphere.missile_9m317ma": "9M317MA 防空导弹（山毛榉）",
+  "item.heliosphere.missile_aster30": "紫菀-30 防空导弹",
+  "item.heliosphere.missile_iris_t_sl": "IRIS-T SL 防空导弹",
+  "message.heliosphere.sam_crate_line": "%s ×%s",
+  "message.heliosphere.sam_crate_status": "防空弹药箱 %2$s/%3$s 枚 · %4$s（%5$s 格内补弹）",
+  "message.heliosphere.sam_crate_loaded": "已装入 %1$s 枚 · 箱内 %2$s/%3$s · %4$s",
+  "message.heliosphere.sam_no_crate": "§e弹药未满：在 %2$s 格内放一个「防空弹药箱」并装入 %1$s 才能补弹。",
+  "message.heliosphere.sam_rearming": "§a正在从弹药箱补弹（箱内还有 %s 枚）",
+  "message.heliosphere.sam_crate_empty": "空",
+  "message.heliosphere.sam_round.buk": "9M317MA",
+  "message.heliosphere.sam_round.samp": "紫菀-30",
+  "message.heliosphere.sam_round.iris": "IRIS-T",
+  "item.heliosphere.sam_chassis": "防空车辆底盘",
+  "item.heliosphere.phased_array_antenna": "相控阵雷达天线",
+  "item.heliosphere.fire_control_computer": "防空火控计算机",
+  "item.heliosphere.launcher_module": "导弹发射架"
 }

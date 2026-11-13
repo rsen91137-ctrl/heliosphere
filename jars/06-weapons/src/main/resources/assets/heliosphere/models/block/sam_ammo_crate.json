@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "heliosphere:block/sam_ammo_crate/side",
+    "side": "heliosphere:block/sam_ammo_crate/side",
+    "top": "heliosphere:block/sam_ammo_crate/top",
+    "end": "heliosphere:block/sam_ammo_crate/end"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        1
+      ],
+      "to": [
+        16,
+        11,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side",
+          "uv": [
+            0,
+            5,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            0,
+            5,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#end",
+          "uv": [
+            1,
+            5,
+            15,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#end",
+          "uv": [
+            1,
+            5,
+            15,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#top",
+          "uv": [
+            0,
+            1,
+            16,
+            15
+          ]
+        },
+        "down": {
+          "texture": "#end",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

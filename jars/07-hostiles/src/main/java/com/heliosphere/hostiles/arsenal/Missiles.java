@@ -47,6 +47,8 @@ public final class Missiles {
     }
 
     static void init() {
+        // flying machines are air targets for the batteries; walkers are left to the guns
+        com.heliosphere.planets.defense.sam.AirTargets.register(m -> m instanceof com.heliosphere.planets.tech.TechMob t && t.role() != null && t.role().flying());
         com.heliosphere.planets.defense.sam.GuidedMissile.BLAST_HOOKS.add((level, missile, at) -> {
             if (missile.side() != com.heliosphere.planets.defense.sam.GuidedMissile.Side.MACHINE) return;
             int tier = com.heliosphere.planets.defense.sam.MachineWarheads.clamp(missile.tier());

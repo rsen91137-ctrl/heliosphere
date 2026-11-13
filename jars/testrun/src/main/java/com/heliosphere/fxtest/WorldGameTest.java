@@ -56,6 +56,10 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "neptune" -> giant(ctx, sp, "neptune");
                     case "collapse" -> collapse(ctx, sp);
                     case "battery" -> battery(ctx, sp);
+                    case "ammo" -> ammo(ctx, sp);
+                    case "airdef" -> airdef(ctx, sp, "buk");
+                    case "airdef_samp" -> airdef(ctx, sp, "samp");
+                    case "airdef_iris" -> airdef(ctx, sp, "iris");
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -773,6 +777,136 @@ public class WorldGameTest implements FabricClientGameTest {
             catch (ReflectiveOperationException e) { b.append(n).append("=? "); }
         }
         return b.toString();
+    }
+
+    /** An empty launcher next to a powered battery rearms from an ammo crate the player loads by hand. */
+    private void ammo(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 2600 140 2600");
+        ctx.waitTicks(60);
+        sp.getClientWorld().waitForChunksRender();
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0 + 8);
+            for (int dx = -10; dx <= 10; dx++) for (int dz = -2; dz <= 16; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+                for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var launcher = new net.minecraft.core.BlockPos(x0 + 4, g, z0 + 10);
+            var b = com.heliosphere.planets.defense.sam.SamSites.BLOCKS.get(com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR);
+            var st = b.defaultBlockState().setValue(com.heliosphere.planets.defense.sam.SamBlock.FACING, net.minecraft.core.Direction.NORTH);
+            l.setBlock(launcher, st, 3);
+            b.setPlacedBy(l, launcher, st, p, new net.minecraft.world.item.ItemStack(b));
+            var be = l.getBlockEntity(launcher);
+            try { var f = be.getClass().getDeclaredField("ammo"); f.setAccessible(true); f.setInt(be, 0); } catch (ReflectiveOperationException e) { report.add("[FAIL] ammo field " + e); }
+            var bat = new net.minecraft.core.BlockPos(x0 - 4, g, z0 + 6);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            var crate = new net.minecraft.core.BlockPos(x0, g, z0 + 5);
+            l.setBlock(crate, com.heliosphere.planets.defense.sam.SamSites.CRATE.defaultBlockState(), 3);
+            // the player loads it by hand: right-click with six Buk rounds and two IRIS-T rounds
+            for (var spec : new Object[][]{{"missile_9m317ma", 6}, {"missile_iris_t_sl", 2}}) {
+                p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get((String) spec[0]), (Integer) spec[1]));
+                var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(crate), net.minecraft.core.Direction.UP, crate, false);
+                var r = p.gameMode.useItemOn(p, l, p.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND, hit);
+                report.add("[info] loaded " + spec[0] + ": " + r + " hand now " + p.getMainHandItem().getCount());
+            }
+            p.teleportTo(x0 + 0.5, g + 2.5, z0 - 3.5);
+        });
+        look(ctx, 0, 22);
+        ctx.waitTicks(20);
+        shot(ctx, "ammo_crate_field");
+        ctx.waitTicks(400);
+        server(sp, s -> {
+            var l = s.overworld();
+            var be = (com.heliosphere.planets.defense.sam.SamBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 4, o[1], o[2] + 10));
+            var crate = (com.heliosphere.planets.defense.sam.AmmoCrateBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 5));
+            report.add("[info] after 20 s: launcher ammo " + be.ammo() + "/6, crate buk " + crate.count("buk") + " iris " + crate.count("iris") + " total " + crate.total());
+            ServerPlayer p = player(s);
+            p.teleportTo(o[0] + 0.5, o[1] + 1.4, o[2] + 2.6);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, net.minecraft.world.item.ItemStack.EMPTY);
+            var pos = new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 5);
+            l.getBlockState(pos).useWithoutItem(l, p, new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos), net.minecraft.core.Direction.UP, pos, false));
+        });
+        look(ctx, 0, 35);
+        ctx.waitTicks(10);
+        shot(ctx, "ammo_crate_close");
+    }
+
+    /** A Buk battery against two drones, a zombie and a walking machine: only the drones, one missile each at a time. */
+    private void airdef(ClientGameTestContext ctx, TestSingleplayerContext sp, String system) {
+        int[] o = new int[3];
+        java.util.List<java.util.UUID> ids = new java.util.ArrayList<>();
+        int base = system.equals("buk") ? 3200 : system.equals("samp") ? 3800 : 4400;
+        cmd(sp, "execute in minecraft:overworld run tp @p " + base + " 140 " + base);
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -12; dx <= 12; dx++) for (int dz = -12; dz <= 12; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 3);
+                for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var radarKind = system.equals("buk") ? com.heliosphere.planets.defense.sam.SamKind.BUK_TADS : system.equals("samp") ? com.heliosphere.planets.defense.sam.SamKind.SAMP_TADS : com.heliosphere.planets.defense.sam.SamKind.IRIS_TADS;
+            var telKind = system.equals("buk") ? com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR : system.equals("samp") ? com.heliosphere.planets.defense.sam.SamKind.SAMP_TEL : com.heliosphere.planets.defense.sam.SamKind.IRIS_TEL;
+            for (var e : java.util.Map.of(new net.minecraft.core.BlockPos(x0 - 6, g, z0), radarKind, new net.minecraft.core.BlockPos(x0 + 6, g, z0), telKind).entrySet()) {
+                var b = com.heliosphere.planets.defense.sam.SamSites.BLOCKS.get(e.getValue());
+                var st = b.defaultBlockState().setValue(com.heliosphere.planets.defense.sam.SamBlock.FACING, net.minecraft.core.Direction.NORTH);
+                l.setBlock(e.getKey(), st, 3);
+                b.setPlacedBy(l, e.getKey(), st, p, new net.minecraft.world.item.ItemStack(b));
+            }
+            var bat = new net.minecraft.core.BlockPos(x0, g, z0 + 6);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            // the targets, 60-80 blocks north: two drones in the air, a zombie and a walker on the ground
+            for (String id : new String[]{"patrol_drone", "assault_drone", "security_walker"}) {
+                double y = id.endsWith("drone") ? g + 45 : g + 1;
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, id, x0 + (ids.size() - 1) * 10, y, z0 - 70, null);
+                if (m != null) { m.setNoAi(true); m.setPersistenceRequired(); ids.add(m.getUUID()); }
+            }
+            var z = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            z.setPos(x0 + 20, l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0 + 20, z0 - 60), z0 - 60);
+            z.setNoAi(true); z.setPersistenceRequired(); l.addFreshEntity(z); ids.add(z.getUUID());
+            for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++)
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + 20 + dx, (int) z.getY() + 3, z0 - 60 + dz), net.minecraft.world.level.block.Blocks.GLASS.defaultBlockState(), 3);   // daylight shade
+            p.teleportTo(x0 + 0.5, g + 6, z0 + 14.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        look(ctx, 180, 0);
+        int maxPerTarget = 0, launched = 0;
+        java.util.Set<java.util.UUID> missiles = new java.util.HashSet<>();
+        for (int i = 0; i < 80; i++) {
+            ctx.waitTicks(5);
+            int[] mx = new int[1];
+            server(sp, s -> {
+                var l = s.overworld();
+                java.util.Map<java.util.UUID, Integer> per = new java.util.HashMap<>();
+                for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, new net.minecraft.world.phys.AABB(o[0] - 300, o[1] - 50, o[2] - 300, o[0] + 300, o[1] + 300, o[2] + 300))) {
+                    missiles.add(m.getUUID());
+                    if (m.target() != null) per.merge(m.target(), 1, Integer::sum);
+                }
+                for (int v : per.values()) mx[0] = Math.max(mx[0], v);
+            });
+            maxPerTarget = Math.max(maxPerTarget, mx[0]);
+            if (i == 6) shot(ctx, "airdef_" + system + "_launch");
+        }
+        int maxPer = maxPerTarget;
+        server(sp, s -> {
+            var l = s.overworld();
+            StringBuilder b = new StringBuilder();
+            for (var id : ids) {
+                var e = l.getEntity(id);
+                b.append(e == null ? "gone" : e.getType().toShortString() + " " + (e.isAlive() ? "alive " + (int) ((net.minecraft.world.entity.LivingEntity) e).getHealth() : "dead")).append("; ");
+            }
+            report.add("[info] airdef " + system + ": missiles fired " + missiles.size() + ", most at one target at once " + maxPer + " | " + b);
+        });
+        shot(ctx, "airdef_" + system + "_after");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

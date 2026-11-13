@@ -45,6 +45,9 @@ final class MissileTrails {
         };
     }
 
+    /** How much smoke a motor makes: IRIS-T burns a low-smoke propellant, a thin, short-lived trail. */
+    static float smoke(MissileSpec.Model model) { return model == MissileSpec.Model.IRIS ? 0.3f : 1f; }
+
     static float size(MissileSpec.Model model) {
         return switch (model) {
             case BUK -> 1.5f; case ASTER -> 1.25f; case IRIS -> 1.0f; case TURRET -> 0.8f; case PLAYER -> 0.6f;
@@ -80,7 +83,7 @@ final class MissileTrails {
                 if (motor > 0) {
                     if (last == null) last = tail;
                     Vec3 seg = tail.subtract(last);
-                    double d = seg.length(), step = Math.max(0.35, base * 0.32);
+                    double d = seg.length(), step = Math.max(0.35, base * 0.32) / smoke(spec.model);   // a low-smoke motor leaves a thin trail
                     int count = (int) Math.min(80, d / step);
                     for (int i = 1; i <= count; i++) {
                         Vec3 p = last.add(seg.scale(i / (double) count));
@@ -100,14 +103,15 @@ final class MissileTrails {
             }
             // the trail
             float day = 0.25f + 0.75f * env.daylight;
+            float sm = smoke(spec.model);
             for (int i = puffs.size() - 1; i >= 0; i--) {
                 Puff p = puffs.get(i);
                 double t = now - p.born;
-                double life = 3.5 + p.heat * 4.5;
+                double life = (3.5 + p.heat * 4.5) * (0.4 + 0.6 * sm);
                 if (t > life) { puffs.remove(i); continue; }
                 float k = (float) (t / life);
                 float size = p.size * (1f + (float) t * 1.1f);
-                float a = 0.5f * (float) Math.pow(1 - k, 1.6) * (0.6f + 0.4f * p.heat);
+                float a = 0.5f * (float) Math.pow(1 - k, 1.6) * (0.6f + 0.4f * p.heat) * (0.35f + 0.65f * sm);
                 float shade = day * (0.82f + 0.1f * ((i * 7) % 3) / 2f);
                 float hot = t < 0.12 ? (float) (1 - t / 0.12) * p.heat : 0;
                 sink.billboard(p.x + env.windX * t * 0.25, p.y + t * 0.35, p.z + env.windZ * t * 0.25, size, p.roll + (float) t * 0.2f,

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "heliosphere:block/sam_ammo_crate"
+    },
+    "facing=east": {
+      "model": "heliosphere:block/sam_ammo_crate",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "heliosphere:block/sam_ammo_crate",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "heliosphere:block/sam_ammo_crate",
+      "y": 270
+    }
+  }
+}

@@ -74,6 +74,7 @@ public class GuidedMissile extends Entity {
         m.owner = owner == null ? null : owner.getUUID();
         m.target = target == null ? null : target.getUUID();
         m.side = side;
+        if (side == Side.DEFENCE && m.target != null) HUNTED.put(m.target, level.getGameTime());
         m.damage = damage;
         m.tier = tier;
         m.dir = dir.normalize();
@@ -129,6 +130,7 @@ public class GuidedMissile extends Entity {
         Entity t = target == null ? null : level.getEntity(target);
         if (t != null && (!t.isAlive() || t.isRemoved())) { t = null; target = null; }
         if (t == null && spec.seekRange > 0 && age >= spec.guideStart && age % 4 == 0) t = seek(level, spec);
+        if (side == Side.DEFENCE && target != null) HUNTED.put(target, level.getGameTime());   // claimed: other launchers leave it
 
         Vec3 vel = dir.scale(speed);
         Vec3 cmd = Vec3.ZERO;
@@ -139,12 +141,18 @@ public class GuidedMissile extends Entity {
                 lastTargetPos = aim;
                 Vec3 r = aim.subtract(position());
                 double dist = r.length();
+                // battery missiles fly the midcourse on the radar's datalink (vertical launches start with the target
+                // 90 degrees off the nose); only in the last stretch does the missile's own seeker take over
+                boolean battery = spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL;
+                boolean midcourse = battery && dist > TERMINAL;
                 // seeker cone
                 double cosHalf = Math.cos(Math.toRadians(spec.fov / 2.0));
-                if (dist > 1e-3 && r.scale(1 / dist).dot(dir) < cosHalf) { if (++offCone > 3) { lose(t); t = null; } }
+                if (midcourse) offCone = 0;
+                else if (dist > 1e-3 && r.scale(1 / dist).dot(dir) < cosHalf) { if (++offCone > 3) { lose(t); t = null; } }
                 else offCone = 0;
-                // line of sight (terrain masking)
-                if (t != null && age % 2 == 0) {
+                // line of sight (terrain masking): the radar keeps the track in midcourse
+                if (midcourse) { hidden = 0; memoryPos = null; }
+                else if (t != null && age % 2 == 0) {
                     boolean clear = level.clip(new ClipContext(position(), aim, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this)).getType() == HitResult.Type.MISS;
                     if (clear) { hidden = 0; memoryPos = null; }
                     else if ((hidden += 2) > spec.memory) { lose(t); t = null; }
@@ -154,7 +162,10 @@ public class GuidedMissile extends Entity {
                     Vec3 aimPoint = hidden > 0 && memoryPos != null ? memoryPos : aim;
                     Vec3 rr = aimPoint.subtract(position());
                     boolean pursuit = pursuitOnly || (spec.mixed && tVel.length() < 0.35);
-                    cmd = pursuit ? pursuit(rr, vel) : proNav(spec, rr, hidden > 0 ? Vec3.ZERO : tVel, vel);
+                    if (midcourse) {                                        // command guidance to the predicted intercept point
+                        double tGo = Math.min(120, dist / Math.max(1.0, vel.length()));
+                        cmd = pursuit(rr.add(tVel.scale(tGo)), vel);
+                    } else cmd = pursuit ? pursuit(rr, vel) : proNav(spec, rr, hidden > 0 ? Vec3.ZERO : tVel, vel);
                     if (side == Side.MACHINE && t instanceof ServerPlayer sp && age % 10 == 0) warn(level, sp, dist);
                 }
             }
@@ -235,6 +246,9 @@ public class GuidedMissile extends Entity {
     }
 
     /** Pure pursuit: steer the velocity straight at the target. */
+    /** Distance at which a battery missile's own seeker takes over from the radar datalink. */
+    private static final double TERMINAL = 48;
+
     private static Vec3 pursuit(Vec3 r, Vec3 vel) {
         double s = vel.length();
         if (s < 1e-6 || r.lengthSqr() < 1e-6) return Vec3.ZERO;
@@ -271,11 +285,25 @@ public class GuidedMissile extends Entity {
         return best;
     }
 
+    /** Targets a defence missile is chasing, with the last tick it did: one missile per target, ammunition is precious. */
+    private static final java.util.Map<UUID, Long> HUNTED = new java.util.concurrent.ConcurrentHashMap<>();
+
+    /** Whether a defence missile (battery or turret) is already on its way to this target. */
+    public static boolean hunted(net.minecraft.world.level.Level level, UUID target) {
+        Long t = HUNTED.get(target);
+        long now = level.getGameTime();
+        if (HUNTED.size() > 512) HUNTED.values().removeIf(v -> now - v > 200);
+        return t != null && now - t <= 3;
+    }
+
     /** Whether the seeker may pick {@code e} by itself: monsters for the defence, everyone else for the machines. */
     public boolean prey(Entity e) {
         if (!(e instanceof LivingEntity le) || !le.isAlive() || e.getUUID().equals(owner)) return false;
         if (e instanceof Player p && (p.isCreative() || p.isSpectator())) return false;
-        if (side == Side.DEFENCE) return e instanceof Enemy;
+        if (side == Side.DEFENCE) {
+            boolean sam = spec() == MissileSpec.BUK_9M317MA || spec() == MissileSpec.ASTER_30 || spec() == MissileSpec.IRIS_T_SL;
+            return sam ? e instanceof net.minecraft.world.entity.Mob m && AirTargets.is(m) : e instanceof Enemy;   // battery seekers look only for air targets
+        }
         return !(e instanceof Enemy);                                      // machines do not shoot each other
     }
 
