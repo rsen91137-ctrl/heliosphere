@@ -31,6 +31,12 @@ public abstract class RocketHoldMixin implements Boarding.RocketPhaseAccess {
         if (player instanceof ServerPlayer sp && Boarding.board(self, sp)) cir.setReturnValue(InteractionResult.SUCCESS);
     }
 
+    /** The crew walks back from the flight room before the rocket is carried off into space. */
+    @Inject(method = "reachSpace", at = @At("HEAD"), remap = false)
+    private void heliosphere$crewAboard(net.minecraft.server.level.ServerLevel level, CallbackInfo ci) {
+        com.heliosphere.rocketry.cabin.FlightRoom.boardBeforeLeaving((RocketEntity) (Object) this);
+    }
+
     @Override
     public void heliosphere$stand() { ticks = 0; setPhase(0); }
 }

@@ -3,6 +3,15 @@
   "id": "heliosphere_overlay_rocketry",
   "version": "0",
   "name": "Overlay for 09 rocketry. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
-  "entrypoints": {"main": ["com.heliosphere.rocketry.cabin.Boarding"]},
-  "mixins": ["heliosphere-cabin.mixins.json"]
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.rocketry.cabin.Boarding"
+    ],
+    "client": [
+      "com.heliosphere.rocketry.cabin.client.FlightRoomClient"
+    ]
+  },
+  "mixins": [
+    "heliosphere-cabin.mixins.json"
+  ]
 }

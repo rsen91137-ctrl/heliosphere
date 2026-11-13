@@ -1,10 +1,13 @@
 {
-  "message.heliosphere.cabin_boarded": "You are in the cabin (destination: %s). Walk with WASD and look around with the mouse; the countdown is on hold.",
-  "message.heliosphere.cabin_go": "[Start countdown]",
-  "message.heliosphere.cabin_go_hint": "Ignition 10 seconds after you click",
-  "message.heliosphere.cabin_leave": "[Leave cabin]",
-  "message.heliosphere.cabin_counting": "Countdown started! Ignition in 10 seconds.",
-  "message.heliosphere.cabin_left": "You left the cabin.",
-  "message.heliosphere.cabin_checks": "The rocket fails its launch checks; open the rocket menu (Shift + right-click) to see why and refuel.",
-  "hud.heliosphere.window_hint": "WASD to walk inside | Move the mouse to look around"
+ "message.heliosphere.cabin_boarded": "You are in the cabin (destination: %s). Walk with WASD and look around with the mouse; the countdown is on hold.",
+ "message.heliosphere.cabin_go": "[Start countdown]",
+ "message.heliosphere.cabin_go_hint": "Ignition 10 seconds after you click",
+ "message.heliosphere.cabin_leave": "[Leave cabin]",
+ "message.heliosphere.cabin_counting": "Countdown started! Ignition in 10 seconds.",
+ "message.heliosphere.cabin_left": "You left the cabin.",
+ "message.heliosphere.cabin_checks": "The rocket fails its launch checks; open the rocket menu (Shift + right-click) to see why and refuel.",
+ "hud.heliosphere.window_hint": "WASD to walk inside | Move the mouse to look around",
+ "hud.heliosphere.flight_room": "Altitude %s · speed %s",
+ "hud.heliosphere.flight_room_hold": "Pull the lever on the console to start the countdown",
+ "message.heliosphere.flight_room_hint": "You are in the rocket cabin: walk about, open the lockers. Pull the lever on the console to start the countdown."
 }

@@ -1,10 +1,13 @@
 {
-  "message.heliosphere.cabin_boarded": "已進入座艙（目的地：%s）。WASD 在艙內走動，移動滑鼠環顧四周，倒數暫停中。",
-  "message.heliosphere.cabin_go": "[開始倒數]",
-  "message.heliosphere.cabin_go_hint": "點擊後 10 秒點火升空",
-  "message.heliosphere.cabin_leave": "[離開座艙]",
-  "message.heliosphere.cabin_counting": "倒數開始！10 秒後點火。",
-  "message.heliosphere.cabin_left": "你離開了座艙。",
-  "message.heliosphere.cabin_checks": "火箭未通過發射檢查，請先在火箭選單（Shift + 右鍵）中查看並補給。",
-  "hud.heliosphere.window_hint": "WASD 艙內走動 · 移動滑鼠環顧四周"
+ "message.heliosphere.cabin_boarded": "已進入座艙（目的地：%s）。WASD 在艙內走動，移動滑鼠環顧四周，倒數暫停中。",
+ "message.heliosphere.cabin_go": "[開始倒數]",
+ "message.heliosphere.cabin_go_hint": "點擊後 10 秒點火升空",
+ "message.heliosphere.cabin_leave": "[離開座艙]",
+ "message.heliosphere.cabin_counting": "倒數開始！10 秒後點火。",
+ "message.heliosphere.cabin_left": "你離開了座艙。",
+ "message.heliosphere.cabin_checks": "火箭未通過發射檢查，請先在火箭選單（Shift + 右鍵）中查看並補給。",
+ "hud.heliosphere.window_hint": "WASD 艙內走動 · 移動滑鼠環顧四周",
+ "hud.heliosphere.flight_room": "高度 %s · 速度 %s",
+ "hud.heliosphere.flight_room_hold": "拉下控制台上的拉桿開始倒數",
+ "message.heliosphere.flight_room_hint": "你在火箭座艙裡，可以自由走動、打開儲物櫃。拉下控制台上的拉桿開始倒數。"
 }

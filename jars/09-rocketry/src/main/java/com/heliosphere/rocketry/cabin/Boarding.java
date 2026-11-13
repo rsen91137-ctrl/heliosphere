@@ -26,11 +26,13 @@ public final class Boarding implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        FlightRoom.init();
         CommandRegistrationCallback.EVENT.register((d, ctx, env) -> d.register(Commands.literal("hsrocket")
                 .then(Commands.argument("action", StringArgumentType.word()).executes(c -> {
                     ServerPlayer p = c.getSource().getPlayerOrException();
                     String a = StringArgumentType.getString(c, "action");
-                    if (!(p.getVehicle() instanceof RocketEntity rocket)) return 0;
+                    RocketEntity rocket = p.getVehicle() instanceof RocketEntity r ? r : FlightRoom.rocketOf(p);
+                    if (rocket == null) return 0;
                     if (a.equals("go")) go(rocket, p);
                     else if (a.equals("leave")) leave(rocket, p);
                     return 1;
@@ -58,6 +60,8 @@ public final class Boarding implements ModInitializer {
         com.heliosphere.core.progress.Achievements.grant(p, "cabin");
         rocket.addTag(HOLD);
         rocket.begin(p, here, dest, site, report, false);
+        FlightRoom.enter(rocket, p);                           // into the real cabin: walk about, pull the lever to launch
+        p.displayClientMessage(FlightRoom.hint(), false);
         MutableComponent go = Component.translatable("message.heliosphere.cabin_go").withStyle(s -> s.withColor(ChatFormatting.GREEN).withBold(true)
                 .withClickEvent(new ClickEvent.RunCommand("/hsrocket go")).withHoverEvent(new HoverEvent.ShowText(Component.translatable("message.heliosphere.cabin_go_hint"))));
         MutableComponent leave = Component.translatable("message.heliosphere.cabin_leave").withStyle(s -> s.withColor(ChatFormatting.GRAY)
@@ -77,8 +81,11 @@ public final class Boarding implements ModInitializer {
         if (!rocket.getTags().contains(HOLD)) return;
         rocket.removeTag(HOLD);
         ((RocketPhaseAccess) rocket).heliosphere$stand();
-        p.stopRiding();
-        p.teleportTo(rocket.getX() + 2.5, rocket.getY(), rocket.getZ());
+        if (FlightRoom.inRoom(p)) FlightRoom.abort(p);
+        else {
+            p.stopRiding();
+            p.teleportTo(rocket.getX() + 2.5, rocket.getY(), rocket.getZ());
+        }
         p.displayClientMessage(Component.translatable("message.heliosphere.cabin_left").withStyle(ChatFormatting.GRAY), true);
     }
 

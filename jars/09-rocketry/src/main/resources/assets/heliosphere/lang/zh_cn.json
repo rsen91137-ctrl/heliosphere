@@ -1,10 +1,13 @@
 {
-  "message.heliosphere.cabin_boarded": "已进入座舱（目的地：%s）。WASD 在舱内走动，移动鼠标环顾四周，倒计时暂停中。",
-  "message.heliosphere.cabin_go": "[开始倒计时]",
-  "message.heliosphere.cabin_go_hint": "点击后 10 秒点火升空",
-  "message.heliosphere.cabin_leave": "[离开座舱]",
-  "message.heliosphere.cabin_counting": "倒计时开始！10 秒后点火。",
-  "message.heliosphere.cabin_left": "你离开了座舱。",
-  "message.heliosphere.cabin_checks": "火箭未通过发射检查，请先在火箭菜单（Shift + 右键）中查看并补给。",
-  "hud.heliosphere.window_hint": "WASD 舱内走动 · 移动鼠标环顾四周"
+ "message.heliosphere.cabin_boarded": "已进入座舱（目的地：%s）。WASD 在舱内走动，移动鼠标环顾四周，倒计时暂停中。",
+ "message.heliosphere.cabin_go": "[开始倒计时]",
+ "message.heliosphere.cabin_go_hint": "点击后 10 秒点火升空",
+ "message.heliosphere.cabin_leave": "[离开座舱]",
+ "message.heliosphere.cabin_counting": "倒计时开始！10 秒后点火。",
+ "message.heliosphere.cabin_left": "你离开了座舱。",
+ "message.heliosphere.cabin_checks": "火箭未通过发射检查，请先在火箭菜单（Shift + 右键）中查看并补给。",
+ "hud.heliosphere.window_hint": "WASD 舱内走动 · 移动鼠标环顾四周",
+ "hud.heliosphere.flight_room": "高度 %s · 速度 %s",
+ "hud.heliosphere.flight_room_hold": "拉下控制台上的拉杆开始倒计时",
+ "message.heliosphere.flight_room_hint": "你在火箭座舱里，可以自由走动、打开储物柜。拉下控制台上的拉杆开始倒计时。"
 }

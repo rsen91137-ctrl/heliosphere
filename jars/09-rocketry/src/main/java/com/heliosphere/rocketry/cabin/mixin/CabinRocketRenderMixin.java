@@ -40,7 +40,7 @@ public abstract class CabinRocketRenderMixin {
         ci.cancel();
         pose.pushPose();
         pose.mulPose(new Quaternionf().rotateY((float) Math.toRadians(-c[0])));
-        for (RealCabin.Part part : RealCabin.parts()) {
+        for (com.heliosphere.rocketry.cabin.CabinLayout.Part part : RealCabin.parts()) {
             pose.pushPose();
             pose.translate(part.at().getX(), c[1] + part.at().getY(), part.at().getZ());
             out.submitBlock(pose, part.state(), 0xF000F0, OverlayTexture.NO_OVERLAY, 0);

@@ -45,7 +45,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "fortress" -> fortress(ctx, sp);
                     case "siege" -> siege(ctx, sp);
                     case "icons" -> icons(ctx, sp);
-                    case "rocket" -> rocket(ctx, sp);
+                    case "rocket" -> rocket(ctx, sp, false);
+                    case "room" -> rocket(ctx, sp, true);
                     case "giant" -> giant(ctx, sp, "jupiter");
                     case "sam" -> sam(ctx, sp);
                     case "nuke" -> nuke(ctx, sp);
@@ -268,7 +269,7 @@ public class WorldGameTest implements FabricClientGameTest {
     }
 
     /** Places a prebuilt rocket, photographs it, then launches it with the player aboard and records the view. */
-    private void rocket(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+    private void rocket(ClientGameTestContext ctx, TestSingleplayerContext sp, boolean quick) {
         String item = System.getProperty("heliosphere.test.rocket", "rocket_qiming_1");
         cmd(sp, "execute in minecraft:overworld run tp @p 300 120 300");
         cmd(sp, "gamemode creative @a");
@@ -325,48 +326,86 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         cmd(sp, "effect give @a resistance infinite 4 true");
         ctx.waitTicks(60);
-        shot(ctx, "r_boarded_hold");
+        java.util.function.Consumer<String> where = tag -> { server(sp, s -> {
+            ServerPlayer p = player(s);
+            var r = com.heliosphere.rocketry.cabin.FlightRoom.rocketOf(p);
+            report.add("[info] " + tag + ": player " + p.level().dimension().identifier() + " " + String.format("%.1f %.1f %.1f", p.getX(), p.getY(), p.getZ())
+                    + " room " + com.heliosphere.rocketry.cabin.FlightRoom.inRoom(p) + " vehicle " + (p.getVehicle() == null ? "-" : p.getVehicle().getClass().getSimpleName())
+                    + (r == null ? " rocket ?" : " rocket phase " + r.phase() + " " + r.level().dimension().identifier() + String.format(" y %.0f", r.getY()) + " tags " + r.getTags())
+                    + " || " + com.heliosphere.rocketry.cabin.FlightRoom.debug(p) + " || " + fields(r));
+        }); try { Files.writeString(Path.of("world-test-report.txt"), String.join("\n", report)); } catch (IOException ignored) {} };
+        where.accept("boarded");
+        ctx.runOnClient(mc -> {
+            double t = mc.level.getGameTime() / 24000.0;
+            var o = com.heliosphere.core.client.sky.ClientNav.observer(t);
+            var e = com.heliosphere.core.celestial.OrbitMath.position(com.heliosphere.core.celestial.SolarSystem.get("earth"), t);
+            report.add("[info] nav: observer-earth " + o.sub(e) + " |earth| " + e.length() + " focus " + (com.heliosphere.core.client.sky.ClientNav.focus() == null ? "-" : com.heliosphere.core.client.sky.ClientNav.focus().id)
+                    + " room " + com.heliosphere.rocketry.cabin.client.FlightRoomClient.active());
+        });
+        look(ctx, 0, 5);
+        shot(ctx, "r_room_board");
         ctx.runOnClient(mc -> mc.options.keyUp.setDown(true));
-        ctx.waitTicks(30);
+        ctx.waitTicks(15);
         ctx.runOnClient(mc -> mc.options.keyUp.setDown(false));
-        ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 120); });
-        ctx.waitTicks(100);
-        shot(ctx, "r_boarded_walk");
-        cmd(sp, "execute as @p run hsrocket go");
-        int[] times = {20, 60, 120, 200, 300, 420, 560, 760};
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(true));
+        ctx.waitTicks(4);
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(false));
+        where.accept("walked");
+        look(ctx, 180, 10);
+        ctx.waitTicks(10);
+        shot(ctx, "r_room_back");
+        look(ctx, 0, 30);
+        server(sp, s -> {                                   // pull the launch lever on the console, as a player would
+            ServerPlayer p = player(s);
+            var lever = com.heliosphere.rocketry.cabin.FlightRoom.lever(p);
+            if (lever == null) { report.add("[FAIL] no lever"); return; }
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(lever), net.minecraft.core.Direction.UP, lever, false);
+            var r = p.gameMode.useItemOn(p, p.level(), p.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND, hit);
+            report.add("[info] lever pulled: " + r + " state " + p.level().getBlockState(lever));
+        });
+        int[] times = quick ? new int[]{200, 700, 1200} : new int[]{200, 400, 600, 900, 1200, 1600};
         int last = 0;
         for (int i = 0; i < times.length; i++) {
             ctx.waitTicks(times[i] - last);
             last = times[i];
-            if (i == 3) ctx.runOnClient(mc -> mc.options.keyUp.setDown(true));
-            if (i == 4) ctx.runOnClient(mc -> mc.options.keyUp.setDown(false));
-            int k = i;
-            if (i % 2 == 1) ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 70); });
-            server(sp, s -> {
-                ServerPlayer p = player(s);
-                report.add("[info] t" + k + " pos " + p.position() + " vehicle " + p.getVehicle());
-            });
-            shot(ctx, "r_launch_" + k);
+            where.accept("ascent t" + times[i]);
+            if (i % 2 == 1) look(ctx, 180, 75); else look(ctx, 0, 8);     // out of the front window / down through the deck glass
+            ctx.waitTicks(3);
+            shot(ctx, "r_ascent_" + i);
         }
-        // follow the flight to its landing: screenshots while coming down in the cabin
-        int landShots = 0;
-        boolean landed = false;
+        if (quick) {
+            server(sp, s -> { ServerPlayer p = player(s); var lv = com.heliosphere.rocketry.cabin.FlightRoom.lever(p);
+                if (lv != null) p.teleportTo(lv.getX() + 0.5, lv.getY() - 1, lv.getZ() - 1.5); });
+            ctx.runOnClient(mc -> {
+                double t = mc.level.getGameTime() / 24000.0;
+                var o = com.heliosphere.core.client.sky.ClientNav.observer(t);
+                var e = com.heliosphere.core.celestial.OrbitMath.position(com.heliosphere.core.celestial.SolarSystem.get("earth"), t);
+                report.add("[info] nav later: observer-earth " + o.sub(e) + " room " + com.heliosphere.rocketry.cabin.client.FlightRoomClient.active());
+            });
+            server(sp, s -> { ServerPlayer p = player(s); var lv = com.heliosphere.rocketry.cabin.FlightRoom.lever(p);
+                if (lv != null) p.teleportTo(lv.getX() + 1.0, lv.getY() - 1, lv.getZ() - 3.0); });
+            look(ctx, 0, 12); ctx.waitTicks(10); shot(ctx, "r_room_window_front");
+            look(ctx, 0, 35); ctx.waitTicks(10); shot(ctx, "r_room_window_down");
+            look(ctx, 0, -40); ctx.waitTicks(10); shot(ctx, "r_room_window_up");
+            where.accept("end");
+            return;
+        }
+        boolean landed = false, cruiseShot = false;
+        int descentShots = 0;
         for (int i = 0; i < 70 && !landed; i++) {
-            ctx.waitTicks(i < 2 ? 100 : landShots > 0 ? 100 : 200);
-            int[] st = new int[2];
-            String[] where = new String[1];
+            ctx.waitTicks(descentShots > 0 ? 100 : 200);
+            int[] st = new int[3];
             server(sp, s -> {
                 ServerPlayer p = player(s);
-                st[0] = p.getVehicle() instanceof com.heliosphere.rocketry.entity.RocketEntity r ? r.phase() : -1;
-                where[0] = p.level().dimension().identifier() + " " + p.position() + " vehicle " + (p.getVehicle() == null ? "-" : p.getVehicle().getClass().getSimpleName());
+                var r = com.heliosphere.rocketry.cabin.FlightRoom.rocketOf(p);
+                st[0] = r == null ? -1 : r.phase();
+                st[1] = com.heliosphere.rocketry.cabin.FlightRoom.inRoom(p) ? 1 : 0;
+                st[2] = p.level().dimension().identifier().getPath().equals("moon") ? 1 : 0;
             });
-            report.add("[info] flight +" + i + " phase " + st[0] + " at " + where[0]);
-            if ((st[0] == 0 || st[0] == -1) && landShots > 0) { landed = true; shot(ctx, "r_landed"); }
-            if (i % 6 == 5 && st[0] != 6 && st[0] != 8) shot(ctx, "r_cruise_" + i);
-            if ((st[0] == 6 || st[0] == 8) && landShots < 8) {
-                if (landShots % 2 == 1) ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 150); });
-                shot(ctx, "r_land_" + landShots++);
-            }
+            where.accept("flight +" + i);
+            if (st[0] == 5 && !cruiseShot) { shot(ctx, "r_cruise"); cruiseShot = true; }
+            if (st[0] == 6 && st[1] == 1 && descentShots < 4) { look(ctx, descentShots * 90, 25); shot(ctx, "r_descent_" + descentShots++); }
+            if (st[2] == 1 && st[1] == 0 && (st[0] == -1 || st[0] == 0)) { landed = true; ctx.waitTicks(40); shot(ctx, "r_landed"); }
         }
         server(sp, s -> {
             ServerPlayer p = player(s);
@@ -721,6 +760,16 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] battery picked up: broke=" + broke + " drops " + what);
         });
         cmd(sp, "gamemode creative @a");
+    }
+
+    private static String fields(Object o) {
+        if (o == null) return "-";
+        StringBuilder b = new StringBuilder();
+        for (String n : new String[]{"ticks", "failure", "failTick", "vy", "vx", "staged"}) {
+            try { var f = o.getClass().getDeclaredField(n); f.setAccessible(true); b.append(n).append('=').append(f.get(o)).append(' '); }
+            catch (ReflectiveOperationException e) { b.append(n).append("=? "); }
+        }
+        return b.toString();
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }
