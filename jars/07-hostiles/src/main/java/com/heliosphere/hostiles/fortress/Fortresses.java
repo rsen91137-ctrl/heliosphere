@@ -113,6 +113,7 @@ public final class Fortresses implements ModInitializer {
                         }))));
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
             if (entity.level() instanceof ServerLevel level) bossDied(level, entity);
+            if (entity instanceof com.heliosphere.planets.tech.TechMob mob) machineDown(mob, source);
         });
     }
 
@@ -277,14 +278,33 @@ public final class Fortresses implements ModInitializer {
             level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 1, 0, 0, 0, 0);
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 60, 0.6, 0.6, 0.6, 0.4);
             level.playSound(null, pos, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.4f, 0.8f);
-            for (ServerPlayer p : level.players())
-                if (p.distanceToSqr(Vec3.atCenterOf(pos)) < 160 * 160)
-                    p.displayClientMessage(Component.translatable(f.fabs.isEmpty() ? "message.heliosphere.fabricators_down" : "message.heliosphere.fabricator_down",
-                            f.fabs.size()).withStyle(ChatFormatting.AQUA), true);
+            for (ServerPlayer p : level.players()) {
+                if (p.distanceToSqr(Vec3.atCenterOf(pos)) >= 160 * 160) continue;
+                if (p.distanceToSqr(Vec3.atCenterOf(pos)) < 32 * 32) com.heliosphere.core.progress.Achievements.grant(p, "fabricator");
+                p.displayClientMessage(Component.translatable(f.fabs.isEmpty() ? "message.heliosphere.fabricators_down" : "message.heliosphere.fabricator_down",
+                        f.fabs.size()).withStyle(ChatFormatting.AQUA), true);
+            }
             if (f.fabs.isEmpty() && f.bossDead) conquer(level, f);
             save(level);
             return;
         }
+    }
+
+    /** Advancements for destroying machines: by kind, and by the weapon that did it. */
+    private static void machineDown(com.heliosphere.planets.tech.TechMob mob, net.minecraft.world.damagesource.DamageSource source) {
+        ServerPlayer p = source.getEntity() instanceof ServerPlayer sp ? sp : null;
+        if (source.getDirectEntity() instanceof com.heliosphere.planets.defense.sam.GuidedMissile gm) {
+            var spec = gm.spec();
+            if (p != null && spec == com.heliosphere.planets.defense.sam.MissileSpec.PLAYER) com.heliosphere.core.progress.Achievements.grant(p, "lock_on");
+            boolean sam = spec == com.heliosphere.planets.defense.sam.MissileSpec.BUK_9M317MA || spec == com.heliosphere.planets.defense.sam.MissileSpec.ASTER_30
+                    || spec == com.heliosphere.planets.defense.sam.MissileSpec.IRIS_T_SL;
+            if (sam && p != null && mob.isNoGravity()) com.heliosphere.core.progress.Achievements.grant(p, "sam_kill");
+        }
+        if (p == null) return;
+        com.heliosphere.core.progress.Achievements.grant(p, "first_machine");
+        String id = mob.role() == null ? "" : mob.role().id();
+        if (id.equals("titan_walker")) com.heliosphere.core.progress.Achievements.grant(p, "titan_slayer");
+        if (id.equals("colossus")) com.heliosphere.core.progress.Achievements.grant(p, "colossus");
     }
 
     private static void bossDied(ServerLevel level, Entity e) {
@@ -329,6 +349,12 @@ public final class Fortresses implements ModInitializer {
         level.sendParticles(ParticleTypes.FIREWORK, at.getX() + 0.5, at.getY() + 2, at.getZ() + 0.5, 120, 2, 3, 2, 0.25);
         level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, at.getX() + 0.5, at.getY() + 1, at.getZ() + 0.5, 80, 1.5, 1.5, 1.5, 0.4);
         level.playSound(null, at, SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 2f, 1f);
+        for (ServerPlayer p : level.players())
+            if (p.distanceToSqr(f.x, p.getY(), f.z) < 200 * 200) {
+                com.heliosphere.core.progress.Achievements.grant(p, "fortress_1");
+                if (f.tier >= 10) com.heliosphere.core.progress.Achievements.grant(p, "fortress_10");
+                if (f.tier >= 13) com.heliosphere.core.progress.Achievements.grant(p, "mega_fortress");
+            }
         for (ServerPlayer p : level.players())
             if (p.distanceToSqr(f.x, p.getY(), f.z) < 200 * 200)
                 p.displayClientMessage(Component.translatable("message.heliosphere.fortress_conquered", f.tier, at.getX(), at.getY(), at.getZ())

@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:smart_launcher"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.lock_on"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.lock_on.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/root"
+}

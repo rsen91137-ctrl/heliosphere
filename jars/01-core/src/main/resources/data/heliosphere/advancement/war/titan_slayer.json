@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:titan_walker_deployment"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.titan_slayer"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.titan_slayer.desc"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/first_machine"
+}

@@ -1,0 +1,27 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:assault_rifle"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.root"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.root.desc"
+    },
+    "frame": "task",
+    "background": "minecraft:block/deepslate_tiles",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ]
+}

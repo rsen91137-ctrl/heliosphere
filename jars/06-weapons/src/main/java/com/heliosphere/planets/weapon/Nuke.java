@@ -129,6 +129,7 @@ public final class Nuke {
     private static void save(ServerLevel level, List<Blast> list) { level.setAttached(saved, GSON.toJson(list)); }
 
     public static void detonate(ServerLevel level, Entity source, Vec3 c) {
+        if (source instanceof net.minecraft.server.level.ServerPlayer sp) com.heliosphere.core.progress.Achievements.grant(sp, "nuke");
         // The warhead may go off in the air (a shot that hit nothing ends in mid-air). The crater is always dug
         // into the ground below; the higher the burst, the shallower and smaller it is.
         int gx = (int) Math.floor(c.x), gz = (int) Math.floor(c.z);

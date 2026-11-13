@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:buk_telar"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.sam_kill"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.sam_kill.desc"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/lock_on"
+}

@@ -1,0 +1,26 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.diamond_rain"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.diamond_rain.desc"
+    },
+    "frame": "goal",
+    "hidden": true
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/cabin"
+}

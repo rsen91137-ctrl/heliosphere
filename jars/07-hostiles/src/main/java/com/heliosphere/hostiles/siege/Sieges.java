@@ -351,6 +351,8 @@ public final class Sieges implements ModInitializer {
         Memory m = mem(p);
         if (won) {
             m.beaten++;
+            com.heliosphere.core.progress.Achievements.grant(p, "siege");
+            if (m.beaten >= 10) com.heliosphere.core.progress.Achievements.grant(p, "siege_10");
             int rolls = 2 + s.difficulty + s.kind.ordinal();
             SimpleContainer box = new SimpleContainer(27);
             FortressLoot.fill(box, Math.max(1, s.difficulty - 1), rolls, l.random);

@@ -14,5 +14,6 @@ public final class TideHooks {
         float scale = MagmaTide.impacts(level).isEmpty() ? 1f : 0.45f;
         ImpactFx.broadcast(level, x, y, z, (int) age, scale);
         RemoteImpact.broadcast(level, x, z, scale);
+        for (var p : level.players()) if (p.isAlive()) com.heliosphere.core.progress.Achievements.grant(p, "impact_witness");
     }
 }

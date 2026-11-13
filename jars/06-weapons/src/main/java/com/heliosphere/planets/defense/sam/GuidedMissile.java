@@ -236,6 +236,8 @@ public class GuidedMissile extends Entity {
     }
 
     private void lose(Entity t) {
+        if (side == Side.MACHINE && t instanceof ServerPlayer sp && sp.isAlive() && age > 20)
+            com.heliosphere.core.progress.Achievements.grant(sp, "dodge");
         target = null;
         lastTargetPos = null;
         memoryPos = null;
@@ -320,8 +322,7 @@ public class GuidedMissile extends Entity {
         double radius = side == Side.MACHINE ? MachineWarheads.hurtRadius(tier, spec.blast) : spec.blast;
         float dmg = damage * (side == Side.MACHINE ? MachineWarheads.damageScale(tier) : 1);
         Entity src = owner();
-        DamageSource source = src instanceof Player p ? level.damageSources().playerAttack(p)
-                : src instanceof LivingEntity le ? level.damageSources().mobAttack(le) : level.damageSources().explosion(this, null);
+        DamageSource source = level.damageSources().explosion(this, src instanceof LivingEntity le ? le : null);
         for (LivingEntity e : level.getEntitiesOfClass(LivingEntity.class, new AABB(at, at).inflate(radius))) {
             if (!hostile(e)) continue;
             double d = e.getBoundingBox().getCenter().distanceTo(at);

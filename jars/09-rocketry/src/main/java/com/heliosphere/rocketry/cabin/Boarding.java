@@ -55,6 +55,7 @@ public final class Boarding implements ModInitializer {
             var sites = LandingSites.of(dest);
             site = sites.isEmpty() ? "" : sites.get(0).id();
         }
+        com.heliosphere.core.progress.Achievements.grant(p, "cabin");
         rocket.addTag(HOLD);
         rocket.begin(p, here, dest, site, report, false);
         MutableComponent go = Component.translatable("message.heliosphere.cabin_go").withStyle(s -> s.withColor(ChatFormatting.GREEN).withBold(true)

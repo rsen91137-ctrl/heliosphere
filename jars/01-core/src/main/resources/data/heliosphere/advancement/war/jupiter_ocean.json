@@ -1,0 +1,26 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:metallic_hydrogen"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.jupiter_ocean"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.jupiter_ocean.desc"
+    },
+    "frame": "challenge",
+    "hidden": true
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/cabin"
+}

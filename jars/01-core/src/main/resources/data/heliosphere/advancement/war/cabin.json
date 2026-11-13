@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:rocket_qiming_1"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.cabin"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.cabin.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/root"
+}

@@ -76,6 +76,7 @@ public final class GiantClimate {
                 p.displayClientMessage(Component.translatable("message.heliosphere.giant_layer." + (GiantDepths.ice(planet) ? "ice." : "gas.") + layer,
                         (int) Math.round(bar(planet, p.getY())), (int) Math.round(celsius(planet, p.getY(), -110))).withStyle(layer >= 4 ? ChatFormatting.RED : ChatFormatting.GOLD), false);
             }
+            if (layer == 5 && planet.equals("jupiter")) com.heliosphere.core.progress.Achievements.grant(p, "jupiter_ocean");
             if (layer >= 4 && level.random.nextFloat() < 0.5f)
                 level.sendParticles(ParticleTypes.SMALL_FLAME, p.getX(), p.getY() + 1, p.getZ(), 6, 3, 2, 3, 0.02);
             // diamond rain in the depths of the ice giants
@@ -84,6 +85,7 @@ public final class GiantClimate {
                         new ItemStack(Items.DIAMOND));
                 d.setDeltaMovement(0, -0.6, 0);
                 level.addFreshEntity(d);
+                com.heliosphere.core.progress.Achievements.grant(p, "diamond_rain");
             }
         }
     }

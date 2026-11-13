@@ -1,0 +1,25 @@
+{
+  "display": {
+    "icon": {
+      "id": "heliosphere:robot_fabricator"
+    },
+    "title": {
+      "translate": "advancement.heliosphere.war.fabricator"
+    },
+    "description": {
+      "translate": "advancement.heliosphere.war.fabricator.desc"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "done"
+    ]
+  ],
+  "parent": "heliosphere:war/first_machine"
+}

@@ -61,6 +61,12 @@ public final class Armory {
             PIECES.put(set, items);
         }
         MachineType.addProvider(Armory::recipes);
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (server.getTickCount() % 40 != 0) return;
+            for (var p : server.getPlayerList().getPlayers())
+                for (ArmorSet set : ArmorSet.values())
+                    if (worn(p, set) == 4) { com.heliosphere.core.progress.Achievements.grant(p, "full_armor"); break; }
+        });
     }
 
     /** Set-specific attributes on top of the armour values. */
