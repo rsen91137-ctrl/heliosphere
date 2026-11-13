@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.disasters.collapse.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["NetherPortalCollapseMixin", "EndPortalCollapseMixin", "PortalShapeCollapseMixin", "EnderEyeCollapseMixin"],
+  "injectors": {"defaultRequire": 1}
+}

@@ -10,5 +10,6 @@ public final class TideModule implements ModInitializer {
         RemoteImpact.init();
         MagmaTide.init();
         ImpactBlast.init();
+        com.heliosphere.disasters.collapse.DimensionCollapse.init();
     }
 }

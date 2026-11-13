@@ -50,7 +50,10 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "sam" -> sam(ctx, sp);
                     case "nuke" -> nuke(ctx, sp);
                     case "dodge" -> dodge(ctx, sp);
+                    case "spawn" -> spawn(ctx, sp);
+                    case "armor" -> armor(ctx, sp);
                     case "neptune" -> giant(ctx, sp, "neptune");
+                    case "collapse" -> collapse(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -66,46 +69,96 @@ public class WorldGameTest implements FabricClientGameTest {
     private void extra(ClientGameTestContext ctx, TestSingleplayerContext sp, String part) { report.add("[skip] unknown part " + part); }
 
     private void fortress(ClientGameTestContext ctx, TestSingleplayerContext sp) {
-        for (int tier : new int[]{3, 12}) {
-            cmd(sp, "tp @a ~ ~ ~" + (tier * 200));
+        int k = 0;
+        for (int tier : new int[]{4, 9, 14}) {
+            int R = com.heliosphere.hostiles.fortress.FortressBuilder.radius(tier);
+            cmd(sp, "tp @a ~ ~ ~" + (400 + k++ * 500));
             ctx.waitTicks(40);
             sp.getClientWorld().waitForChunksRender();
             cmd(sp, "execute as @p at @p run hsfortress " + tier);
-            ctx.waitTicks(20);
+            ctx.waitTicks(tier >= 13 ? 700 : 300);
+            int[] c = new int[3];
             server(sp, s -> {
                 ServerPlayer p = player(s);
+                c[0] = p.getBlockX() + R + 24; c[1] = p.getBlockY(); c[2] = p.getBlockZ();
                 p.getAbilities().flying = true; p.onUpdateAbilities();
-                p.teleportTo(p.getX() + 40 - 46, p.getY() + 34, p.getZ() - 46);
+                p.teleportTo(c[0] - R * 1.1, c[1] + R * 0.9 + 20, c[2] - R * 1.1);
             });
-            look(ctx, -45, 28);
+            look(ctx, -45, 35);
             sp.getClientWorld().waitForChunksRender();
             ctx.waitTicks(40);
             shot(ctx, "f" + tier + "_overview");
             server(sp, s -> {
                 ServerPlayer p = player(s);
-                p.teleportTo(p.getX() + 46, p.getY() - 26, p.getZ() + 46 + 9 + tier + 8);
+                p.teleportTo(c[0] + 0.5, c[1] + 6, c[2] + R + 14);
             });
-            look(ctx, 180, 10);
+            look(ctx, 180, 5);
             ctx.waitTicks(30);
             shot(ctx, "f" + tier + "_gate");
-            cmd(sp, "gamemode survival @a");
-            cmd(sp, "effect give @a resistance infinite 4 true");
-            ctx.waitTicks(200);
-            shot(ctx, "f" + tier + "_defended");
-            cmd(sp, "gamemode creative @a");
             server(sp, s -> {
                 ServerPlayer p = player(s);
-                var l = p.level();
+                p.teleportTo(c[0] + 6.5, c[1] + 22, c[2] + R / 2.0);
+            });
+            look(ctx, 160, 30);
+            ctx.waitTicks(30);
+            shot(ctx, "f" + tier + "_inside");
+            server(sp, s -> {
+                var l = player(s).level();
+                int machines = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(c[0] - R - 10, c[1] - 40, c[2] - R - 10, c[0] + R + 10, c[1] + 80, c[2] + R + 10)).size();
                 var fab = com.heliosphere.core.Reg.getBlock("robot_fabricator");
-                int n = 0;
-                for (var b : net.minecraft.core.BlockPos.betweenClosed(p.blockPosition().offset(-40, -30, -70), p.blockPosition().offset(40, 40, 10)))
-                    if (l.getBlockState(b).is(fab)) { l.destroyBlock(b, false); n++; }
-                report.add("[info] fabricators destroyed: " + n);
+                int fabs = 0;
+                for (var b : net.minecraft.core.BlockPos.betweenClosed(c[0] - R - 2, c[1] - 30, c[2] - R - 2, c[0] + R + 2, c[1] + 60, c[2] + R + 2))
+                    if (l.getBlockState(b).is(fab)) { fabs++; l.destroyBlock(b, false); }
+                report.add("[info] fortress " + tier + " radius " + R + ": machines " + machines + ", fabricators " + fabs);
             });
             cmd(sp, "kill @e[type=!player]");
             ctx.waitTicks(60);
             shot(ctx, "f" + tier + "_conquered");
         }
+    }
+
+    /** Natural deployment after forty days on the world clock (the released code counted raw ticks). */
+    private void spawn(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "gamerule doMobSpawning true");
+        cmd(sp, "time add 960000");
+        cmd(sp, "gamemode survival @a");
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        cmd(sp, "effect give @a regeneration infinite 4 true");
+        ctx.waitTicks(2600);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            int n = p.level().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(120)).size();
+            report.add("[info] machines deployed near the player after 2 encounter rounds on day 40: " + n);
+        });
+        shot(ctx, "spawn_day40");
+        cmd(sp, "gamemode creative @a");
+        cmd(sp, "kill @e[type=!player]");
+    }
+
+    /** Every armour set on an armour stand. */
+    private void armor(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int i = 0;
+            for (var set : com.heliosphere.planets.weapon.armor.ArmorSet.values()) {
+                var stand = new net.minecraft.world.entity.decoration.ArmorStand(l, p.getX() - 8 + i * 2, p.getY(), p.getZ() + 4);
+                stand.setYRot(180); stand.setYBodyRot(180);
+                var items = com.heliosphere.planets.weapon.armor.Armory.PIECES.get(set);
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(items[0]));
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, new net.minecraft.world.item.ItemStack(items[1]));
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, new net.minecraft.world.item.ItemStack(items[2]));
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, new net.minecraft.world.item.ItemStack(items[3]));
+                l.addFreshEntity(stand);
+                i++;
+            }
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            p.teleportTo(p.getX(), p.getY() + 0.5, p.getZ() - 4);
+        });
+        look(ctx, 0, 10);
+        ctx.waitTicks(30);
+        shot(ctx, "armor_row");
+        cmd(sp, "kill @e[type=armor_stand]");
     }
 
     private void siege(ClientGameTestContext ctx, TestSingleplayerContext sp) {
@@ -287,6 +340,33 @@ public class WorldGameTest implements FabricClientGameTest {
             });
             shot(ctx, "r_launch_" + k);
         }
+        // follow the flight to its landing: screenshots while coming down in the cabin
+        int landShots = 0;
+        for (int i = 0; i < 45 && landShots < 6; i++) {
+            ctx.waitTicks(i < 2 ? 100 : 200);
+            int[] st = new int[2];
+            String[] where = new String[1];
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                st[0] = p.getVehicle() instanceof com.heliosphere.rocketry.entity.RocketEntity r ? r.phase() : -1;
+                where[0] = p.level().dimension().identifier() + " " + p.position();
+            });
+            report.add("[info] flight +" + i + " phase " + st[0] + " at " + where[0]);
+            if (st[0] == -1) break;
+            if (st[0] == 6 || st[0] == 8) {
+                if (landShots % 2 == 1) ctx.runOnClient(mc -> { if (mc.player != null) mc.player.setYRot(mc.player.getYRot() + 150); });
+                shot(ctx, "r_land_" + landShots++);
+            }
+        }
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var rocket = p.getVehicle();
+            p.stopRiding();
+            if (rocket != null) rocket.discard();
+            p.teleportTo(s.overworld(), 300.5, 120, 300.5, java.util.Set.of(), 0, 0, true);
+        });
+        cmd(sp, "gamemode creative @a");
+        ctx.waitTicks(40);
     }
 
     /** Visits a giant planet from the top haze down to the ocean. */
@@ -377,49 +457,77 @@ public class WorldGameTest implements FabricClientGameTest {
         cmd(sp, "kill @e[type=!player]");
     }
 
-    /** The nuke against a hillside: the crater must follow the ground and leave nothing hanging in the air. */
+    /**
+     * The nuke on natural ground. Every block around ground zero is recorded before the blast; afterwards any block
+     * that appeared where there was air, with air under it, is debris left hanging (the old bowl).
+     */
     private void nuke(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         int[] o = new int[3];
+        final int R = 90, DOWN = 50, UP = 70;
+        java.util.BitSet[] before = new java.util.BitSet[1];
+        cmd(sp, "execute in minecraft:overworld run tp @p 1200 140 300");
+        ctx.waitTicks(60);
+        sp.getClientWorld().waitForChunksRender();
         server(sp, s -> {
             ServerPlayer p = player(s);
-            var l = p.level();
-            int x0 = p.getBlockX() + 400, z0 = p.getBlockZ();
-            l.getChunk(x0 >> 4, z0 >> 4);
-            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
-            o[0] = x0; o[1] = y; o[2] = z0;
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            for (int cx = (x0 - R) >> 4; cx <= (x0 + R) >> 4; cx++) for (int cz = (z0 - R) >> 4; cz <= (z0 + R) >> 4; cz++) l.getChunk(cx, cz);
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            o[0] = x0; o[1] = g; o[2] = z0;
+            java.util.BitSet air = new java.util.BitSet();
+            int n = 0;
+            for (int dx = -R; dx <= R; dx++) for (int dz = -R; dz <= R; dz++) for (int dy = -DOWN; dy <= UP; dy++, n++)
+                if (l.getBlockState(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz)).isAir()) air.set(n);
+            before[0] = air;
+            report.add("[info] nuke ground zero " + x0 + " " + g + " " + z0);
             p.getAbilities().flying = true; p.onUpdateAbilities();
-            p.teleportTo(x0 - 160.5, y + 60, z0 + 0.5);
+            p.teleportTo(x0 - 160.5, g + 60, z0 + 0.5);
             var look = new net.minecraft.world.phys.Vec3(160, -60, 0).normalize();
             com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.NUKE_ROCKET, p,
                     com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, null, p.getEyePosition().add(look.scale(2)), look, 0, 0);
         });
         cmd(sp, "effect give @a resistance infinite 4 true");
-        cmd(sp, "gamemode creative @a");
         look(ctx, -90, 20);
         ctx.waitTicks(25);
         shot(ctx, "nuke_flight");
-        ctx.waitTicks(1200);
+        ctx.waitTicks(1500);
         server(sp, s -> {
-            ServerPlayer p = player(s);
-            p.teleportTo(o[0] - 110.5, o[1] + 70, o[2] + 0.5);
-            // count blocks with air under them inside the crater area: floating debris
-            var l = p.level();
-            int floating = 0;
-            for (int dx = -80; dx <= 80; dx += 2) for (int dz = -80; dz <= 80; dz += 2) {
-                int x = o[0] + dx, z = o[2] + dz;
-                int top = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z);
-                for (int yy = top - 1; yy > top - 6; yy--) {
-                    var pos = new net.minecraft.core.BlockPos(x, yy, z);
-                    if (l.getBlockState(pos).isAir() && !l.getBlockState(pos.above()).isAir() && l.getBlockState(pos.above()).isSolid()) { floating++; break; }
+            var l = s.overworld();
+            int x0 = o[0], g = o[1], z0 = o[2];
+            int n = 0, created = 0, hanging = 0, carved = 0;
+            java.util.Map<String, Integer> kinds = new java.util.TreeMap<>();
+            List<String> samples = new ArrayList<>();
+            for (int dx = -R; dx <= R; dx++) for (int dz = -R; dz <= R; dz++) for (int dy = -DOWN; dy <= UP; dy++, n++) {
+                var pos = new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz);
+                var st = l.getBlockState(pos);
+                boolean wasAir = before[0].get(n);
+                if (!wasAir && st.isAir()) carved++;
+                if (!wasAir || st.isAir() || !st.getFluidState().isEmpty() || st.is(net.minecraft.tags.BlockTags.FIRE)) continue;
+                created++;
+                if (dy > -DOWN && l.getBlockState(pos.below()).isAir() && st.isSolid()) {
+                    hanging++;
+                    kinds.merge(net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(st.getBlock()).getPath(), 1, Integer::sum);
+                    if (samples.size() < 8) samples.add(dx + "," + dy + "," + dz);
                 }
             }
-            report.add("[info] nuke crater columns with a hanging block: " + floating);
+            report.add("[info] nuke: blocks removed " + carved + ", blocks created in air " + created + ", of them hanging over air " + hanging + " " + kinds + " e.g. " + samples);
+            ServerPlayer p = player(s);
+            p.teleportTo(x0 - 70.5, g + 45, z0 + 0.5);
+        });
+        ctx.runOnClient(mc -> {                                     // clear the cloud so the ground can be seen
+            mc.particleEngine.clearParticles();
+            try {
+                var f = com.heliosphere.core.client.fx.FxEngine.class.getDeclaredField("LIVE");
+                f.setAccessible(true);
+                ((java.util.List<?>) f.get(null)).clear();
+            } catch (ReflectiveOperationException ignored) {}
         });
         look(ctx, -90, 30);
         ctx.waitTicks(80);
         sp.getClientWorld().waitForChunksRender();
         shot(ctx, "nuke_crater");
-        look(ctx, -60, 45);
+        look(ctx, -60, 40);
         ctx.waitTicks(20);
         shot(ctx, "nuke_crater2");
     }
@@ -453,6 +561,94 @@ public class WorldGameTest implements FabricClientGameTest {
             ctx.waitTicks(10);
         }
         cmd(sp, "gamemode creative @a");
+    }
+
+    /** Doomsday with a player in the Nether: warnings, the collapse, death; then portals shatter in the overworld. */
+    private void collapse(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        var OBS = net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState();
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX() + 8, z0 = p.getBlockZ() + 8;
+            int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x0, z0) + 1;
+            o[0] = x0; o[1] = y; o[2] = z0;
+            for (int f = 0; f < 2; f++) {                              // two obsidian frames, 4 wide and 5 tall, along X
+                int fx = x0 + f * 8;
+                for (int i = 0; i < 4; i++) for (int j = 0; j < 5; j++)
+                    l.setBlock(new net.minecraft.core.BlockPos(fx + i, y + j, z0), (i == 0 || i == 3 || j == 0 || j == 4) ? OBS
+                            : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            }
+            l.setBlock(new net.minecraft.core.BlockPos(x0 + 1, y + 1, z0), net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState(), 3);
+            report.add("[info] portal lit before the collapse: " + l.getBlockState(new net.minecraft.core.BlockPos(x0 + 1, y + 2, z0)).is(net.minecraft.world.level.block.Blocks.NETHER_PORTAL));
+            // an End portal (3x3 sheet in a frame ring) further along
+            int ex = x0 + 20;
+            for (int i = -1; i <= 3; i++) for (int j = -1; j <= 3; j++) {
+                boolean ring = (i == -1 || i == 3) != (j == -1 || j == 3);
+                var pos = new net.minecraft.core.BlockPos(ex + i, y, z0 + j);
+                if (ring) l.setBlock(pos, net.minecraft.world.level.block.Blocks.END_PORTAL_FRAME.defaultBlockState()
+                        .setValue(net.minecraft.world.level.block.EndPortalFrameBlock.HAS_EYE, true), 3);
+                else if (i >= 0 && i <= 2 && j >= 0 && j <= 2) l.setBlock(pos, net.minecraft.world.level.block.Blocks.END_PORTAL.defaultBlockState(), 3);
+            }
+            // the asteroid is due in 70 seconds
+            var story = s.getCommandStorage().get(Heliosphere.id("story"));
+            story.putInt("asteroid", 1);
+            story.putDouble("asteroid_due", (l.getGameTime() + 1400) / 24000.0);
+            s.getCommandStorage().set(Heliosphere.id("story"), story);
+            var nether = s.getLevel(net.minecraft.world.level.Level.NETHER);
+            for (int dx = -3; dx <= 3; dx++) for (int dz = -3; dz <= 3; dz++) {
+                for (int yy = 101; yy <= 104; yy++) nether.setBlock(new net.minecraft.core.BlockPos(dx, yy, dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+                nether.setBlock(new net.minecraft.core.BlockPos(dx, 100, dz), net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState(), 3);
+            }
+            p.getAbilities().flying = false; p.onUpdateAbilities();
+            p.teleportTo(nether, 0.5, 101, 0.5, java.util.Set.of(), 0, 0, true);
+        });
+        cmd(sp, "gamemode survival @a");
+        ctx.waitTicks(60);
+        sp.getClientWorld().waitForChunksRender();
+        look(ctx, 0, 10);
+        shot(ctx, "collapse_warning");
+        ctx.waitTicks(1400 - 60 - 160);
+        shot(ctx, "collapse_countdown");
+        ctx.waitTicks(160 + 70);
+        shot(ctx, "collapse_tearing");
+        ctx.waitTicks(150);
+        shot(ctx, "collapse_death");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            report.add("[info] player after the collapse: dead=" + p.isDeadOrDying() + " dim=" + p.level().dimension().identifier());
+            var story = s.getCommandStorage().get(Heliosphere.id("story"));
+            report.add("[info] story started=" + story.contains("impact_winter_started") + " collapse_at=" + story.contains("dimension_collapse_at"));
+        });
+        ctx.runOnClient(mc -> { if (mc.player != null) mc.player.respawn(); });
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode creative @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            p.teleportTo(l, o[0] + 10.5, o[1] + 1, o[2] - 14.5, java.util.Set.of(), 0, 15, true);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            // touch the old Nether portal and drop something into the End portal; light the second frame
+            var pig = net.minecraft.world.entity.EntityType.PIG.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            pig.setNoAi(true); pig.setPos(o[0] + 1.5, o[1] + 1, o[2] + 0.5); l.addFreshEntity(pig);
+            var pig2 = net.minecraft.world.entity.EntityType.PIG.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            pig2.setPos(o[0] + 21.5, o[1] + 1.2, o[2] + 1.5); l.addFreshEntity(pig2);
+            l.setBlock(new net.minecraft.core.BlockPos(o[0] + 9, o[1] + 1, o[2]), net.minecraft.world.level.block.Blocks.FIRE.defaultBlockState(), 3);
+        });
+        ctx.waitTicks(30);
+        server(sp, s -> {
+            var l = s.overworld();
+            int nether = 0, end = 0, crying = 0;
+            for (int dx = -2; dx <= 26; dx++) for (int dy = -1; dy <= 6; dy++) for (int dz = -2; dz <= 4; dz++) {
+                var st = l.getBlockState(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz));
+                if (st.is(net.minecraft.world.level.block.Blocks.NETHER_PORTAL)) nether++;
+                if (st.is(net.minecraft.world.level.block.Blocks.END_PORTAL)) end++;
+                if (st.is(net.minecraft.world.level.block.Blocks.CRYING_OBSIDIAN)) crying++;
+            }
+            report.add("[info] after the collapse: nether portal blocks=" + nether + " end portal blocks=" + end + " cracked obsidian=" + crying);
+        });
+        ctx.waitTicks(20);
+        shot(ctx, "collapse_portals");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

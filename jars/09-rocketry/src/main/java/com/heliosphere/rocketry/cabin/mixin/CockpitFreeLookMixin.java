@@ -28,6 +28,9 @@ public abstract class CockpitFreeLookMixin {
         double s = minecraft.options.sensitivity().get() * 0.6 + 0.2;
         double k = s * s * s * 8.0;
         double dx = accumulatedDX * k, dy = accumulatedDY * k * (minecraft.options.invertMouseY().get() ? -1 : 1);
-        if (dx != 0 || dy != 0) FlightCinematic.dragWindow(dx, dy);
+        if (dx == 0 && dy == 0) return;
+        // in the block cabin the camera is your eyes, so the mouse turns you; otherwise it turns the window view
+        if (com.heliosphere.rocketry.cabin.client.RealCabin.active() && minecraft.player != null) minecraft.player.turn(dx, dy);
+        else FlightCinematic.dragWindow(dx, dy);
     }
 }

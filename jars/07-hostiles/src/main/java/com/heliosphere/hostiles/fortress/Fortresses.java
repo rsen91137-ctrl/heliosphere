@@ -48,7 +48,7 @@ import java.util.UUID;
 /**
  * Machine fortresses. The surface of the Overworld and of every solid world is cut into 576-block regions; about
  * three regions in five hold a fortress, built the first time a player comes near. Difficulty runs from 1 to 15:
- * on Earth it grows with distance from spawn (at most 8), elsewhere it starts at the world's base tier. A fortress
+ * on Earth it grows with distance from spawn (at most 10), elsewhere it starts at the world's base tier. A fortress
  * is conquered when all of its fabricators are destroyed and its boss is dead; it then drops a reward cache on
  * the keep roof.
  */
