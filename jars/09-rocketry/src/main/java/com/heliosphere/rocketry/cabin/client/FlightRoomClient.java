@@ -59,21 +59,22 @@ public final class FlightRoomClient implements ClientModInitializer {
     }
 
     /**
-     * Where the sky is drawn from: the planet sits ahead and below, its rim at the true horizon dip for the rocket's
-     * altitude (level at the pad, dropping as you climb), its disc no wider than the sky can draw (55 degrees).
+     * Where the sky is drawn from: straight above the planet at the rocket's altitude, so the planet lies below the
+     * room (seen through the glass in the deck), shrinking as you climb. Its disc is kept within 38
+     * degrees of radius: the space sky draws a planet no wider (the cruise starts at the same size).
      */
     private static DVec observer(double t) {
         if (!active()) { Minecraft.getInstance().execute(FlightRoomClient::sync); }
         CelestialBody b = body();
         DVec centre = OrbitMath.position(b, t);
         double r = b.radiusKm, h = Math.max(0, last.altitude() / 1000.0);
-        double dip = Math.acos(r / (r + h));
-        double rho = Math.min(Math.asin(r / (r + h)), Math.toRadians(55));
-        double dist = r / Math.sin(rho);
-        double theta = rho + dip;                                                 // centre below the horizon, ahead
+        double rho = Math.toRadians(38) * Math.asin(r / (r + h)) / (Math.PI / 2);   // shrinks as you climb, like the real one
         double unit = centre.length() > 1e4 ? 1 : 1 / CelestialBody.AU_KM;        // positions in km, or in AU
-        DVec toCentre = new DVec(0, -Math.sin(theta), Math.cos(theta));
-        return centre.sub(toCentre.scale(dist * unit));
+        // above the planet and toward the Sun (which sits on this sky's horizon): the day side faces the room
+        DVec toSun = centre.scale(-1).normalize();
+        double up = Math.toRadians(60);
+        DVec dir = toSun.scale(Math.cos(up)).add(new DVec(0, Math.sin(up), 0)).normalize();
+        return centre.add(dir.scale(r / Math.sin(rho) * unit));
     }
 
     private static void hud(GuiGraphics g) {

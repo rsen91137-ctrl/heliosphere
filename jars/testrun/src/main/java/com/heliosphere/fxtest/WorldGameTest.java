@@ -386,7 +386,10 @@ public class WorldGameTest implements FabricClientGameTest {
                 if (lv != null) p.teleportTo(lv.getX() + 1.0, lv.getY() - 1, lv.getZ() - 3.0); });
             look(ctx, 0, 12); ctx.waitTicks(10); shot(ctx, "r_room_window_front");
             look(ctx, 0, 35); ctx.waitTicks(10); shot(ctx, "r_room_window_down");
-            look(ctx, 0, -40); ctx.waitTicks(10); shot(ctx, "r_room_window_up");
+            server(sp, s -> { ServerPlayer p = player(s); var lv = com.heliosphere.rocketry.cabin.FlightRoom.lever(p);
+                if (lv != null) p.teleportTo(lv.getX() + 0.5, lv.getY() - 1, lv.getZ() - 3.6); });
+            look(ctx, 180, 88); ctx.waitTicks(10); shot(ctx, "r_room_deck_glass");
+            look(ctx, 90, 20); ctx.waitTicks(10); shot(ctx, "r_room_side_window");
             where.accept("end");
             return;
         }

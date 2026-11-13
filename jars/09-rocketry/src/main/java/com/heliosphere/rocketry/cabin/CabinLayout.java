@@ -39,7 +39,7 @@ public final class CabinLayout {
         // the room: inner x -3..2 (blocks), z -8..0, height 4; walls one block outside
         for (int x = -4; x <= 3; x++) for (int z = -9; z <= 1; z++) {
             boolean sideWall = x == -4 || x == 3, front = z == 1, back = z == -9;
-            boolean port = (x == -1 || x == 0) && z >= -6 && z <= -3;                    // a glass panel in the deck: look straight down
+            boolean port = x >= -2 && x <= 1 && z >= -6 && z <= -3;                      // a glass panel in the deck: look straight down
             put(out, x, -1, z, port ? Blocks.GLASS.defaultBlockState() : (x + z) % 3 == 0 ? strip : floor);   // deck
             put(out, x, 4, z, (x == -1 || x == 0) && z % 3 == 0 && !front && !back ? lamp : ceiling);
             for (int y = 0; y < 4; y++) {
