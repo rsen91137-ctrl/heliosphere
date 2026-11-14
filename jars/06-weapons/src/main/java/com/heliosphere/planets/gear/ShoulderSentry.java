@@ -34,8 +34,9 @@ import java.util.UUID;
 /**
  * The portable sentry worn on the armour: dragged onto a chestplate in the inventory it clips onto the shoulder
  * (right-click the chestplate with an empty cursor to take it off again). While that chestplate is worn it shoots
- * every hostile creature and machine it can see within 16 blocks: 6 damage a shot every 0.7 seconds, 25 FE a shot
- * from its 8000 FE battery. The turret upgrade kits raise it to Mk I-V (up to 16 damage, 26 blocks, 0.4 s, 24000 FE):
+ * every hostile creature and machine it can see within 20 blocks: 10 damage a shot every half second, 20 FE a shot
+ * from its 10000 FE battery. The turret upgrade kits raise it to Mk I-V (up to 32 damage, 32 blocks, a shot every
+ * quarter second, 40000 FE; two targets at once from Mk III, three at Mk V):
  * click a kit onto the sentry, or onto armour that carries it. It charges while you stand next to a power block (generators, battery banks) and slowly
  * from its solar panel by day under the open sky. In creative mode it needs no charge.
  */
@@ -43,15 +44,18 @@ public final class ShoulderSentry {
     private ShoulderSentry() {}
 
     public static final String KEY = "shoulder_sentry", MK = "shoulder_sentry_mk";
-    public static final long CAPACITY = 8000;
-    public static final int COST = 25, INTERVAL = 14;
-    public static final float DAMAGE = 6, RANGE = 16;
+    public static final long CAPACITY = 10000;
+    public static final int COST = 20, INTERVAL = 10;
+    public static final float DAMAGE = 10, RANGE = 20;
 
     /** Upgrades with the turret upgrade kits, Mk I to V (index 0 = as built). */
-    private static final float[] DAMAGES = {6, 7.5f, 9, 11, 13, 16};
-    private static final float[] RANGES = {16, 18, 20, 22, 24, 26};
-    private static final int[] INTERVALS = {14, 13, 12, 11, 10, 8};
-    private static final long[] CAPACITIES = {8000, 10000, 12000, 15000, 18000, 24000};
+    private static final float[] DAMAGES = {10, 13, 16, 20, 25, 32};
+    private static final float[] RANGES = {20, 22, 24, 27, 30, 32};
+    private static final int[] INTERVALS = {10, 9, 8, 7, 6, 5};
+    private static final long[] CAPACITIES = {10000, 14000, 18000, 24000, 32000, 40000};
+    /** Targets engaged at once: the twin guns from Mk III, three from Mk V. */
+    private static final int[] TARGETS = {1, 1, 1, 2, 2, 3};
+    public static int targets(int mk) { return TARGETS[i(mk)]; }
 
     private static int i(int mk) { return Mth.clamp(mk, 0, 5); }
     public static float damage(int mk) { return DAMAGES[i(mk)]; }
@@ -141,25 +145,29 @@ public final class ShoulderSentry {
             if (cd > 0) { COOLDOWN.put(p.getUUID(), cd - 1); continue; }
             if (!free && e < COST) continue;
             Vec3 muzzle = muzzle(p);
-            Mob target = null;
-            double best = range * range;
+            // the nearest hostiles in sight, as many as it has guns for
+            java.util.List<Mob> seen = new java.util.ArrayList<>();
             for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(muzzle, muzzle).inflate(range))) {
                 if (!(m instanceof Enemy) || !m.isAlive() || m instanceof OwnableEntity) continue;
                 Vec3 c = m.getBoundingBox().getCenter();
-                double d = c.distanceToSqr(muzzle);
-                if (d > best) continue;
+                if (c.distanceToSqr(muzzle) > range * range) continue;
                 if (level.clip(new ClipContext(muzzle, c, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p)).getType() != HitResult.Type.MISS) continue;
-                best = d; target = m;
+                seen.add(m);
             }
-            if (target == null) { COOLDOWN.put(p.getUUID(), 5); continue; }
-            Vec3 c = target.getBoundingBox().getCenter();
-            target.hurtServer(level, level.damageSources().playerAttack(p), damage(mk));
-            target.invulnerableTime = 0;
-            CombatVfx.send(level, CombatVfx.TRACER, mk >= 4 ? 0x80E0FF : 0xFFD070, muzzle, c, 0.8f + mk * 0.1f);
-            level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 0.7f, 1.7f);
-            if (!free) setCharge(chest, e - COST);
+            if (seen.isEmpty()) { COOLDOWN.put(p.getUUID(), 4); continue; }
+            seen.sort(java.util.Comparator.comparingDouble(m -> m.distanceToSqr(muzzle)));
+            int guns = Math.min(targets(mk), seen.size());
+            for (int g = 0; g < guns; g++) {
+                Mob target = seen.get(g);
+                Vec3 c = target.getBoundingBox().getCenter();
+                target.hurtServer(level, level.damageSources().playerAttack(p), damage(mk));
+                target.invulnerableTime = 0;
+                CombatVfx.send(level, CombatVfx.TRACER, mk >= 4 ? 0x80E0FF : 0xFFD070, muzzle, c, 0.9f + mk * 0.12f);
+            }
+            level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 0.8f, 1.5f + mk * 0.05f);
+            if (!free) setCharge(chest, e - (long) COST * guns);
             COOLDOWN.put(p.getUUID(), interval(mk));
-            shots++;
+            shots += guns;
         }
     }
 

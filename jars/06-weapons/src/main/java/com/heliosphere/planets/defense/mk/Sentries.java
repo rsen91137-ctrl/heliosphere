@@ -86,10 +86,11 @@ public final class Sentries implements ModInitializer {
         asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 6).in(I("guidance_computer")).in(I("rdx"), 8).in(I("processor"), 2).out(I("missile_turret")).time(700).power(150));
         asm.recipe(MachineRecipe.of().in(I("ndfeb_magnet"), 8).in(I("niobium_ingot"), 4).in(I("tungsten_ingot"), 4).in(I("processor"), 2).in(I("battery_cell"), 6).out(I("rail_turret")).time(900).power(220));
         asm.recipe(MachineRecipe.of().in(I("copper_wire"), 24).in(I("ndfeb_magnet"), 4).in(I("battery_cell"), 4).in(I("circuit_board"), 4).out(I("tesla_turret")).time(600).power(140));
-        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 4).in(I("circuit_board"), 2).in(I("copper_wire"), 4).out(I("turret_kit_mk1")).time(200).power(40));
-        asm.recipe(MachineRecipe.of().in(I("ti64_plate"), 2).in(I("processor")).in(I("battery_cell"), 2).out(I("turret_kit_mk2")).time(300).power(80));
-        asm.recipe(MachineRecipe.of().in(I("inconel_plate"), 2).in(I("processor"), 2).in(I("ndfeb_magnet"), 2).out(I("turret_kit_mk3")).time(400).power(120));
-        asm.recipe(MachineRecipe.of().in(I("alien_alloy"), 2).in(I("alien_chip")).in(I("graphene_sheet"), 2).out(I("turret_kit_mk4")).time(600).power(200));
-        asm.recipe(MachineRecipe.of().in(I("zero_point_cell")).in(I("alien_chip"), 2).in(I("deep_space_computer")).in(I("magnetic_sail_coil")).out(I("turret_kit_mk5")).time(1200).power(400));
+        // upgrade kits: each one is the kit before it plus ordinary materials made on Earth (no space materials needed)
+        asm.recipe(MachineRecipe.of().in(I("steel_plate"), 2).in(I("circuit_board")).in(I("copper_wire"), 2).out(I("turret_kit_mk1")).time(160).power(30));
+        asm.recipe(MachineRecipe.of().in(I("turret_kit_mk1")).in(I("steel_plate"), 2).in(I("circuit_board"), 2).in(I("electric_motor")).out(I("turret_kit_mk2")).time(200).power(50));
+        asm.recipe(MachineRecipe.of().in(I("turret_kit_mk2")).in(I("steel_plate"), 3).in(I("processor")).in(I("battery_cell"), 2).out(I("turret_kit_mk3")).time(260).power(70));
+        asm.recipe(MachineRecipe.of().in(I("turret_kit_mk3")).in(I("ti64_plate"), 2).in(I("processor"), 2).in(I("electric_motor"), 2).out(I("turret_kit_mk4")).time(320).power(90));
+        asm.recipe(MachineRecipe.of().in(I("turret_kit_mk4")).in(I("ti64_plate"), 3).in(I("processor"), 3).in(I("battery_cell"), 4).in(I("copper_wire"), 8).out(I("turret_kit_mk5")).time(400).power(120));
     }
 }

@@ -1897,6 +1897,10 @@ public class WorldGameTest implements FabricClientGameTest {
                 var h = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
                 h.setPos(x0 - 4 + i * 4 + 0.5, g, z0 + 12.5); h.setNoAi(true); h.setPersistenceRequired(); l.addFreshEntity(h);
             }
+            for (int i = 0; i < 2; i++) {
+                var w = com.heliosphere.planets.tech.TechCombat.spawn(l, "siege_walker", x0 - 5 + i * 10 + 0.5, g, z0 + 18.5, null);
+                if (w != null) { w.setNoAi(true); w.setPersistenceRequired(); }
+            }
             com.heliosphere.planets.gear.ShoulderSentry.shots = 0;
         });
         ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
@@ -1913,7 +1917,8 @@ public class WorldGameTest implements FabricClientGameTest {
             ServerPlayer p = player(s);
             int husks = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, new net.minecraft.world.phys.AABB(o[0] - 20, o[1] - 4, o[2] - 4, o[0] + 20, o[1] + 8, o[2] + 30)).size();
             var chest = p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
-            report.add("[info] shoulder: shots " + com.heliosphere.planets.gear.ShoulderSentry.shots + ", husks left " + husks + "/3, charge after 10 s next to a battery cabinet " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest));
+            int walkers = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 20, o[1] - 4, o[2] - 4, o[0] + 20, o[1] + 8, o[2] + 30)).size();
+            report.add("[info] shoulder Mk 5: shots " + com.heliosphere.planets.gear.ShoulderSentry.shots + " in 10 s, husks left " + husks + "/3, siege walkers (280 hp, armour 16) left " + walkers + "/2, charge after 10 s next to a battery cabinet " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest));
             // take it off: the chestplate back in the inventory, right-clicked with an empty cursor
             p.getInventory().setItem(9, chest.copy());
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);

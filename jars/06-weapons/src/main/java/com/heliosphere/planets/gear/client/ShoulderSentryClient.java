@@ -36,7 +36,7 @@ public final class ShoulderSentryClient {
                 int mk = ShoulderSentry.mk(stack);
                 lines.add(Component.translatable("item.heliosphere.shoulder_sentry.fitted", e, ShoulderSentry.capacity(mk)).withStyle(ChatFormatting.AQUA));
                 lines.add(Component.translatable("item.heliosphere.portable_sentry.stats", com.heliosphere.planets.defense.mk.PortableSentryItem.roman(mk),
-                        String.format("%.1f", ShoulderSentry.damage(mk)), String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.2f", ShoulderSentry.interval(mk) / 20f)).withStyle(ChatFormatting.GOLD));
+                        String.format("%.0f", ShoulderSentry.damage(mk)), String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.2f", ShoulderSentry.interval(mk) / 20f), ShoulderSentry.targets(mk)).withStyle(ChatFormatting.GOLD));
             }
         });
     }
@@ -88,6 +88,7 @@ public final class ShoulderSentryClient {
             m.ry(Math.toRadians(-aim));
             m.cbox(0, 0, 0, 0.2, 0.15, 0.24, BoxMesh.PLATE, SAND);                      // head
             m.cbox(0, 0.09, -0.04, 0.24, 0.02, 0.18, BoxMesh.CARBON, 0x2A3A5A);         // solar panel
+            if (mk >= 5) m.cbox(0, 0.06, 0.24, 0.04, 0.04, 0.3, BoxMesh.BARREL, STEEL);   // Mk V: a third gun on top
             if (mk >= 3) for (int sx = -1; sx <= 1; sx += 2) {                         // Mk III and up: twin guns
                 m.cbox(sx * 0.045, 0, 0.22 + mk * 0.01, 0.045, 0.045, 0.26 + mk * 0.02, BoxMesh.BARREL, STEEL);
                 m.cbox(sx * 0.045, 0, 0.36 + mk * 0.02, 0.06, 0.06, 0.03, BoxMesh.DARK, DARK);

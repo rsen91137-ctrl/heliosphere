@@ -201,7 +201,7 @@
   "item.heliosphere.shoulder_sentry.fitted": "已掛載肩載哨戒炮 · 電量 %s/%s FE（空手右鍵取下）",
   "message.heliosphere.shoulder_sentry_charging": "肩載哨戒炮充電中：%s / %s FE",
   "message.heliosphere.shoulder_sentry_occupied": "這件盔甲上已經掛著一門哨戒炮了",
-  "item.heliosphere.portable_sentry.stats": "等級 Mk %s · 每發 %s 傷害 · 射程 %s 格 · 每 %s 秒一發",
+  "item.heliosphere.portable_sentry.stats": "等級 Mk %s · 每發 %s 傷害 · 射程 %s 格 · 每 %s 秒一輪 · 同時打 %s 個目標",
   "message.heliosphere.shoulder_sentry_upgraded": "肩載哨戒炮已升級到 Mk %s",
   "message.heliosphere.shoulder_sentry_has_mk": "這門哨戒炮已經是 Mk %s 了，需要更高級的升級套件"
 }

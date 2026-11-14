@@ -100,8 +100,8 @@ public class PortableSentryItem extends Item {
     public void appendHoverText(ItemStack st, TooltipContext ctx, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
         int mk = mk(st);
         out.accept(Component.translatable("item.heliosphere.portable_sentry.charge", energy(st), ShoulderSentry.capacity(mk)).withStyle(ChatFormatting.AQUA));
-        out.accept(Component.translatable("item.heliosphere.portable_sentry.stats", mk == 0 ? "-" : roman(mk), String.format("%.1f", ShoulderSentry.damage(mk)),
-                String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.2f", ShoulderSentry.interval(mk) / 20f)).withStyle(ChatFormatting.GOLD));
+        out.accept(Component.translatable("item.heliosphere.portable_sentry.stats", mk == 0 ? "-" : roman(mk), String.format("%.0f", ShoulderSentry.damage(mk)),
+                String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.2f", ShoulderSentry.interval(mk) / 20f), ShoulderSentry.targets(mk)).withStyle(ChatFormatting.GOLD));
         out.accept(Component.translatable("item.heliosphere.portable_sentry.hint", String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.1f", ShoulderSentry.damage(mk))).withStyle(ChatFormatting.GRAY));
     }
 
