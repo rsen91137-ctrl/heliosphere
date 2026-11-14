@@ -30,5 +30,8 @@
   "message.heliosphere.bio_capsule_released": "已放出：%s",
   "message.heliosphere.bio_capsule_full": "收容艙裡已經有生物了，先放出來",
   "message.heliosphere.bio_capsule_refused": "這個不能收容（玩家、Boss 和機械除外）",
-  "message.heliosphere.bio_capsule_no_air": "注意：這裡沒有可呼吸的空氣，地球生物會慢慢窒息——把牠放進棲息地力場的圈裡。"
+  "message.heliosphere.bio_capsule_no_air": "注意：這裡沒有可呼吸的空氣，地球生物會慢慢窒息——把牠放進棲息地力場的圈裡。",
+  "item.heliosphere.laoba_lunch": "老八の午餐",
+  "item.heliosphere.laoba_lunch.hint": "用落葉做的。奧利給！吃下去頂 3 格飽食度，但會噁心反胃、餓得更快、腿軟好一陣。",
+  "message.heliosphere.laoba_lunch": "嘔……奧利給！"
 }

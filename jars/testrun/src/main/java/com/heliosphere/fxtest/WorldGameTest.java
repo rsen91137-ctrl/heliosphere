@@ -75,6 +75,18 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "portable" -> portable(ctx, sp);
                     case "ores" -> ores(ctx, sp);
                     case "habitat" -> habitat(ctx, sp);
+                    case "laoba" -> { cmd(sp, "gamemode survival @a"); ctx.waitTicks(20); server(sp, s -> {
+                        ServerPlayer p = player(s);
+                        var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "laoba_lunch"));
+                        boolean recipe = s.getRecipeManager().byKey(key).isPresent();
+                        p.getFoodData().setFoodLevel(4);
+                        var st = new net.minecraft.world.item.ItemStack(com.heliosphere.industry.fun.LaoBaLunch.LUNCH, 2);
+                        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, st);
+                        st.finishUsingItem(p.level(), p);
+                        report.add("[info] laoba lunch: recipe " + recipe + ", food 4 -> " + p.getFoodData().getFoodLevel() + ", left " + st.getCount()
+                                + ", nausea " + p.hasEffect(net.minecraft.world.effect.MobEffects.NAUSEA) + ", hunger " + p.hasEffect(net.minecraft.world.effect.MobEffects.HUNGER)
+                                + ", slowness " + p.hasEffect(net.minecraft.world.effect.MobEffects.SLOWNESS) + ", name " + st.getHoverName().getString());
+                    }); ctx.waitTicks(10); shot(ctx, "laoba"); cmd(sp, "gamemode creative @a"); }
                     case "timeline" -> { ctx.waitTicks(60); server(sp, s -> report.add("[info] timeline: asteroid in " + String.format("%.1f", com.heliosphere.core.story.Story.asteroidDays(s))
                             + " days, evolution stage " + com.heliosphere.hostiles.arsenal.Evolution.stage() + ", stage on days 100/200/360: " + com.heliosphere.hostiles.arsenal.Evolution.stage(100)
                             + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(200) + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(360)

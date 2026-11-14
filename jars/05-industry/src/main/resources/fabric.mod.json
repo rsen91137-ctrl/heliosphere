@@ -6,7 +6,8 @@
   "entrypoints": {
     "main": [
       "com.heliosphere.industry.power.Power",
-      "com.heliosphere.industry.habitat.Habitat"
+      "com.heliosphere.industry.habitat.Habitat",
+      "com.heliosphere.industry.fun.LaoBaLunch"
     ],
     "client": [
       "com.heliosphere.industry.power.client.PowerClient",

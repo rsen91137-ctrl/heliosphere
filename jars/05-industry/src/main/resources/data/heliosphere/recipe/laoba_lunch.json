@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["#minecraft:leaves", "#minecraft:leaves", "#minecraft:leaves", "#minecraft:leaves"],
+  "result": {
+    "id": "heliosphere:laoba_lunch",
+    "count": 1
+  }
+}

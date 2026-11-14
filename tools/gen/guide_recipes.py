@@ -43,6 +43,7 @@ for i in SAM_VEHICLES + ROUNDS + ['sam_ammo_crate', 'sam_battery', 'creative_amm
 for i in SAM_PARTS: CATEGORY[i] = '零部件'
 for i in POWER + ['habitat_field_emitter', 'habitat_field_panel']: CATEGORY[i] = '机器'
 CATEGORY['bio_capsule'] = '工具装备'
+CATEGORY['laoba_lunch'] = '食物'
 for i in JETPACKS + ['sam_wrench']: CATEGORY[i] = '工具装备'
 for s in ARMOUR_SETS:
     for p in PIECES: CATEGORY[f'{s}_{p}'] = '工具装备'
@@ -195,6 +196,16 @@ def crafting():
     """Crafting-table recipes: id -> list of guide recipes."""
     out = {}
     for r in recipe_files():
+        if r.get('type') == 'minecraft:crafting_shapeless':                  # shown with one item for a tag (any leaves -> oak leaves)
+            counts = {}
+            for ing in r.get('ingredients', []):
+                i = ing if isinstance(ing, str) else ing[0] if isinstance(ing, list) and ing else str(ing)
+                if i.startswith('#'): i = {'#minecraft:leaves': 'minecraft:oak_leaves', '#minecraft:planks': 'minecraft:oak_planks', '#minecraft:logs': 'minecraft:oak_log'}.get(i, i[1:])
+                counts[i] = counts.get(i, 0) + 1
+            res = r['result']
+            entry = {'m': '工作台（无序）', 'i': [[k, v] for k, v in counts.items()], 'o': [[res['id'], res.get('count', 1), 1.0]]}
+            if res['id'] == 'heliosphere:laoba_lunch': out.setdefault(res['id'], []).append(entry)   # only the new one: the released shapeless ones are already listed
+            continue
         if r.get('type') != 'minecraft:crafting_shaped': continue
         key = {c: (v if isinstance(v, str) else v[0] if isinstance(v, list) and v and isinstance(v[0], str) else str(v)) for c, v in r['key'].items()}
         grid = [[key[c] if c in key else '' for c in row.ljust(3)] for row in r['pattern']]

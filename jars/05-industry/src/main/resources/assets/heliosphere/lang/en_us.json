@@ -30,5 +30,8 @@
   "message.heliosphere.bio_capsule_released": "Let out: %s",
   "message.heliosphere.bio_capsule_full": "The capsule already holds a creature: let it out first",
   "message.heliosphere.bio_capsule_refused": "That cannot be taken (no players, bosses or machines)",
-  "message.heliosphere.bio_capsule_no_air": "Careful: there is no breathable air here and Earth creatures slowly suffocate - let it out inside a habitat field."
+  "message.heliosphere.bio_capsule_no_air": "Careful: there is no breathable air here and Earth creatures slowly suffocate - let it out inside a habitat field.",
+  "item.heliosphere.laoba_lunch": "Lao Ba's Lunch",
+  "item.heliosphere.laoba_lunch.hint": "Made of leaves. 3 haunches of food, but you will feel sick, hungrier and wobbly for a while.",
+  "message.heliosphere.laoba_lunch": "Urgh... delicious!"
 }
