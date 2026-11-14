@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["LLL", "SMS", "BSP"], "key": {"B": "heliosphere:battery_cell", "L": "heliosphere:steel_ingot", "M": "heliosphere:electric_motor", "P": "heliosphere:plastic", "S": "heliosphere:steel_plate"}, "result": {"id": "heliosphere:light_machine_gun", "count": 1}}

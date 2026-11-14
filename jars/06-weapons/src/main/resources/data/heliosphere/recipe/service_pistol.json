@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["LSS", " PI"], "key": {"I": "minecraft:iron_ingot", "L": "heliosphere:steel_ingot", "P": "heliosphere:plastic", "S": "heliosphere:steel_plate"}, "result": {"id": "heliosphere:service_pistol", "count": 1}}

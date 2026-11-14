@@ -90,8 +90,23 @@ def main():
     java_kits, java_final = [], []
     lz, le, lt = {}, {}, {}
     tip_lines = []
+    seen = set()
     for rocket, p in parts.items():
         kits, final = plan(p)
+        # two rockets can share a kit's contents exactly (same upper stage): a machine could then never tell which
+        # kit to make, so one unit of another kit's part moves into the copy
+        for k, kit in enumerate(kits):
+            key = tuple(sorted(kit))
+            if key in seen and len(kit) < 9:
+                for j, other in enumerate(kits):
+                    if j == k: continue
+                    for e, (item, n) in enumerate(other):
+                        if n > 1 and all(i != item for i, _ in kit):
+                            other[e] = (item, n - 1); kit.append((item, 1)); break
+                    else: continue
+                    break
+                key = tuple(sorted(kit))
+            seen.add(key)
         nz, ne, nt = short(zh.get(f'item.heliosphere.{rocket}', rocket)), short(en.get(f'item.heliosphere.{rocket}', rocket)), short(tw.get(f'item.heliosphere.{rocket}', rocket))
         base = rocket.replace('rocket_', '')
         ids = []

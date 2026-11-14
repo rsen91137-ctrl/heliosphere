@@ -13,6 +13,7 @@
       "config": "heliosphere-fx.mixins.json",
       "environment": "client"
     },
-    "heliosphere-grid.mixins.json"
+    "heliosphere-grid.mixins.json",
+    "heliosphere-machine.mixins.json"
   ]
 }

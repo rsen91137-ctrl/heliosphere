@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["LLL", "SCS", "  P"], "key": {"C": "heliosphere:circuit_board", "L": "heliosphere:steel_ingot", "P": "heliosphere:plastic", "S": "heliosphere:steel_plate"}, "result": {"id": "heliosphere:battle_rifle", "count": 1}}

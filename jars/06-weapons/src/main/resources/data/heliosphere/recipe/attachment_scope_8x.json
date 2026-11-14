@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["GTG", "TLT", "GTG"], "key": {"G": "minecraft:glass_pane", "L": "heliosphere:steel_ingot", "T": "heliosphere:ti64_plate"}, "result": {"id": "heliosphere:attachment_scope_8x", "count": 1}}

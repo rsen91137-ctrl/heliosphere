@@ -241,8 +241,16 @@ def main():
         if new:
             short = gid.split(':')[1]
             e = {'id': gid, 'c': CATEGORY.get(short, '其他物品'), 'r': [], 's': list(SOURCES.get(short, SPAWNER if short.endswith('_deployment') else [])), 'u': []}
-        for r in machine.get(gid, []) + craft.get(gid, []):
-            if not any(same(r, x) for x in e['r']): e['r'].append(r)
+        # the running game is the truth: machine recipes all come from the dump and shaped crafting recipes from the
+        # recipe files, so stale released entries (the copied gun grids, recipes a later fix changed) are dropped;
+        # a description carried by a dropped entry moves to the first new one
+        fresh = machine.get(gid, []) + craft.get(gid, [])
+        if fresh:
+            notes = [x['x'] for x in e['r'] if x.get('x') and (x['m'].startswith('heliosphere:') or x['m'] == '工作台（有序）')]
+            e['r'] = [x for x in e['r'] if not (x['m'].startswith('heliosphere:') or x['m'] == '工作台（有序）')]
+            for r in fresh:
+                if not any(same(r, x) for x in e['r']): e['r'].append(dict(r))
+            if notes and not any(x.get('x') for x in e['r']): e['r'][0]['x'] = notes[0]
         if new:
             by[gid] = e; added.append(gid)
         if not e['r'] and not e['s']: missing.append(gid)

@@ -256,7 +256,10 @@ public final class Fortresses implements ModInitializer {
         if (level.dimension() == Level.OVERWORLD) {
             BlockPos spawn = level.getRespawnData().pos();
             double d = Math.sqrt(spawn.distSqr(new BlockPos(x, spawn.getY(), z)));
-            return Mth.clamp(2 + (int) (d / 700) + r.nextInt(3) - 1, 1, 10);
+            int far = 2 + (int) (d / 700) + r.nextInt(3) - 1;
+            // and with how far the machines have evolved: a fortress built in the first weeks is at most two above the stage
+            int stage = com.heliosphere.hostiles.arsenal.Evolution.stage(level.getServer().overworld().getDayTime() / 24000L);
+            return Mth.clamp(Math.min(far, stage + 2), 1, 10);
         }
         return Mth.clamp(WorldTiers.base(bodyId(level)) + 1 + r.nextInt(6), 1, 15);
     }

@@ -119,6 +119,10 @@ public final class Armory {
                 if (set == ArmorSet.EXO) r = r.in(I("electric_motor"), i == 2 ? 2 : 1).in(I("battery_cell"), 1);
                 if (set == ArmorSet.ALIEN) r = r.in(I("alien_chip"), 1);
                 if (set == ArmorSet.HAZMAT && i == 0) r = r.in(I("lunar_glass"), 2);
+                // the three camouflage sets share their materials: the dye of the pattern tells them apart
+                if (set == ArmorSet.US_OCP) r = r.in(net.minecraft.world.item.Items.BROWN_DYE, 1);
+                if (set == ArmorSet.RU_RATNIK) r = r.in(net.minecraft.world.item.Items.GREEN_DYE, 1);
+                if (set == ArmorSet.PLA_STARRY) r = r.in(net.minecraft.world.item.Items.CYAN_DYE, 1);
                 suit.recipe(r.out(out[i]).time(200 + i * 40).power(60));
             }
         }

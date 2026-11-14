@@ -66,6 +66,9 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "skins" -> skins(ctx, sp);
                     case "jetpack" -> jetpack(ctx, sp);
                     case "dump" -> dump(ctx, sp);
+                    case "recipes" -> recipes(ctx, sp);
+                    case "fixes" -> fixes(ctx, sp);
+                    case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
                     case "crew" -> crew(ctx, sp);
@@ -850,6 +853,249 @@ public class WorldGameTest implements FabricClientGameTest {
             try { Files.writeString(Path.of("game-recipes.json"), b.toString()); } catch (IOException e) { report.add("[FAIL] dump " + e); }
             report.add("[info] dumped machine recipes and items");
         });
+    }
+
+    /** Every crafting and furnace recipe as the game loaded it (run-fx/game-crafting.json), and each heliosphere crafting recipe
+     *  tried in a crafting grid with the first item of every slot: reports any that gives another recipe's result instead. */
+    private void recipes(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        server(sp, s -> {
+            var level = s.overworld();
+            var reg = net.minecraft.core.registries.BuiltInRegistries.ITEM;
+            java.util.function.Function<java.util.Optional<net.minecraft.world.item.crafting.Ingredient>, String> ing = o -> {
+                if (o.isEmpty()) return "[]";
+                StringBuilder q = new StringBuilder("[");
+                o.get().items().forEach(h -> q.append(q.length() > 1 ? "," : "").append('"').append(h.unwrapKey().map(k -> k.identifier().toString()).orElse("?")).append('"'));
+                return q.append("]").toString();
+            };
+            StringBuilder b = new StringBuilder("[");
+            int conflicts = 0, tried = 0;
+            for (var holder : s.getRecipeManager().getRecipes()) {
+                var r = holder.value();
+                String id = holder.id().identifier().toString();
+                String type = net.minecraft.core.registries.BuiltInRegistries.RECIPE_SERIALIZER.getKey(r.getSerializer()).toString();
+                java.util.List<java.util.Optional<net.minecraft.world.item.crafting.Ingredient>> slots;
+                int w = 0, h = 0;
+                net.minecraft.world.item.ItemStack out;
+                if (r instanceof net.minecraft.world.item.crafting.ShapedRecipe sr) { slots = sr.getIngredients(); w = sr.getWidth(); h = sr.getHeight(); out = sr.assemble(net.minecraft.world.item.crafting.CraftingInput.EMPTY, s.registryAccess()); }
+                else if (r instanceof net.minecraft.world.item.crafting.ShapelessRecipe sl) {
+                    slots = new java.util.ArrayList<>();
+                    for (var i : sl.placementInfo().ingredients()) slots.add(java.util.Optional.of(i));
+                    out = sl.assemble(net.minecraft.world.item.crafting.CraftingInput.EMPTY, s.registryAccess());
+                } else if (r instanceof net.minecraft.world.item.crafting.AbstractCookingRecipe cr) {
+                    slots = java.util.List.of(java.util.Optional.of(cr.input()));
+                    out = cr.assemble(new net.minecraft.world.item.crafting.SingleRecipeInput(net.minecraft.world.item.ItemStack.EMPTY), s.registryAccess());
+                } else continue;
+                b.append(b.length() > 1 ? ",\n" : "").append("{\"id\":\"").append(id).append("\",\"type\":\"").append(type).append("\",\"w\":").append(w).append(",\"h\":").append(h)
+                        .append(",\"out\":\"").append(reg.getKey(out.getItem())).append("\",\"n\":").append(out.getCount()).append(",\"in\":[");
+                for (int k = 0; k < slots.size(); k++) b.append(k > 0 ? "," : "").append(ing.apply(slots.get(k)));
+                b.append("]");
+                if (id.startsWith("heliosphere:") && r instanceof net.minecraft.world.item.crafting.CraftingRecipe) {
+                    java.util.List<net.minecraft.world.item.ItemStack> grid = new java.util.ArrayList<>();
+                    int gw = w > 0 ? w : 3, gh = w > 0 ? h : (slots.size() + 2) / 3;
+                    boolean ok = true;
+                    for (int k = 0; k < gw * gh; k++) {
+                        if (k >= slots.size() || slots.get(k).isEmpty()) { grid.add(net.minecraft.world.item.ItemStack.EMPTY); continue; }
+                        var first = slots.get(k).get().items().findFirst();
+                        if (first.isEmpty()) { ok = false; break; }
+                        grid.add(new net.minecraft.world.item.ItemStack(first.get()));
+                    }
+                    if (ok) {
+                        tried++;
+                        var input = net.minecraft.world.item.crafting.CraftingInput.of(gw, gh, grid);
+                        var got = s.getRecipeManager().getRecipeFor(net.minecraft.world.item.crafting.RecipeType.CRAFTING, input, level);
+                        String gotId = got.map(x -> x.id().identifier().toString()).orElse("none");
+                        String gotOut = got.map(x -> reg.getKey(x.value().assemble(input, s.registryAccess()).getItem()).toString()).orElse("none");
+                        if (!gotOut.equals(reg.getKey(out.getItem()).toString())) {
+                            conflicts++;
+                            report.add("[warn] recipe " + id + " (" + reg.getKey(out.getItem()) + ") is shadowed by " + gotId + " -> " + gotOut);
+                        }
+                        b.append(",\"got\":\"").append(gotId).append("\"");
+                    } else b.append(",\"emptyslot\":true");
+                }
+                b.append("}");
+            }
+            b.append("]");
+            try { Files.writeString(Path.of("game-crafting.json"), b.toString()); } catch (IOException e) { report.add("[FAIL] recipes " + e); }
+            report.add("[info] recipes: " + tried + " heliosphere crafting recipes tried, " + conflicts + " give something else");
+        });
+        dump(ctx, sp);
+    }
+
+    /** Machines pick the most specific recipe, furnaces feed the grid, loot by level, early sieges hold only evolved machines. */
+    private void fixes(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 7200 140 7200");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 2;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var B = (java.util.function.Function<String, net.minecraft.world.level.block.state.BlockState>) id -> com.heliosphere.core.Reg.getBlock(id).defaultBlockState();
+            for (int i = -2; i <= 8; i++) for (int j = -2; j <= 4; j++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+            // the assembly station with the habitat emitter's inputs (it used to make nozzle bells of them)
+            var asmPos = new net.minecraft.core.BlockPos(x0, g, z0);
+            l.setBlock(asmPos, B.apply("assembly_station"), 3);
+            var asm = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(asmPos);
+            String[][] in = {{"steel_plate", "8"}, {"processor", "2"}, {"electric_motor", "2"}, {"circuit_board", "4"}, {"battery_cell", "4"}, {"canister_oxygen", "4"}};
+            for (int k = 0; k < in.length; k++) asm.setItem(k, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(in[k][0]), Integer.parseInt(in[k][1])));
+            asm.setEnergy(asm.capacity());
+            // a lit furnace, a cable and a battery bank
+            var fur = new net.minecraft.core.BlockPos(x0 + 4, g, z0);
+            l.setBlock(fur, net.minecraft.world.level.block.Blocks.FURNACE.defaultBlockState(), 3);
+            var fbe = (net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity) l.getBlockEntity(fur);
+            fbe.setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.RAW_IRON, 16));
+            fbe.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COAL, 8));
+            l.setBlock(fur.east(), B.apply("cable"), 3);
+            l.setBlock(fur.east(2), B.apply("cable"), 3);
+            l.setBlock(fur.east(3), B.apply("battery_bank"), 3);
+            l.setBlock(fur.south(2), net.minecraft.world.level.block.Blocks.BLAST_FURNACE.defaultBlockState(), 3);
+            var bbe = (net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity) l.getBlockEntity(fur.south(2));
+            bbe.setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.RAW_IRON, 16));
+            bbe.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COAL, 8));
+            l.setBlock(fur.south(2).east(), B.apply("cable"), 3);
+            l.setBlock(fur.south(2).east(2), B.apply("cable"), 3);
+            l.setBlock(fur.south(2).east(3), B.apply("battery_bank"), 3);
+            report.add("[info] furnace is a grid node: " + (fbe instanceof com.heliosphere.core.machine.EnergyNode) + ", cable connects: " + l.getBlockState(fur.east()));
+            // loot by level: 200 draws each
+            for (String id : new String[]{"patrol_drone", "security_walker", "siege_drone", "mortar_walker", "siege_walker", "rail_sentinel", "titan_walker", "strike_jet", "colossus"}) {
+                java.util.Map<String, Integer> tally = new java.util.TreeMap<>();
+                int stacks = 0;
+                for (int k = 0; k < 200; k++) for (var st : com.heliosphere.hostiles.arsenal.TechLoot.roll(id, false, l.random)) {
+                    stacks++;
+                    tally.merge(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(st.getItem()).getPath(), st.getCount(), Integer::sum);
+                }
+                report.add("[info] loot " + id + " (level " + com.heliosphere.hostiles.arsenal.EnemyRoster.tier(id) + "): " + String.format("%.1f", stacks / 200.0) + " stacks a kill; " + tally);
+            }
+            // a real kill: a security walker destroyed by the player
+            var mob = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 2.5, g, z0 + 3.5, p);
+            if (mob != null) {
+                mob.setLastHurtByPlayer(p, 100);
+                mob.hurtServer(l, l.damageSources().playerAttack(p), 100000);
+            }
+            // early sieges: what may come on day 10 and day 100 at difficulty 3 and 7
+            for (long day : new long[]{10, 100, 200}) for (int d : new int[]{3, 7}) {
+                var pool = new java.util.ArrayList<>(com.heliosphere.hostiles.arsenal.EnemyRoster.pool(d));
+                pool.removeIf(id -> !com.heliosphere.hostiles.arsenal.EnemyRoster.unlocked(id, day));
+                report.add("[info] siege pool day " + day + " difficulty " + d + ": " + pool);
+            }
+            report.add("[info] early stats: patrol " + role("patrol_drone") + ", assault " + role("assault_drone") + ", security " + role("security_walker") + ", swarm " + role("swarm_drone"));
+        });
+        ctx.waitTicks(40);
+        server(sp, s -> {
+            var l = s.overworld();
+            var box = new net.minecraft.world.phys.AABB(o[0] - 4, o[1] - 4, o[2] - 4, o[0] + 8, o[1] + 6, o[2] + 10);
+            java.util.List<String> drops = new java.util.ArrayList<>();
+            for (var it : l.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box))
+                drops.add(it.getItem().getCount() + "x" + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(it.getItem().getItem()).getPath());
+            report.add("[info] security walker killed by the player dropped " + drops);
+            for (var it : l.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box)) it.discard();
+        });
+        for (int k = 0; k < 75; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var asm = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); asm.setEnergy(asm.capacity()); });
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            var asm = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            try {
+                for (String fld : new String[]{"status", "progress", "maxProgress", "recipeIndex"}) {
+                    var fd = com.heliosphere.core.machine.MachineBlockEntity.class.getDeclaredField(fld); fd.setAccessible(true);
+                    report.add("[info] assembly station " + fld + " = " + fd.get(asm));
+                }
+            } catch (ReflectiveOperationException e) { report.add("[info] " + e); }
+            report.add("[info] assembly capacity " + asm.capacity());
+            try {
+                var fd = com.heliosphere.core.machine.MachineBlockEntity.class.getDeclaredField("recipeIndex"); fd.setAccessible(true);
+                int ri = (int) fd.get(asm);
+                if (ri >= 0) report.add("[info] assembly running recipe makes " + asm.type().recipes().get(ri).outputs.get(0).stack());
+            } catch (ReflectiveOperationException e) { report.add("[info] " + e); }
+            StringBuilder outs = new StringBuilder();
+            for (int k = 0; k < asm.getContainerSize(); k++) if (!asm.getItem(k).isEmpty())
+                outs.append(k).append(':').append(asm.getItem(k).getCount()).append('x').append(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(asm.getItem(k).getItem()).getPath()).append(' ');
+            report.add("[info] assembly station with the habitat emitter inputs after 20 s: " + outs);
+            var fur = new net.minecraft.core.BlockPos(o[0] + 4, o[1], o[2]);
+            report.add("[info] furnace heat: battery bank " + ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(fur.east(3))).energy()
+                    + " FE (furnace), " + ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(fur.south(2).east(3))).energy() + " FE (blast furnace) after 22 s");
+        });
+        shot(ctx, "fixes");
+    }
+
+    private static String role(String id) {
+        for (var r : com.heliosphere.planets.tech.TechCombat.ROLES) if (r.id().equals(id)) return r.hp() + "hp/" + r.damage() + "dmg/day" + r.day();
+        return "?";
+    }
+
+    /** A player dies with a full inventory and respawns: the server's tick time and the client's frame rate around it. */
+    private void death(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 7600 140 7600");
+        ctx.waitTicks(80);
+        cmd(sp, "gamemode survival @a");
+        long[] mark = new long[1];
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            String[] stuff = {"service_pistol", "battle_rifle", "rotary_cannon", "portable_sentry", "sam_wrench", "bio_capsule", "steel_plate", "circuit_board", "laoba_lunch"};
+            for (int k = 0; k < 36; k++) {
+                var it = com.heliosphere.core.Reg.get(stuff[k % stuff.length]);
+                if (it != null) p.getInventory().setItem(k, new net.minecraft.world.item.ItemStack(it, Math.min(it.getDefaultMaxStackSize(), 1 + k)));
+            }
+            var chest = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_CHESTPLATE);
+            com.heliosphere.planets.gear.ShoulderSentry.setMk(chest, 3);
+            com.heliosphere.planets.gear.ShoulderSentry.setCharge(chest, 5000);
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+            report.add("[info] death: before " + ticks(s, 60));
+        });
+        int fps0 = fps(ctx);
+        Thread[] serverThread = new Thread[1];
+        server(sp, s -> serverThread[0] = Thread.currentThread());
+        java.util.Map<String, Integer> prof = new java.util.concurrent.ConcurrentHashMap<>();
+        boolean[] on = {true};
+        Thread sampler = new Thread(() -> {
+            while (on[0]) {
+                StackTraceElement[] st = serverThread[0].getStackTrace();
+                int depth = 0;
+                for (StackTraceElement e : st) {
+                    String c = e.getClassName();
+                    if (c.startsWith("com.heliosphere") || (depth < 3 && !c.startsWith("java."))) prof.merge(c.substring(c.lastIndexOf('.') + 1) + "." + e.getMethodName(), 1, Integer::sum);
+                    if (++depth > 40) break;
+                }
+                prof.merge("#samples", 1, Integer::sum);
+                try { Thread.sleep(1); } catch (InterruptedException ex) { return; }
+            }
+        });
+        sampler.setDaemon(true);
+        sampler.start();
+        cmd(sp, "kill @p");
+        ctx.waitTicks(80);
+        server(sp, s -> report.add("[info] death: 4 s after dying " + ticks(s, 80) + ", item entities " + s.overworld().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                player(s).getBoundingBox().inflate(16)).size() + ", siege/strike state ok"));
+        int fps1 = fps(ctx);
+        ctx.runOnClient(mc -> { if (mc.player != null) mc.player.respawn(); });
+        ctx.waitTicks(100);
+        on[0] = false;
+        var top = new java.util.ArrayList<>(prof.entrySet());
+        top.sort((a, b) -> b.getValue() - a.getValue());
+        report.add("[info] death: server thread samples " + top.subList(0, Math.min(45, top.size())));
+        server(sp, s -> report.add("[info] death: 5 s after respawning " + ticks(s, 100) + ", alive " + player(s).isAlive()));
+        int fps2 = fps(ctx);
+        report.add("[info] death: client fps before " + fps0 + ", dead " + fps1 + ", respawned " + fps2);
+        cmd(sp, "gamemode creative @a");
+    }
+
+    private static String ticks(MinecraftServer s, int n) {
+        long[] t = s.getTickTimesNanos();
+        int idx = s.getTickCount();
+        double max = 0, sum = 0;
+        for (int k = 1; k <= n && k <= t.length; k++) {
+            double ms = t[Math.floorMod(idx - k, t.length)] / 1e6;
+            max = Math.max(max, ms); sum += ms;
+        }
+        return String.format("tick avg %.1f ms, max %.1f ms over %d ticks", sum / Math.min(n, t.length), max, Math.min(n, t.length));
+    }
+
+    private static int fps(ClientGameTestContext ctx) {
+        return ctx.computeOnClient(mc -> mc.getFps());
     }
 
     /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */

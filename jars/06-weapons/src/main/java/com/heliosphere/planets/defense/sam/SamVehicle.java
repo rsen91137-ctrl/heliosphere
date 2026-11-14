@@ -477,10 +477,12 @@ public class SamVehicle extends Entity {
         return false;
     }
 
+    /** Into -pi..pi. No loop: a corrupt (huge or infinite) angle would otherwise spin the server thread for ever. */
     private static float wrap(float a) {
-        while (a > Math.PI) a -= (float) (Math.PI * 2);
-        while (a < -Math.PI) a += (float) (Math.PI * 2);
-        return a;
+        if (!Float.isFinite(a)) return 0f;
+        double tau = Math.PI * 2, r = (a + Math.PI) % tau;
+        if (r < 0) r += tau;
+        return (float) (r - Math.PI);
     }
 
     // ---- chunks kept loaded while parked ----

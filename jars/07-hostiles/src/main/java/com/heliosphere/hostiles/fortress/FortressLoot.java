@@ -11,7 +11,7 @@ import net.minecraft.world.item.Items;
 import java.util.ArrayList;
 import java.util.List;
 
-/** What a fortress of a given difficulty holds: better things, and more of them, the harder it is. */
+/** What a fortress of a given difficulty holds: better things, and more of them, the harder it is; never the basics far below it. */
 public final class FortressLoot {
     private FortressLoot() {}
 
@@ -43,16 +43,20 @@ public final class FortressLoot {
         return it == null ? Items.AIR : it;
     }
 
+    private static int weight(Entry e, int floor) { return e.weight * (2 + e.from - floor) / 2; }
+
     /** Fills a container with {@code rolls} draws from what this difficulty can hold. */
     public static void fill(Container box, int difficulty, int rolls, RandomSource r) {
         List<Entry> pool = new ArrayList<>();
         int total = 0;
-        for (Entry e : TABLE) if (e.from <= difficulty && item(e.id) != Items.AIR) { pool.add(e); total += e.weight + (difficulty - e.from); }
+        // only the things of this difficulty and the few below it (no iron and beef in a level 12 cache), the newer the likelier
+        int floor = Math.max(1, Math.min(difficulty, 12) - 5);
+        for (Entry e : TABLE) if (e.from <= difficulty && e.from >= floor && item(e.id) != Items.AIR) { pool.add(e); total += weight(e, floor); }
         if (pool.isEmpty()) return;
         for (int i = 0; i < rolls; i++) {
             int pick = r.nextInt(total);
             for (Entry e : pool) {
-                pick -= e.weight + (difficulty - e.from);
+                pick -= weight(e, floor);
                 if (pick >= 0) continue;
                 ItemStack stack = new ItemStack(item(e.id), e.min + r.nextInt(e.max - e.min + 1));
                 int slot = r.nextInt(box.getContainerSize());

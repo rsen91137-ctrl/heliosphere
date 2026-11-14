@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.core.mixin.machine",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "MachineRecipePickMixin",
+    "MachineRecipeFixMixin",
+    "FurnaceHeatMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

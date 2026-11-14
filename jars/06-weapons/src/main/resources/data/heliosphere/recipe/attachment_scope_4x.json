@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["GSG", "SLS"], "key": {"G": "minecraft:glass_pane", "L": "heliosphere:steel_ingot", "S": "heliosphere:steel_plate"}, "result": {"id": "heliosphere:attachment_scope_4x", "count": 1}}

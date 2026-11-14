@@ -218,7 +218,7 @@ public final class Sieges implements ModInitializer {
     }
 
     private static int difficulty(ServerPlayer p, Memory m, long day) {
-        int d = com.heliosphere.hostiles.arsenal.Evolution.stage(day) + m.beaten / 3;
+        int d = com.heliosphere.hostiles.arsenal.Evolution.stage(day) + Math.min(3, m.beaten / 3);   // beating sieges hardens them, by 3 at most
         if (p.level().dimension() != Level.OVERWORLD) {
             var body = Planets.bodyOf(p.level());
             if (body != null) d += WorldTiers.base(body.id) - 1;
@@ -285,7 +285,12 @@ public final class Sieges implements ModInitializer {
         RandomSource r = l.random;
         int d = s.difficulty;
         boolean last = s.wave == s.kind.waves - 1;
-        List<String> pool = EnemyRoster.pool(d);
+        List<String> pool = new ArrayList<>(EnemyRoster.pool(d));
+        long day = l.getServer().overworld().getDayTime() / 24000L;
+        if (l.dimension() == Level.OVERWORLD) {                   // on Earth only what the machines have already evolved
+            pool.removeIf(id -> !EnemyRoster.unlocked(id, day));
+            if (pool.isEmpty()) pool.add("patrol_drone");
+        }
         List<String> pick = switch (s.kind) {
             case RECON -> filter(pool, id -> id.contains("drone"));
             case BOMBARD -> filter(pool, id -> id.equals("mortar_walker") || id.equals("siege_drone") || id.equals("missile_drone") || id.equals("siege_walker")
@@ -320,6 +325,10 @@ public final class Sieges implements ModInitializer {
         }
         if (s.kind == Kind.ONSLAUGHT && last) {
             String boss = EnemyRoster.boss(Math.max(6, d));
+            if (boss != null && l.dimension() == Level.OVERWORLD && !EnemyRoster.unlocked(boss, day)) {   // not yet evolved: the strongest that is
+                boss = null;
+                for (String id : pool) if (boss == null || EnemyRoster.tier(id) > EnemyRoster.tier(boss)) boss = id;
+            }
             if (boss != null) spawn(s, p, boss, a, dist + 6, false);
         }
         for (ServerPlayer q : l.players())

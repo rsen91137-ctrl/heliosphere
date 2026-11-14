@@ -1,0 +1,1 @@
+{"type": "minecraft:crafting_shaped", "category": "equipment", "pattern": ["LLL", "TCS", "G P"], "key": {"C": "heliosphere:circuit_board", "G": "minecraft:glass_pane", "L": "heliosphere:steel_ingot", "P": "heliosphere:plastic", "S": "heliosphere:steel_plate", "T": "heliosphere:ti64_plate"}, "result": {"id": "heliosphere:designated_marksman_rifle", "count": 1}}
