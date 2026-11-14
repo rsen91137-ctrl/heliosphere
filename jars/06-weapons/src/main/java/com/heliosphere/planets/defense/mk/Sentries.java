@@ -24,8 +24,7 @@ import java.util.WeakHashMap;
 public final class Sentries implements ModInitializer {
     public static final Map<TurretKind, SentryBlock> BLOCKS = new EnumMap<>(TurretKind.class);
     public static BlockEntityType<SentryBlockEntity> BLOCK_ENTITY;
-    /** The portable sentry: an entity set down from its item. */
-    public static net.minecraft.world.entity.EntityType<PortableSentry> PORTABLE;
+    /** The portable sentry, worn on the chest armour (gear.ShoulderSentry). */
     public static Item PORTABLE_ITEM;
     public static final String[] KITS = {"turret_kit_mk1", "turret_kit_mk2", "turret_kit_mk3", "turret_kit_mk4", "turret_kit_mk5"};
 
@@ -39,14 +38,11 @@ public final class Sentries implements ModInitializer {
             BLOCKS.put(k, Reg.blockWithItem(k.id, p -> new SentryBlock(p, k), Reg.metal(MapColor.METAL, 4.5f)));
         BLOCK_ENTITY = Reg.blockEntity("sentry", SentryBlockEntity::new, BLOCKS.values().toArray(Block[]::new));
         for (String kit : KITS) Reg.item(kit);
-        var key = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE, net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "portable_sentry"));
-        PORTABLE = net.minecraft.core.Registry.register(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE, key,
-                net.minecraft.world.entity.EntityType.Builder.<PortableSentry>of(PortableSentry::new, net.minecraft.world.entity.MobCategory.MISC)
-                        .sized(0.8f, 1.0f).clientTrackingRange(8).updateInterval(3).build(key));
         PORTABLE_ITEM = Reg.item("portable_sentry", PortableSentryItem::new, new Item.Properties().stacksTo(1));
         MachineType.addProvider(Sentries::recipes);
         ServerTickEvents.END_WORLD_TICK.register(Sentries::tick);
         com.heliosphere.planets.weapon.guided.SmartLauncher.init();
+        com.heliosphere.planets.gear.ShoulderSentry.init();
     }
 
     /** Upgrade level of a kit item (the released Mk II and Mk III kits count too), or 0. */
@@ -77,7 +73,7 @@ public final class Sentries implements ModInitializer {
     private static void recipes() {
         MachineType asm = MachineType.get("assembly_station");
         if (asm == null) return;
-        // the portable sentry: a light gun on a folding tripod with its own battery and a small solar panel
+        // the portable sentry: a light shoulder gun with its own battery and a small solar panel, clipped onto chest armour
         asm.recipe(MachineRecipe.of().in(I("steel_plate"), 4).in(I("electric_motor"), 1).in(I("circuit_board"), 2).in(I("battery_cell"), 4)
                 .in(I("copper_wire"), 4).in(net.minecraft.world.item.Items.IRON_BARS, 2).out(I("portable_sentry")).time(400).power(80));
         // the laser and sonic turrets: as the released ones were made (those, placed, become these)

@@ -39,19 +39,20 @@ def icon():
 
 
 LANG = {
-    'item.heliosphere.portable_sentry': ('便携式哨戒炮', 'Portable Sentry', '便攜式哨戒炮'),
-    'entity.heliosphere.portable_sentry': ('便携式哨戒炮', 'Portable Sentry', '便攜式哨戒炮'),
+    'item.heliosphere.portable_sentry': ('便携式肩载哨戒炮', 'Portable Shoulder Sentry', '便攜式肩載哨戒炮'),
     'item.heliosphere.portable_sentry.charge': ('电量 %s / %s FE', 'Charge %s / %s FE', '電量 %s / %s FE'),
-    'item.heliosphere.portable_sentry.hint': ('右键地面架设：自动射击 %s 格内看得见的敌对生物和机械（每发 %s 伤害）。挨着发电机/电池组等电源方块会自动充电，白天露天靠太阳能板慢充。潜行+右键或直接打它收回，电量保留。',
-                                              'Right-click the ground to set it up: it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges from any power block it stands next to (generators, battery banks) and slowly from its solar panel by day. Sneak + right-click or hit it to pick it up, charge kept.',
-                                              '右鍵地面架設：自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。挨著發電機/電池組等電源方塊會自動充電，白天露天靠太陽能板慢充。潛行+右鍵或直接打它收回，電量保留。'),
-    'message.heliosphere.portable_sentry': ('便携式哨戒炮 · 电量 %s/%s FE · 耐久 %s/%s · 射程 %s 格 · 每发 %s 伤害', 'Portable sentry · %s/%s FE · %s/%s health · %s blocks · %s damage a shot',
-                                            '便攜式哨戒炮 · 電量 %s/%s FE · 耐久 %s/%s · 射程 %s 格 · 每發 %s 傷害'),
-    'message.heliosphere.portable_sentry_packed': ('已收回便携式哨戒炮（电量 %s/%s FE）', 'Picked up the portable sentry (%s/%s FE)', '已收回便攜式哨戒炮（電量 %s/%s FE）'),
+    'item.heliosphere.portable_sentry.hint': ('挂在胸甲上使用：在物品栏里拿起它，点到任意胸甲（或其他胸部装备）上即可挂载；空手右键那件胸甲取下。穿着时自动射击 %s 格内看得见的敌对生物和机械（每发 %s 伤害）。站在发电机/电池组等电源方块旁边会充电，白天露天靠太阳能板慢充。',
+                                              'Wear it on a chestplate: in your inventory pick it up and click it onto any chestplate (or other chest armour); right-click that armour with an empty cursor to take it off. Worn, it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges while you stand next to a power block (generators, battery banks) and slowly from its solar panel by day.',
+                                              '掛在胸甲上使用：在物品欄裡拿起它，點到任意胸甲（或其他胸部裝備）上即可掛載；空手右鍵那件胸甲取下。穿著時自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。站在發電機/電池組等電源方塊旁邊會充電，白天露天靠太陽能板慢充。'),
+    'item.heliosphere.shoulder_sentry.fitted': ('已挂载肩载哨戒炮 · 电量 %s/%s FE（空手右键取下）', 'Shoulder sentry fitted · %s/%s FE (right-click with an empty cursor to take it off)',
+                                                '已掛載肩載哨戒炮 · 電量 %s/%s FE（空手右鍵取下）'),
+    'message.heliosphere.shoulder_sentry_charging': ('肩载哨戒炮充电中：%s / %s FE', 'Shoulder sentry charging: %s / %s FE', '肩載哨戒炮充電中：%s / %s FE'),
+    'message.heliosphere.shoulder_sentry_occupied': ('这件盔甲上已经挂着一门哨戒炮了', 'This armour already carries a sentry', '這件盔甲上已經掛著一門哨戒炮了'),
 }
-PAGE = ('便携式哨戒炮：随身携带的小型自动炮塔。右键地面架设，自动射击 20 格内看得见的敌对生物与机械，每发 7 点伤害、约每 0.6 秒一发、每发耗电 25 FE，'
-        '内置 8000 FE 电池（约 320 发，出厂满电）。挨着发电机、电池组等能输出电力的方块就会自动充电（每 0.5 秒最多 400 FE），白天露天还能靠背上的太阳能板慢充。'
-        '潜行+右键或自己打它即可收回，电量保留；物品栏里的蓝色条就是电量。耐久 40，被打坏会掉落为物品。威力适中：适合野外过夜、挖矿时守住通道，不能代替基地防御塔。')
+PAGE = ('便携式肩载哨戒炮：挂在胸甲上的小型自动炮塔。在物品栏里拿起它点到任意胸甲（或其他胸部装备）上即可挂载，空手右键那件胸甲取下，电量随炮走。'
+        '穿着这件胸甲时，肩头的小炮会自动射击 16 格内看得见的敌对生物与机械：每发 6 点伤害、约每 0.7 秒一发、每发耗电 25 FE，内置 8000 FE 电池（约 320 发，出厂满电）。'
+        '站在发电机、电池组等能输出电力的方块旁边（一格以内）就会充电（每 0.5 秒最多 400 FE），白天露天还能靠炮上的太阳能板慢充；创造模式不耗电。'
+        '威力适中：适合野外赶路、挖矿时清掉零散敌人，不能代替基地防御塔。')
 
 
 def main():

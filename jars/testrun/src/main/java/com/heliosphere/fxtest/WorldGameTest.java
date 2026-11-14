@@ -1849,7 +1849,7 @@ public class WorldGameTest implements FabricClientGameTest {
         cmd(sp, "gamemode creative @a");
     }
 
-    /** The portable sentry: set down from its item, shoots husks, charges from a battery cabinet, picked up with its charge. */
+    /** The shoulder sentry: clipped onto an iron chestplate in the inventory, worn, shoots husks, charges by a battery cabinet, taken off with its charge. */
     private void portable(ClientGameTestContext ctx, TestSingleplayerContext sp) {
         int[] o = new int[3];
         cmd(sp, "execute in minecraft:overworld run tp @p 9600 120 9600");
@@ -1860,48 +1860,63 @@ public class WorldGameTest implements FabricClientGameTest {
             var l = s.overworld();
             int x0 = p.getBlockX(), z0 = p.getBlockZ();
             int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
-            for (int dx = -14; dx <= 14; dx++) for (int dz = -6; dz <= 22; dz++) {
+            for (int dx = -14; dx <= 14; dx++) for (int dz = -8; dz <= 22; dz++) {
                 l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 2);
                 for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
             }
             o[0] = x0; o[1] = g; o[2] = z0;
-            var cab = new net.minecraft.core.BlockPos(x0 + 1, g, z0 + 2);
+            var cab = new net.minecraft.core.BlockPos(x0 + 1, g, z0);
             l.setBlockAndUpdate(cab, com.heliosphere.core.Reg.getBlock("lithium_battery_cabinet").defaultBlockState());
             if (l.getBlockEntity(cab) instanceof com.heliosphere.core.machine.EnergyNode n) n.setEnergy(200000);
-            var item = new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM);
-            com.heliosphere.planets.defense.mk.PortableSentryItem.setEnergy(item, 1000);
-            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, item);
-            p.teleportTo(x0 + 0.5, g, z0 - 2.5);
-            p.setYRot(0); p.setXRot(10);
-            var at = new net.minecraft.core.BlockPos(x0, g - 1, z0 + 2);
-            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at).add(0, 0.5, 0), net.minecraft.core.Direction.UP, at, false);
-            report.add("[info] portable place: " + item.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)) + ", item left " + p.getMainHandItem().getCount());
+            // in the inventory: the chestplate in slot 9, the sentry on the cursor clicked onto it
+            p.getInventory().setItem(9, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_CHESTPLATE));
+            var sentry = new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM);
+            com.heliosphere.planets.defense.mk.PortableSentryItem.setEnergy(sentry, 1000);
+            net.minecraft.world.inventory.Slot slot = null;
+            for (var sl : p.inventoryMenu.slots) if (sl.container == p.getInventory() && sl.getContainerSlot() == 9) slot = sl;
+            boolean done = sentry.overrideStackedOnOther(slot, net.minecraft.world.inventory.ClickAction.PRIMARY, p);
+            var chest = p.getInventory().getItem(9);
+            report.add("[info] shoulder fit: " + done + ", sentry left " + sentry.getCount() + ", chestplate carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest) + " FE");
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest.copy());
+            p.getInventory().setItem(9, net.minecraft.world.item.ItemStack.EMPTY);
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.setYRot(0); p.setYBodyRot(0); p.setYHeadRot(0);
             for (int i = 0; i < 3; i++) {
                 var h = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
-                h.setPos(x0 - 4 + i * 4 + 0.5, g, z0 + 14.5); h.setNoAi(true); h.setPersistenceRequired(); l.addFreshEntity(h);
+                h.setPos(x0 - 4 + i * 4 + 0.5, g, z0 + 12.5); h.setNoAi(true); h.setPersistenceRequired(); l.addFreshEntity(h);
             }
-            com.heliosphere.planets.defense.mk.PortableSentry.shots = 0;
+            com.heliosphere.planets.gear.ShoulderSentry.shots = 0;
         });
-        look(ctx, 0, 12);
-        ctx.waitTicks(16);
-        shot(ctx, "portable_firing");
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT));
+        look(ctx, 0, 15);
+        ctx.waitTicks(12);
+        shot(ctx, "shoulder_front");
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        look(ctx, 30, 10);
+        ctx.waitTicks(6);
+        shot(ctx, "shoulder_back");
         ctx.waitTicks(200);
         server(sp, s -> {
             var l = s.overworld();
             ServerPlayer p = player(s);
             int husks = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, new net.minecraft.world.phys.AABB(o[0] - 20, o[1] - 4, o[2] - 4, o[0] + 20, o[1] + 8, o[2] + 30)).size();
-            var list = l.getEntitiesOfClass(com.heliosphere.planets.defense.mk.PortableSentry.class, new net.minecraft.world.phys.AABB(o[0] - 4, o[1] - 2, o[2] - 2, o[0] + 4, o[1] + 4, o[2] + 6));
-            var sentry = list.isEmpty() ? null : list.get(0);
-            report.add("[info] portable: shots " + com.heliosphere.planets.defense.mk.PortableSentry.shots + ", husks left " + husks + "/3, charge after 10 s next to a battery cabinet " + (sentry == null ? -1 : sentry.energy()));
-            if (sentry != null) {
-                p.setShiftKeyDown(true);
-                sentry.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
-                p.setShiftKeyDown(false);
-                long e = -1;
-                for (var st : p.getInventory().getNonEquipmentItems()) if (st.getItem() == com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM) e = com.heliosphere.planets.defense.mk.PortableSentryItem.energy(st);
-                report.add("[info] portable picked up: removed " + sentry.isRemoved() + ", item charge " + e);
-            }
+            var chest = p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+            report.add("[info] shoulder: shots " + com.heliosphere.planets.gear.ShoulderSentry.shots + ", husks left " + husks + "/3, charge after 10 s next to a battery cabinet " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest));
+            // take it off: the chestplate back in the inventory, right-clicked with an empty cursor
+            p.getInventory().setItem(9, chest.copy());
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
+            var inv = p.getInventory().getItem(9);
+            net.minecraft.world.inventory.Slot slot = null;
+            for (var sl : p.inventoryMenu.slots) if (sl.container == p.getInventory() && sl.getContainerSlot() == 9) slot = sl;
+            net.minecraft.world.item.ItemStack[] cursor = {net.minecraft.world.item.ItemStack.EMPTY};
+            var access = new net.minecraft.world.entity.SlotAccess() {
+                @Override public net.minecraft.world.item.ItemStack get() { return cursor[0]; }
+                @Override public boolean set(net.minecraft.world.item.ItemStack st) { cursor[0] = st; return true; }
+            };
+            boolean off = inv.overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack.EMPTY, slot, net.minecraft.world.inventory.ClickAction.SECONDARY, p, access);
+            report.add("[info] shoulder take off: " + off + ", cursor " + cursor[0] + " with " + com.heliosphere.planets.defense.mk.PortableSentryItem.energy(cursor[0]) + " FE, chestplate still carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(inv));
         });
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
         cmd(sp, "gamemode creative @a");
     }
 

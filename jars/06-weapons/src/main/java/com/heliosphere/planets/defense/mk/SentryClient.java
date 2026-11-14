@@ -7,6 +7,6 @@ public final class SentryClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         BlockEntityRenderers.register(Sentries.BLOCK_ENTITY, SentryRenderer::new);
-        net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry.register(Sentries.PORTABLE, PortableSentryRenderer::new);
+        com.heliosphere.planets.gear.client.ShoulderSentryClient.init();
     }
 }

@@ -3,6 +3,11 @@
   "minVersion": "0.8",
   "package": "com.heliosphere.planets.gear.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["JetpackFlightCheckMixin"],
-  "injectors": {"defaultRequire": 1}
+  "mixins": [
+    "JetpackFlightCheckMixin",
+    "ShoulderSentryDetachMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

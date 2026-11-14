@@ -195,10 +195,10 @@
   "missile.heliosphere.aster_booster": "助推器",
   "hud.heliosphere.missile_cam_far": "%s · %s m/s · 已飛行 %s 秒 · 已鎖定視距外目標",
   "missile.heliosphere.penetrator": "鑽地彈",
-  "item.heliosphere.portable_sentry": "便攜式哨戒炮",
-  "entity.heliosphere.portable_sentry": "便攜式哨戒炮",
+  "item.heliosphere.portable_sentry": "便攜式肩載哨戒炮",
   "item.heliosphere.portable_sentry.charge": "電量 %s / %s FE",
-  "item.heliosphere.portable_sentry.hint": "右鍵地面架設：自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。挨著發電機/電池組等電源方塊會自動充電，白天露天靠太陽能板慢充。潛行+右鍵或直接打它收回，電量保留。",
-  "message.heliosphere.portable_sentry": "便攜式哨戒炮 · 電量 %s/%s FE · 耐久 %s/%s · 射程 %s 格 · 每發 %s 傷害",
-  "message.heliosphere.portable_sentry_packed": "已收回便攜式哨戒炮（電量 %s/%s FE）"
+  "item.heliosphere.portable_sentry.hint": "掛在胸甲上使用：在物品欄裡拿起它，點到任意胸甲（或其他胸部裝備）上即可掛載；空手右鍵那件胸甲取下。穿著時自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。站在發電機/電池組等電源方塊旁邊會充電，白天露天靠太陽能板慢充。",
+  "item.heliosphere.shoulder_sentry.fitted": "已掛載肩載哨戒炮 · 電量 %s/%s FE（空手右鍵取下）",
+  "message.heliosphere.shoulder_sentry_charging": "肩載哨戒炮充電中：%s / %s FE",
+  "message.heliosphere.shoulder_sentry_occupied": "這件盔甲上已經掛著一門哨戒炮了"
 }

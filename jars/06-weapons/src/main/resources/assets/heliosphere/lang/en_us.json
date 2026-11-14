@@ -195,10 +195,10 @@
   "missile.heliosphere.aster_booster": "Booster",
   "hud.heliosphere.missile_cam_far": "%s · %s m/s · %s s in flight · locked on a target out of sight",
   "missile.heliosphere.penetrator": "Bunker buster",
-  "item.heliosphere.portable_sentry": "Portable Sentry",
-  "entity.heliosphere.portable_sentry": "Portable Sentry",
+  "item.heliosphere.portable_sentry": "Portable Shoulder Sentry",
   "item.heliosphere.portable_sentry.charge": "Charge %s / %s FE",
-  "item.heliosphere.portable_sentry.hint": "Right-click the ground to set it up: it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges from any power block it stands next to (generators, battery banks) and slowly from its solar panel by day. Sneak + right-click or hit it to pick it up, charge kept.",
-  "message.heliosphere.portable_sentry": "Portable sentry · %s/%s FE · %s/%s health · %s blocks · %s damage a shot",
-  "message.heliosphere.portable_sentry_packed": "Picked up the portable sentry (%s/%s FE)"
+  "item.heliosphere.portable_sentry.hint": "Wear it on a chestplate: in your inventory pick it up and click it onto any chestplate (or other chest armour); right-click that armour with an empty cursor to take it off. Worn, it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges while you stand next to a power block (generators, battery banks) and slowly from its solar panel by day.",
+  "item.heliosphere.shoulder_sentry.fitted": "Shoulder sentry fitted · %s/%s FE (right-click with an empty cursor to take it off)",
+  "message.heliosphere.shoulder_sentry_charging": "Shoulder sentry charging: %s / %s FE",
+  "message.heliosphere.shoulder_sentry_occupied": "This armour already carries a sentry"
 }
