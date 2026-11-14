@@ -23,7 +23,7 @@ import org.lwjgl.glfw.GLFW;
 public final class SamOperatorClient {
     private SamOperatorClient() {}
 
-    private static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("heliosphere", "air_defence"));
+    static final KeyMapping.Category CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("heliosphere", "air_defence"));
     private static KeyMapping next, fire;
     private static volatile SamNet.Picture picture = SamNet.Picture.OFF;
     private static volatile long stamp;

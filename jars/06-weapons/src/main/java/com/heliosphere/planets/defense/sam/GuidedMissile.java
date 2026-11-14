@@ -45,6 +45,9 @@ public class GuidedMissile extends Entity {
 
     private static final EntityDataAccessor<Integer> SPEC = SynchedEntityData.defineId(GuidedMissile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> AGE = SynchedEntityData.defineId(GuidedMissile.class, EntityDataSerializers.INT);
+    /** Network ids of whoever fired it and of what it is chasing (-1 none): the missile camera follows your own. */
+    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(GuidedMissile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(GuidedMissile.class, EntityDataSerializers.INT);
 
     /** Called when a missile goes off: lets other modules break blocks (machine warheads, see 07). */
     public interface BlastHook { void blast(ServerLevel level, GuidedMissile missile, Vec3 at); }
@@ -73,6 +76,8 @@ public class GuidedMissile extends Entity {
         m.setSpec(spec);
         m.owner = owner == null ? null : owner.getUUID();
         m.target = target == null ? null : target.getUUID();
+        m.entityData.set(OWNER_ID, owner == null ? -1 : owner.getId());
+        m.entityData.set(TARGET_ID, target == null ? -1 : target.getId());
         m.side = side;
         if (side == Side.DEFENCE && m.target != null) HUNTED.put(m.target, level.getGameTime());
         m.damage = damage;
@@ -95,6 +100,10 @@ public class GuidedMissile extends Entity {
     /** Ticks since launch (synchronised, for the motor plume and the model). */
     public int flightAge() { return entityData.get(AGE); }
     public int motor() { return spec().motor(flightAge()); }
+    /** Network id of the shooter (-1 none), on both sides. */
+    public int ownerId() { return entityData.get(OWNER_ID); }
+    /** Network id of the target (-1 none), on both sides. */
+    public int targetId() { return entityData.get(TARGET_ID); }
     public boolean boosterAttached() { return spec() == MissileSpec.ASTER_30 && flightAge() < spec().ignite + spec().boost; }
     public UUID target() { return target; }
     public Side side() { return side; }
@@ -105,6 +114,8 @@ public class GuidedMissile extends Entity {
     protected void defineSynchedData(SynchedEntityData.Builder b) {
         b.define(SPEC, 0);
         b.define(AGE, 0);
+        b.define(OWNER_ID, -1);
+        b.define(TARGET_ID, -1);
     }
 
     @Override public boolean hurtServer(ServerLevel level, DamageSource source, float amount) { return false; }
@@ -136,6 +147,8 @@ public class GuidedMissile extends Entity {
         if (t != null && (!t.isAlive() || t.isRemoved())) { t = null; target = null; }
         if (t == null && spec.seekRange > 0 && age >= spec.guideStart && age % 4 == 0) t = seek(level, spec);
         if (side == Side.DEFENCE && target != null) HUNTED.put(target, level.getGameTime());   // claimed: other launchers leave it
+        int tid = t == null ? -1 : t.getId();
+        if (entityData.get(TARGET_ID) != tid) entityData.set(TARGET_ID, tid);
 
         Vec3 vel = dir.scale(speed);
         Vec3 cmd = Vec3.ZERO;

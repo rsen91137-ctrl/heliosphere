@@ -347,6 +347,49 @@ def wrench_lang():
     })
 
 
+def missile_cam_lang():
+    """The missile camera (hold U): key, read-outs, and the names of the missiles it can follow."""
+    names = {  # spec: zh, tw, en
+        'buk_9m317ma': ('9M317MA 防空导弹', '9M317MA 防空導彈', '9M317MA SAM'),
+        'aster_30': ('紫菀-30 防空导弹', '紫菀-30 防空導彈', 'Aster 30 SAM'),
+        'iris_t_sl': ('IRIS-T SL 防空导弹', 'IRIS-T SL 防空導彈', 'IRIS-T SL SAM'),
+        'turret': ('导弹塔导弹', '導彈塔導彈', 'Missile turret round'),
+        'player': ('L-7 制导导弹', 'L-7 制導導彈', 'L-7 guided missile'),
+        'nuke_rocket': ('战术核弹', '戰術核彈', 'Tactical nuke'),
+        'interceptor': ('拦截弹', '攔截彈', 'Interceptor'),
+        'standoff': ('防区外导弹', '防區外導彈', 'Stand-off missile'),
+        'machine_light': ('机械导弹', '機械導彈', 'Machine missile'),
+        'machine_medium': ('机械导弹', '機械導彈', 'Machine missile'),
+        'machine_heavy': ('重型机械导弹', '重型機械導彈', 'Heavy machine missile'),
+        'machine_elite': ('精英机械导弹', '精英機械導彈', 'Elite machine missile'),
+        'aster_booster': ('助推器', '助推器', 'Booster'),
+    }
+    zh = {'key.heliosphere.missile_camera': '导弹视角（按住）',
+          'hud.heliosphere.missile_cam_none': '没有正在飞行的、你发射的导弹',
+          'hud.heliosphere.missile_cam_free': '%s · %s m/s · 已飞行 %s 秒 · 搜索目标中',
+          'hud.heliosphere.missile_cam_target': '%s · %s m/s · 距目标 %s 格（%s）',
+          'hud.heliosphere.missile_cam_far': '%s · %s m/s · 已飞行 %s 秒 · 已锁定视距外目标',
+          'hud.heliosphere.missile_cam_gone': '%s 已引爆',
+          'hud.heliosphere.missile_cam_keys': '拖动鼠标环视 · 滚轮远近 · 松开 U 返回'}
+    tw = {'key.heliosphere.missile_camera': '導彈視角（按住）',
+          'hud.heliosphere.missile_cam_none': '沒有正在飛行的、你發射的導彈',
+          'hud.heliosphere.missile_cam_free': '%s · %s m/s · 已飛行 %s 秒 · 搜索目標中',
+          'hud.heliosphere.missile_cam_target': '%s · %s m/s · 距目標 %s 格（%s）',
+          'hud.heliosphere.missile_cam_far': '%s · %s m/s · 已飛行 %s 秒 · 已鎖定視距外目標',
+          'hud.heliosphere.missile_cam_gone': '%s 已引爆',
+          'hud.heliosphere.missile_cam_keys': '拖動滑鼠環視 · 滾輪遠近 · 放開 U 返回'}
+    en = {'key.heliosphere.missile_camera': 'Missile camera (hold)',
+          'hud.heliosphere.missile_cam_none': 'None of your missiles is in the air',
+          'hud.heliosphere.missile_cam_free': '%s · %s m/s · %s s in flight · searching',
+          'hud.heliosphere.missile_cam_target': '%s · %s m/s · %s blocks to target (%s)',
+          'hud.heliosphere.missile_cam_far': '%s · %s m/s · %s s in flight · locked on a target out of sight',
+          'hud.heliosphere.missile_cam_gone': '%s detonated',
+          'hud.heliosphere.missile_cam_keys': 'Drag the mouse to look round · scroll to zoom · release U to return'}
+    for k, (z, t, e) in names.items():
+        zh['missile.heliosphere.' + k] = z; tw['missile.heliosphere.' + k] = t; en['missile.heliosphere.' + k] = e
+    merge('zh_cn', zh); merge('zh_tw', tw); merge('en_us', en)
+
+
 if __name__ == '__main__':
     crate_textures(); crate_model()
     for rid, spec in ROUNDS.items(): round_icon(rid, *spec)
@@ -356,4 +399,5 @@ if __name__ == '__main__':
     operation_lang()
     vehicle_lang()
     wrench_lang()
+    missile_cam_lang()
     print('sam ammo assets written')

@@ -69,6 +69,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
                     case "crew" -> crew(ctx, sp);
+                    case "missilecam" -> missileCam(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -1584,6 +1585,91 @@ public class WorldGameTest implements FabricClientGameTest {
         ctx.waitTicks(10);
         shot(ctx, "crew_wrench_deployed");
         cmd(sp, "gamemode creative @a");
+    }
+
+    // ---- the missile camera: hold U to ride behind the last missile you fired, drag to look round it ------------
+
+    private void missileCam(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        int[] ids = {-1, -1};
+        int[] tgt = {-1};
+        cmd(sp, "execute in minecraft:overworld run tp @p 7200 160 7200");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode creative @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = Math.max(l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0), 200) + 20;   // open sky
+            o[0] = x0; o[1] = g; o[2] = z0;
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            var m = com.heliosphere.planets.tech.TechCombat.spawn(l, "assault_drone", x0 + 20, g + 25, z0 - 150, null);
+            if (m != null) { m.setNoAi(true); m.setPersistenceRequired(); tgt[0] = m.getId(); }
+            report.add("[info] missile cam target spawned " + (m != null));
+        });
+        look(ctx, 180, -12);
+        ctx.waitTicks(20);
+        // two missiles, half a second apart: the camera follows the second
+        for (int i = 0; i < 2; i++) {
+            final int n = i;
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = s.overworld();
+                var target = l.getEntity(tgt[0]);
+                var from = p.getEyePosition().add(0, -0.2, 0);
+                var m = com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.PLAYER, p,
+                        com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, target, from, p.getLookAngle().add(n * 0.15, 0.08, 0), 40, 0);
+                ids[n] = m.getId();
+            });
+            ctx.waitTicks(10);
+        }
+        ctx.runOnClient(mc -> com.heliosphere.planets.defense.sam.client.MissileCamera.key().setDown(true));
+        ctx.waitTicks(12);
+        float[] yaw0 = new float[1];
+        ctx.runOnClient(mc -> {
+            var cam = mc.gameRenderer.getMainCamera();
+            var m = mc.level.getEntity(ids[1]);
+            yaw0[0] = mc.player.getYRot();
+            report.add(String.format("[info] missile cam: active %s, follows the second missile %s (first %d, second %d), camera %.1f blocks from it, player %.0f blocks away",
+                    com.heliosphere.planets.defense.sam.client.MissileCamera.active(), com.heliosphere.planets.defense.sam.client.MissileCamera.tracked() == ids[1], ids[0], ids[1],
+                    m == null ? -1 : cam.position().distanceTo(m.position()), m == null ? -1 : mc.player.distanceTo(m)));
+        });
+        shot(ctx, "missilecam_follow");
+        // drag the mouse: the view swings round the missile; the player does not turn
+        ctx.runOnClient(mc -> mc.player.turn(600, -150));
+        ctx.waitTicks(3);
+        ctx.runOnClient(mc -> {
+            var st = com.heliosphere.planets.defense.sam.client.MissileCamera.state();
+            report.add(String.format("[info] missile cam drag: view %.0f deg round, %.0f deg up; player turned %.1f deg", st[1], -st[2], mc.player.getYRot() - yaw0[0]));
+        });
+        shot(ctx, "missilecam_drag");
+        ctx.runOnClient(mc -> { com.heliosphere.planets.defense.sam.client.MissileCamera.zoom(-6); mc.player.turn(-600, 150); });
+        ctx.waitTicks(3);
+        ctx.runOnClient(mc -> report.add(String.format("[info] missile cam zoom: distance %.1f", com.heliosphere.planets.defense.sam.client.MissileCamera.state()[0])));
+        shot(ctx, "missilecam_zoom");
+        // until it goes off: the view stays over the spot, then comes home although U is still held
+        boolean gone = false;
+        for (int i = 0; i < 60 && !gone; i++) {
+            ctx.waitTicks(5);
+            boolean[] g = new boolean[1];
+            ctx.runOnClient(mc -> { var m = mc.level.getEntity(ids[1]); g[0] = m == null || m.isRemoved(); });
+            gone = g[0];
+        }
+        ctx.waitTicks(6);
+        ctx.runOnClient(mc -> report.add("[info] missile cam after impact: still watching " + com.heliosphere.planets.defense.sam.client.MissileCamera.active()));
+        shot(ctx, "missilecam_impact");
+        ctx.waitTicks(40);
+        ctx.runOnClient(mc -> {
+            var cam = mc.gameRenderer.getMainCamera();
+            report.add(String.format("[info] missile cam later: active %s, camera %.1f blocks from the player", com.heliosphere.planets.defense.sam.client.MissileCamera.active(), cam.position().distanceTo(mc.player.getEyePosition())));
+        });
+        ctx.runOnClient(mc -> com.heliosphere.planets.defense.sam.client.MissileCamera.key().setDown(false));
+        server(sp, s -> {
+            var l = s.overworld();
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 60, o[1], o[2] - 220, o[0] + 60, o[1] + 120, o[2] - 80)))
+                report.add("[info] missile cam target: " + m.getType().toShortString() + " alive " + m.isAlive());
+        });
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }
