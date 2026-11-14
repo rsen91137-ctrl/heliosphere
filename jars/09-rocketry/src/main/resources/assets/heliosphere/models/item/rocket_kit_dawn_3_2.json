@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "heliosphere:item/rocket_kit_dawn_3_2"
+  }
+}

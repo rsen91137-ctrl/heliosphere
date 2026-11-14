@@ -217,6 +217,16 @@ def main():
         if new:
             by[gid] = e; added.append(gid)
         if not e['r'] and not e['s']: missing.append(gid)
+    # the pre-assembled rockets can be made in survival now (tools/gen/rocket_kits.py): kits and a clear source line
+    PREFAB_NOTE = ('生存模式：在总装台里先把零件做成「分段组件」，再把全部分段组件与载人舱、鼻锥（多数还有逃逸塔）合成整枚火箭，'
+                   '放在发射台上即可加注发射；也可以按「火箭蓝图」在发射台上逐层搭建。')
+    for gid, e in by.items():
+        short = gid.split(':')[1]
+        if short.startswith('rocket_kit_'):
+            e['c'] = '火箭部件'
+            if not e['s']: e['s'] = ['火箭分段组件：只用于在总装台合成对应的整枚预组装火箭。']
+        if any('预组装件可在创造物品栏取得' in x for x in e['s']):
+            e['s'] = [PREFAB_NOTE if '预组装件可在创造物品栏取得' in x else x for x in e['s']]
     # uses: every recipe's inputs point to what it makes
     for e in by.values():
         for r in e['r']:

@@ -70,6 +70,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "bvr" -> bvr(ctx, sp);
                     case "crew" -> crew(ctx, sp);
                     case "missilecam" -> missileCam(ctx, sp);
+                    case "prefabs" -> prefabs(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -1670,6 +1671,56 @@ public class WorldGameTest implements FabricClientGameTest {
             for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 60, o[1], o[2] - 220, o[0] + 60, o[1] + 120, o[2] - 80)))
                 report.add("[info] missile cam target: " + m.getType().toShortString() + " alive " + m.isAlive());
         });
+    }
+
+    /** Places every pre-assembled rocket and writes the parts each one is made of (run-fx/prefab-parts.json). */
+    private void prefabs(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        String only = System.getProperty("heliosphere.test.prefab", "");
+        String[] all = {"rocket_sounding", "rocket_qiming_1", "rocket_qiming_2", "rocket_dawn_3", "rocket_prospector", "rocket_europa_surveyor",
+                "rocket_titan_explorer", "rocket_horizon_x", "rocket_phobos_clipper", "rocket_enceladus_pioneer"};
+        String[] ids = only.isEmpty() ? all : only.split("\\+");
+        cmd(sp, "execute in minecraft:overworld run tp @p 8000 200 8000");
+        ctx.waitTicks(60);
+        StringBuilder json = new StringBuilder("{");
+        for (int n = 0; n < ids.length; n++) {
+            final String id = ids[n];
+            final int k = n;
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                int x = 8000 + (k % 5) * 32, z = 8000 + (k / 5) * 32, y = 200;
+                for (int dx = -7; dx <= 7; dx++) for (int dz = -7; dz <= 7; dz++) {
+                    for (int dy = 0; dy < 60; dy++) l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y + dy, z + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                    l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y - 1, z + dz), Math.abs(dx) <= 4 && Math.abs(dz) <= 4
+                            ? com.heliosphere.core.Reg.getBlock("launch_pad").defaultBlockState() : net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState());
+                }
+                var stack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(id));
+                p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
+                var hit = new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3(x + 0.5, y, z + 0.5), net.minecraft.core.Direction.UP, new net.minecraft.core.BlockPos(x, y - 1, z), false);
+                report.add("[info] place " + id + ": " + stack.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)));
+            });
+            ctx.waitTicks(20);
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                int x = 8000 + (k % 5) * 32, z = 8000 + (k / 5) * 32, y = 200;
+                var list = l.getEntitiesOfClass(com.heliosphere.rocketry.entity.RocketEntity.class, new net.minecraft.world.phys.AABB(x - 6, y - 4, z - 6, x + 6, y + 80, z + 6));
+                if (list.isEmpty()) { report.add("[FAIL] prefab " + id + " not placed: " + p.getMainHandItem()); return; }
+                var r = list.get(0);
+                java.util.Map<String, Integer> c = new java.util.TreeMap<>();
+                for (var part : r.structure().parts()) c.merge(part.spec(), 1, Integer::sum);
+                report.add("[info] prefab " + id + ": " + c);
+                if (json.length() > 1) json.append(',');
+                json.append('"').append(id).append("\":{");
+                boolean first = true;
+                for (var e : c.entrySet()) { if (!first) json.append(','); first = false; json.append('"').append(e.getKey()).append("\":").append(e.getValue()); }
+                json.append('}');
+                for (var e : list) e.discard();
+            });
+            ctx.waitTicks(5);
+        }
+        json.append('}');
+        try { Files.writeString(Path.of("prefab-parts.json"), json.toString()); } catch (IOException e) { report.add("[FAIL] " + e); }
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }
