@@ -47,12 +47,17 @@ LANG = {
     'item.heliosphere.shoulder_sentry.fitted': ('已挂载肩载哨戒炮 · 电量 %s/%s FE（空手右键取下）', 'Shoulder sentry fitted · %s/%s FE (right-click with an empty cursor to take it off)',
                                                 '已掛載肩載哨戒炮 · 電量 %s/%s FE（空手右鍵取下）'),
     'message.heliosphere.shoulder_sentry_charging': ('肩载哨戒炮充电中：%s / %s FE', 'Shoulder sentry charging: %s / %s FE', '肩載哨戒炮充電中：%s / %s FE'),
+    'item.heliosphere.portable_sentry.stats': ('等级 Mk %s · 每发 %s 伤害 · 射程 %s 格 · 每 %s 秒一发', 'Mk %s · %s damage a shot · %s blocks · a shot every %s s', '等級 Mk %s · 每發 %s 傷害 · 射程 %s 格 · 每 %s 秒一發'),
+    'message.heliosphere.shoulder_sentry_upgraded': ('肩载哨戒炮已升级到 Mk %s', 'Shoulder sentry upgraded to Mk %s', '肩載哨戒炮已升級到 Mk %s'),
+    'message.heliosphere.shoulder_sentry_has_mk': ('这门哨戒炮已经是 Mk %s 了，需要更高级的升级套件', 'This sentry is already Mk %s: it needs a higher kit', '這門哨戒炮已經是 Mk %s 了，需要更高級的升級套件'),
     'message.heliosphere.shoulder_sentry_occupied': ('这件盔甲上已经挂着一门哨戒炮了', 'This armour already carries a sentry', '這件盔甲上已經掛著一門哨戒炮了'),
 }
 PAGE = ('便携式肩载哨戒炮：挂在胸甲上的小型自动炮塔。在物品栏里拿起它点到任意胸甲（或其他胸部装备）上即可挂载，空手右键那件胸甲取下，电量随炮走。'
         '穿着这件胸甲时，肩头的小炮会自动射击 16 格内看得见的敌对生物与机械：每发 6 点伤害、约每 0.7 秒一发、每发耗电 25 FE，内置 8000 FE 电池（约 320 发，出厂满电）。'
         '站在发电机、电池组等能输出电力的方块旁边（一格以内）就会充电（每 0.5 秒最多 400 FE），白天露天还能靠炮上的太阳能板慢充；创造模式不耗电。'
-        '威力适中：适合野外赶路、挖矿时清掉零散敌人，不能代替基地防御塔。')
+        '可用「防御塔升级套件」升级：在物品栏里把套件点到哨戒炮上（或点到挂着哨戒炮的胸甲上），直接升到套件的等级（Mk Ⅰ～Ⅴ，可以跳级）：'
+        'Mk Ⅰ 7.5 伤害/18 格/10000 FE；Mk Ⅱ 9/20 格/12000 FE；Mk Ⅲ 11/22 格/15000 FE（双管）；Mk Ⅳ 13/24 格/18000 FE；Mk Ⅴ 16/26 格/24000 FE，射速逐级提高到每 0.4 秒一发。'
+        '基础型威力适中：适合野外赶路、挖矿时清掉零散敌人，升满后能独当一面，但仍不能代替基地防御塔。')
 
 
 def main():

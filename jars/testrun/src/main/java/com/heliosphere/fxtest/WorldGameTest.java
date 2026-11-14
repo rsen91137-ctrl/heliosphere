@@ -73,6 +73,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "prefabs" -> prefabs(ctx, sp);
                     case "underground" -> underground(ctx, sp);
                     case "portable" -> portable(ctx, sp);
+                    case "ores" -> ores(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -1874,9 +1875,20 @@ public class WorldGameTest implements FabricClientGameTest {
             com.heliosphere.planets.defense.mk.PortableSentryItem.setEnergy(sentry, 1000);
             net.minecraft.world.inventory.Slot slot = null;
             for (var sl : p.inventoryMenu.slots) if (sl.container == p.getInventory() && sl.getContainerSlot() == 9) slot = sl;
+            // a Mk III kit onto the sentry first
+            p.getInventory().setItem(10, sentry);
+            net.minecraft.world.inventory.Slot sslot = null;
+            for (var sl : p.inventoryMenu.slots) if (sl.container == p.getInventory() && sl.getContainerSlot() == 10) sslot = sl;
+            var kit3 = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("turret_kit_mk3"));
+            boolean up = sentry.overrideOtherStackedOnMe(kit3, sslot, net.minecraft.world.inventory.ClickAction.PRIMARY, p, null);
+            report.add("[info] shoulder kit on sentry: " + up + ", sentry Mk " + com.heliosphere.planets.defense.mk.PortableSentryItem.mk(sentry) + ", kit used " + kit3.isEmpty() + ", charge " + com.heliosphere.planets.defense.mk.PortableSentryItem.energy(sentry));
+            p.getInventory().setItem(10, net.minecraft.world.item.ItemStack.EMPTY);
             boolean done = sentry.overrideStackedOnOther(slot, net.minecraft.world.inventory.ClickAction.PRIMARY, p);
             var chest = p.getInventory().getItem(9);
-            report.add("[info] shoulder fit: " + done + ", sentry left " + sentry.getCount() + ", chestplate carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest) + " FE");
+            report.add("[info] shoulder fit: " + done + ", sentry left " + sentry.getCount() + ", chestplate carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest) + " FE, Mk " + com.heliosphere.planets.gear.ShoulderSentry.mk(chest));
+            var kit5 = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("turret_kit_mk5"));
+            boolean up5 = chest.overrideOtherStackedOnMe(kit5, slot, net.minecraft.world.inventory.ClickAction.PRIMARY, p, null);
+            report.add("[info] shoulder kit on armour: " + up5 + ", Mk " + com.heliosphere.planets.gear.ShoulderSentry.mk(chest) + ", capacity " + com.heliosphere.planets.gear.ShoulderSentry.capacity(com.heliosphere.planets.gear.ShoulderSentry.mk(chest)) + ", charge " + com.heliosphere.planets.gear.ShoulderSentry.charge(chest));
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest.copy());
             p.getInventory().setItem(9, net.minecraft.world.item.ItemStack.EMPTY);
             p.teleportTo(x0 + 0.5, g, z0 + 0.5);
@@ -1914,10 +1926,50 @@ public class WorldGameTest implements FabricClientGameTest {
                 @Override public boolean set(net.minecraft.world.item.ItemStack st) { cursor[0] = st; return true; }
             };
             boolean off = inv.overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack.EMPTY, slot, net.minecraft.world.inventory.ClickAction.SECONDARY, p, access);
-            report.add("[info] shoulder take off: " + off + ", cursor " + cursor[0] + " with " + com.heliosphere.planets.defense.mk.PortableSentryItem.energy(cursor[0]) + " FE, chestplate still carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(inv));
+            report.add("[info] shoulder take off: " + off + ", cursor " + cursor[0] + " with " + com.heliosphere.planets.defense.mk.PortableSentryItem.energy(cursor[0]) + " FE, Mk " + com.heliosphere.planets.defense.mk.PortableSentryItem.mk(cursor[0]) + ", chestplate still carries " + com.heliosphere.planets.gear.ShoulderSentry.charge(inv));
         });
         ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
         cmd(sp, "gamemode creative @a");
+    }
+
+    /** Ores in freshly generated chunks (counted per 3x3 chunks), and a wall of every ore on stone and deepslate. */
+    private void ores(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        String[] ores = {"graphite", "bauxite", "ilmenite", "cassiterite", "galena", "sphalerite", "pentlandite", "chromite", "halite", "sulfur", "fluorite",
+                "spodumene", "apatite", "titanomagnetite", "molybdenite", "cobaltite", "monazite", "wolframite", "pyrochlore", "beryl", "uraninite", "sperrylite"};
+        cmd(sp, "execute in minecraft:overworld run tp @p 24000 150 24000");
+        ctx.waitTicks(100);
+        sp.getClientWorld().waitForChunksRender();
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            java.util.Map<String, Integer> n = new java.util.TreeMap<>();
+            int cx = p.getBlockX() >> 4, cz = p.getBlockZ() >> 4;
+            var m = new net.minecraft.core.BlockPos.MutableBlockPos();
+            for (int ax = cx - 1; ax <= cx + 1; ax++) for (int az = cz - 1; az <= cz + 1; az++) {
+                var c = l.getChunk(ax, az);
+                for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) for (int y = -64; y < 140; y++) {
+                    var st = c.getBlockState(m.set((ax << 4) + x, y, (az << 4) + z));
+                    String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(st.getBlock()).getPath();
+                    if (id.endsWith("_ore")) n.merge(id.replace("deepslate_", ""), 1, Integer::sum);
+                }
+            }
+            report.add("[info] ores in 3x3 fresh chunks: " + n);
+            // the wall: two rows, stone ores above deepslate ones
+            int x0 = p.getBlockX() - 11, y0 = 200, z0 = p.getBlockZ() + 6;
+            for (int i = 0; i < ores.length; i++) {
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + i, y0 + 1, z0), com.heliosphere.core.Reg.getBlock(ores[i] + "_ore").defaultBlockState());
+                var deep = com.heliosphere.core.Reg.getBlock("deepslate_" + ores[i] + "_ore");
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + i, y0, z0), deep == null ? net.minecraft.world.level.block.Blocks.DEEPSLATE.defaultBlockState() : deep.defaultBlockState());
+            }
+            p.teleportTo(p.getBlockX() + 0.5, y0, p.getBlockZ() - 6.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        cmd(sp, "gamemode creative @a");
+        ctx.runOnClient(mc -> mc.options.hideGui = true);
+        look(ctx, 0, 0);
+        ctx.waitTicks(30);
+        shot(ctx, "ores_wall");
+        ctx.runOnClient(mc -> mc.options.hideGui = false);
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

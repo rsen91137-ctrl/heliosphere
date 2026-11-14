@@ -200,5 +200,8 @@
   "item.heliosphere.portable_sentry.hint": "挂在胸甲上使用：在物品栏里拿起它，点到任意胸甲（或其他胸部装备）上即可挂载；空手右键那件胸甲取下。穿着时自动射击 %s 格内看得见的敌对生物和机械（每发 %s 伤害）。站在发电机/电池组等电源方块旁边会充电，白天露天靠太阳能板慢充。",
   "item.heliosphere.shoulder_sentry.fitted": "已挂载肩载哨戒炮 · 电量 %s/%s FE（空手右键取下）",
   "message.heliosphere.shoulder_sentry_charging": "肩载哨戒炮充电中：%s / %s FE",
-  "message.heliosphere.shoulder_sentry_occupied": "这件盔甲上已经挂着一门哨戒炮了"
+  "message.heliosphere.shoulder_sentry_occupied": "这件盔甲上已经挂着一门哨戒炮了",
+  "item.heliosphere.portable_sentry.stats": "等级 Mk %s · 每发 %s 伤害 · 射程 %s 格 · 每 %s 秒一发",
+  "message.heliosphere.shoulder_sentry_upgraded": "肩载哨戒炮已升级到 Mk %s",
+  "message.heliosphere.shoulder_sentry_has_mk": "这门哨戒炮已经是 Mk %s 了，需要更高级的升级套件"
 }

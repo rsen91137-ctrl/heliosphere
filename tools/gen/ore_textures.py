@@ -19,28 +19,28 @@ def hexc(h):
 
 # mineral: (jar, habit, outline, body, light, accent or None, clusters)
 ORES = {
-    'apatite':         ('02', 'prism',  '#123f45', '#2f9a98', '#9ff0dc', None, 5),
-    'beryl':           ('02', 'prism',  '#0e4a28', '#2fb664', '#c4ffd8', '#ffffff', 4),
-    'fluorite':        ('02', 'cube',   '#2a0f5a', '#8346e0', '#e2c6ff', '#5ad6a0', 5),
-    'graphite':        ('02', 'flake',  '#0a0a0c', '#3e3e48', '#c4c4d4', '#e8e8f4', 5),
-    'sulfur':          ('02', 'nodule', '#6b5a05', '#e6cc1e', '#fff8a8', None, 5),
-    'bauxite':         ('05', 'nodule', '#4f1d0a', '#b4562a', '#f0a466', None, 6),
-    'cassiterite':     ('05', 'nodule', '#1a0f08', '#5c3a22', '#d6a66e', '#ffe6c0', 5),
-    'chromite':        ('05', 'cube',   '#0d0d11', '#34343f', '#9a9ab4', None, 6),
-    'cobaltite':       ('05', 'cube',   '#3b2a3a', '#a487a4', '#f6def6', '#ffffff', 5),
-    'galena':          ('05', 'cube',   '#1d2027', '#76808f', '#e8eef8', '#ffffff', 5),
-    'halite':          ('05', 'cube',   '#8a7c84', '#ecdee4', '#ffffff', '#f4b0c4', 5),
-    'ilmenite':        ('05', 'nodule', '#0f0d11', '#3d3742', '#a49aac', None, 6),
-    'molybdenite':     ('05', 'flake',  '#1e2433', '#65748f', '#d0dcf6', None, 5),
-    'monazite':        ('05', 'prism',  '#5a2a0c', '#c8782a', '#ffd690', None, 5),
-    'pentlandite':     ('05', 'nodule', '#4a3a10', '#b8963a', '#f8e6a0', '#fffbe0', 6),
-    'pyrochlore':      ('05', 'cube',   '#3a120a', '#9c3a1a', '#ec8a44', None, 5),
-    'sperrylite':      ('05', 'cube',   '#55555c', '#c4c4cf', '#ffffff', '#e8f0ff', 4),
-    'sphalerite':      ('05', 'nodule', '#2e1206', '#8c4814', '#eaa848', '#ffd890', 5),
-    'spodumene':       ('05', 'prism',  '#5e3e60', '#d4a2d6', '#fff0ff', None, 4),
-    'titanomagnetite': ('05', 'nodule', '#0c0c10', '#353a48', '#8e9ab2', '#c8d6f0', 6),
-    'uraninite':       ('05', 'nodule', '#060a06', '#1f2a18', '#4a5a3a', '#7aff5a', 5),
-    'wolframite':      ('05', 'blade',  '#120d08', '#463626', '#a88e6c', '#e0d0b0', 5),
+    'apatite':         ('02', 'prism',  '#123f45', '#2f9a98', '#9ff0dc', None, 7),
+    'beryl':           ('02', 'prism',  '#0e4a28', '#2fb664', '#c4ffd8', '#ffffff', 7),
+    'fluorite':        ('02', 'cube',   '#2a0f5a', '#8346e0', '#e2c6ff', '#5ad6a0', 7),
+    'graphite':        ('02', 'flake',  '#050507', '#2a2a33', '#f4f4ff', '#ffffff', 10),
+    'sulfur':          ('02', 'nodule', '#6b5a05', '#e6cc1e', '#fff8a8', None, 7),
+    'bauxite':         ('05', 'nodule', '#4f1d0a', '#b4562a', '#f0a466', None, 8),
+    'cassiterite':     ('05', 'nodule', '#1a0f08', '#5c3a22', '#d6a66e', '#ffe6c0', 7),
+    'chromite':        ('05', 'cube',   '#1c0a10', '#7a3550', '#f08cb0', '#ffd0e0', 10),
+    'cobaltite':       ('05', 'cube',   '#3b2a3a', '#a487a4', '#f6def6', '#ffffff', 7),
+    'galena':          ('05', 'cube',   '#10141c', '#8a9ab8', '#ffffff', '#ffffff', 10),
+    'halite':          ('05', 'cube',   '#5a2a3c', '#f4c4d4', '#ffffff', '#ffffff', 9),
+    'ilmenite':        ('05', 'nodule', '#0c0812', '#4c3462', '#cfa6ec', '#f4e0ff', 10),
+    'molybdenite':     ('05', 'flake',  '#141c30', '#5a7ed0', '#e0eaff', '#ffffff', 10),
+    'monazite':        ('05', 'prism',  '#5a2a0c', '#c8782a', '#ffd690', None, 7),
+    'pentlandite':     ('05', 'nodule', '#4a3a10', '#b8963a', '#f8e6a0', '#fffbe0', 8),
+    'pyrochlore':      ('05', 'cube',   '#3a120a', '#9c3a1a', '#ec8a44', None, 7),
+    'sperrylite':      ('05', 'cube',   '#243442', '#d6ecf6', '#ffffff', '#a0f0ff', 9),
+    'sphalerite':      ('05', 'nodule', '#2e1206', '#8c4814', '#eaa848', '#ffd890', 7),
+    'spodumene':       ('05', 'prism',  '#5e3e60', '#d4a2d6', '#fff0ff', None, 7),
+    'titanomagnetite': ('05', 'nodule', '#06080e', '#26406e', '#8cc0ff', '#e6f2ff', 10),
+    'uraninite':       ('05', 'nodule', '#060a06', '#1f2a18', '#4a5a3a', '#7aff5a', 7),
+    'wolframite':      ('05', 'blade',  '#120d08', '#463626', '#a88e6c', '#e0d0b0', 7),
 }
 
 
@@ -172,7 +172,7 @@ def oil_sand():
     """Bitumen-soaked sand: warm sand with black, glossy lumps of tar and a few dark seeps."""
     rng = np.random.default_rng(11)
     img = grains(11, ['#5e4a32', '#6e573b', '#7d6546', '#8e7552'], 4, 0.65)
-    tar = ore('tar', ('02', 'nodule', '#060504', '#17120e', '#3a302a', '#9c9088', 6), 23)
+    tar = ore('tar', ('02', 'nodule', '#060504', '#17120e', '#3a302a', '#9c9088', 8), 23)
     m = tar[..., 3] > 0
     img[m] = tar[m]
     for y in range(16):                                         # oil seeping down under each lump

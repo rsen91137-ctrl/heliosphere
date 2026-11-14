@@ -32,7 +32,12 @@ public final class ShoulderSentryClient {
         });
         ItemTooltipCallback.EVENT.register((stack, tctx, ttype, lines) -> {
             long e = ShoulderSentry.charge(stack);
-            if (e >= 0) lines.add(Component.translatable("item.heliosphere.shoulder_sentry.fitted", e, ShoulderSentry.CAPACITY).withStyle(ChatFormatting.AQUA));
+            if (e >= 0) {
+                int mk = ShoulderSentry.mk(stack);
+                lines.add(Component.translatable("item.heliosphere.shoulder_sentry.fitted", e, ShoulderSentry.capacity(mk)).withStyle(ChatFormatting.AQUA));
+                lines.add(Component.translatable("item.heliosphere.portable_sentry.stats", com.heliosphere.planets.defense.mk.PortableSentryItem.roman(mk),
+                        String.format("%.1f", ShoulderSentry.damage(mk)), String.format("%.0f", ShoulderSentry.range(mk)), String.format("%.2f", ShoulderSentry.interval(mk) / 20f)).withStyle(ChatFormatting.GOLD));
+            }
         });
     }
 
@@ -43,12 +48,13 @@ public final class ShoulderSentryClient {
         public void submit(PoseStack pose, SubmitNodeCollector out, int light, AvatarRenderState s, float yRot, float xRot) {
             if (s.chestEquipment == null || ShoulderSentry.charge(s.chestEquipment) < 0 || s.isInvisible) return;
             float aim = aim(s);                                      // relative to the body, degrees
+            int mk = ShoulderSentry.mk(s.chestEquipment);
             pose.pushPose();
             getParentModel().body.translateAndRotate(pose);
             pose.translate(-0.33, -0.02, 0.02);                     // over the right shoulder (model space: x left, y down)
             pose.scale(-0.8f, -0.8f, 0.8f);                         // back to y up for the boxes
-            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, light, false), aim));
-            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, 0xF000F0, true), aim));
+            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, light, false), aim, mk));
+            out.submitCustomGeometry(pose, RenderTypes.entityCutoutNoCull(BoxMesh.KIT), (p, vc) -> build(new BoxMesh(p, vc, 0xF000F0, true), aim, mk));
             pose.popPose();
         }
 
@@ -74,7 +80,7 @@ public final class ShoulderSentryClient {
 
         private static final int STEEL = 0x8C9096, DARK = 0x2E3136, SAND = 0xB89E6A;
 
-        static void build(BoxMesh m, float aim) {
+        static void build(BoxMesh m, float aim, int mk) {
             m.cbox(0, 0.03, 0, 0.26, 0.06, 0.3, BoxMesh.HEAVY, DARK);                   // clamp plate on the pauldron
             m.cbox(0, 0.1, 0, 0.12, 0.1, 0.12, BoxMesh.JOINT, STEEL);                   // swivel
             m.push();
@@ -82,8 +88,14 @@ public final class ShoulderSentryClient {
             m.ry(Math.toRadians(-aim));
             m.cbox(0, 0, 0, 0.2, 0.15, 0.24, BoxMesh.PLATE, SAND);                      // head
             m.cbox(0, 0.09, -0.04, 0.24, 0.02, 0.18, BoxMesh.CARBON, 0x2A3A5A);         // solar panel
-            m.cbox(0, 0, 0.22, 0.05, 0.05, 0.24, BoxMesh.BARREL, STEEL);                // gun
-            m.cbox(0, 0, 0.35, 0.07, 0.07, 0.03, BoxMesh.DARK, DARK);
+            if (mk >= 3) for (int sx = -1; sx <= 1; sx += 2) {                         // Mk III and up: twin guns
+                m.cbox(sx * 0.045, 0, 0.22 + mk * 0.01, 0.045, 0.045, 0.26 + mk * 0.02, BoxMesh.BARREL, STEEL);
+                m.cbox(sx * 0.045, 0, 0.36 + mk * 0.02, 0.06, 0.06, 0.03, BoxMesh.DARK, DARK);
+            } else {
+                m.cbox(0, 0, 0.22, 0.05, 0.05, 0.24, BoxMesh.BARREL, STEEL);            // gun
+                m.cbox(0, 0, 0.35, 0.07, 0.07, 0.03, BoxMesh.DARK, DARK);
+            }
+            for (int k = 0; k < mk; k++) m.cglow(-0.101, -0.04 + k * 0.025, -0.05, 0.005, 0.015, 0.08, BoxMesh.LAMP, 0x60FF90);   // one stripe a Mk
             m.cbox(0.08, 0.02, 0.11, 0.04, 0.04, 0.05, BoxMesh.DARK, DARK);
             m.cglow(0.08, 0.02, 0.14, 0.028, 0.028, 0.01, BoxMesh.LENS, 0x60E0FF);
             m.pop();

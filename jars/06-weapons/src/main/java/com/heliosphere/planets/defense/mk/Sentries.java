@@ -46,7 +46,7 @@ public final class Sentries implements ModInitializer {
     }
 
     /** Upgrade level of a kit item (the released Mk II and Mk III kits count too), or 0. */
-    static int kitLevel(ItemStack stack) {
+    public static int kitLevel(ItemStack stack) {
         if (stack.isEmpty()) return 0;
         String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
         for (int i = 0; i < KITS.length; i++) if (KITS[i].equals(id)) return i + 1;

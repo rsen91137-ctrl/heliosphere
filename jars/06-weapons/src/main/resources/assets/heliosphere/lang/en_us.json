@@ -200,5 +200,8 @@
   "item.heliosphere.portable_sentry.hint": "Wear it on a chestplate: in your inventory pick it up and click it onto any chestplate (or other chest armour); right-click that armour with an empty cursor to take it off. Worn, it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges while you stand next to a power block (generators, battery banks) and slowly from its solar panel by day.",
   "item.heliosphere.shoulder_sentry.fitted": "Shoulder sentry fitted · %s/%s FE (right-click with an empty cursor to take it off)",
   "message.heliosphere.shoulder_sentry_charging": "Shoulder sentry charging: %s / %s FE",
-  "message.heliosphere.shoulder_sentry_occupied": "This armour already carries a sentry"
+  "message.heliosphere.shoulder_sentry_occupied": "This armour already carries a sentry",
+  "item.heliosphere.portable_sentry.stats": "Mk %s · %s damage a shot · %s blocks · a shot every %s s",
+  "message.heliosphere.shoulder_sentry_upgraded": "Shoulder sentry upgraded to Mk %s",
+  "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit"
 }
