@@ -21,5 +21,14 @@
   "block.heliosphere.habitat_field_emitter": "Habitat Field Emitter",
   "block.heliosphere.habitat_field_panel": "Force-Field Panel",
   "message.heliosphere.habitat_on": "Field running: %s columns inside the ring, from %s blocks below the emitter to %s above: breathable air, 20°C, Earth gravity.",
-  "message.heliosphere.habitat_leak": "The ring is not closed: there is a gap near %s, %s, %s (or it is larger than 40 blocks / 6400 columns). The wall at the emitter's height must go all the way round, doors shut."
+  "message.heliosphere.habitat_leak": "The ring is not closed: there is a gap near %s, %s, %s (or it is larger than 40 blocks / 6400 columns). The wall at the emitter's height must go all the way round, doors shut.",
+  "item.heliosphere.bio_capsule": "Bio-Containment Capsule",
+  "item.heliosphere.bio_capsule.hint": "Right-click a creature to take it in (health, name, age, collar and all), then right-click the ground to let it out. Players, bosses and machines cannot be taken.",
+  "item.heliosphere.bio_capsule.holds": "Holding: %s (%s)",
+  "item.heliosphere.bio_capsule.release": "Right-click the ground to let it out",
+  "message.heliosphere.bio_capsule_taken": "Taken in: %s",
+  "message.heliosphere.bio_capsule_released": "Let out: %s",
+  "message.heliosphere.bio_capsule_full": "The capsule already holds a creature: let it out first",
+  "message.heliosphere.bio_capsule_refused": "That cannot be taken (no players, bosses or machines)",
+  "message.heliosphere.bio_capsule_no_air": "Careful: there is no breathable air here and Earth creatures slowly suffocate - let it out inside a habitat field."
 }

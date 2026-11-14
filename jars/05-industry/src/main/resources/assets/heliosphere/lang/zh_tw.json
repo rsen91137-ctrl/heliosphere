@@ -21,5 +21,14 @@
   "block.heliosphere.habitat_field_emitter": "棲息地力場發生器",
   "block.heliosphere.habitat_field_panel": "力場防護板",
   "message.heliosphere.habitat_on": "力場運行中：圈內 %s 格地面，從發生器下方 %s 格到上方 %s 格，空氣可呼吸、恆溫 20°C、地球重力。",
-  "message.heliosphere.habitat_leak": "這一圈沒有圍合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的範圍）。和發生器同一高度的一圈牆必須連續，門要關好。"
+  "message.heliosphere.habitat_leak": "這一圈沒有圍合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的範圍）。和發生器同一高度的一圈牆必須連續，門要關好。",
+  "item.heliosphere.bio_capsule": "生物收容艙",
+  "item.heliosphere.bio_capsule.hint": "右鍵生物把牠收進艙裡（保留血量、名字、年齡、項圈等一切），再對地面右鍵放出。玩家、Boss 和機械不能收容。",
+  "item.heliosphere.bio_capsule.holds": "艙內：%s（%s）",
+  "item.heliosphere.bio_capsule.release": "對地面右鍵放出",
+  "message.heliosphere.bio_capsule_taken": "已收容：%s",
+  "message.heliosphere.bio_capsule_released": "已放出：%s",
+  "message.heliosphere.bio_capsule_full": "收容艙裡已經有生物了，先放出來",
+  "message.heliosphere.bio_capsule_refused": "這個不能收容（玩家、Boss 和機械除外）",
+  "message.heliosphere.bio_capsule_no_air": "注意：這裡沒有可呼吸的空氣，地球生物會慢慢窒息——把牠放進棲息地力場的圈裡。"
 }

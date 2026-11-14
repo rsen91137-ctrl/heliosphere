@@ -2024,6 +2024,37 @@ public class WorldGameTest implements FabricClientGameTest {
         look(ctx, 45, 20);
         ctx.waitTicks(10);
         shot(ctx, "habitat_inside");
+        // species transplant: a cow outside the ring suffocates; taken into the capsule and let out inside, it lives
+        java.util.UUID[] cow = new java.util.UUID[1];
+        server(sp, s -> {
+            var l = player(s).level();
+            var c = net.minecraft.world.entity.EntityType.COW.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            c.snapTo(o[0] + 9.5, o[1] + 1, o[2] + 0.5, 0, 0); c.setCustomName(net.minecraft.network.chat.Component.literal("Bessie")); l.addFreshEntity(c);
+            cow[0] = c.getUUID();
+        });
+        ctx.waitTicks(120);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var c = (net.minecraft.world.entity.LivingEntity) l.getEntity(cow[0]);
+            float outside = c == null ? -1 : c.getHealth();
+            var capsule = new net.minecraft.world.item.ItemStack(com.heliosphere.industry.habitat.Habitat.CAPSULE);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, capsule);
+            var r = capsule.interactLivingEntity(p, c, net.minecraft.world.InteractionHand.MAIN_HAND);
+            boolean full = com.heliosphere.industry.habitat.BioCapsuleItem.full(p.getMainHandItem());
+            var at = new net.minecraft.core.BlockPos(o[0] - 2, o[1] - 1, o[2] - 2);
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at).add(0, 0.5, 0), net.minecraft.core.Direction.UP, at, false);
+            var r2 = p.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit));
+            var back = l.getEntitiesOfClass(net.minecraft.world.entity.animal.cow.Cow.class, new net.minecraft.world.phys.AABB(o[0] - 6, o[1] - 2, o[2] - 6, o[0] + 6, o[1] + 4, o[2] + 6));
+            report.add("[info] capsule: cow outside the ring after 6 s health " + outside + "/10; taken " + r + " removed " + (c != null && c.isRemoved()) + " capsule full " + full
+                    + "; let out " + r2 + " inside: " + back.size() + " cow(s) named " + (back.isEmpty() ? "-" : back.get(0).getName().getString()) + " health " + (back.isEmpty() ? -1 : back.get(0).getHealth()));
+            if (!back.isEmpty()) cow[0] = back.get(0).getUUID();
+        });
+        ctx.waitTicks(120);
+        server(sp, s -> {
+            var c = (net.minecraft.world.entity.LivingEntity) player(s).level().getEntity(cow[0]);
+            report.add("[info] capsule: the cow 6 s inside the ring: health " + (c == null ? -1 : c.getHealth()) + ", breathable " + com.heliosphere.core.env.Environment.breathable(c.level(), net.minecraft.core.BlockPos.containing(c.getEyePosition())));
+        });
         // jump: how high on the Moon's surface, inside the field (client-side physics)
         // a hole in the wall: the field goes off and says where
         server(sp, s -> {
