@@ -6,7 +6,7 @@ public enum TurretKind {
     LASER     ("laser_turret",        40, 10,  9f,    60,  Target.ALL,    0xFF5040),
     SONIC     ("sonic_turret",        22, 30,  8f,   160,  Target.ALL,    0x8AE8FF),
     AUTOCANNON("autocannon_turret",   48,  3,  4f,    15,  Target.ALL,    0xFFC878),
-    FLAK      ("flak_turret",         64, 14, 10f,    70,  Target.AIR,    0xFFB060),
+    FLAK      ("flak_turret",         64, 14, 10f,    70,  Target.ALL,    0xFFB060),   // aircraft first, ground targets too
     MISSILE   ("missile_turret",      90, 50, 30f,   300,  Target.ALL,    0xFF7030),
     RAIL      ("rail_turret",        120, 60, 60f,   400,  Target.ALL,    0xA8E0FF),
     TESLA     ("tesla_turret",        24, 16, 12f,   120,  Target.ALL,    0x9AA8FF);

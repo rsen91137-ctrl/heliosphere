@@ -68,6 +68,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "dump" -> dump(ctx, sp);
                     case "recipes" -> recipes(ctx, sp);
                     case "fixes" -> fixes(ctx, sp);
+                    case "turrets" -> turrets(ctx, sp);
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
@@ -1096,6 +1097,82 @@ public class WorldGameTest implements FabricClientGameTest {
 
     private static int fps(ClientGameTestContext ctx) {
         return ctx.computeOnClient(mc -> mc.getFps());
+    }
+
+    /** Every turret kind, charged (not creative), against a zombie on the ground; flak also with a drone overhead; one fed by cable. */
+    private void turrets(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 8000 140 8000");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+            for (int i = -4; i <= 76; i++) for (int j = -4; j <= 16; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), stone, 2);
+                for (int h = 0; h < 6; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            int i = 0;
+            for (var k : com.heliosphere.planets.defense.mk.TurretKind.values()) {
+                var pos = new net.minecraft.core.BlockPos(x0 + i * 10, g, z0);
+                l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(k).defaultBlockState(), 3);
+                var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                if (k != com.heliosphere.planets.defense.mk.TurretKind.LASER) be.setEnergy(be.capacity());
+                var z = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                z.snapTo(x0 + i * 10 + 0.5, g, z0 + 9.5, 0, 0);
+                z.setNoAi(true);
+                z.setPersistenceRequired();
+                l.addFreshEntity(z);
+                i++;
+            }
+            // the laser turret is fed through ten blocks of cable from a charged battery bank
+            for (int c = 1; c <= 10; c++) l.setBlock(new net.minecraft.core.BlockPos(x0, g, z0 - c), com.heliosphere.core.Reg.getBlock("cable").defaultBlockState(), 3);
+            var bank = new net.minecraft.core.BlockPos(x0, g, z0 - 11);
+            l.setBlock(bank, com.heliosphere.core.Reg.getBlock("battery_bank").defaultBlockState(), 3);
+            ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(bank)).setEnergy(((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(bank)).capacity());
+            // a drone over the flak turret
+            int fx = x0 + 30;
+            var drone = com.heliosphere.planets.tech.TechCombat.spawn(l, "patrol_drone", fx + 0.5, g + 14, z0 - 6.5, p);
+            if (drone instanceof net.minecraft.world.entity.Mob m) { m.setNoAi(true); m.setNoGravity(true); }
+        });
+        ctx.waitTicks(100);
+        server(sp, s -> {
+            var l = s.overworld();
+            int i = 0;
+            for (var k : com.heliosphere.planets.defense.mk.TurretKind.values()) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + i * 10, o[1], o[2]);
+                var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                var zs = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Zombie.class, new net.minecraft.world.phys.AABB(pos).inflate(3, 3, 12));
+                String zh = zs.isEmpty() ? "dead" : String.format("%.0f", zs.getFirst().getHealth());
+                report.add("[info] turret " + k.id + ": energy " + be.energy() + "/" + be.capacity() + ", zombie " + zh + (k == com.heliosphere.planets.defense.mk.TurretKind.FLAK
+                        ? ", drone " + l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(pos).inflate(20)).stream().map(m -> String.format("%.0f", m.getHealth())).toList() : ""));
+                i++;
+            }
+        });
+        // flak against the ground alone
+        server(sp, s -> {
+            var l = s.overworld();
+            var pos = new net.minecraft.core.BlockPos(o[0] + 30, o[1], o[2]);
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(pos).inflate(30))) m.discard();
+            var z = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            z.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 12.5, 0, 0);
+            z.setNoAi(true); z.setPersistenceRequired();
+            l.addFreshEntity(z);
+        });
+        ctx.waitTicks(80);
+        server(sp, s -> {
+            var l = s.overworld();
+            var pos = new net.minecraft.core.BlockPos(o[0] + 30, o[1], o[2]);
+            var hs = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, new net.minecraft.world.phys.AABB(pos).inflate(4, 4, 16));
+            report.add("[info] flak against a ground husk: " + (hs.isEmpty() ? "dead" : String.format("health %.0f", hs.getFirst().getHealth())));
+        });
+        look(ctx, 0, 10);
+        shot(ctx, "turrets");
+        cmd(sp, "gamemode creative @a");
     }
 
     /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */

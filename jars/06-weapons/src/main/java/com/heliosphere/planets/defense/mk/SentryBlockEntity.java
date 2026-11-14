@@ -73,7 +73,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         if (creative && power < capacity()) power = capacity();
         if (cooldown > 0) { cooldown--; return; }
         TurretKind k = kind();
-        if (power < k.energy) { cooldown = 10; return; }
+        if (power < k.energy) { cooldown = 10; unpowered(level, k); return; }
         double range = k.range(mk);
         Vec3 head = head();
         List<Mob> targets = targets(level, head, range, k);
@@ -89,6 +89,18 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         sync();
     }
 
+    /** Out of power with an enemy in range: tell the owner (if near) once every ten seconds, and puff smoke. */
+    private void unpowered(ServerLevel level, TurretKind k) {
+        if (level.getGameTime() % 200 >= 10) return;
+        Vec3 head = head();
+        if (targets(level, head, k.range(mk), k).isEmpty()) return;
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.SMOKE, head.x, head.y + 0.3, head.z, 6, 0.2, 0.1, 0.2, 0.01);
+        Player p = owner == null ? null : level.getPlayerByUUID(owner);
+        if (p != null && p.distanceToSqr(head) < 64 * 64)
+            p.displayClientMessage(Component.translatable("message.heliosphere.turret_no_power", Component.translatable("block.heliosphere." + k.id), power, k.energy)
+                    .withStyle(net.minecraft.ChatFormatting.RED), true);
+    }
+
     private List<Mob> targets(ServerLevel level, Vec3 head, double range, TurretKind k) {
         List<Mob> out = new ArrayList<>();
         for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(head, head).inflate(range))) {
@@ -101,6 +113,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
             out.add(m);
         }
         if (k == TurretKind.MISSILE) out.sort(Comparator.comparingDouble(m -> -m.getHealth()));       // missiles go for the biggest
+        else if (k == TurretKind.FLAK)                                                             // flak: aircraft first, then the ground
+            out.sort(Comparator.comparingInt((Mob m) -> airborne(level, m) ? 0 : 1).thenComparingDouble(m -> m.distanceToSqr(head)));
         else out.sort(Comparator.comparingDouble(m -> m.distanceToSqr(head)));
         return out;
     }
@@ -158,7 +172,9 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
                 level.playSound(null, worldPosition, SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 0.8f, 1.6f + level.random.nextFloat() * 0.2f);
             }
             case FLAK -> {
-                Vec3 burst = at.add(level.random.nextGaussian(), level.random.nextGaussian() * 0.5, level.random.nextGaussian());
+                // an airburst round: scattered round an aircraft, close over a ground target (time fuze set short)
+                double s = airborne(level, t) ? 1.0 : 0.35;
+                Vec3 burst = at.add(level.random.nextGaussian() * s, level.random.nextGaussian() * 0.5 * s + (s < 1 ? 0.4 : 0), level.random.nextGaussian() * s);
                 CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, burst, 1.4f);
                 CombatVfx.send(level, CombatVfx.EXPLOSION, k.colour, burst, burst, 1.3f);
                 for (Mob m : targets) if (m.getBoundingBox().getCenter().distanceTo(burst) < 3.5) hit(level, m, dmg);

@@ -203,5 +203,6 @@
   "message.heliosphere.shoulder_sentry_occupied": "This armour already carries a sentry",
   "item.heliosphere.portable_sentry.stats": "Mk %s · %s damage a shot · %s blocks · every %s s · %s targets at once",
   "message.heliosphere.shoulder_sentry_upgraded": "Shoulder sentry upgraded to Mk %s",
-  "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit"
+  "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit",
+  "message.heliosphere.turret_no_power": "%s has no power (%s/%s FE) and cannot fire: connect it to a generator or battery with cable"
 }
