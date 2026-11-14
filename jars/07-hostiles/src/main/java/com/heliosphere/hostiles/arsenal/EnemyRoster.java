@@ -38,31 +38,31 @@ public final class EnemyRoster {
 
     /** Released id -> first day, where it changed: the Mk V hunter drone now turns up from day 50. */
     /**
-     * First day of every machine on the 150-day road to the impact (Evolution: 15 stages of ten days, each bringing one
+     * First day of every machine on the 365-day road to the impact (Evolution: 15 stages of 24 days, each bringing one
      * or two new machines). Released machines are moved here; new ones are listed by their Role below.
      */
     private static final Map<String, Integer> FIRST_DAY = Map.ofEntries(
-            Map.entry("patrol_drone", 3), Map.entry("assault_drone", 10), Map.entry("security_walker", 14), Map.entry("repair_automaton", 18),
-            Map.entry("arc_hound", 22), Map.entry("siege_drone", 32), Map.entry("emp_spider", 40), Map.entry("missile_drone", 52),
-            Map.entry("siege_walker", 66), Map.entry("hunter_drone", 76), Map.entry("rail_sentinel", 92));
+            Map.entry("patrol_drone", 7), Map.entry("assault_drone", 24), Map.entry("security_walker", 34), Map.entry("repair_automaton", 43),
+            Map.entry("arc_hound", 53), Map.entry("siege_drone", 77), Map.entry("emp_spider", 96), Map.entry("missile_drone", 125),
+            Map.entry("siege_walker", 158), Map.entry("hunter_drone", 182), Map.entry("rail_sentinel", 221));
 
     public static final List<Role> NEW = List.of(
-            new Role("swarm_drone", "VI型蜂群自爆机", 26, 12, 0, 16, KAMIKAZE, 10, 2.0f, true, 0.6f, 0.45f),
-            new Role("mortar_walker", "迫击炮机甲", 36, 140, 12, 16, MORTAR, 80, 56, false, 1.5f, 2.0f),
-            new Role("flame_walker", "焚化者步行机", 45, 150, 12, 5, FLAME, 5, 7, false, 1.3f, 2.2f),
-            new Role("shield_bearer", "壁垒护盾机", 56, 170, 16, 0, AEGIS, 20, 12, false, 1.4f, 1.6f),
-            new Role("laser_drone", "光矛狙击无人机", 62, 110, 8, 30, LANCE, 100, 80, true, 1.2f, 0.7f),
-            new Role("stalker", "幽影刺客", 72, 90, 6, 18, BLADE, 18, 2.4f, false, 0.8f, 2.1f),
+            new Role("swarm_drone", "VI型蜂群自爆机", 62, 12, 0, 16, KAMIKAZE, 10, 2.0f, true, 0.6f, 0.45f),
+            new Role("mortar_walker", "迫击炮机甲", 86, 140, 12, 16, MORTAR, 80, 56, false, 1.5f, 2.0f),
+            new Role("flame_walker", "焚化者步行机", 108, 150, 12, 5, FLAME, 5, 7, false, 1.3f, 2.2f),
+            new Role("shield_bearer", "壁垒护盾机", 134, 170, 16, 0, AEGIS, 20, 12, false, 1.4f, 1.6f),
+            new Role("laser_drone", "光矛狙击无人机", 149, 110, 8, 30, LANCE, 100, 80, true, 1.2f, 0.7f),
+            new Role("stalker", "幽影刺客", 173, 90, 6, 18, BLADE, 18, 2.4f, false, 0.8f, 2.1f),
             // digs through rock to whoever hides from it (Underground)
-            new Role("drill_walker", "穿岩钻掘机", 82, 300, 18, 22, DRILL, 16, 3.2f, false, 1.8f, 2.2f),
-            new Role("titan_walker", "泰坦重装机甲", 112, 650, 22, 28, TITAN, 60, 64, false, 3.0f, 5.2f),
+            new Role("drill_walker", "穿岩钻掘机", 197, 300, 18, 22, DRILL, 16, 3.2f, false, 1.8f, 2.2f),
+            new Role("titan_walker", "泰坦重装机甲", 269, 650, 22, 28, TITAN, 60, 64, false, 3.0f, 5.2f),
             // strike aircraft: they fight from beyond visual range (StrikeCraft); the range here is only for the cannon
-            new Role("strike_drone", "VIII型察打无人机", 87, 180, 10, 30, STANDOFF, 40, 28, true, 2.2f, 0.9f),
-            new Role("strike_jet", "鹞隼固定翼攻击机", 104, 320, 14, 36, STRIKE, 30, 28, true, 2.8f, 1.2f),
+            new Role("strike_drone", "VIII型察打无人机", 209, 180, 10, 30, STANDOFF, 40, 28, true, 2.2f, 0.9f),
+            new Role("strike_jet", "鹞隼固定翼攻击机", 250, 320, 14, 36, STRIKE, 30, 28, true, 2.8f, 1.2f),
             // Mk VII and up: fortresses and the outer worlds
-            new Role("plasma_drone", "VII型等离子无人机", 122, 260, 18, 30, PLASMA, 45, 64, true, 1.6f, 0.9f),
-            new Role("graviton_walker", "引力碾压机甲", 142, 420, 22, 26, GRAVITY, 50, 24, false, 2.2f, 2.9f),
-            new Role("phase_stalker", "相位刺客", 132, 200, 14, 30, PHASE, 40, 3.2f, false, 0.9f, 2.3f),
+            new Role("plasma_drone", "VII型等离子无人机", 293, 260, 18, 30, PLASMA, 45, 64, true, 1.6f, 0.9f),
+            new Role("graviton_walker", "引力碾压机甲", 341, 420, 22, 26, GRAVITY, 50, 24, false, 2.2f, 2.9f),
+            new Role("phase_stalker", "相位刺客", 317, 200, 14, 30, PHASE, 40, 3.2f, false, 0.9f, 2.3f),
             // bosses
             new Role("fortress_overseer", "堡垒监管者", NEVER, 1500, 24, 34, OVERSEER, 70, 72, false, 2.4f, 4.2f),
             new Role("hive_carrier", "蜂巢母舰", NEVER, 2200, 20, 26, CARRIER, 90, 80, true, 4.5f, 2.2f),

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The machines evolve over the 150 days before the impact, in fifteen stages of ten days. Each stage brings one or
+ * The machines evolve over the 365 days before the impact, in fifteen stages of 24 days. Each stage brings one or
  * two new machines (EnemyRoster's first days), makes every machine deployed on Earth a little tougher, and brings
  * the attacks closer together: sieges every 2.5-3.75 days at stage 1, every 0.5-0.75 days at stage 15 (0.6 times
  * that once air defence is built), and natural deployments from every minute to every fifteen seconds. Each new
@@ -27,7 +27,7 @@ import java.util.List;
 public final class Evolution {
     private Evolution() {}
 
-    public static final int STAGES = 15, DAYS_PER_STAGE = 10;
+    public static final int STAGES = 15, DAYS_PER_STAGE = 24;
     private static final Identifier TOUGHER = Identifier.fromNamespaceAndPath("heliosphere", "evolution");
     private static int announced = -1;
 

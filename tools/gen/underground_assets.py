@@ -45,17 +45,17 @@ LANG.update({
 MISSILE = ('钻地弹', 'Bunker buster', '鑽地彈')
 
 TIP = ('§c地下不再安全：§r① 地面机械看不见你、又走不过去时，会朝你挖隧道（有裂纹和摩擦声预警），能挖什么取决于技术等级：'
-       '5 级以下挖不动黑曜石、哭泣的黑曜石和远古残骸，基岩和强化深板岩谁都挖不动；② 第 82 天起出现「穿岩钻掘机」，'
+       '5 级以下挖不动黑曜石、哭泣的黑曜石和远古残骸，基岩和强化深板岩谁都挖不动；② 第 197 天起出现「穿岩钻掘机」，'
        '一看不见你就开挖，速度是普通机械的 5 倍，6 级能钻穿黑曜石；③ 你在屋顶下躲太久，打击飞机和围攻会改用钻地弹——'
        '它直奔你的位置，钻穿 10～28 格方块后在深处爆炸，地面上你头顶会出现红色预警圈；④ 避难所在地下时，围攻的渗透部队'
        '和一半地面机械会从附近洞穴里出现；⑤ 围攻中机械 15 秒打不到你，就会去拆你地表的机器、太阳能板和发电设备。'
        '对策：防御塔和防空系统照样有效；用强化深板岩/基岩级材料加固最核心的房间；在隧道口布置火力；别让机器全摆在露天。')
 
 
-EVO = ('§c机械进化（150 天）：§r小行星在发现后第 150 天撞击地球。机械分 15 个阶段进化，每 10 天一阶，每阶出现一两种新机型并在全服公告：'
-       '第 3 天巡逻无人机 → 10 突击无人机 → 14 安保步行机 → 18 维修机器人 → 22 电弧猎犬 → 26 蜂群自爆机 → 32 炮击无人机 → 36 迫击炮机甲 → '
-       '40 电磁脉冲蛛机 → 45 焚化者 → 52 制导无人机 → 56 护盾机 → 62 光矛狙击机 → 66 重装攻城机甲 → 72 幽影刺客 → 76 猎杀无人机 → '
-       '82 穿岩钻掘机 → 87 察打无人机 → 92 轨道炮哨卫 → 104 固定翼攻击机 → 112 泰坦 → 122 等离子无人机 → 132 相位刺客 → 142 引力碾压机甲。'
+EVO = ('§c机械进化（365 天）：§r小行星在发现后第 365 天撞击地球。机械分 15 个阶段进化，约每 24 天一阶，每阶出现一两种新机型并在全服公告：'
+       '第 7 天巡逻无人机 → 24 突击无人机 → 34 安保步行机 → 43 维修机器人 → 53 电弧猎犬 → 62 蜂群自爆机 → 77 炮击无人机 → 86 迫击炮机甲 → '
+       '96 电磁脉冲蛛机 → 108 焚化者 → 125 制导无人机 → 134 护盾机 → 149 光矛狙击机 → 158 重装攻城机甲 → 173 幽影刺客 → 182 猎杀无人机 → '
+       '197 穿岩钻掘机 → 209 察打无人机 → 221 轨道炮哨卫 → 250 固定翼攻击机 → 269 泰坦 → 293 等离子无人机 → 317 相位刺客 → 341 引力碾压机甲。'
        '每进化一阶，地球上的机械生命 +5%、护甲更厚；围攻从每 2.5～3.75 天一次逐步缩短到每 0.5～0.75 天一次（造出防空后再快 40%），'
        '自然出现的机械也越来越频繁；围攻难度 = 进化阶段 + 已击退次数/3。')
 
@@ -72,7 +72,7 @@ def main():
     write(f'{H}/items/drill_walker_deployment.json', {'model': {'type': 'minecraft:model', 'model': 'heliosphere:item/drill_walker_deployment'}})
     p = f'{G}/enemies.json'; e = load(p, [])
     e = [x for x in e if x['id'] != 'heliosphere:drill_walker']
-    stats = '第82天起 · 生命300 · 护甲18 · 伤害22'
+    stats = '第197天起 · 生命300 · 护甲18 · 伤害22'
     e.append({'id': 'heliosphere:drill_walker', 'name': '穿岩钻掘机', 'family': '地面机械', 'summary': stats,
               'description': stats + '。专门对付躲在地下的玩家：一看不见你就朝你的位置挖隧道，速度是普通机械的 5 倍，'
               '能钻穿黑曜石（基岩和强化深板岩除外），挖掘时有刺耳的摩擦声和火花。贴近后用钻头造成 22 点伤害并击退。'
@@ -82,10 +82,7 @@ def main():
     write(p, e)
     # the 150-day schedule (EnemyRoster.FIRST_DAY and the new roles): every bestiary entry's first day
     import re
-    DAYS = {'patrol_drone': 3, 'assault_drone': 10, 'security_walker': 14, 'repair_automaton': 18, 'arc_hound': 22, 'swarm_drone': 26,
-            'siege_drone': 32, 'mortar_walker': 36, 'emp_spider': 40, 'flame_walker': 45, 'missile_drone': 52, 'shield_bearer': 56,
-            'laser_drone': 62, 'siege_walker': 66, 'stalker': 72, 'hunter_drone': 76, 'drill_walker': 82, 'strike_drone': 87,
-            'rail_sentinel': 92, 'strike_jet': 104, 'titan_walker': 112, 'plasma_drone': 122, 'phase_stalker': 132, 'graviton_walker': 142}
+    DAYS = {'patrol_drone': 7, 'assault_drone': 24, 'security_walker': 34, 'repair_automaton': 43, 'arc_hound': 53, 'swarm_drone': 62, 'siege_drone': 77, 'mortar_walker': 86, 'emp_spider': 96, 'flame_walker': 108, 'missile_drone': 125, 'shield_bearer': 134, 'laser_drone': 149, 'siege_walker': 158, 'stalker': 173, 'hunter_drone': 182, 'drill_walker': 197, 'strike_drone': 209, 'rail_sentinel': 221, 'strike_jet': 250, 'titan_walker': 269, 'plasma_drone': 293, 'phase_stalker': 317, 'graviton_walker': 341}
     e = load(f'{G}/enemies.json', [])
     for x in e:
         rid = x['id'].split(':')[1]
@@ -102,9 +99,12 @@ def main():
         tips.append(TIP)
         tips[:] = [t for t in tips if not t.startswith('§c机械进化')]
         tips.append(EVO)
-        fix = {'第 20 天起出现成群自爆的蜂群无人机': '第 26 天起出现成群自爆的蜂群无人机', '第 90 天起是泰坦重装机甲': '第 112 天起是泰坦重装机甲',
-               '第 65 天起会出现 VIII 型察打无人机，第 80 天起出现鹞隼固定翼攻击机': '第 87 天起会出现 VIII 型察打无人机，第 104 天起出现鹞隼固定翼攻击机',
-               '第 100 天首次主撞击': '第 150 天首次主撞击'}
+        fix = {'第 20 天起出现成群自爆的蜂群无人机': '第 62 天起出现成群自爆的蜂群无人机', '第 26 天起出现成群自爆的蜂群无人机': '第 62 天起出现成群自爆的蜂群无人机',
+               '第 90 天起是泰坦重装机甲': '第 269 天起是泰坦重装机甲', '第 112 天起是泰坦重装机甲': '第 269 天起是泰坦重装机甲',
+               '第 65 天起会出现 VIII 型察打无人机，第 80 天起出现鹞隼固定翼攻击机': '第 209 天起会出现 VIII 型察打无人机，第 250 天起出现鹞隼固定翼攻击机',
+               '第 87 天起会出现 VIII 型察打无人机，第 104 天起出现鹞隼固定翼攻击机': '第 209 天起会出现 VIII 型察打无人机，第 250 天起出现鹞隼固定翼攻击机',
+               '第 100 天首次主撞击': '第 365 天首次主撞击', '第 150 天首次主撞击': '第 365 天首次主撞击',
+               '② 第 197 天起出现「穿岩钻掘机」': '② 第 197 天起出现「穿岩钻掘机」'}
         for c in ch:
             out = []
             for t in c['tips']:

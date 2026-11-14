@@ -82,15 +82,20 @@ public final class DimensionCollapse {
         return Math.round(t.getDoubleOr(DUE, 0) * DAY) - now;
     }
 
-    /** Days added to the released 100-day deadline, once per world: the asteroid now strikes 150 days after it is spotted. */
-    public static final double EXTRA_DAYS = 50;
-    private static final String EXTENDED = "asteroid_due_150";
+    /**
+     * Days added to the released 100-day deadline, once per world: the asteroid now strikes 365 days after it is spotted.
+     * Worlds that already had the earlier 150-day extension get the rest.
+     */
+    public static final double DEADLINE = 365, RELEASED = 100;
+    private static final String EXTENDED_150 = "asteroid_due_150", EXTENDED = "asteroid_due_365";
 
     private static void extend(MinecraftServer server) {
         CompoundTag t = story(server);
         if (t.getIntOr(PHASE, 0) != 1 || !t.contains(DUE) || t.contains(STARTED) || t.getBooleanOr(EXTENDED, false)) return;
-        t.putDouble(DUE, t.getDoubleOr(DUE, 0) + EXTRA_DAYS);
+        double extra = DEADLINE - (t.getBooleanOr(EXTENDED_150, false) ? 150 : RELEASED);
+        t.putDouble(DUE, t.getDoubleOr(DUE, 0) + extra);
         t.putBoolean(EXTENDED, true);
+        t.putBoolean(EXTENDED_150, true);
         server.getCommandStorage().set(STORY, t);
         com.heliosphere.core.story.Story.sync(server);
     }

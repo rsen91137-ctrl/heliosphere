@@ -74,6 +74,10 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "underground" -> underground(ctx, sp);
                     case "portable" -> portable(ctx, sp);
                     case "ores" -> ores(ctx, sp);
+                    case "timeline" -> { ctx.waitTicks(60); server(sp, s -> report.add("[info] timeline: asteroid in " + String.format("%.1f", com.heliosphere.core.story.Story.asteroidDays(s))
+                            + " days, evolution stage " + com.heliosphere.hostiles.arsenal.Evolution.stage() + ", stage on days 100/200/360: " + com.heliosphere.hostiles.arsenal.Evolution.stage(100)
+                            + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(200) + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(360)
+                            + ", new in stage 12: " + com.heliosphere.hostiles.arsenal.Evolution.newIn(12).stream().map(r -> r.id()).toList())); }
                     default -> extra(ctx, sp, part);
                 }
             }
