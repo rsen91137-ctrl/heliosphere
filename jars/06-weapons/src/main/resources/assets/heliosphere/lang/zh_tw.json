@@ -193,5 +193,12 @@
   "missile.heliosphere.machine_heavy": "重型機械導彈",
   "missile.heliosphere.machine_elite": "精英機械導彈",
   "missile.heliosphere.aster_booster": "助推器",
-  "hud.heliosphere.missile_cam_far": "%s · %s m/s · 已飛行 %s 秒 · 已鎖定視距外目標"
+  "hud.heliosphere.missile_cam_far": "%s · %s m/s · 已飛行 %s 秒 · 已鎖定視距外目標",
+  "missile.heliosphere.penetrator": "鑽地彈",
+  "item.heliosphere.portable_sentry": "便攜式哨戒炮",
+  "entity.heliosphere.portable_sentry": "便攜式哨戒炮",
+  "item.heliosphere.portable_sentry.charge": "電量 %s / %s FE",
+  "item.heliosphere.portable_sentry.hint": "右鍵地面架設：自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。挨著發電機/電池組等電源方塊會自動充電，白天露天靠太陽能板慢充。潛行+右鍵或直接打它收回，電量保留。",
+  "message.heliosphere.portable_sentry": "便攜式哨戒炮 · 電量 %s/%s FE · 耐久 %s/%s · 射程 %s 格 · 每發 %s 傷害",
+  "message.heliosphere.portable_sentry_packed": "已收回便攜式哨戒炮（電量 %s/%s FE）"
 }

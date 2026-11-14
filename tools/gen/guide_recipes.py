@@ -39,7 +39,7 @@ PIECES = ['helmet', 'chestplate', 'leggings', 'boots']
 
 CATEGORY = {}
 for i in SAM_VEHICLES + ROUNDS + ['sam_ammo_crate', 'sam_battery', 'creative_ammo_box', 'autocannon_turret', 'flak_turret', 'laser_turret', 'sonic_turret',
-          'missile_turret', 'rail_turret', 'tesla_turret', 'turret_kit_mk1', 'turret_kit_mk2', 'turret_kit_mk3', 'turret_kit_mk4', 'turret_kit_mk5']: CATEGORY[i] = '武器与弹药'
+          'missile_turret', 'rail_turret', 'tesla_turret', 'turret_kit_mk1', 'turret_kit_mk2', 'turret_kit_mk3', 'turret_kit_mk4', 'turret_kit_mk5', 'portable_sentry']: CATEGORY[i] = '武器与弹药'
 for i in SAM_PARTS: CATEGORY[i] = '零部件'
 for i in POWER: CATEGORY[i] = '机器'
 for i in JETPACKS + ['sam_wrench']: CATEGORY[i] = '工具装备'

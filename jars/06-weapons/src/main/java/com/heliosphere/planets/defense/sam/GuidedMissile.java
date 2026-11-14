@@ -95,6 +95,41 @@ public class GuidedMissile extends Entity {
     /** Launched from a moving carrier (an aircraft): starts at least at the carrier's speed. */
     public GuidedMissile carrierSpeed(double v) { speed = Math.max(speed, v); return this; }
 
+    /** Blocks a bunker buster (PENETRATOR) can still bore through before it goes off. */
+    private int bore = 10;
+    /** Blocks bored so far (for tests). */
+    public int bored;
+    public GuidedMissile bore(int blocks) { bore = blocks; return this; }
+
+    /**
+     * A bunker buster in the ground: bores along this step through every block its warhead can break (by tier, as a
+     * crater does), slowing down; returns false where it must go off (an unbreakable block, or its boring is spent).
+     */
+    private boolean penetrate(ServerLevel level, Vec3 from, Vec3 to) {
+        float limit = MachineWarheads.resistanceLimit(tier);
+        Vec3 d = to.subtract(from);
+        int steps = Math.max(1, (int) Math.ceil(d.length() / 0.4));
+        net.minecraft.core.BlockPos last = null;
+        for (int i = 1; i <= steps; i++) {
+            net.minecraft.core.BlockPos bp = net.minecraft.core.BlockPos.containing(from.add(d.scale(i / (double) steps)));
+            if (bp.equals(last)) continue;
+            last = bp;
+            var st = level.getBlockState(bp);
+            if (st.getCollisionShape(level, bp).isEmpty()) continue;
+            if (st.getDestroySpeed(level, bp) < 0 || st.getBlock().getExplosionResistance() > limit || bore <= 0) {
+                setPos(from.add(d.scale((i - 1) / (double) steps)));
+                return false;
+            }
+            level.levelEvent(2001, bp, net.minecraft.world.level.block.Block.getId(st));
+            if (level.random.nextFloat() < 0.1f) level.destroyBlock(bp, true);
+            else level.setBlock(bp, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            bore--; bored++;
+        }
+        speed = Math.min(speed, 1.1);
+        if (age % 3 == 0) level.playSound(null, getX(), getY(), getZ(), SoundEvents.GRINDSTONE_USE, SoundSource.HOSTILE, 2.5f, 0.5f);
+        return true;
+    }
+
     public MissileSpec spec() { int i = entityData.get(SPEC); MissileSpec[] v = MissileSpec.values(); return v[Math.max(0, Math.min(v.length - 1, i))]; }
     private void setSpec(MissileSpec s) { entityData.set(SPEC, s.ordinal()); }
     /** Ticks since launch (synchronised, for the motor plume and the model). */
@@ -218,7 +253,7 @@ public class GuidedMissile extends Entity {
             if (hit != null) { detonate(level, closest(from, to, hit.getBoundingBox().getCenter()), hit); return; }
         }
         if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL || spec == MissileSpec.INTERCEPTOR
-                || spec == MissileSpec.STANDOFF) {
+                || spec == MissileSpec.STANDOFF || spec == MissileSpec.PENETRATOR) {
             // a battery reaches 500 blocks, past the area players keep running: keep the missile's own chunk and the
             // way ahead running every tick (at 9 blocks a tick it is in a new chunk every other tick)
             level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to)), 2);
@@ -234,6 +269,20 @@ public class GuidedMissile extends Entity {
                 if (e.getBoundingBox().inflate(0.8).clip(from, to).isPresent()) { nukeAt(level, e.getBoundingBox().getCenter()); return; }
         }
         BlockHitResult block = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+        if (spec == MissileSpec.PENETRATOR) {
+            if (t instanceof net.minecraft.server.level.ServerPlayer && age % 10 == 0) {                  // where it will come down: a warning ring on the ground above
+                int gy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, net.minecraft.util.Mth.floor(t.getX()), net.minecraft.util.Mth.floor(t.getZ()));
+                Vec3 mark = new Vec3(t.getX(), gy + 0.1, t.getZ());
+                CombatVfx.send(level, CombatVfx.WARNING, (int) Math.max(10, position().distanceTo(mark) / Math.max(0.5, speed)), mark, mark, 4f);
+            }
+            if (block.getType() != HitResult.Type.MISS && age > 2) {
+                if (!penetrate(level, from, to)) { detonate(level, position(), null); return; }
+                setPos(to);
+                setDeltaMovement(v);
+                face();
+                return;
+            }
+        }
         if (block.getType() != HitResult.Type.MISS && age > 2) {
             if (spec == MissileSpec.NUKE_ROCKET) nukeAt(level, block.getLocation());
             else if (spec.guided()) detonate(level, block.getLocation(), null);

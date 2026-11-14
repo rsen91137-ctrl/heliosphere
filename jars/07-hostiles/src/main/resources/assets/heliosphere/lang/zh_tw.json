@@ -57,5 +57,14 @@
   "item.heliosphere.strike_drone_deployment": "VIII型察打無人機部署器（創造）",
   "entity.heliosphere.strike_jet": "鷂隼固定翼攻擊機",
   "item.heliosphere.strike_jet_deployment": "鷂隼固定翼攻擊機部署器（創造）",
-  "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外發射了超視距導彈！躲進有頂的建築，或用防空系統攔截"
+  "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外發射了超視距導彈！躲進有頂的建築，或用防空系統攔截",
+  "entity.heliosphere.drill_walker": "穿岩鑽掘機",
+  "item.heliosphere.drill_walker_deployment": "穿岩鑽掘機部署器（創造）",
+  "message.heliosphere.penetrator_launch": "⚠ 鑽地彈來襲！它會鑽穿岩層後在深處爆炸——離開地面紅圈的正下方",
+  "message.heliosphere.sabotage": "⚠ 機械正在破壞你地表的設施！（%s, %s, %s）",
+  "event.heliosphere.siege.underground": "機械發現你躲在地下：鑽掘機正在打洞，滲透部隊從洞穴裡摸過來，鑽地彈將從天而降！",
+  "event.heliosphere.siege.covered": "機械發現你躲在屋頂下：鑽地彈將從天而降！",
+  "event.heliosphere.evolution": "⚠ 機械進化：第 %s / %s 階段",
+  "event.heliosphere.evolution.new": "新出現：%s。圍攻約每 %s～%s 天一次；地球上的機械生命 +%s%%，護甲更厚。",
+  "event.heliosphere.evolution.none": "（本階段沒有新機型）%s圍攻約每 %s～%s 天一次；地球上的機械生命 +%s%%，護甲更厚。"
 }

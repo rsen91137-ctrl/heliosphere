@@ -71,6 +71,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "crew" -> crew(ctx, sp);
                     case "missilecam" -> missileCam(ctx, sp);
                     case "prefabs" -> prefabs(ctx, sp);
+                    case "underground" -> underground(ctx, sp);
+                    case "portable" -> portable(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -1721,6 +1723,186 @@ public class WorldGameTest implements FabricClientGameTest {
         }
         json.append('}');
         try { Files.writeString(Path.of("prefab-parts.json"), json.toString()); } catch (IOException e) { report.add("[FAIL] " + e); }
+    }
+
+    /** A player sealed in a room 14 blocks underground: diggers, the drill walker, a bunker buster, a siege's cave infiltrators, sabotage. */
+    private void underground(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 9000 120 9000");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            int y0 = g - 14;
+            for (int dx = -4; dx <= 4; dx++) for (int dz = -4; dz <= 4; dz++) for (int dy = -1; dy <= 4; dy++) {
+                boolean shell = Math.abs(dx) == 4 || Math.abs(dz) == 4 || dy == -1 || dy == 4;
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, y0 + dy, z0 + dz), shell ? net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()
+                        : Math.abs(dx) <= 2 && Math.abs(dz) <= 2 && dy <= 2 ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            p.teleportTo(x0 + 0.5, y0, z0 + 0.5);
+            p.getAbilities().invulnerable = true; p.onUpdateAbilities();
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            com.heliosphere.hostiles.arsenal.Underground.blocksDug = 0;
+            report.add("[info] underground: surface y " + g + ", room y " + y0 + ", covered " + com.heliosphere.hostiles.arsenal.Underground.covered(l, p) + ", deep " + com.heliosphere.hostiles.arsenal.Underground.deep(l, p));
+        });
+        // 1. an ordinary walker on the surface, 12 blocks off
+        java.util.UUID[] id = new java.util.UUID[1];
+        for (String kind : new String[]{"security_walker", "drill_walker"}) {
+            server(sp, s -> {
+                var l = s.overworld();
+                ServerPlayer p = player(s);
+                int x = o[0] + (kind.startsWith("s") ? 12 : -12);
+                int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, o[2]);
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, kind, x + 0.5, y, o[2] + 0.5, p);
+                m.setPersistenceRequired(); m.setTarget(p);
+                id[0] = m.getUUID();
+                com.heliosphere.hostiles.arsenal.Underground.blocksDug = 0;
+            });
+            StringBuilder trace = new StringBuilder();
+            int limit = kind.startsWith("s") ? 1600 : 800;
+            for (int t = 0; t < limit; t += 100) {
+                ctx.waitTicks(100);
+                server(sp, s -> {
+                    var e = s.overworld().getEntity(id[0]);
+                    if (e != null) { var m = (com.heliosphere.planets.tech.TechMob) e; m.setTarget(player(s)); trace.append(String.format("%.0f/%d ", e.distanceTo(player(s)), e.getBlockY())); }
+                });
+            }
+            server(sp, s -> {
+                var e = s.overworld().getEntity(id[0]);
+                report.add("[info] underground " + kind + ": distance/y every 5 s " + trace + "; blocks dug " + com.heliosphere.hostiles.arsenal.Underground.blocksDug);
+                if (e != null) {
+                    ServerPlayer p = player(s);
+                    var at = e.position().add(0, 1, 0);
+                    var dir = at.subtract(p.getEyePosition());
+                    p.setYRot((float) Math.toDegrees(Math.atan2(-dir.x, dir.z)));
+                    p.setXRot((float) -Math.toDegrees(Math.atan2(dir.y, Math.sqrt(dir.x * dir.x + dir.z * dir.z))));
+                }
+            });
+            ctx.waitTicks(5);
+            double[] yp = new double[2];
+            server(sp, s -> { yp[0] = player(s).getYRot(); yp[1] = player(s).getXRot(); });
+            look(ctx, (float) yp[0], (float) yp[1]);
+            shot(ctx, "underground_" + kind);
+            server(sp, s -> { var e = s.overworld().getEntity(id[0]); if (e != null) e.discard(); });
+        }
+        // 2. a bunker buster from 60 blocks up
+        java.util.List<String> blasts = new java.util.concurrent.CopyOnWriteArrayList<>();
+        com.heliosphere.planets.defense.sam.GuidedMissile.BLAST_HOOKS.add((level, missile, at) -> {
+            if (missile.spec() != com.heliosphere.planets.defense.sam.MissileSpec.PENETRATOR || level.players().isEmpty()) return;
+            blasts.add(String.format("y %.0f (bored %d, %.1f from player)", at.y, missile.bored, at.distanceTo(level.players().get(0).position())));
+        });
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var from = new net.minecraft.world.phys.Vec3(o[0] + 25, o[1] + 60, o[2]);
+            com.heliosphere.hostiles.arsenal.Underground.penetrator(s.overworld(), null, p, from, p.position().subtract(from).normalize(), 20, 8);
+        });
+        for (int i = 0; i < 40 && blasts.isEmpty(); i++) ctx.waitTicks(10);
+        report.add("[info] underground bunker buster: " + blasts);
+        // 3. a siege on the buried home: cave infiltrators, drills, bunker busters
+        cmd(sp, "execute as @p run hssiege infiltration 6");
+        ctx.waitTicks(420);
+        server(sp, s -> {
+            var l = s.overworld();
+            int under = 0, top = 0;
+            StringBuilder kinds = new StringBuilder();
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, new net.minecraft.world.phys.AABB(o[0] - 80, o[1] - 40, o[2] - 80, o[0] + 80, o[1] + 60, o[2] + 80))) {
+                if (!m.getTags().contains("heliosphere.siege")) continue;
+                int h = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, m.getBlockX(), m.getBlockZ());
+                if (m.getY() < h - 4) under++; else top++;
+                kinds.append(m.role().id()).append(m.getY() < h - 4 ? "(cave) " : " ");
+            }
+            report.add("[info] underground siege: " + under + " came out of caves, " + top + " on the surface: " + kinds + " (no place found: " + com.heliosphere.hostiles.siege.Sieges.spawnFails + ")");
+            report.add("[info] timeline: asteroid in " + String.format("%.1f", com.heliosphere.core.story.Story.asteroidDays(s)) + " days, evolution stage " + com.heliosphere.hostiles.arsenal.Evolution.stage()
+                    + ", siege gap at stages 1/8/15: " + com.heliosphere.hostiles.arsenal.Evolution.siegeGap(1, false) / 24000f + "/" + com.heliosphere.hostiles.arsenal.Evolution.siegeGap(8, false) / 24000f + "/" + com.heliosphere.hostiles.arsenal.Evolution.siegeGap(15, false) / 24000f + " days");
+        });
+        ctx.waitTicks(200);
+        report.add("[info] underground siege bunker busters so far: " + blasts.size());
+        // 4. sabotage: battery packs on the surface by the home; a siege that cannot reach the player turns on them
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            com.heliosphere.hostiles.arsenal.Underground.sabotaged = 0;
+            for (int i = 0; i < 3; i++) {
+                int x = o[0] + 6 + i * 3, z = o[2] + 4;
+                int y = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                var at = new net.minecraft.core.BlockPos(x, y, z);
+                l.setBlock(at, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+                com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, at, l.getBlockState(at), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            }
+        });
+        cmd(sp, "execute as @p run hssiege assault 3");
+        for (int i = 0; i < 90; i++) {
+            ctx.waitTicks(20);
+            int[] n = new int[1];
+            server(sp, s -> n[0] = com.heliosphere.hostiles.arsenal.Underground.sabotaged);
+            if (n[0] >= 1) break;
+        }
+        server(sp, s -> {
+            report.add("[info] underground sabotage: surface machines wrecked " + com.heliosphere.hostiles.arsenal.Underground.sabotaged + ", blocks dug in total " + com.heliosphere.hostiles.arsenal.Underground.blocksDug);
+            ServerPlayer p = player(s);
+            p.getAbilities().invulnerable = false; p.onUpdateAbilities();
+        });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** The portable sentry: set down from its item, shoots husks, charges from a battery cabinet, picked up with its charge. */
+    private void portable(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 9600 120 9600");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -14; dx <= 14; dx++) for (int dz = -6; dz <= 22; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                for (int dy = 0; dy < 8; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var cab = new net.minecraft.core.BlockPos(x0 + 1, g, z0 + 2);
+            l.setBlockAndUpdate(cab, com.heliosphere.core.Reg.getBlock("lithium_battery_cabinet").defaultBlockState());
+            if (l.getBlockEntity(cab) instanceof com.heliosphere.core.machine.EnergyNode n) n.setEnergy(200000);
+            var item = new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM);
+            com.heliosphere.planets.defense.mk.PortableSentryItem.setEnergy(item, 1000);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, item);
+            p.teleportTo(x0 + 0.5, g, z0 - 2.5);
+            p.setYRot(0); p.setXRot(10);
+            var at = new net.minecraft.core.BlockPos(x0, g - 1, z0 + 2);
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at).add(0, 0.5, 0), net.minecraft.core.Direction.UP, at, false);
+            report.add("[info] portable place: " + item.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)) + ", item left " + p.getMainHandItem().getCount());
+            for (int i = 0; i < 3; i++) {
+                var h = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                h.setPos(x0 - 4 + i * 4 + 0.5, g, z0 + 14.5); h.setNoAi(true); h.setPersistenceRequired(); l.addFreshEntity(h);
+            }
+            com.heliosphere.planets.defense.mk.PortableSentry.shots = 0;
+        });
+        look(ctx, 0, 12);
+        ctx.waitTicks(16);
+        shot(ctx, "portable_firing");
+        ctx.waitTicks(200);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            int husks = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, new net.minecraft.world.phys.AABB(o[0] - 20, o[1] - 4, o[2] - 4, o[0] + 20, o[1] + 8, o[2] + 30)).size();
+            var list = l.getEntitiesOfClass(com.heliosphere.planets.defense.mk.PortableSentry.class, new net.minecraft.world.phys.AABB(o[0] - 4, o[1] - 2, o[2] - 2, o[0] + 4, o[1] + 4, o[2] + 6));
+            var sentry = list.isEmpty() ? null : list.get(0);
+            report.add("[info] portable: shots " + com.heliosphere.planets.defense.mk.PortableSentry.shots + ", husks left " + husks + "/3, charge after 10 s next to a battery cabinet " + (sentry == null ? -1 : sentry.energy()));
+            if (sentry != null) {
+                p.setShiftKeyDown(true);
+                sentry.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
+                p.setShiftKeyDown(false);
+                long e = -1;
+                for (var st : p.getInventory().getNonEquipmentItems()) if (st.getItem() == com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM) e = com.heliosphere.planets.defense.mk.PortableSentryItem.energy(st);
+                report.add("[info] portable picked up: removed " + sentry.isRemoved() + ", item charge " + e);
+            }
+        });
+        cmd(sp, "gamemode creative @a");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

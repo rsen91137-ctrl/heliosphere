@@ -45,7 +45,8 @@ public abstract class TechDeploymentMixin {
 
     @Inject(method = "encounters", at = @At("HEAD"), remap = false)
     private static void heliosphere$exempt(ServerLevel level, CallbackInfo ci) {
-        pace = com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(level.getServer()) ? 600 : 1200;
+        pace = com.heliosphere.hostiles.arsenal.Evolution.deploymentPace(com.heliosphere.hostiles.arsenal.Evolution.stage(),
+                com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(level.getServer()));   // more often as the machines evolve
         Set<TechMob> set = ACTIVE.get(level);
         if (set == null) return;
         List<TechMob> held = new ArrayList<>();

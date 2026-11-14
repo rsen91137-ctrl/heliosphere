@@ -57,5 +57,14 @@
   "item.heliosphere.strike_drone_deployment": "VIII型察打无人机部署器（创造）",
   "entity.heliosphere.strike_jet": "鹞隼固定翼攻击机",
   "item.heliosphere.strike_jet_deployment": "鹞隼固定翼攻击机部署器（创造）",
-  "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外发射了超视距导弹！躲进有顶的建筑，或用防空系统拦截"
+  "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外发射了超视距导弹！躲进有顶的建筑，或用防空系统拦截",
+  "entity.heliosphere.drill_walker": "穿岩钻掘机",
+  "item.heliosphere.drill_walker_deployment": "穿岩钻掘机部署器（创造）",
+  "message.heliosphere.penetrator_launch": "⚠ 钻地弹来袭！它会钻穿岩层后在深处爆炸——离开地面红圈的正下方",
+  "message.heliosphere.sabotage": "⚠ 机械正在破坏你地表的设施！（%s, %s, %s）",
+  "event.heliosphere.siege.underground": "机械发现你躲在地下：钻掘机正在打洞，渗透部队从洞穴里摸过来，钻地弹将从天而降！",
+  "event.heliosphere.siege.covered": "机械发现你躲在屋顶下：钻地弹将从天而降！",
+  "event.heliosphere.evolution": "⚠ 机械进化：第 %s / %s 阶段",
+  "event.heliosphere.evolution.new": "新出现：%s。围攻约每 %s～%s 天一次；地球上的机械生命 +%s%%，护甲更厚。",
+  "event.heliosphere.evolution.none": "（本阶段没有新机型）%s围攻约每 %s～%s 天一次；地球上的机械生命 +%s%%，护甲更厚。"
 }

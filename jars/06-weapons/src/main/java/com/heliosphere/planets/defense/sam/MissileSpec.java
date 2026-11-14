@@ -25,7 +25,9 @@ public enum MissileSpec {
     /** A hit-to-kill interceptor (machine fortresses' point defence): very fast, very agile, kills missiles only. */
     INTERCEPTOR     (Model.IRIS,          0,  16, 0.420,  70, 0.150, 0.0024, 9.5, 70, 1.0, 5.0, 180, 40, 5.0, 3.0,  2, 0.60, 0.012, 260, 1.2, false, 0),
     /** Stand-off missile of the machine strike aircraft: launched from 200-320 blocks, a long sustainer and a seeker that rides out short gaps. */
-    STANDOFF        (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 100, 30, 1.8, 4.0,  4, 0.00, 0.010, 360, 0.6, true,  48);
+    STANDOFF        (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 100, 30, 1.8, 4.0,  4, 0.00, 0.010, 360, 0.6, true,  48),
+    /** Bunker buster of the machines: flies on the target's position whatever is in between, bores through blocks and goes off deep. */
+    PENETRATOR      (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 360, 4000, 1.8, 4.5,  4, 0.00, 0.010, 420, 0.6, true,  0);
 
     /** One g of overload, in blocks per tick squared. */
     public static final double G = 0.04;

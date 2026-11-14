@@ -57,5 +57,14 @@
   "item.heliosphere.strike_drone_deployment": "Type VIII Strike Drone Deployer (Creative)",
   "entity.heliosphere.strike_jet": "Falcon Fixed-Wing Attack Jet",
   "item.heliosphere.strike_jet_deployment": "Falcon Fixed-Wing Attack Jet Deployer (Creative)",
-  "message.heliosphere.standoff_launch": "⚠ %s fired a stand-off missile from %s blocks! Get under a roof or intercept it"
+  "message.heliosphere.standoff_launch": "⚠ %s fired a stand-off missile from %s blocks! Get under a roof or intercept it",
+  "entity.heliosphere.drill_walker": "Rockbore Drill Walker",
+  "item.heliosphere.drill_walker_deployment": "Rockbore Drill Walker Deployer (Creative)",
+  "message.heliosphere.penetrator_launch": "⚠ Bunker buster incoming! It bores through rock and goes off deep: get out from under the red ring",
+  "message.heliosphere.sabotage": "⚠ Machines are wrecking your surface installations! (%s, %s, %s)",
+  "event.heliosphere.siege.underground": "The machines know you are underground: drills are boring in, infiltrators come through the caves, bunker busters are on the way!",
+  "event.heliosphere.siege.covered": "The machines know you are under a roof: bunker busters are on the way!",
+  "event.heliosphere.evolution": "⚠ Machine evolution: stage %s of %s",
+  "event.heliosphere.evolution.new": "New: %s. Sieges about every %s-%s days; machines on Earth have +%s%% health and more armour.",
+  "event.heliosphere.evolution.none": "(no new machine this stage)%s Sieges about every %s-%s days; machines on Earth have +%s%% health and more armour."
 }

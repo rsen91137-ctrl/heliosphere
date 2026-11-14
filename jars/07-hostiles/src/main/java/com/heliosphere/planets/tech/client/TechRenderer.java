@@ -142,6 +142,7 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
                 case "fortress_overseer" -> new Paint(0x2A2E36, 0x0E1014, 0xD02030, 0xFF3040);
                 case "hive_carrier" -> new Paint(0x3C4434, 0x161A12, 0xE0B020, 0xFFC840);
                 case "colossus" -> new Paint(0x1E1E22, 0x0A0A0C, 0xE05010, 0xFF5018);
+                case "drill_walker" -> new Paint(0xD0A032, 0x2E2E32, 0xDADDE0, 0xFF8A20);
                 case "strike_drone" -> new Paint(0x9AA0A6, 0x3A3E44, 0xD8DCE0, 0xFF4030);
                 case "strike_jet" -> new Paint(0x4E565E, 0x23272C, 0xC83A28, 0xFF8A30);
                 default -> new Paint(0xA0A4A8, 0x303236, 0xE0A020, 0xFF6040);
@@ -278,10 +279,43 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
             case "emp_spider" -> spider(m, s);
             case "repair_automaton" -> tracked(m, s, false);
             case "shield_bearer" -> tracked(m, s, true);
+            case "drill_walker" -> drillWalker(m, s);
             case "strike_drone" -> strikeDrone(m, s);
             case "strike_jet" -> strikeJet(m, s);
             default -> m.cbox(0, s.height / 2, 0, s.width, s.height, s.width, PLATE, Slot.PRIMARY);
         }
+    }
+
+    /** Rockbore drill walker: a tracked mining machine with a spinning cone drill on its nose. */
+    private static void drillWalker(Mesh m, State s) {
+        float t = s.age;
+        for (int sx = -1; sx <= 1; sx += 2) {
+            m.cbox(sx * 0.68, 0.32, -0.05, 0.38, 0.64, 2.0, TREAD, Slot.SECONDARY);              // tracks
+            for (int k = -2; k <= 2; k++) m.cbox(sx * 0.9, 0.32, k * 0.38, 0.06, 0.3, 0.3, JOINT, Slot.METAL);
+            m.cbox(sx * 0.4, 1.45, -0.75, 0.12, 0.55, 0.12, DARK, Slot.SECONDARY);               // exhaust stacks
+            m.cbox(sx * 0.4, 1.74, -0.75, 0.08, 0.04, 0.08, THRUST, Slot.GLOW);
+        }
+        m.cbox(0, 0.82, -0.1, 1.05, 0.56, 1.7, HEAVY, Slot.PRIMARY);                              // hull
+        m.cbox(0, 1.1, 0.55, 0.95, 0.06, 0.35, HAZARD, Slot.ACCENT);
+        m.cbox(0, 1.32, -0.35, 0.78, 0.48, 0.95, PLATE, Slot.PRIMARY);                            // cab
+        m.plate(0, 1.38, 0.131, 0.5, 0.16, VISOR, Slot.GLOW);
+        m.cbox(0, 1.6, -0.35, 0.3, 0.08, 0.5, VENT, Slot.SECONDARY);
+        m.cbox(0.3, 1.6, 0.05, 0.06, 0.06, 0.06, LAMP, Slot.GLOW);
+        m.push(); m.at(0, 0.92, 0.85);                                                            // the drill
+        m.cbox(0, 0, 0, 0.74, 0.74, 0.28, JOINT, Slot.METAL);
+        m.rz(t * 0.7);
+        for (int k = 0; k < 6; k++) {
+            double w = 0.82 - k * 0.13;
+            m.cbox(0, 0, 0.26 + k * 0.17, w, w, 0.18, k % 2 == 0 ? BARREL : HEAVY, k % 2 == 0 ? Slot.METAL : Slot.ACCENT);
+        }
+        for (int i = 0; i < 3; i++) {                                                             // carbide teeth
+            m.push(); m.rz(i * Math.PI * 2 / 3);
+            m.cbox(0, 0.36, 0.34, 0.1, 0.12, 0.12, PLATE, Slot.WHITE);
+            m.cbox(0, 0.22, 0.75, 0.08, 0.1, 0.1, PLATE, Slot.WHITE);
+            m.pop();
+        }
+        m.cbox(0, 0, 1.33, 0.09, 0.09, 0.14, BARREL, Slot.METAL);
+        m.pop();
     }
 
     // ---- strike aircraft (drawn centred on the origin: the renderer lifts them and applies climb and bank) -----

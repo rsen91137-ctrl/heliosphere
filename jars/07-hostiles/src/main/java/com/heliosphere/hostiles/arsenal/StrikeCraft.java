@@ -60,6 +60,8 @@ public final class StrikeCraft {
         int missileCd = 80, phase, phaseTime, retarget;
         double orbit = 1;
         int salvo;
+        /** Ticks the target has stayed under cover: after thirty seconds a bunker buster. */
+        int covered;
     }
 
     private static final Map<TechMob, Brain> BRAINS = new WeakHashMap<>();
@@ -202,6 +204,10 @@ public final class StrikeCraft {
             if (range <= 320 && range >= 40 && exposed(level, mob, t)) {
                 launch(level, mob, t, b.heading);
                 b.missileCd = 150 + level.random.nextInt(50);
+                b.covered = 0;
+            } else if (range <= 320 && (b.covered += 20) >= 600) {             // it will not come out: dig it out
+                bunker(level, mob, t);
+                b.missileCd = 400; b.covered = 300;
             } else b.missileCd = 20;
         }
         return new Vec3(h.x, vy, h.z);
@@ -231,6 +237,11 @@ public final class StrikeCraft {
                         launch(level, mob, t, b.heading);
                         b.salvo = 1;
                         b.missileCd = 300;
+                        b.phase = 1; b.phaseTime = 0;
+                        b.covered = 0;
+                    } else if ((b.covered += 20) >= 600) {
+                        bunker(level, mob, t);
+                        b.missileCd = 400; b.covered = 300;
                         b.phase = 1; b.phaseTime = 0;
                     } else b.missileCd = 20;
                 }
@@ -265,6 +276,15 @@ public final class StrikeCraft {
         if (t instanceof ServerPlayer p)
             p.displayClientMessage(Component.translatable("message.heliosphere.standoff_launch", Component.translatable(mob.getType().getDescriptionId()), (int) lastLaunchRange)
                     .withStyle(net.minecraft.ChatFormatting.RED), true);
+    }
+
+    /** A bunker buster at a target that stays under cover: lobbed high so that it comes down on top of it. */
+    private static void bunker(ServerLevel level, TechMob mob, LivingEntity t) {
+        TechCombat.Role r = mob.role();
+        Vec3 from = mob.position().add(0, -0.3, 0);
+        Vec3 dir = t.position().subtract(from).normalize().add(0, 0.9, 0);
+        Underground.penetrator(level, mob, t, from, dir, r.damage(), EnemyRoster.tier(r.id())).carrierSpeed(mob.getDeltaMovement().length());
+        launched++;
     }
 
     /** Close in, the aircraft use their cannon: a four-round burst (from the released attack, if anything comes that near). */

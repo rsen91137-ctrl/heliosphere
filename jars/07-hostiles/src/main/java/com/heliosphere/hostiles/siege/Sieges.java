@@ -120,6 +120,15 @@ public final class Sieges implements ModInitializer {
                                 })))));
     }
 
+    /** Siege machines that found no place to come in (for the world test). */
+    public static int spawnFails;
+
+    /** The home a siege machine is attacking, or null (Underground: sabotage). */
+    public static BlockPos homeOf(Entity mob) {
+        for (Siege s : ACTIVE) if (s.level == mob.level() && s.mobs.contains(mob.getUUID())) return s.home;
+        return null;
+    }
+
     private static Memory mem(ServerPlayer p) {
         return MEMORY.computeIfAbsent(p.getUUID(), u -> {
             try {
@@ -144,8 +153,10 @@ public final class Sieges implements ModInitializer {
             learn(p, m);
             if (p.isCreative() || busy(p)) { save(p, m); continue; }
             long now = server.overworld().getGameTime();
-            int gap = com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(server) ? 18000 : 36000;   // twice as often once air defence exists
-            if (m.next < 0) m.next = now + gap + p.getRandom().nextInt(gap);
+            // closer together as the machines evolve (2.5 days at stage 1, half a day at stage 15), and once air defence exists
+            int gap = com.heliosphere.hostiles.arsenal.Evolution.siegeGap(com.heliosphere.hostiles.arsenal.Evolution.stage(day),
+                    com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(server));
+            if (m.next < 0 || m.next - now > gap * 3L / 2) m.next = now + gap + p.getRandom().nextInt(gap / 2);
             Cell home = shelter(m);
             if (home != null && day >= 3 && now >= m.next && home.dim.equals(dim(p.level()))) {
                 BlockPos c = home.center(p.level());
@@ -153,7 +164,7 @@ public final class Sieges implements ModInitializer {
                     int d = difficulty(p, m, day);
                     begin(p, p.level(), c, pick(p.getRandom(), d, m), d);
                     m.launched++;
-                    m.next = now + gap + p.getRandom().nextInt(gap);
+                    m.next = now + gap + p.getRandom().nextInt(gap / 2);
                 }
             }
             save(p, m);
@@ -207,7 +218,7 @@ public final class Sieges implements ModInitializer {
     }
 
     private static int difficulty(ServerPlayer p, Memory m, long day) {
-        int d = 1 + (int) (day / 12) + m.beaten / 3;
+        int d = com.heliosphere.hostiles.arsenal.Evolution.stage(day) + m.beaten / 3;
         if (p.level().dimension() != Level.OVERWORLD) {
             var body = Planets.bodyOf(p.level());
             if (body != null) d += WorldTiers.base(body.id) - 1;
@@ -299,6 +310,14 @@ public final class Sieges implements ModInitializer {
         }
         if (s.kind == Kind.BOMBARD)                              // escorts for the guns
             for (int i = 0; i < 1 + d / 5; i++) spawn(s, p, pool.get(r.nextInt(pool.size())), a + r.nextGaussian() * 0.2, dist - 10, false);
+        if (com.heliosphere.hostiles.arsenal.Underground.covered(l, p)) {             // the player hides: diggers, and bunker busters from the sky
+            boolean deep = com.heliosphere.hostiles.arsenal.Underground.deep(l, p);
+            if (d >= 3 && deep) for (int i = 0; i < 1 + d / 6; i++) spawn(s, p, com.heliosphere.hostiles.arsenal.Underground.DRILL, a + r.nextGaussian() * 0.3, dist - 6, false);
+            if (d >= 4) com.heliosphere.hostiles.arsenal.Underground.bunkerStrike(l, p, 1 + d / 5, Math.min(10, 2 + d / 2), 14 + d * 2);
+            for (ServerPlayer q : l.players())
+                if (q.blockPosition().distSqr(s.home) < 160 * 160)
+                    q.displayClientMessage(Component.translatable(deep ? "event.heliosphere.siege.underground" : "event.heliosphere.siege.covered").withStyle(ChatFormatting.DARK_RED), false);
+        }
         if (s.kind == Kind.ONSLAUGHT && last) {
             String boss = EnemyRoster.boss(Math.max(6, d));
             if (boss != null) spawn(s, p, boss, a, dist + 6, false);
@@ -325,6 +344,22 @@ public final class Sieges implements ModInitializer {
 
     private static void spawn(Siege s, ServerPlayer p, String id, double a, double dist, boolean pod) {
         ServerLevel l = s.level;
+        boolean ground = !pod && !id.contains("drone") && !id.equals("hive_carrier") && !id.equals("strike_jet");
+        // the home is underground: infiltrators all, other walkers half the time, come out of the caves (drills dig in from outside)
+        boolean fromCaves = !id.equals(com.heliosphere.hostiles.arsenal.Underground.DRILL) && (s.kind == Kind.INFILTRATION || l.random.nextFloat() < 0.5f);
+        if (ground && fromCaves && com.heliosphere.hostiles.arsenal.Underground.deep(l, p)) {
+            BlockPos cave = com.heliosphere.hostiles.arsenal.Underground.caveSpot(l, p.blockPosition(), l.random);   // out of the caves round the home
+            if (cave != null) {
+                TechMob m = TechCombat.spawn(l, id, cave.getX() + 0.5, cave.getY(), cave.getZ() + 0.5, p);
+                if (m != null) {
+                    m.addTag(TAG);
+                    m.setTarget(p);
+                    s.mobs.add(m.getUUID());
+                    s.total++;
+                }
+                return;
+            }
+        }
         for (int tries = 0; tries < 6; tries++) {
             int x = (int) (s.home.getX() + Math.cos(a) * dist), z = (int) (s.home.getZ() + Math.sin(a) * dist);
             if (l.getChunkSource().getChunkNow(x >> 4, z >> 4) == null) { dist *= 0.8; continue; }
@@ -332,7 +367,7 @@ public final class Sieges implements ModInitializer {
             if (!l.getFluidState(new BlockPos(x, y - 1, z)).isEmpty() && !id.contains("drone") && !id.equals("hive_carrier")) { a += 0.4; continue; }
             double sy = pod ? y + 38 + l.random.nextInt(10) : y + (id.contains("drone") ? 6 : 0.1);
             TechMob m = TechCombat.spawn(l, id, x + 0.5, sy, z + 0.5, p);
-            if (m == null) return;
+            if (m == null) { spawnFails++; return; }
             m.addTag(TAG);
             if (m instanceof Mob mob) mob.setTarget(p);
             if (pod) {
@@ -343,6 +378,7 @@ public final class Sieges implements ModInitializer {
             s.total++;
             return;
         }
+        spawnFails++;                                            // water or unloaded ground all round
     }
 
     private static void end(Siege s, boolean won) {

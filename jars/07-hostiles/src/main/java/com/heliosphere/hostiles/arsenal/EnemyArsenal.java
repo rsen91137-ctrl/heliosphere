@@ -66,6 +66,7 @@ public final class EnemyArsenal implements ModInitializer {
         if (level.getGameTime() % 10 == 0) cloak(level);
         if (level.getGameTime() % 20 == 0) bossBars(level);
         if (level.getGameTime() % 1200 == 600) outerPatrols(level);
+        if (level.dimension() == Level.OVERWORLD && level.getGameTime() % 100 == 50) Evolution.tick(level.getServer());
     }
 
     private static TechCombat.Role role(TechMob mob) { return mob.role(); }
@@ -127,6 +128,7 @@ public final class EnemyArsenal implements ModInitializer {
             case EnemyRoster.CARRIER -> carrier(mob, level, target, r);
             case EnemyRoster.COLOSSUS -> colossus(mob, level, target, r);
             case EnemyRoster.STANDOFF, EnemyRoster.STRIKE -> StrikeCraft.cannon(mob, level, target, r.damage());
+            case EnemyRoster.DRILL -> Underground.drill(mob, level, target, r);
             default -> { return false; }
         }
         return true;
@@ -470,6 +472,7 @@ public final class EnemyArsenal implements ModInitializer {
 
     public static void spawned(ServerLevel level, String id, double x, double y, double z, LivingEntity target, TechMob mob) {
         if (mob != null && StrikeCraft.isId(id)) StrikeCraft.wake(level, mob.position());
+        if (mob != null && !spawningSwarm) later(level, 1, () -> Evolution.toughen(mob));   // after the caller has tagged it (fortress garrisons are left alone)
         if (mob == null || spawningSwarm || !"swarm_drone".equals(id)) return;
         spawningSwarm = true;
         try {

@@ -16,5 +16,6 @@ public abstract class TechStrikeMixin {
     @Inject(method = "tick", at = @At("RETURN"))
     private void heliosphere$strike(CallbackInfo ci) {
         StrikeCraft.tick((TechMob) (Object) this);
+        com.heliosphere.hostiles.arsenal.Underground.tick((TechMob) (Object) this);   // digging, sabotage
     }
 }
