@@ -66,6 +66,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "skins" -> skins(ctx, sp);
                     case "jetpack" -> jetpack(ctx, sp);
                     case "dump" -> dump(ctx, sp);
+                    case "pointdef" -> pointDefence(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -709,6 +710,79 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         ctx.waitTicks(20);
         shot(ctx, "collapse_portals");
+    }
+
+    /** A difficulty-9 fortress shoots down a tactical nuke and a guided missile fired at it from 350 blocks away. */
+    private void pointDefence(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 9000 240 9000");
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            o[0] = p.getBlockX() + 60; o[2] = p.getBlockZ();
+            var l = s.overworld();
+            var stone = net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+            for (int dx = -70; dx <= 70; dx++) for (int dz = -70; dz <= 70; dz++)        // open ground up in the air: no sea, no hills
+                l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, 230, o[2] + dz), stone, 2);
+            com.heliosphere.hostiles.fortress.Fortresses.forceAt(l, o[0], o[2], 9);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        ctx.waitTicks(400);                                                        // built over a few seconds
+        java.util.List<net.minecraft.core.BlockPos> aa = new java.util.ArrayList<>();
+        server(sp, s -> {
+            var l = s.overworld();
+            o[1] = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            o[1] = 231;
+            for (var q : net.minecraft.core.BlockPos.betweenClosed(o[0] - 50, o[1] - 5, o[2] - 50, o[0] + 50, o[1] + 70, o[2] + 50))
+                if (l.getBlockState(q).is(com.heliosphere.hostiles.fortress.Fortresses.POINT_DEFENCE)) aa.add(q.immutable());
+            report.add("[info] point defence launchers in the difficulty-9 fortress: " + aa.size() + " at " + aa + ", keep top y " + o[1]);
+            ServerPlayer p = player(s);
+            p.teleportTo(o[0] + 380.5, o[1] + 70, o[2] + 0.5);                 // well away: the fortress is not kept loaded by the player
+            p.setYRot(90); p.setXRot(4);
+        });
+        look(ctx, 90, 4);
+        ctx.waitTicks(40);
+        int[] seen = new int[2];
+        java.util.UUID[] nuke = new java.util.UUID[2];
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            net.minecraft.world.phys.Vec3 from = new net.minecraft.world.phys.Vec3(o[0] + 340, o[1] + 40, o[2] + 0.5);
+            net.minecraft.world.phys.Vec3 at = new net.minecraft.world.phys.Vec3(o[0] + 0.5, o[1] + 4, o[2] + 0.5);
+            var n = com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.NUKE_ROCKET, p,
+                    com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, null, from, at.subtract(from), 0f, 0);
+            nuke[0] = n.getUUID();
+            var dummy = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            dummy.setPos(o[0] + 8, o[1] + 1, o[2] + 8); dummy.setNoAi(true); dummy.setPersistenceRequired(); l.addFreshEntity(dummy);
+            var m = com.heliosphere.planets.defense.sam.GuidedMissile.launch(l, com.heliosphere.planets.defense.sam.MissileSpec.PLAYER, p,
+                    com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE, dummy, from.add(0, -10, 6), new net.minecraft.world.phys.Vec3(-1, 0.1, 0), 40f, 0);
+            nuke[1] = m.getUUID();
+        });
+        int before = com.heliosphere.planets.defense.sam.GuidedMissile.shotDownCount;
+        com.heliosphere.planets.defense.sam.GuidedMissile.closestMiss = Double.MAX_VALUE;
+        boolean[] gone = new boolean[1];
+        boolean shotTaken = false;
+        for (int i = 0; i < 300 && !gone[0]; i++) {                              // until both are gone (the server may lag behind)
+            ctx.waitTicks(2);
+            server(sp, s -> {
+                var l = s.overworld();
+                var up = l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, new net.minecraft.world.phys.AABB(o[0] - 500, o[1] - 50, o[2] - 500, o[0] + 500, o[1] + 400, o[2] + 500),
+                        x -> x.spec() == com.heliosphere.planets.defense.sam.MissileSpec.INTERCEPTOR).size();
+                seen[1] = up;
+                seen[0] = Math.max(seen[0], up);
+                gone[0] = l.getEntity(nuke[0]) == null && l.getEntity(nuke[1]) == null;
+            });
+            if (!shotTaken && seen[1] > 0) { shot(ctx, "pointdef_intercept"); shotTaken = true; }
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            var keep = l.getBlockState(new net.minecraft.core.BlockPos(o[0], o[1] - 1, o[2]));
+            report.add("[info] point defence: shot down " + (com.heliosphere.planets.defense.sam.GuidedMissile.shotDownCount - before) + " of 2, closest miss "
+                    + String.format("%.1f", com.heliosphere.planets.defense.sam.GuidedMissile.closestMiss) + ", interceptors in the air at once " + seen[0] + ", nuke still flying " + (l.getEntity(nuke[0]) != null)
+                    + ", guided missile still flying " + (l.getEntity(nuke[1]) != null) + ", fortress centre block " + keep.getBlock());
+        });
+        shot(ctx, "pointdef_after");
     }
 
     /** Every machine recipe and every item of the mod, as the running game has them (for the guide's encyclopedia). */

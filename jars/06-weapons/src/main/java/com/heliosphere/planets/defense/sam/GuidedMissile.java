@@ -118,6 +118,8 @@ public class GuidedMissile extends Entity {
         MissileSpec spec = spec();
         age++;
         entityData.set(AGE, age);
+        if (age == 1 && side == Side.DEFENCE && spec != MissileSpec.ASTER_BOOSTER)
+            FLYING.computeIfAbsent(level, l -> java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>())).add(this);
         if (age > spec.life) {
             if (spec == MissileSpec.NUKE_ROCKET) { com.heliosphere.planets.weapon.Nuke.detonate(level, owner(), position()); discard(); }
             else if (spec.guided()) detonate(level, position(), null);
@@ -143,7 +145,7 @@ public class GuidedMissile extends Entity {
                 double dist = r.length();
                 // battery missiles fly the midcourse on the radar's datalink (vertical launches start with the target
                 // 90 degrees off the nose); only in the last stretch does the missile's own seeker take over
-                boolean battery = spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL;
+                boolean battery = spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL || spec == MissileSpec.INTERCEPTOR;
                 boolean midcourse = battery && dist > TERMINAL;
                 // seeker cone
                 double cosHalf = Math.cos(Math.toRadians(spec.fov / 2.0));
@@ -163,7 +165,10 @@ public class GuidedMissile extends Entity {
                     Vec3 rr = aimPoint.subtract(position());
                     boolean pursuit = pursuitOnly || (spec.mixed && tVel.length() < 0.35);
                     if (midcourse) {                                        // command guidance to the predicted intercept point
-                        double tGo = Math.min(120, dist / Math.max(1.0, vel.length()));
+                        // time to go from the closing speed (head-on the target comes to meet us; tail-on we must catch it)
+                        Vec3 los = rr.lengthSqr() > 1e-6 ? rr.normalize() : dir;
+                        double closing = vel.subtract(tVel).dot(los);
+                        double tGo = Math.min(120, dist / Math.max(1.0, closing));
                         cmd = pursuit(rr.add(tVel.scale(tGo)), vel);
                     } else cmd = pursuit ? pursuit(rr, vel) : proNav(spec, rr, hidden > 0 ? Vec3.ZERO : tVel, vel);
                     if (side == Side.MACHINE && t instanceof ServerPlayer sp && age % 10 == 0) warn(level, sp, dist);
@@ -196,15 +201,18 @@ public class GuidedMissile extends Entity {
             Entity hit = fuseCheck(level, spec, t, from, to);
             if (hit != null) { detonate(level, closest(from, to, hit.getBoundingBox().getCenter()), hit); return; }
         }
-        if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL) {
-            // a battery reaches 500 blocks, past the area players keep running: keep the missile's own chunk ticking
-            if (age % 10 == 0) level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to.add(v.scale(10)))), 2);
+        if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL || spec == MissileSpec.INTERCEPTOR) {
+            // a battery reaches 500 blocks, past the area players keep running: keep the missile's own chunk and the
+            // way ahead running every tick (at 9 blocks a tick it is in a new chunk every other tick)
+            level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to)), 2);
+            level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to.add(v.scale(3)))), 2);
         }
         if (spec == MissileSpec.NUKE_ROCKET) {
             // keep the way ahead loaded (without stalling the server: the tickets load in the background)
             Vec3 ahead = to.add(v.scale(12));
             level.getChunkSource().addTicketWithRadius(FLIGHT_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(ahead)), 2);
-            level.getChunkSource().addTicketWithRadius(FLIGHT_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to)), 1);
+            level.getChunkSource().addTicketWithRadius(FLIGHT_SIM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to)), 2);
+            level.getChunkSource().addTicketWithRadius(FLIGHT_SIM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to.add(v.scale(3)))), 2);
             for (Entity e : level.getEntities(this, new AABB(from, to).inflate(1.5), x -> x instanceof LivingEntity && x.isAlive() && !x.getUUID().equals(owner)))
                 if (e.getBoundingBox().inflate(0.8).clip(from, to).isPresent()) { nukeAt(level, e.getBoundingBox().getCenter()); return; }
         }
@@ -225,6 +233,9 @@ public class GuidedMissile extends Entity {
     private static final net.minecraft.server.level.TicketType SAM_TICKET = new net.minecraft.server.level.TicketType(40L,
             net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
     private static final net.minecraft.server.level.TicketType FLIGHT_TICKET = new net.minecraft.server.level.TicketType(60L, net.minecraft.server.level.TicketType.FLAG_LOADING);
+    /** Where a nuke is now: running, not just loaded, or it would stop in mid-air once out of the players' range. */
+    private static final net.minecraft.server.level.TicketType FLIGHT_SIM_TICKET = new net.minecraft.server.level.TicketType(40L,
+            net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
 
     private void nukeAt(ServerLevel level, Vec3 at) {
         com.heliosphere.planets.weapon.Nuke.detonate(level, owner(), at);
@@ -323,6 +334,16 @@ public class GuidedMissile extends Entity {
     }
 
     private Entity fuseCheck(ServerLevel level, MissileSpec spec, Entity t, Vec3 from, Vec3 to) {
+        if (t instanceof GuidedMissile gm) {
+            double miss = distToSegment(from, to, gm.position());
+            if (spec == MissileSpec.INTERCEPTOR) closestMiss = Math.min(closestMiss, miss);
+            if (miss <= spec.fuse + gm.getDeltaMovement().length() * 0.6) return t;
+        }
+        if (spec == MissileSpec.INTERCEPTOR) {                            // hit-to-kill: missiles only, never people
+            for (GuidedMissile gm : level.getEntitiesOfClass(GuidedMissile.class, new AABB(from, to).inflate(spec.fuse), x -> x != this && x.side != side && x.isAlive() && x.spec() != MissileSpec.ASTER_BOOSTER))
+                if (distToSegment(from, to, gm.position()) <= spec.fuse) return gm;
+            return null;
+        }
         if (t != null && distToSegment(from, to, t.getBoundingBox().getCenter()) <= spec.fuse + t.getBbWidth() * 0.5) return t;
         // flying into something it may hurt sets it off whatever the seeker was after
         for (Entity e : level.getEntities(this, new AABB(from, to).inflate(1.5), this::hostile))
@@ -362,6 +383,35 @@ public class GuidedMissile extends Entity {
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 2f, 0.6f);
     }
 
+    /** Destroyed in flight by an interceptor: a burst of fire in the sky and falling debris; no warhead goes off. */
+    /** Missiles shot down since start (for tests and statistics). */
+    public static int shotDownCount;
+    /** Closest an interceptor has come to its target (for tests). */
+    public static double closestMiss = Double.MAX_VALUE;
+
+    public void shotDown(ServerLevel level) {
+        if (isRemoved()) return;
+        shotDownCount++;
+        Vec3 at = position();
+        boolean nuke = spec() == MissileSpec.NUKE_ROCKET;
+        CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFB060, at, at, nuke ? 3.5f : 1.8f);
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.LARGE_SMOKE, at.x, at.y, at.z, nuke ? 30 : 12, 1.2, 1.2, 1.2, 0.08);
+        level.playSound(null, at.x, at.y, at.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, nuke ? 6f : 3f, nuke ? 0.7f : 1.1f);
+        if (owner() instanceof ServerPlayer sp)
+            sp.displayClientMessage(Component.translatable(nuke ? "message.heliosphere.nuke_intercepted" : "message.heliosphere.missile_intercepted")
+                    .withStyle(nuke ? ChatFormatting.DARK_RED : ChatFormatting.RED, ChatFormatting.BOLD), !nuke);
+        discard();
+    }
+
+    /** Missiles of this side in the air, per level (the machines' point defence watches these). */
+    public static final java.util.Map<ServerLevel, java.util.Set<GuidedMissile>> FLYING = new java.util.WeakHashMap<>();
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+        if (level() instanceof ServerLevel sl && FLYING.containsKey(sl)) FLYING.get(sl).remove(this);
+    }
+
     private static void warn(ServerLevel level, ServerPlayer p, double dist) {
         p.displayClientMessage(Component.translatable("message.heliosphere.missile_warning", (int) dist).withStyle(ChatFormatting.RED, ChatFormatting.BOLD), true);
         level.playSound(null, p.blockPosition(), SoundEvents.NOTE_BLOCK_PLING.value(), SoundSource.HOSTILE, 0.8f, dist < 24 ? 2f : 1.6f);
@@ -371,6 +421,16 @@ public class GuidedMissile extends Entity {
 
     private void detonate(ServerLevel level, Vec3 at, Entity direct) {
         MissileSpec spec = spec();
+        double kill = Math.max(spec.blast, spec.fuse) + 2;
+        for (GuidedMissile gm : level.getEntitiesOfClass(GuidedMissile.class, new AABB(at, at).inflate(kill),
+                x -> x != this && x.side != side && x.isAlive() && x.spec() != MissileSpec.ASTER_BOOSTER && x.position().distanceTo(at) <= kill))
+            gm.shotDown(level);
+        if (spec == MissileSpec.INTERCEPTOR) {
+            CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFE2B0, at, at, 1.6f);
+            level.playSound(null, at.x, at.y, at.z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 3f, 1.3f);
+            discard();
+            return;
+        }
         double radius = side == Side.MACHINE ? MachineWarheads.hurtRadius(tier, spec.blast) : spec.blast;
         float dmg = damage * (side == Side.MACHINE ? MachineWarheads.damageScale(tier) : 1);
         Entity src = owner();

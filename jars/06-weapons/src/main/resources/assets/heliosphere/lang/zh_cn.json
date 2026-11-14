@@ -163,5 +163,8 @@
   "item.heliosphere.jetpack.fuel": "燃料 %s%%（身上的氢气罐会自动补充）",
   "item.heliosphere.jetpack.keys": "空中按住跳跃上升%s",
   "item.heliosphere.jetpack.keys_hold": "，移动键侧推，潜行悬停",
-  "message.heliosphere.jetpack_too_weak": "这里的重力 %sg 超出了这个背包的推力（最多约 %sg）"
+  "message.heliosphere.jetpack_too_weak": "这里的重力 %sg 超出了这个背包的推力（最多约 %sg）",
+  "message.heliosphere.point_defence_engaging": "⚠ 难度 %s 的机械堡垒防空正在拦截你的导弹！先摧毁它们楼顶的拦截阵地",
+  "message.heliosphere.nuke_intercepted": "你的战术核弹在空中被拦截击毁，没有发生核爆",
+  "message.heliosphere.missile_intercepted": "你的导弹被拦截了"
 }

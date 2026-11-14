@@ -273,6 +273,9 @@ public class SamVehicle extends Entity {
             if (m.getBoundingBox().getCenter().distanceTo(eye) > k.radarRange || !visible(level, eye, m)) continue;
             tracks.add(m.getUUID());
         }
+        for (GuidedMissile m : level.getEntitiesOfClass(GuidedMissile.class, new AABB(eye, eye).inflate(k.radarRange),
+                x -> x.side() == GuidedMissile.Side.MACHINE && x.isAlive() && x.spec() != MissileSpec.INTERCEPTOR))   // incoming machine missiles
+            if (m.position().distanceTo(eye) <= k.radarRange && visible(level, eye, m)) tracks.add(m.getUUID());
         for (ServerPlayer pl : level.players())                             // every player it can see (IFF sorts them out)
             if (trackable(pl) && pl.getBoundingBox().getCenter().distanceTo(eye) <= k.radarRange && visible(level, eye, pl))
                 tracks.add(pl.getUUID());
@@ -369,6 +372,9 @@ public class SamVehicle extends Entity {
     private List<Entity> ownSensor(ServerLevel level, double range) {
         List<Entity> out = new ArrayList<>();
         Vec3 eye = sensor();
+        for (GuidedMissile m : level.getEntitiesOfClass(GuidedMissile.class, new AABB(eye, eye).inflate(range),
+                x -> x.side() == GuidedMissile.Side.MACHINE && x.isAlive() && x.spec() != MissileSpec.INTERCEPTOR))
+            if (visible(level, eye, m)) out.add(m);
         for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(eye, eye).inflate(range)))
             if (AirTargets.is(m) && visible(level, eye, m)) out.add(m);
         for (ServerPlayer pl : level.players())
@@ -440,6 +446,7 @@ public class SamVehicle extends Entity {
             double closing = Math.max(0, -v.dot(c.subtract(site).normalize()));
             double hp = e instanceof Mob m ? m.getMaxHealth() : 20;
             double score = (air ? 3 : 1) * (1 + closing * 20) * (1 + hp / 300) / (1 + d / 50);
+            if (e instanceof GuidedMissile) score *= 6;                         // an incoming missile is the first threat
             if (score > bestScore) { bestScore = score; best = e.getUUID(); }
         }
         return best;

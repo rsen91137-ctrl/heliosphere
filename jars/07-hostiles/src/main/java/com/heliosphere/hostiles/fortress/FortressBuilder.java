@@ -41,7 +41,14 @@ public final class FortressBuilder {
 
     private static final int FLAGS = 2 | 16;
 
-    public record Result(List<BlockPos> fabricators, List<String> bosses, BlockPos keepTop) {}
+    public record Result(List<BlockPos> fabricators, List<String> bosses, BlockPos keepTop, List<BlockPos> pointDefence) {}
+
+    /** Point-defence launchers of a fortress: none below difficulty 7, then more as it grows (6 at 15). */
+    public static int pointDefence(int tier) {
+        if (tier < 7) return 0;
+        if (tier <= 12) return 1 + (tier - 7) / 2;
+        return tier - 9;
+    }
 
     /** Outer radius of a fortress of this difficulty (half its width). */
     public static int radius(int tier) {
@@ -66,7 +73,7 @@ public final class FortressBuilder {
         private long[] pos = new long[1 << 16];
         private BlockState[] states = new BlockState[1 << 16];
         private int count, cursor;
-        final List<BlockPos> fabSpots = new ArrayList<>(), chestSpots = new ArrayList<>();
+        final List<BlockPos> fabSpots = new ArrayList<>(), chestSpots = new ArrayList<>(), aaSpots = new ArrayList<>();
         final List<Vec3> guardSpots = new ArrayList<>(), bossSpots = new ArrayList<>();
         BlockPos keepTop;
         private final BlockState air = Blocks.AIR.defaultBlockState();
@@ -229,6 +236,7 @@ public final class FortressBuilder {
                 set(cx + tx, y0 + y, cz + tz - rad + 1, Blocks.LADDER.defaultBlockState().setValue(LadderBlock.FACING, Direction.SOUTH));
             set(cx + tx, y0 + h + 2, cz + tz, st.light());
             fabSpots.add(new BlockPos(cx + tx + 1, y0 + h + 1, cz + tz + 1));
+            aaSpots.add(new BlockPos(cx + tx - 1, y0 + h + 1, cz + tz + 1));            // a point-defence cell on the roof
             guardSpots.add(new Vec3(cx + tx - 1.5, y0 + h + 1, cz + tz - 1.5));
             // open to the courtyard at the bottom
             int ox = -Integer.signum(tx) * rad, oz = -Integer.signum(tz) * rad;
@@ -490,7 +498,19 @@ public final class FortressBuilder {
                 TechMob b = garrison(level, kinds.get(i), at.x, at.y, at.z, tier);
                 if (b != null) bosses.add(b.getUUID().toString());
             }
-            return new Result(placed, bosses, keepTop);
+            // point defence on the tower roofs and the keep, spread round the fortress
+            List<BlockPos> aa = new ArrayList<>();
+            List<BlockPos> aaAt = new ArrayList<>(aaSpots);
+            if (keepTop != null) for (int sx = -1; sx <= 1; sx += 2) for (int sz = -1; sz <= 1; sz += 2) aaAt.add(keepTop.offset(sx * 3, 0, sz * 3));
+            int wantAa = Math.min(aaAt.size(), pointDefence(tier));
+            double aaStride = aaAt.size() / (double) Math.max(1, wantAa);
+            for (int i = 0; i < wantAa; i++) {
+                BlockPos at = aaAt.get((int) Math.min(aaAt.size() - 1, Math.floor(i * aaStride + aaStride / 2)));
+                level.setBlock(at, Fortresses.POINT_DEFENCE.defaultBlockState(), 3);
+                if (level.getBlockEntity(at) instanceof PointDefenceBlockEntity pd) pd.setup(tier);
+                aa.add(at);
+            }
+            return new Result(placed, bosses, keepTop, aa);
         }
     }
 

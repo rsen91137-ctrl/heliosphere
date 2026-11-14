@@ -1,0 +1,150 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "heliosphere:block/point_defence/plinth_side",
+    "plinth": "heliosphere:block/point_defence/plinth_side",
+    "plinth_top": "heliosphere:block/point_defence/plinth_top",
+    "cells": "heliosphere:block/point_defence/cells_side",
+    "cells_top": "heliosphere:block/point_defence/cells_top",
+    "radar": "heliosphere:block/point_defence/radar"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        6,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plinth"
+        },
+        "south": {
+          "texture": "#plinth"
+        },
+        "east": {
+          "texture": "#plinth"
+        },
+        "west": {
+          "texture": "#plinth"
+        },
+        "down": {
+          "texture": "#plinth"
+        },
+        "up": {
+          "texture": "#plinth_top"
+        }
+      }
+    },
+    {
+      "from": [
+        2,
+        6,
+        2
+      ],
+      "to": [
+        14,
+        13,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#cells"
+        },
+        "south": {
+          "texture": "#cells"
+        },
+        "east": {
+          "texture": "#cells"
+        },
+        "west": {
+          "texture": "#cells"
+        },
+        "down": {
+          "texture": "#cells"
+        },
+        "up": {
+          "texture": "#cells_top"
+        }
+      }
+    },
+    {
+      "from": [
+        12.5,
+        6,
+        6
+      ],
+      "to": [
+        13.5,
+        15.5,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plinth"
+        },
+        "south": {
+          "texture": "#plinth"
+        },
+        "east": {
+          "texture": "#plinth"
+        },
+        "west": {
+          "texture": "#plinth"
+        },
+        "down": {
+          "texture": "#plinth"
+        },
+        "up": {
+          "texture": "#plinth"
+        }
+      }
+    },
+    {
+      "from": [
+        12,
+        10,
+        4
+      ],
+      "to": [
+        16,
+        15.8,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#radar"
+        },
+        "south": {
+          "texture": "#radar"
+        },
+        "east": {
+          "texture": "#radar"
+        },
+        "west": {
+          "texture": "#radar"
+        },
+        "down": {
+          "texture": "#radar"
+        },
+        "up": {
+          "texture": "#radar"
+        }
+      },
+      "rotation": {
+        "angle": -22.5,
+        "axis": "z",
+        "origin": [
+          14,
+          12,
+          8
+        ]
+      }
+    }
+  ]
+}

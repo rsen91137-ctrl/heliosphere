@@ -51,5 +51,6 @@
   "event.heliosphere.siege.pods": "第 %s/%s 波空投舱从%s方坠落！",
   "event.heliosphere.siege.won": "★ 围攻已击退！战利品掉落在你脚下（已击退 %s 次，之后的进攻会更强）",
   "event.heliosphere.siege.over": "围攻结束，机械部队暂时撤离……它们还会回来。",
-  "message.heliosphere.titan_salvo": "§c§l⚠ 泰坦导弹齐射！立刻寻找掩体"
+  "message.heliosphere.titan_salvo": "§c§l⚠ 泰坦导弹齐射！立刻寻找掩体",
+  "block.heliosphere.point_defence_launcher": "要塞点防御拦截阵地"
 }

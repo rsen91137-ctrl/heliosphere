@@ -163,5 +163,8 @@
   "item.heliosphere.jetpack.fuel": "Fuel %s%% (hydrogen canisters you carry refill it)",
   "item.heliosphere.jetpack.keys": "Hold jump in the air to climb%s",
   "item.heliosphere.jetpack.keys_hold": ", movement keys push sideways, sneak holds still",
-  "message.heliosphere.jetpack_too_weak": "Gravity here (%s g) is beyond this pack (about %s g at most)"
+  "message.heliosphere.jetpack_too_weak": "Gravity here (%s g) is beyond this pack (about %s g at most)",
+  "message.heliosphere.point_defence_engaging": "⚠ A difficulty %s machine fortress is shooting down your missile! Destroy the launchers on its roofs first",
+  "message.heliosphere.nuke_intercepted": "Your tactical nuke was shot down in the air; no nuclear explosion",
+  "message.heliosphere.missile_intercepted": "Your missile was intercepted"
 }

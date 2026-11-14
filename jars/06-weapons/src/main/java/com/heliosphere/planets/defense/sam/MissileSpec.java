@@ -21,7 +21,9 @@ public enum MissileSpec {
     MACHINE_ELITE   (Model.MACHINE_HEAVY, 0,  20, 0.110,  40, 0.024, 0.0048, 2.3, 14, 4.0, 3.5,  90, 12, 1.8, 4.0,  4, 0.00, 0.010, 220, 0.55, true, 44),
     ASTER_BOOSTER   (Model.ASTER_BOOSTER, 999, 0, 0,      0,  0,     0.0100, 1.0,  0, 1.0, 0,     0,  0, 0,   0,  999, 0.00, 0.040, 240, 0,   false, 0),
     /** The tactical nuke's warhead rocket: unguided, straight and fast, good for 5000 blocks. */
-    NUKE_ROCKET     (Model.NUKE,          0,  20, 0.300, 700, 0.140, 0.0025, 7.5,  0, 1.0, 0,     0,  0, 1.5, 0,  999, 0.00, 0.000, 720, 2.0, false, 0);
+    NUKE_ROCKET     (Model.NUKE,          0,  20, 0.300, 700, 0.140, 0.0025, 7.5,  0, 1.0, 0,     0,  0, 1.5, 0,  999, 0.00, 0.000, 720, 2.0, false, 0),
+    /** A hit-to-kill interceptor (machine fortresses' point defence): very fast, very agile, kills missiles only. */
+    INTERCEPTOR     (Model.IRIS,          0,  16, 0.420,  70, 0.150, 0.0024, 9.5, 70, 1.0, 5.0, 180, 40, 5.0, 3.0,  2, 0.60, 0.012, 260, 1.2, false, 0);
 
     /** One g of overload, in blocks per tick squared. */
     public static final double G = 0.04;

@@ -56,6 +56,8 @@ public final class Fortresses implements ModInitializer {
     public static final int REGION = 576;
     public static Block FABRICATOR;
     public static BlockEntityType<FabricatorBlockEntity> FABRICATOR_BE;
+    public static Block POINT_DEFENCE;
+    public static BlockEntityType<PointDefenceBlockEntity> POINT_DEFENCE_BE;
 
     private static final Gson GSON = new GsonBuilder().create();
     private static AttachmentType<String> saved;
@@ -68,6 +70,8 @@ public final class Fortresses implements ModInitializer {
         List<String> bosses = new ArrayList<>();
         boolean bossDead, conquered;
         int keepY;
+        /** Point-defence launchers (difficulty 7 and up); null for fortresses built before there were any. */
+        List<long[]> aa;
 
         /** Wardens still standing (reads old saves too). */
         List<String> wardens() {
@@ -98,6 +102,9 @@ public final class Fortresses implements ModInitializer {
         FABRICATOR = Reg.blockWithItem("robot_fabricator", FabricatorBlock::new,
                 Reg.metal(MapColor.COLOR_RED, 40f).lightLevel(s -> 9).strength(40f, 1200f).requiresCorrectToolForDrops());
         FABRICATOR_BE = Reg.blockEntity("robot_fabricator", FabricatorBlockEntity::new, FABRICATOR);
+        POINT_DEFENCE = Reg.blockWithItem("point_defence_launcher", PointDefenceBlock::new,
+                Reg.metal(MapColor.COLOR_GRAY, 30f).strength(30f, 900f).requiresCorrectToolForDrops().noLootTable().noOcclusion());
+        POINT_DEFENCE_BE = Reg.blockEntity("point_defence_launcher", PointDefenceBlockEntity::new, POINT_DEFENCE);
         saved = AttachmentRegistry.createPersistent(Identifier.fromNamespaceAndPath("heliosphere", "machine_fortresses_v1"), Codec.STRING);
         ServerTickEvents.END_WORLD_TICK.register(Fortresses::tick);
         net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((d, ctx, env) -> d.register(
@@ -160,12 +167,15 @@ public final class Fortresses implements ModInitializer {
                 f.keepY = res.keepTop().getY();
                 for (BlockPos b : res.fabricators()) f.fabs.add(new long[]{b.asLong()});
                 f.bosses = new ArrayList<>(res.bosses());
+                f.aa = new ArrayList<>();
+                for (BlockPos b : res.pointDefence()) f.aa.add(new long[]{b.asLong()});
                 f.bossDead = f.bosses.isEmpty();
                 st.forts.add(f);
                 save(level);
             }
         }
         long t = level.getGameTime();
+        if (t % 5 == 2) wakePointDefence(level);
         if (t % 40 != 7 || level.players().isEmpty() || !hosts(level)) return;
         State st = state(level);
         boolean dirty = false;
@@ -176,6 +186,45 @@ public final class Fortresses implements ModInitializer {
         }
         for (Fort f : st.forts) if (!f.conquered) dirty |= watch(level, f);
         if (dirty) save(level);
+    }
+
+    private static final net.minecraft.server.level.TicketType AA_TICKET = new net.minecraft.server.level.TicketType(60L,
+            net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
+
+    /**
+     * A missile on its way: the fortresses it is heading for wake their point defence (a nuke fired from far away
+     * would otherwise arrive at a fortress whose launchers are not running, unloaded with nobody near).
+     */
+    private static void wakePointDefence(ServerLevel level) {
+        var flying = com.heliosphere.planets.defense.sam.GuidedMissile.FLYING.get(level);
+        if (flying == null || flying.isEmpty()) return;
+        State st = STATES.get(level);
+        if (st == null) return;
+        for (Fort f : st.forts) {
+            if (f.conquered || f.tier < 7 || f.aa == null || f.aa.isEmpty()) continue;
+            double wake = PointDefenceBlockEntity.reach(f.tier) + 400;
+            boolean near = false;
+            for (var m : new ArrayList<>(flying))
+                if (m.isAlive() && m.position().distanceToSqr(f.x + 0.5, m.getY(), f.z + 0.5) < wake * wake) { near = true; break; }
+            if (!near) continue;
+            for (long[] a : f.aa) level.getChunkSource().addTicketWithRadius(AA_TICKET, new net.minecraft.world.level.ChunkPos(BlockPos.of(a[0])), 3);   // running: launchers fire, interceptors fly
+        }
+    }
+
+    /** Fortresses of difficulty 7 and up built before point defence existed get launchers on their keep. */
+    private static boolean retrofit(ServerLevel level, Fort f) {
+        if (f.aa != null || f.tier < 7 || f.conquered) return false;
+        f.aa = new ArrayList<>();
+        int want = FortressBuilder.pointDefence(f.tier);
+        int[][] offs = {{3, 3}, {-3, -3}, {3, -3}, {-3, 3}, {6, 0}, {-6, 0}};
+        for (int i = 0; i < offs.length && f.aa.size() < want; i++) {
+            BlockPos at = new BlockPos(f.x + offs[i][0], f.keepY + 1, f.z + offs[i][1]);
+            if (!level.getBlockState(at).isAir() || level.getBlockState(at.below()).isAir()) continue;
+            level.setBlock(at, POINT_DEFENCE.defaultBlockState(), 3);
+            if (level.getBlockEntity(at) instanceof PointDefenceBlockEntity pd) pd.setup(f.tier);
+            f.aa.add(new long[]{at.asLong()});
+        }
+        return true;
     }
 
     private static long key(int rx, int rz) { return ((long) rx << 32) ^ (rz & 0xffffffffL); }
@@ -244,7 +293,7 @@ public final class Fortresses implements ModInitializer {
         if (near == null) return false;
         announce(level, f, near, best);
         if (level.getChunkSource().getChunkNow(f.x >> 4, f.z >> 4) == null) return false;
-        boolean dirty = false;
+        boolean dirty = retrofit(level, f);
         for (var it = f.fabs.iterator(); it.hasNext(); ) {
             BlockPos b = BlockPos.of(it.next()[0]);
             if (level.getChunkSource().getChunkNow(b.getX() >> 4, b.getZ() >> 4) == null) continue;

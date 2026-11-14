@@ -51,5 +51,6 @@
   "event.heliosphere.siege.pods": "Wave %s/%s: drop pods falling from the %s!",
   "event.heliosphere.siege.won": "★ Siege repelled! The spoils are at your feet (%s repelled; the next attacks will be stronger)",
   "event.heliosphere.siege.over": "The siege is over and the machines pull back… for now.",
-  "message.heliosphere.titan_salvo": "§c§l⚠ Titan missile salvo! Take cover now"
+  "message.heliosphere.titan_salvo": "§c§l⚠ Titan missile salvo! Take cover now",
+  "block.heliosphere.point_defence_launcher": "Fortress Point-Defence Launcher"
 }
