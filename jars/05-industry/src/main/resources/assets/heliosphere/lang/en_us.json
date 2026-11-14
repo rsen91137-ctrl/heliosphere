@@ -17,5 +17,11 @@
   "message.heliosphere.power_fueled": "Loaded %s · fuel %s/%s",
   "message.heliosphere.power_status": "%s · %s · stored %s FE",
   "message.heliosphere.power_fuel_status": "%s · %s · stored %s FE · fuel %s/%s (about %s days)",
-  "message.heliosphere.power_battery_status": "%s · stored %s FE (%s%%) · output up to %s FE/t"
+  "message.heliosphere.power_battery_status": "%s · stored %s FE (%s%%) · output up to %s FE/t",
+  "block.heliosphere.habitat_field_emitter": "Habitat Field Emitter",
+  "block.heliosphere.habitat_field_panel": "Force-Field Panel",
+  "message.heliosphere.habitat_on": "Field running: %s blocks sealed, %s FE/t, %s / %s FE. Inside: breathable air, 20°C, Earth gravity.",
+  "message.heliosphere.habitat_no_power": "Space sealed (%s blocks) but not enough power: it needs %s FE/t (%s / %s FE). Connect a generator or battery by cable.",
+  "message.heliosphere.habitat_leak": "The space is not sealed: it leaks near %s, %s, %s (or is larger than 40 blocks / 32768 blocks). Close the gap with force-field panels or any solid block, and shut the doors.",
+  "message.heliosphere.habitat_nothing": "There is no open space around the emitter to fill"
 }

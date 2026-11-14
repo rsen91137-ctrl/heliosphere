@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "heliosphere:block/habitat_field_emitter"
+    },
+    "active=true": {
+      "model": "heliosphere:block/habitat_field_emitter_on"
+    }
+  }
+}

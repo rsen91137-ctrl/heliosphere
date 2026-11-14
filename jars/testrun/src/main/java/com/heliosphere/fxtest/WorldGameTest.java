@@ -74,6 +74,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "underground" -> underground(ctx, sp);
                     case "portable" -> portable(ctx, sp);
                     case "ores" -> ores(ctx, sp);
+                    case "habitat" -> habitat(ctx, sp);
                     case "timeline" -> { ctx.waitTicks(60); server(sp, s -> report.add("[info] timeline: asteroid in " + String.format("%.1f", com.heliosphere.core.story.Story.asteroidDays(s))
                             + " days, evolution stage " + com.heliosphere.hostiles.arsenal.Evolution.stage() + ", stage on days 100/200/360: " + com.heliosphere.hostiles.arsenal.Evolution.stage(100)
                             + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(200) + "/" + com.heliosphere.hostiles.arsenal.Evolution.stage(360)
@@ -1979,6 +1980,66 @@ public class WorldGameTest implements FabricClientGameTest {
         ctx.waitTicks(30);
         shot(ctx, "ores_wall");
         ctx.runOnClient(mc -> mc.options.hideGui = false);
+    }
+
+    /** The habitat field on the Moon: a box of force-field panels round an emitter; air, temperature and gravity inside and out; a hole. */
+    private void habitat(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in heliosphere:moon run tp @p 0 140 0");
+        ctx.waitTicks(80);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var panel = com.heliosphere.industry.habitat.Habitat.PANEL.defaultBlockState();
+            for (int dx = -5; dx <= 5; dx++) for (int dz = -5; dz <= 5; dz++) for (int dy = -1; dy <= 5; dy++) {
+                boolean shell = Math.abs(dx) == 5 || Math.abs(dz) == 5 || dy == -1 || dy == 5;
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), shell ? panel : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+            }
+            var at = new net.minecraft.core.BlockPos(x0 + 3, g, z0 + 3);
+            l.setBlockAndUpdate(at, com.heliosphere.industry.habitat.Habitat.EMITTER.defaultBlockState());
+            if (l.getBlockEntity(at) instanceof com.heliosphere.core.machine.EnergyNode n) n.setEnergy(500000);
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.getInventory().clearContent();                       // no suit
+            p.setHealth(p.getMaxHealth());
+        });
+        ctx.waitTicks(80);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var be = (com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3));
+            var eye = net.minecraft.core.BlockPos.containing(p.getEyePosition());
+            var out = new net.minecraft.core.BlockPos(o[0] + 9, o[1] + 1, o[2]);
+            report.add(String.format("[info] habitat on the Moon: sealed %d blocks, running %s; inside: breathable %s, %.0f C, gravity x%.3f (player %.4f); outside: breathable %s, %.0f C, moon gravity %.3f; health %.0f",
+                    be.volume(), l.getBlockState(be.getBlockPos()).getValue(com.heliosphere.industry.habitat.HabitatEmitterBlock.ACTIVE),
+                    com.heliosphere.core.env.Environment.breathable(l, eye), com.heliosphere.core.env.Environment.temperatureC(l, eye),
+                    p.getGravity() / 0.08, p.getGravity(), com.heliosphere.core.env.Environment.breathable(l, out), com.heliosphere.core.env.Environment.temperatureC(l, out),
+                    com.heliosphere.core.env.Environment.gravity(l), p.getHealth()));
+        });
+        look(ctx, 45, -10);
+        ctx.waitTicks(10);
+        shot(ctx, "habitat_inside");
+        // jump: how high on the Moon's surface, inside the field (client-side physics)
+        // a hole in the wall: the field goes off and says where
+        server(sp, s -> {
+            var l = player(s).level();
+            l.setBlockAndUpdate(new net.minecraft.core.BlockPos(o[0] - 5, o[1] + 1, o[2]), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+        });
+        ctx.waitTicks(80);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var be = (com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3));
+            report.add("[info] habitat with a hole: volume " + be.volume() + ", leak at " + be.leak() + ", breathable inside " + com.heliosphere.core.env.Environment.breathable(l, net.minecraft.core.BlockPos.containing(p.getEyePosition()))
+                    + ", player gravity x" + String.format("%.3f", p.getGravity() / 0.08));
+            l.setBlockAndUpdate(new net.minecraft.core.BlockPos(o[0] - 5, o[1] + 1, o[2]), com.heliosphere.industry.habitat.Habitat.PANEL.defaultBlockState());
+        });
+        cmd(sp, "gamemode creative @a");
+        cmd(sp, "execute in minecraft:overworld run tp @p 0 120 0");
+        ctx.waitTicks(40);
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

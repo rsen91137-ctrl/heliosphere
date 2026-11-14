@@ -5,10 +5,15 @@
   "name": "Overlay for 05-industry. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
   "entrypoints": {
     "main": [
-      "com.heliosphere.industry.power.Power"
+      "com.heliosphere.industry.power.Power",
+      "com.heliosphere.industry.habitat.Habitat"
     ],
     "client": [
-      "com.heliosphere.industry.power.client.PowerClient"
+      "com.heliosphere.industry.power.client.PowerClient",
+      "com.heliosphere.industry.habitat.client.HabitatClient"
     ]
-  }
+  },
+  "mixins": [
+    "heliosphere-habitat.mixins.json"
+  ]
 }

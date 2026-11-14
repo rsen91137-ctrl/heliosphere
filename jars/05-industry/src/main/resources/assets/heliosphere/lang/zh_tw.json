@@ -17,5 +17,11 @@
   "message.heliosphere.power_fueled": "已裝填 %s · 燃料 %s/%s",
   "message.heliosphere.power_status": "%s · %s · 儲能 %s FE",
   "message.heliosphere.power_fuel_status": "%s · %s · 儲能 %s FE · 燃料 %s/%s（約可用 %s 天）",
-  "message.heliosphere.power_battery_status": "%s · 儲能 %s FE（%s%%）· 最大輸出 %s FE/t"
+  "message.heliosphere.power_battery_status": "%s · 儲能 %s FE（%s%%）· 最大輸出 %s FE/t",
+  "block.heliosphere.habitat_field_emitter": "棲息地力場發生器",
+  "block.heliosphere.habitat_field_panel": "力場防護板",
+  "message.heliosphere.habitat_on": "力場運行中：封閉空間 %s 格，耗電 %s FE/t，電量 %s / %s FE。內部空氣可呼吸、恆溫 20°C、地球重力。",
+  "message.heliosphere.habitat_no_power": "空間已封閉（%s 格），但電力不足：需要 %s FE/t（電量 %s / %s FE）。用電纜接上發電機或電池組。",
+  "message.heliosphere.habitat_leak": "空間沒有封閉：在 %s, %s, %s 附近漏氣（或超出 40 格 / 32768 格的上限）。用力場防護板或任意實心方塊把缺口補上，門要關好。",
+  "message.heliosphere.habitat_nothing": "發生器四周沒有可以充氣的空間"
 }

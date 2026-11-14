@@ -17,5 +17,11 @@
   "message.heliosphere.power_fueled": "已装填 %s · 燃料 %s/%s",
   "message.heliosphere.power_status": "%s · %s · 储能 %s FE",
   "message.heliosphere.power_fuel_status": "%s · %s · 储能 %s FE · 燃料 %s/%s（约可用 %s 天）",
-  "message.heliosphere.power_battery_status": "%s · 储能 %s FE（%s%%）· 最大输出 %s FE/t"
+  "message.heliosphere.power_battery_status": "%s · 储能 %s FE（%s%%）· 最大输出 %s FE/t",
+  "block.heliosphere.habitat_field_emitter": "栖息地力场发生器",
+  "block.heliosphere.habitat_field_panel": "力场防护板",
+  "message.heliosphere.habitat_on": "力场运行中：封闭空间 %s 格，耗电 %s FE/t，电量 %s / %s FE。内部空气可呼吸、恒温 20°C、地球重力。",
+  "message.heliosphere.habitat_no_power": "空间已封闭（%s 格），但电力不足：需要 %s FE/t（电量 %s / %s FE）。用电缆接上发电机或电池组。",
+  "message.heliosphere.habitat_leak": "空间没有封闭：在 %s, %s, %s 附近漏气（或超出 40 格 / 32768 格的上限）。用力场防护板或任意实心方块把缺口补上，门要关好。",
+  "message.heliosphere.habitat_nothing": "发生器四周没有可以充气的空间"
 }

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "heliosphere:block/habitat_field_emitter_top",
+    "side": "heliosphere:block/habitat_field_emitter_side"
+  }
+}

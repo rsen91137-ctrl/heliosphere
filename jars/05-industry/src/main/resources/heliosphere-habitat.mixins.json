@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.industry.habitat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["HabitatEnvironmentMixin", "HabitatGravityMixin", "HabitatFallMixin"],
+  "injectors": {"defaultRequire": 1}
+}
