@@ -16,10 +16,11 @@ import java.util.WeakHashMap;
 public final class HabitatRegistry {
     private HabitatRegistry() {}
 
+    /** The columns inside a ring (packed as x,0,z), from minY to maxY. */
     public record Region(LongOpenHashSet cells, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
         boolean contains(BlockPos p) {
             return p.getX() >= minX && p.getX() <= maxX && p.getY() >= minY && p.getY() <= maxY && p.getZ() >= minZ && p.getZ() <= maxZ
-                    && cells.contains(p.asLong());
+                    && cells.contains(BlockPos.asLong(p.getX(), 0, p.getZ()));
         }
     }
 

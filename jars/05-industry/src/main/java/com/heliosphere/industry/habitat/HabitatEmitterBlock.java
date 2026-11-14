@@ -38,12 +38,6 @@ public class HabitatEmitterBlock extends BaseEntityBlock {
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
-        super.setPlacedBy(level, pos, state, placer, stack);
-        if (placer instanceof Player p && p.isCreative() && level.getBlockEntity(pos) instanceof HabitatEmitterBlockEntity be) be.setCreative(true);
-    }
-
-    @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof HabitatEmitterBlockEntity be) be.status(player);
         return InteractionResult.SUCCESS;

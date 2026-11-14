@@ -58,25 +58,20 @@ def emitter(on):
 LANG = {
     'block.heliosphere.habitat_field_emitter': ('栖息地力场发生器', 'Habitat Field Emitter', '棲息地力場發生器'),
     'block.heliosphere.habitat_field_panel': ('力场防护板', 'Force-Field Panel', '力場防護板'),
-    'message.heliosphere.habitat_on': ('力场运行中：封闭空间 %s 格，耗电 %s FE/t，电量 %s / %s FE。内部空气可呼吸、恒温 20°C、地球重力。',
-                                       'Field running: %s blocks sealed, %s FE/t, %s / %s FE. Inside: breathable air, 20°C, Earth gravity.',
-                                       '力場運行中：封閉空間 %s 格，耗電 %s FE/t，電量 %s / %s FE。內部空氣可呼吸、恆溫 20°C、地球重力。'),
-    'message.heliosphere.habitat_no_power': ('空间已封闭（%s 格），但电力不足：需要 %s FE/t（电量 %s / %s FE）。用电缆接上发电机或电池组。',
-                                             'Space sealed (%s blocks) but not enough power: it needs %s FE/t (%s / %s FE). Connect a generator or battery by cable.',
-                                             '空間已封閉（%s 格），但電力不足：需要 %s FE/t（電量 %s / %s FE）。用電纜接上發電機或電池組。'),
-    'message.heliosphere.habitat_leak': ('空间没有封闭：在 %s, %s, %s 附近漏气（或超出 40 格 / 32768 格的上限）。用力场防护板或任意实心方块把缺口补上，门要关好。',
-                                         'The space is not sealed: it leaks near %s, %s, %s (or is larger than 40 blocks / 32768 blocks). Close the gap with force-field panels or any solid block, and shut the doors.',
-                                         '空間沒有封閉：在 %s, %s, %s 附近漏氣（或超出 40 格 / 32768 格的上限）。用力場防護板或任意實心方塊把缺口補上，門要關好。'),
-    'message.heliosphere.habitat_nothing': ('发生器四周没有可以充气的空间', 'There is no open space around the emitter to fill', '發生器四周沒有可以充氣的空間'),
+    'message.heliosphere.habitat_on': ('力场运行中：圈内 %s 格地面，从发生器下方 %s 格到上方 %s 格，空气可呼吸、恒温 20°C、地球重力。',
+                                       'Field running: %s columns inside the ring, from %s blocks below the emitter to %s above: breathable air, 20°C, Earth gravity.',
+                                       '力場運行中：圈內 %s 格地面，從發生器下方 %s 格到上方 %s 格，空氣可呼吸、恆溫 20°C、地球重力。'),
+    'message.heliosphere.habitat_leak': ('这一圈没有围合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的范围）。和发生器同一高度的一圈墙必须连续，门要关好。',
+                                         'The ring is not closed: there is a gap near %s, %s, %s (or it is larger than 40 blocks / 6400 columns). The wall at the emitter\'s height must go all the way round, doors shut.',
+                                         '這一圈沒有圍合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的範圍）。和發生器同一高度的一圈牆必須連續，門要關好。'),
 }
-PAGE_E = ('栖息地力场发生器：在任何星球上造一片「地球环境」。用墙把一块空间整个围起来（顶和底也要封住），把发生器放在里面并通电：'
-          '发生器每 2 秒检测一次，只要空间是封闭的（距发生器 40 格以内、最多 32768 格），里面的空气就可以呼吸、温度恒定 20°C、重力变成地球重力（1g），'
-          '不穿宇航服也能活动，跳跃和摔落都和在地球上一样。墙可以用「力场防护板」（透明发光），也可以用任何实心方块（石头、玻璃、金属块……）；关着的门算墙，开着的门会漏气。'
-          '漏气时右键发生器会告诉你漏在哪里。耗电 30 FE/t + 每 400 格空间 1 FE/t，用电缆接发电机/电池组；内部电池 50 万 FE；创造模式放置的不耗电。'
-          '内部能看到淡淡的光点，发生器亮起表示正在运行。')
-PAGE_P = '力场防护板：透明、发光的墙板，用来围出栖息地力场的空间（任何实心方块都能当墙，这种板只是看得见外面）。总装台：玻璃×8 + 钢板 + 铜线×2 → 8 块。'
-TIP = ('§b星球栖息地：§r在外星球上用「力场防护板」或任何实心方块围出一个封闭空间，里面放「栖息地力场发生器」并接上电源，'
-       '整个空间就会变成可呼吸、20°C、地球重力的环境，可以脱下宇航服建造基地。门要关好，漏气时右键发生器查看漏点。')
+PAGE_E = ('栖息地力场发生器：在任何星球上造一片「地球环境」，不耗电。在地面上用「力场防护板」或任何实心方块围一圈（一格高就够，不需要屋顶），把发生器放在圈内地面上：'
+          '发生器每 2 秒沿它所在的那一层向四周检查，只要这一圈是闭合的（距发生器 40 格以内、圈内最多 6400 格），圈内从发生器下方 6 格到上方 30 格的整个空间就可以呼吸、恒温 20°C、'
+          '重力变成地球重力（1g），不穿宇航服也能活动，跳跃和摔落都和在地球上一样。和发生器同一高度的那一圈必须连续：关着的门算墙，开着的门或缺一块就会失效，右键发生器会告诉你缺口在哪里。'
+          '圈内能看到淡淡的光点，发生器亮起表示正在运行。')
+PAGE_P = '力场防护板：透明、发光的墙板，在地面上围一圈就能圈出栖息地力场的范围（任何实心方块都能当围墙，这种板只是看得见外面）。总装台：玻璃×8 + 钢板 + 铜线×2 → 8 块。'
+TIP = ('§b星球栖息地：§r在外星球的地面上用「力场防护板」或任何实心方块围一圈（一格高、不用屋顶），把「栖息地力场发生器」放在圈内同一高度，'
+       '不用接电，圈内从下方 6 格到上方 30 格就会变成可呼吸、20°C、地球重力的环境，可以脱下宇航服建造基地。缺口处会失效，右键发生器查看缺口位置。')
 
 
 def main():
