@@ -105,7 +105,7 @@
   "item.heliosphere.fire_control_computer": "防空火控计算机",
   "item.heliosphere.launcher_module": "导弹发射架",
   "item.heliosphere.sam_wrench": "防空车回收扳手",
-  "item.heliosphere.sam_wrench.hint": "右键防空车、防空电池组或弹药箱：连同弹药、电量一起收回背包，方便换地方放置",
+  "item.heliosphere.sam_wrench.hint": "右键防空车：把整辆车装进扳手（导弹、电量、模式一并保留），再对地面右键放出；右键防空电池组或弹药箱：连同电量、弹药收回背包",
   "message.heliosphere.sam_packed": "已回收 %s（导弹 %s 枚，电量 %s）",
   "message.heliosphere.sam_packed_simple": "已回收 %s",
   "message.heliosphere.sam_taken": "这辆车已经有人在操作了",
@@ -166,5 +166,12 @@
   "message.heliosphere.jetpack_too_weak": "这里的重力 %sg 超出了这个背包的推力（最多约 %sg）",
   "message.heliosphere.point_defence_engaging": "⚠ 难度 %s 的机械堡垒防空正在拦截你的导弹！先摧毁它们楼顶的拦截阵地",
   "message.heliosphere.nuke_intercepted": "你的战术核弹在空中被拦截击毁，没有发生核爆",
-  "message.heliosphere.missile_intercepted": "你的导弹被拦截了"
+  "message.heliosphere.missile_intercepted": "你的导弹被拦截了",
+  "item.heliosphere.sam_wrench.loaded": "已装载：%s（导弹 %s/%s，电量 %s）",
+  "item.heliosphere.sam_wrench.deploy_hint": "对地面右键放出（车头朝向你面对的方向）",
+  "message.heliosphere.sam_wrench_stowed": "已将 %s 装入回收扳手（导弹 %s 枚，电量 %s）——对地面右键即可放出",
+  "message.heliosphere.sam_wrench_deployed": "%s 已放出（导弹 %s 枚，电量 %s）",
+  "message.heliosphere.sam_wrench_full": "扳手里已经装着 %s，这辆车改为打包成物品放进背包",
+  "subtitles.heliosphere.sam_engine": "防空车引擎轰鸣",
+  "subtitles.heliosphere.sam_engine_start": "防空车引擎启动"
 }

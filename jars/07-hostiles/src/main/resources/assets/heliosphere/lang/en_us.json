@@ -52,5 +52,10 @@
   "event.heliosphere.siege.won": "★ Siege repelled! The spoils are at your feet (%s repelled; the next attacks will be stronger)",
   "event.heliosphere.siege.over": "The siege is over and the machines pull back… for now.",
   "message.heliosphere.titan_salvo": "§c§l⚠ Titan missile salvo! Take cover now",
-  "block.heliosphere.point_defence_launcher": "Fortress Point-Defence Launcher"
+  "block.heliosphere.point_defence_launcher": "Fortress Point-Defence Launcher",
+  "entity.heliosphere.strike_drone": "Type VIII Strike Drone",
+  "item.heliosphere.strike_drone_deployment": "Type VIII Strike Drone Deployer (Creative)",
+  "entity.heliosphere.strike_jet": "Falcon Fixed-Wing Attack Jet",
+  "item.heliosphere.strike_jet_deployment": "Falcon Fixed-Wing Attack Jet Deployer (Creative)",
+  "message.heliosphere.standoff_launch": "⚠ %s fired a stand-off missile from %s blocks! Get under a roof or intercept it"
 }

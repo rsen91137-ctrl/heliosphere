@@ -36,7 +36,7 @@ public class SamVehicleItem extends Item {
         BlockPos at = level.getBlockState(ctx.getClickedPos()).canBeReplaced() ? ctx.getClickedPos() : ctx.getClickedPos().relative(ctx.getClickedFace());
         float yaw = p != null ? Mth.wrapDegrees(p.getYRot()) : 0;
         Vec3 pos = Vec3.atBottomCenterOf(at);
-        if (!room(level, pos, yaw)) {
+        if (!room(level, kind, pos, yaw)) {
             if (p != null) p.displayClientMessage(Component.translatable("message.heliosphere.sam_no_room", kind.length, kind.width), true);
             return InteractionResult.FAIL;
         }
@@ -52,7 +52,7 @@ public class SamVehicleItem extends Item {
     }
 
     /** Whether the hull fits here: nothing solid where it would stand, from the ground up to its roof. */
-    private boolean room(ServerLevel level, Vec3 pos, float yaw) {
+    static boolean room(ServerLevel level, SamKind kind, Vec3 pos, float yaw) {
         double hl = kind.length * 0.5 - 0.3, hw = kind.width * 0.5 - 0.3;
         float r = (float) Math.toRadians(-yaw);
         for (double z = -hl; z <= hl + 1e-6; z += 0.9)

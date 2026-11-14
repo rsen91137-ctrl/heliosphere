@@ -40,7 +40,12 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
         String id = "";
         int mode;
         float pitch, travelYaw;
+        /** Strike aircraft: nose up (radians) from the climb, and bank into the turn. */
+        float climb, bank;
+        boolean aircraft;
     }
+
+    private static boolean aircraft(String id) { return id.equals("strike_drone") || id.equals("strike_jet"); }
 
     @Override public State createRenderState() { return new State(); }
 
@@ -55,6 +60,15 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
         s.speed = (float) Math.sqrt(v.x * v.x + v.z * v.z);
         s.hurt = e instanceof LivingEntity le && le.hurtTime > 0 ? le.hurtTime / 10f : 0;
         if (e instanceof TechMob mob && mob.role() != null) s.id = mob.role().id();
+        s.aircraft = aircraft(s.id);
+        if (s.aircraft) {
+            s.yaw = net.minecraft.util.Mth.rotLerp(partial, e.yRotO, e.getYRot());
+            double dx = e.getX() - e.xo, dy = e.getY() - e.yo, dz = e.getZ() - e.zo;
+            double h = Math.sqrt(dx * dx + dz * dz);
+            s.climb = h < 0.05 ? 0 : (float) net.minecraft.util.Mth.clamp(Math.atan2(dy, h), -0.6, 0.6);
+            s.bank = net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(e.getYRot() - e.yRotO) * 0.16f, -0.95f, 0.95f);
+            s.speed = (float) h;
+        }
         else if (e instanceof TechProjectile p) {
             s.id = "projectile";
             s.mode = p.mode();
@@ -66,11 +80,22 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
     @Override
     protected AABB getBoundingBoxForCulling(T e) { return e.getBoundingBox().inflate(2.5); }
 
+    /** Strike aircraft are drawn as far as the server sends them (the size rule would hide them past ~145 blocks). */
+    @Override
+    public boolean shouldRender(T e, net.minecraft.client.renderer.culling.Frustum frustum, double x, double y, double z) {
+        if (e instanceof TechMob mob && mob.role() != null && aircraft(mob.role().id()))
+            return e.distanceToSqr(x, y, z) < 400 * 400 && frustum.isVisible(getBoundingBoxForCulling(e).inflate(0.5));
+        return super.shouldRender(e, frustum, x, y, z);
+    }
+
     @Override
     public void submit(State s, PoseStack pose, SubmitNodeCollector out, CameraRenderState camera) {
         pose.pushPose();
         if (s.id.equals("projectile")) {
             pose.mulPose(new Quaternionf().rotateY(s.travelYaw).rotateX(-s.pitch));
+        } else if (s.aircraft) {
+            pose.translate(0, s.height * 0.5, 0);
+            pose.mulPose(new Quaternionf().rotateY((float) Math.toRadians(-s.yaw)).rotateX(-s.climb).rotateZ(s.bank));
         } else {
             pose.mulPose(new Quaternionf().rotateY((float) Math.toRadians(-s.yaw)));
         }
@@ -117,6 +142,8 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
                 case "fortress_overseer" -> new Paint(0x2A2E36, 0x0E1014, 0xD02030, 0xFF3040);
                 case "hive_carrier" -> new Paint(0x3C4434, 0x161A12, 0xE0B020, 0xFFC840);
                 case "colossus" -> new Paint(0x1E1E22, 0x0A0A0C, 0xE05010, 0xFF5018);
+                case "strike_drone" -> new Paint(0x9AA0A6, 0x3A3E44, 0xD8DCE0, 0xFF4030);
+                case "strike_jet" -> new Paint(0x4E565E, 0x23272C, 0xC83A28, 0xFF8A30);
                 default -> new Paint(0xA0A4A8, 0x303236, 0xE0A020, 0xFF6040);
             };
         }
@@ -251,7 +278,96 @@ public final class TechRenderer<T extends Entity> extends EntityRenderer<T, Tech
             case "emp_spider" -> spider(m, s);
             case "repair_automaton" -> tracked(m, s, false);
             case "shield_bearer" -> tracked(m, s, true);
+            case "strike_drone" -> strikeDrone(m, s);
+            case "strike_jet" -> strikeJet(m, s);
             default -> m.cbox(0, s.height / 2, 0, s.width, s.height, s.width, PLATE, Slot.PRIMARY);
+        }
+    }
+
+    // ---- strike aircraft (drawn centred on the origin: the renderer lifts them and applies climb and bank) -----
+
+    /** VIII strike drone: a long slender body, straight high wings, a V tail, a pusher propeller and a sensor ball. */
+    private static void strikeDrone(Mesh m, State s) {
+        float t = s.age;
+        m.cbox(0, 0, -0.05, 0.34, 0.32, 2.5, PLATE, Slot.PRIMARY);                        // fuselage
+        m.cbox(0, 0.12, 0.8, 0.4, 0.24, 0.75, PLATE, Slot.PRIMARY);                       // satellite hump over the nose
+        m.cbox(0, 0.02, 1.32, 0.26, 0.24, 0.2, PLATE, Slot.PRIMARY);
+        m.cbox(0, 0.17, 0.2, 0.2, 0.06, 0.9, VENT, Slot.SECONDARY);
+        m.cbox(0, -0.2, 1.0, 0.24, 0.24, 0.24, DARK, Slot.SECONDARY);                     // sensor ball
+        m.plate(0, -0.2, 1.121, 0.12, 0.12, LENS, Slot.GLOW);
+        m.cbox(0, -0.2, -0.2, 0.16, 0.08, 0.7, DECAL, Slot.ACCENT);
+        for (int sx = -1; sx <= 1; sx += 2) {
+            m.cbox(sx * 0.75, 0.1, -0.05, 1.2, 0.06, 0.46, PLATE, Slot.PRIMARY);            // inner wing
+            m.cbox(sx * 1.95, 0.12, -0.08, 1.2, 0.05, 0.34, PLATE, Slot.PRIMARY);           // outer wing
+            m.cbox(sx * 1.95, 0.155, -0.04, 0.9, 0.02, 0.12, DECAL, Slot.ACCENT);
+            m.cbox(sx * 2.56, 0.12, -0.08, 0.04, 0.08, 0.3, LAMP, Slot.GLOW);               // wingtip light
+            for (int k = 0; k < 2; k++) {                                                  // pylons and missiles
+                double x = sx * (0.85 + k * 0.6);
+                m.cbox(x, 0.0, 0.0, 0.05, 0.14, 0.22, JOINT, Slot.METAL);
+                m.cbox(x, -0.12, 0.05, 0.1, 0.1, 0.85, PLATE, Slot.WHITE);
+                m.cbox(x, -0.12, 0.5, 0.07, 0.07, 0.06, HAZARD, Slot.ACCENT);
+                m.cbox(x, -0.12, -0.32, 0.22, 0.02, 0.1, CARBON, Slot.SECONDARY);
+            }
+            m.push(); m.at(sx * 0.12, 0.14, -1.12); m.rz(-sx * 0.75);                       // V tail
+            m.cbox(0, 0.32, 0, 0.04, 0.64, 0.38, PLATE, Slot.PRIMARY);
+            m.pop();
+        }
+        m.cbox(0, -0.3, -1.1, 0.04, 0.38, 0.3, PLATE, Slot.PRIMARY);                      // ventral fin
+        m.cbox(0, 0, -1.36, 0.22, 0.22, 0.14, HEAVY, Slot.SECONDARY);                     // engine and pusher propeller
+        m.cbox(0, 0, -1.47, 0.1, 0.1, 0.08, JOINT, Slot.METAL);
+        m.push(); m.at(0, 0, -1.5); m.rz(t * 1.7);
+        for (int i = 0; i < 3; i++) { m.push(); m.rz(i * Math.PI * 2 / 3); m.cbox(0, 0.32, 0, 0.07, 0.62, 0.02, CARBON, Slot.SECONDARY); m.pop(); }
+        m.pop();
+        m.cbox(0, -0.12, -1.25, 0.08, 0.06, 0.12, THRUST, Slot.GLOW);
+        if ((int) (t / 6) % 3 == 0) m.cbox(0, 0.17, -0.6, 0.06, 0.04, 0.06, LAMP, Slot.GLOW);   // strobe
+    }
+
+    /** Falcon attack jet: cranked delta wing, twin canted tails, side intakes, twin engines with afterburner. */
+    private static void strikeJet(Mesh m, State s) {
+        float t = s.age;
+        m.cbox(0, 0, 0, 0.72, 0.56, 3.6, HEAVY, Slot.PRIMARY);                            // fuselage
+        m.cbox(0, -0.02, 2.1, 0.56, 0.46, 0.6, PLATE, Slot.PRIMARY);                      // nose
+        m.cbox(0, -0.04, 2.5, 0.4, 0.34, 0.4, PLATE, Slot.PRIMARY);
+        m.cbox(0, -0.05, 2.82, 0.22, 0.2, 0.3, PLATE, Slot.SECONDARY);
+        m.cbox(0, -0.05, 3.05, 0.04, 0.04, 0.25, BARREL, Slot.METAL);                     // probe
+        m.cbox(0, 0.34, 1.35, 0.38, 0.2, 1.0, DARK, Slot.SECONDARY);                      // sensor canopy (no pilot)
+        m.cbox(0, 0.445, 1.35, 0.2, 0.02, 0.7, VISOR, Slot.GLOW);
+        m.cbox(0, 0.3, -0.3, 0.3, 0.1, 1.6, VENT, Slot.SECONDARY);                        // spine
+        m.cbox(0, -0.3, 0.2, 0.3, 0.06, 1.4, DECAL, Slot.ACCENT);
+        for (int sx = -1; sx <= 1; sx += 2) {
+            m.cbox(sx * 0.5, -0.08, 0.55, 0.32, 0.42, 1.5, PLATE, Slot.SECONDARY);          // intakes
+            m.plate(sx * 0.5, -0.08, 1.301, 0.26, 0.34, DARK, Slot.SECONDARY);
+            m.cbox(sx * 0.5, 0.15, 1.27, 0.34, 0.04, 0.08, HAZARD, Slot.ACCENT);
+            for (int k = 0; k < 7; k++) {                                                  // cranked delta: swept leading edge, straight trailing edge
+                double x = sx * (0.5 + k * 0.3), le = 0.9 - k * 0.3, te = -1.55 + k * 0.05;
+                m.cbox(x, -0.02, (le + te) / 2, 0.31, 0.07, le - te, PLATE, Slot.PRIMARY);
+            }
+            m.cbox(sx * 1.9, 0.02, -1.1, 0.5, 0.02, 0.18, DECAL, Slot.ACCENT);
+            m.cbox(sx * 2.42, -0.02, -1.2, 0.05, 0.1, 0.34, LAMP, Slot.GLOW);
+            for (int k = 0; k < 3; k++) {                                                  // tailplanes
+                double x = sx * (0.5 + k * 0.28), le = -1.65 - k * 0.18;
+                m.cbox(x, -0.05, (le - 2.35) / 2, 0.29, 0.05, le + 2.35, PLATE, Slot.PRIMARY);
+            }
+            m.push(); m.at(sx * 0.42, 0.28, -1.75); m.rz(-sx * 0.28);                       // canted twin tails
+            for (int k = 0; k < 4; k++) {
+                double y = 0.12 + k * 0.22, le = 0.25 - k * 0.2;
+                m.cbox(0, y, (le - 0.55 + k * 0.04) / 2, 0.05, 0.23, le + 0.55 - k * 0.04, PLATE, Slot.PRIMARY);
+            }
+            m.cbox(0, 0.85, -0.55, 0.06, 0.06, 0.2, LAMP, Slot.GLOW);
+            m.pop();
+            m.cbox(sx * 0.2, -0.02, -1.95, 0.34, 0.34, 0.36, JOINT, Slot.METAL);       // nozzles
+            m.cbox(sx * 0.2, -0.02, -2.135, 0.26, 0.26, 0.02, THRUST, Slot.GLOW);
+            double burn = 0.35 + s.speed * 0.5 + Math.sin(t * 2.3 + sx) * 0.08;
+            m.cbox(sx * 0.2, -0.02, -2.15 - burn / 2, 0.16, 0.16, burn, THRUST, Slot.GLOW);   // afterburner
+            for (int k = 0; k < 2; k++) {                                                  // stand-off missiles under the wings
+                double x = sx * (1.0 + k * 0.55);
+                m.cbox(x, -0.12, -0.35, 0.05, 0.1, 0.4, JOINT, Slot.METAL);
+                m.cbox(x, -0.24, -0.3, 0.13, 0.13, 1.5, PLATE, Slot.WHITE);
+                m.cbox(x, -0.24, 0.47, 0.09, 0.09, 0.06, HAZARD, Slot.ACCENT);
+                m.cbox(x, -0.24, -0.98, 0.32, 0.02, 0.16, CARBON, Slot.SECONDARY);
+                m.cbox(x, -0.24, -0.98, 0.02, 0.32, 0.16, CARBON, Slot.SECONDARY);
+            }
+            m.cbox(sx * 0.4, 0.05, 1.7, 0.05, 0.05, 0.5, BARREL, Slot.METAL);               // cannon
         }
     }
 

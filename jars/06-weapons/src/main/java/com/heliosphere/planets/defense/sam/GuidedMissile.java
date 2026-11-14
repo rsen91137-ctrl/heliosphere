@@ -87,6 +87,9 @@ public class GuidedMissile extends Entity {
 
     public GuidedMissile pursuitOnly() { pursuitOnly = true; return this; }
 
+    /** Launched from a moving carrier (an aircraft): starts at least at the carrier's speed. */
+    public GuidedMissile carrierSpeed(double v) { speed = Math.max(speed, v); return this; }
+
     public MissileSpec spec() { int i = entityData.get(SPEC); MissileSpec[] v = MissileSpec.values(); return v[Math.max(0, Math.min(v.length - 1, i))]; }
     private void setSpec(MissileSpec s) { entityData.set(SPEC, s.ordinal()); }
     /** Ticks since launch (synchronised, for the motor plume and the model). */
@@ -201,7 +204,8 @@ public class GuidedMissile extends Entity {
             Entity hit = fuseCheck(level, spec, t, from, to);
             if (hit != null) { detonate(level, closest(from, to, hit.getBoundingBox().getCenter()), hit); return; }
         }
-        if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL || spec == MissileSpec.INTERCEPTOR) {
+        if (spec == MissileSpec.BUK_9M317MA || spec == MissileSpec.ASTER_30 || spec == MissileSpec.IRIS_T_SL || spec == MissileSpec.INTERCEPTOR
+                || spec == MissileSpec.STANDOFF) {
             // a battery reaches 500 blocks, past the area players keep running: keep the missile's own chunk and the
             // way ahead running every tick (at 9 blocks a tick it is in a new chunk every other tick)
             level.getChunkSource().addTicketWithRadius(SAM_TICKET, new net.minecraft.world.level.ChunkPos(net.minecraft.core.BlockPos.containing(to)), 2);

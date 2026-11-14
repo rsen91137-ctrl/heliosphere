@@ -67,6 +67,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "jetpack" -> jetpack(ctx, sp);
                     case "dump" -> dump(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
+                    case "bvr" -> bvr(ctx, sp);
+                    case "crew" -> crew(ctx, sp);
                     default -> extra(ctx, sp, part);
                 }
             }
@@ -213,7 +215,8 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         ctx.runOnClient(mc -> { mc.options.hideGui = true; mc.options.fov().set(30); });
         List<String> ids = new ArrayList<>();
-        for (var r : com.heliosphere.planets.tech.TechCombat.ROLES) ids.add(r.id());
+        String only = System.getProperty("heliosphere.test.icons", "");
+        for (var r : com.heliosphere.planets.tech.TechCombat.ROLES) if (only.isEmpty() || java.util.Arrays.asList(only.split("\\+")).contains(r.id())) ids.add(r.id());
         report.add("[info] roles " + ids);
         server(sp, s2 -> backdrop(player(s2).level(), base, true));
         server(sp, s2 -> { ServerPlayer p = player(s2); p.teleportTo(base[0] + 0.5, base[1] + 3, base[2] - 12); });
@@ -1240,7 +1243,7 @@ public class WorldGameTest implements FabricClientGameTest {
             var radar = samNear(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, o[0], o[1], o[2]);
             var r = radar.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
             int n = 0; for (var st : p.getInventory().getNonEquipmentItems()) if (st.getItem() == com.heliosphere.planets.defense.sam.SamSites.VEHICLE_ITEMS.get(com.heliosphere.planets.defense.sam.SamKind.BUK_TADS)) n += st.getCount();
-            report.add("[info] wrench: " + r + ", radar removed " + radar.isRemoved() + ", radar items in inventory " + n);
+            report.add("[info] wrench: " + r + ", radar removed " + radar.isRemoved() + ", wrench carries " + com.heliosphere.planets.defense.sam.SamWrenchItem.stored(p.getMainHandItem()) + ", radar items in inventory " + n);
         });
         cmd(sp, "gamemode creative @a");
     }
@@ -1291,6 +1294,296 @@ public class WorldGameTest implements FabricClientGameTest {
             server(sp, s -> { var p = player(s); report.add("[info] t" + 0 + ": vehicle " + p.getVehicle() + " y " + (int) p.getY()); });
             shot(ctx, "ride_" + t);
         }
+    }
+
+    // ---- strike aircraft: beyond-visual-range attacks, and air defence against them --------------------------
+
+    private static double[] yawPitch(net.minecraft.world.phys.Vec3 from, net.minecraft.world.phys.Vec3 to) {
+        var d = to.subtract(from);
+        double yaw = Math.toDegrees(Math.atan2(-d.x, d.z));
+        double pitch = -Math.toDegrees(Math.atan2(d.y, Math.sqrt(d.x * d.x + d.z * d.z)));
+        return new double[]{yaw, pitch};
+    }
+
+    private void bvr(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 6400 160 6400");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode creative @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -20; dx <= 20; dx++) for (int dz = -20; dz <= 20; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                for (int dy = 0; dy < 40; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+        });
+        // 1. a close look: both aircraft loitering near a creative player (nothing to hunt), banking round
+        java.util.UUID[] show = new java.util.UUID[2];
+        server(sp, s -> {
+            var l = s.overworld();
+            var jet = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_jet", o[0] + 26, o[1] + 14, o[2] + 4, null);
+            var drone = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_drone", o[0] - 18, o[1] + 10, o[2] + 14, null);
+            show[0] = jet == null ? null : jet.getUUID(); show[1] = drone == null ? null : drone.getUUID();
+            report.add("[info] bvr spawn: jet " + (jet != null) + " drone " + (drone != null));
+        });
+        ctx.runOnClient(mc -> { mc.options.hideGui = true; mc.gui.getChat().clearMessages(false); });
+        for (int k = 0; k < 2; k++) for (int n = 0; n < 2; n++) {
+            final int kk = k;
+            ctx.waitTicks(n == 0 ? 30 : 45);
+            double[] yp = new double[2];
+            float[] info = new float[3];
+            server(sp, s -> {
+                var e = show[kk] == null ? null : s.overworld().getEntity(show[kk]);
+                if (e == null) return;
+                ServerPlayer p = player(s);
+                var at = e.position().add(0, e.getBbHeight() / 2, 0);
+                var dir = at.subtract(p.getEyePosition()).normalize();
+                var side = new net.minecraft.world.phys.Vec3(-dir.z, 0, dir.x).normalize();                // stand off to the side and a little below, sun behind
+                var cam = at.add(side.scale(9 + kk * -2)).add(e.getDeltaMovement().scale(6)).add(0, -3, 0);
+                p.teleportTo(cam.x, cam.y - p.getEyeHeight(), cam.z);
+                at = e.position().add(e.getDeltaMovement().scale(4)).add(0, e.getBbHeight() / 2, 0);
+                p.getAbilities().flying = true; p.onUpdateAbilities();
+                double[] r = yawPitch(p.getEyePosition(), at);
+                yp[0] = r[0]; yp[1] = r[1];
+                info[0] = (float) e.getDeltaMovement().horizontalDistance(); info[1] = (float) (e.getY() - o[1]);
+            });
+            look(ctx, (float) yp[0], (float) yp[1]);
+            ctx.waitTicks(3);
+            report.add(String.format("[info] bvr look %s: speed %.2f, height %.0f", k == 0 ? "jet" : "drone", info[0], info[1]));
+            shot(ctx, "bvr_" + (k == 0 ? "jet" : "drone") + "_" + n);
+        }
+        ctx.runOnClient(mc -> mc.options.hideGui = false);
+        server(sp, s -> { for (var id : show) { var e = id == null ? null : s.overworld().getEntity(id); if (e != null) e.discard(); } });
+
+        // 2. the strike: a survival player out in the open, the jet 250 blocks east, the drone 230 west
+        java.util.List<String> blasts = new java.util.concurrent.CopyOnWriteArrayList<>();
+        com.heliosphere.planets.defense.sam.GuidedMissile.BLAST_HOOKS.add((level, missile, at) -> {
+            if (missile.spec() != com.heliosphere.planets.defense.sam.MissileSpec.STANDOFF || level.players().isEmpty()) return;
+            blasts.add(String.format("%.1f", at.distanceTo(level.players().get(0).position())));
+        });
+        java.util.UUID[] craft = new java.util.UUID[2];
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            p.teleportTo(o[0] + 0.5, o[1], o[2] + 0.5);
+            p.getAbilities().invulnerable = true; p.onUpdateAbilities();
+            com.heliosphere.hostiles.arsenal.StrikeCraft.launched = 0;
+            var jet = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_jet", o[0] + 250, o[1] + 50, o[2], null);
+            var drone = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_drone", o[0] - 230, o[1] + 60, o[2] + 40, null);
+            craft[0] = jet == null ? null : jet.getUUID(); craft[1] = drone == null ? null : drone.getUUID();
+        });
+        java.util.List<String> launches = new java.util.ArrayList<>();
+        double[] closest = {1e9, 1e9};
+        boolean shotIncoming = false;
+        int lastLaunched = 0;
+        for (int i = 0; i < 160; i++) {
+            ctx.waitTicks(10);
+            int[] st = new int[2];
+            double[] inc = new double[4];
+            server(sp, s -> {
+                var l = s.overworld();
+                ServerPlayer p = player(s);
+                for (int c = 0; c < 2; c++) {
+                    var e = craft[c] == null ? null : l.getEntity(craft[c]);
+                    if (e != null) closest[c] = Math.min(closest[c], e.distanceTo(p));
+                }
+                st[0] = com.heliosphere.hostiles.arsenal.StrikeCraft.launched;
+                double best = 1e9;
+                for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, p.getBoundingBox().inflate(120))) {
+                    if (m.spec() != com.heliosphere.planets.defense.sam.MissileSpec.STANDOFF) continue;
+                    double d = m.distanceTo(p);
+                    if (d < best && d > 25) { best = d; double[] r = yawPitch(p.getEyePosition(), m.position()); inc[0] = r[0]; inc[1] = r[1]; inc[2] = d; inc[3] = 1; }
+                }
+            });
+            if (st[0] > lastLaunched) {
+                lastLaunched = st[0];
+                launches.add(String.format("%.0f", com.heliosphere.hostiles.arsenal.StrikeCraft.lastLaunchRange));
+            }
+            if (!shotIncoming && inc[3] > 0 && inc[2] < 90) {
+                look(ctx, (float) inc[0], (float) inc[1]);
+                shot(ctx, "bvr_incoming");
+                shotIncoming = true;
+            }
+            if (st[0] >= 5 && blasts.size() >= 3) break;
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            StringBuilder b = new StringBuilder();
+            for (int c = 0; c < 2; c++) {
+                var e = craft[c] == null ? null : l.getEntity(craft[c]);
+                b.append(c == 0 ? "jet " : "drone ").append(e == null ? "gone" : String.format("at %.0f blocks, %.0f up", e.distanceTo(p), e.getY() - o[1])).append(String.format(" (closest %.0f); ", closest[c]));
+            }
+            report.add("[info] bvr strike: launches " + com.heliosphere.hostiles.arsenal.StrikeCraft.launched + " from ranges " + launches + "; blasts at " + blasts + " blocks from the player; " + b);
+        });
+
+        // 3. under a roof: no launches
+        server(sp, s -> {
+            var l = s.overworld();
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, new net.minecraft.world.phys.AABB(o[0] - 400, o[1] - 60, o[2] - 400, o[0] + 400, o[1] + 300, o[2] + 400)))
+                m.discard();                                                                          // missiles still in the air would blow the hut open
+            int hx = o[0] + 30, hy = o[1] + 12, hz = o[2] + 30;                                   // a closed hut with a floor, clear of the craters
+            for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) for (int dy = -1; dy <= 3; dy++)
+                l.setBlock(new net.minecraft.core.BlockPos(hx + dx, hy + dy, hz + dz), Math.abs(dx) == 2 || Math.abs(dz) == 2 || dy == 3 || dy == -1
+                        ? net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState() : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            ServerPlayer p = player(s);
+            p.teleportTo(hx + 0.5, hy, hz + 0.5);
+            report.add("[info] hut: open above the eye " + (p.getEyeY() >= l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ())));
+            com.heliosphere.hostiles.arsenal.StrikeCraft.launched = 0;
+        });
+        ctx.waitTicks(500);
+        server(sp, s -> report.add("[info] bvr inside a closed hut: launches in 25 s " + com.heliosphere.hostiles.arsenal.StrikeCraft.launched + " last check: " + com.heliosphere.hostiles.arsenal.StrikeCraft.lastReason
+                + " player at " + player(s).blockPosition().toShortString()));
+        server(sp, s -> {
+            var l = s.overworld();
+            player(s).teleportTo(o[0] + 0.5, o[1] + 1, o[2] + 0.5);
+        });
+
+        // 4. air defence: a BUK battery beside the player; new aircraft come in, missiles are intercepted, aircraft shot down
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            for (var id : craft) { var e = id == null ? null : l.getEntity(id); if (e != null) e.discard(); }
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, new net.minecraft.core.BlockPos(o[0] - 8, o[1], o[2] - 6), p, null);
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, new net.minecraft.core.BlockPos(o[0] + 8, o[1], o[2] - 6), p, null);
+            var bat = new net.minecraft.core.BlockPos(o[0], o[1], o[2] - 12);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            com.heliosphere.planets.defense.sam.GuidedMissile.shotDownCount = 0;
+            com.heliosphere.hostiles.arsenal.StrikeCraft.launched = 0;
+            var jet = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_jet", o[0] + 30, o[1] + 50, o[2] - 300, null);
+            var drone = com.heliosphere.planets.tech.TechCombat.spawn(l, "strike_drone", o[0] - 40, o[1] + 60, o[2] - 280, null);
+            craft[0] = jet == null ? null : jet.getUUID(); craft[1] = drone == null ? null : drone.getUUID();
+        });
+        java.util.Set<java.util.UUID> sams = new java.util.HashSet<>();
+        boolean[] kills = new boolean[2];
+        net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((dead, src) -> {
+            for (int c = 0; c < 2; c++) if (dead.getUUID().equals(craft[c])) kills[c] = true;
+        });
+        int tick = 0;
+        boolean shotEngage = false;
+        for (; tick < 2400; tick += 10) {
+            ctx.waitTicks(10);
+            boolean[] dead = new boolean[2];
+            server(sp, s -> {
+                var l = s.overworld();
+                for (int c = 0; c < 2; c++) { var e = craft[c] == null ? null : l.getEntity(craft[c]); dead[c] = e != null && !e.isAlive() || e == null && kills[c]; if (e != null && !e.isAlive()) kills[c] = true; }
+                for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, new net.minecraft.world.phys.AABB(o[0] - 500, o[1] - 50, o[2] - 500, o[0] + 500, o[1] + 300, o[2] + 500)))
+                    if (m.side() == com.heliosphere.planets.defense.sam.GuidedMissile.Side.DEFENCE) sams.add(m.getUUID());
+            });
+            if (!shotEngage && !sams.isEmpty()) { look(ctx, 180, -20); ctx.waitTicks(6); shot(ctx, "bvr_sam_engage"); shotEngage = true; }
+            if (dead[0] && dead[1]) break;
+        }
+        int t = tick;
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            StringBuilder b = new StringBuilder();
+            for (int c = 0; c < 2; c++) {
+                var e = craft[c] == null ? null : l.getEntity(craft[c]);
+                b.append(c == 0 ? "jet " : "drone ").append(kills[c] ? "shot down" : e == null ? "not loaded" : String.format("alive %.0f hp at %.0f blocks", ((net.minecraft.world.entity.LivingEntity) e).getHealth(), e.distanceTo(p))).append("; ");
+            }
+            report.add("[info] bvr vs air defence after " + t + " ticks: SAMs fired " + sams.size() + ", enemy missiles launched " + com.heliosphere.hostiles.arsenal.StrikeCraft.launched
+                    + ", intercepted " + com.heliosphere.planets.defense.sam.GuidedMissile.shotDownCount + "; " + b);
+            p.getAbilities().invulnerable = false; p.onUpdateAbilities();
+        });
+        shot(ctx, "bvr_after");
+        cmd(sp, "gamemode creative @a");
+    }
+
+    // ---- the crew of an air-defence vehicle: engine sound, no player on the roof, the wrench carries the vehicle --
+
+    private void crew(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 5600 140 5600");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode creative @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            for (int dx = -20; dx <= 20; dx++) for (int dz = -40; dz <= 20; dz++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                for (int dy = 0; dy < 12; dy++) l.setBlock(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            o[0] = x0; o[1] = g; o[2] = z0;
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, new net.minecraft.core.BlockPos(x0, g, z0), p, 4);
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, new net.minecraft.core.BlockPos(x0 + 10, g, z0), p, null);
+            p.teleportTo(x0 + 3.5, g, z0 + 6.5);
+        });
+        ctx.waitTicks(10);
+        server(sp, s -> com.heliosphere.planets.defense.sam.SamOperation.board(player(s), samNear(s.overworld(), com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, o[0], o[1], o[2])));
+        for (int i = 0; i < 20; i++) { ctx.runOnClient(mc -> com.heliosphere.planets.defense.sam.client.SamEngineSound.stepForTest()); ctx.waitTicks(1); }
+        float[] idle = new float[3];
+        ctx.runOnClient(mc -> report.add("[info] engine sound file: " + mc.getResourceManager().getResource(net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "sounds/sam_engine.ogg")).isPresent()
+                + ", start: " + mc.getResourceManager().getResource(net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "sounds/sam_engine_start.ogg")).isPresent()
+                + ", event registered: " + (mc.getSoundManager().getSoundEvent(net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "sam_engine")) != null)));
+        ctx.runOnClient(mc -> { var r = com.heliosphere.planets.defense.sam.client.SamEngineSound.state(); idle[0] = r[0]; idle[1] = r[1]; idle[2] = r[2]; });
+        report.add(String.format("[info] crew idle: engines running %.0f, volume %.2f, pitch %.2f", idle[0], idle[1], idle[2]));
+        ctx.runOnClient(mc -> { mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK); mc.options.keyUp.setDown(true); });
+        for (int i = 0; i < 50; i++) { ctx.runOnClient(mc -> com.heliosphere.planets.defense.sam.client.SamEngineSound.stepForTest()); ctx.waitTicks(1); }
+        float[] run = new float[3];
+        ctx.runOnClient(mc -> { var r = com.heliosphere.planets.defense.sam.client.SamEngineSound.state(); run[0] = r[0]; run[1] = r[1]; run[2] = r[2]; });
+        report.add(String.format("[info] crew driving: engines running %.0f, volume %.2f, pitch %.2f", run[0], run[1], run[2]));
+        look(ctx, 150, 15);
+        ctx.waitTicks(4);
+        shot(ctx, "crew_drive_3p");
+        ctx.runOnClient(mc -> mc.options.keyUp.setDown(false));
+        ctx.waitTicks(30);
+        // a second player's view: stand beside it and look at the crewed vehicle (the crew is not drawn)
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+        int[] vis = new int[2];
+        ctx.runOnClient(mc -> {
+            var p = mc.player;
+            var v = p.getVehicle();
+            var all = new net.minecraft.client.renderer.culling.Frustum(new org.joml.Matrix4f(), new org.joml.Matrix4f()) {
+                @Override public boolean isVisible(net.minecraft.world.phys.AABB box) { return true; }
+            };
+            vis[0] = v == null ? -1 : (mc.getEntityRenderDispatcher().shouldRender(p, all, p.getX() + 6, p.getY(), p.getZ()) ? 1 : 0);
+            vis[1] = v != null && mc.getEntityRenderDispatcher().shouldRender(v, all, p.getX() + 6, p.getY(), p.getZ()) ? 1 : 0;
+        });
+        report.add("[info] crew drawn while aboard: " + (vis[0] == 1 ? "yes (bad)" : vis[0] == 0 ? "no" : "not aboard") + ", vehicle drawn " + (vis[1] == 1));
+        server(sp, s -> player(s).stopRiding());
+        for (int i = 0; i < 60; i++) { ctx.runOnClient(mc -> com.heliosphere.planets.defense.sam.client.SamEngineSound.stepForTest()); ctx.waitTicks(1); }
+        float[] off = new float[3];
+        ctx.runOnClient(mc -> { var r = com.heliosphere.planets.defense.sam.client.SamEngineSound.state(); off[0] = r[0]; off[1] = r[1]; off[2] = r[2]; });
+        report.add(String.format("[info] crew out: engines running %.0f", off[0]));
+
+        // the wrench: the launcher goes into it, the radar (wrench full) into its item, the launcher rolls out again
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            var wrench = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("sam_wrench"));
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, wrench);
+            var tel = samNear(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, o[0], o[1], o[2]);
+            int ammo = tel.ammo();
+            tel.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            var held = p.getMainHandItem();
+            report.add("[info] wrench stow: launcher removed " + tel.isRemoved() + ", wrench carries " + com.heliosphere.planets.defense.sam.SamWrenchItem.stored(held)
+                    + " (ammo was " + ammo + "), glint " + held.hasFoil());
+            var radar = samNear(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, o[0], o[1], o[2]);
+            radar.interact(p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            int n = 0; for (var st : p.getInventory().getNonEquipmentItems()) if (st.getItem() == com.heliosphere.planets.defense.sam.SamSites.VEHICLE_ITEMS.get(com.heliosphere.planets.defense.sam.SamKind.BUK_TADS)) n += st.getCount();
+            report.add("[info] wrench full: radar removed " + radar.isRemoved() + ", radar items " + n);
+            var at = new net.minecraft.core.BlockPos(o[0] - 6, o[1] - 1, o[2] - 12);
+            var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(at).add(0, 0.5, 0), net.minecraft.core.Direction.UP, at, false);
+            var r = held.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit));
+            var back = samNear(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, o[0], o[1], o[2]);
+            report.add("[info] wrench deploy: " + r + ", launcher " + (back == null ? "missing" : "back with ammo " + back.ammo()) + ", wrench now carries " + com.heliosphere.planets.defense.sam.SamWrenchItem.stored(p.getMainHandItem()));
+            p.teleportTo(o[0] - 6.5, o[1], o[2] - 1.5);
+        });
+        look(ctx, 180, 10);
+        ctx.waitTicks(10);
+        shot(ctx, "crew_wrench_deployed");
+        cmd(sp, "gamemode creative @a");
     }
 
     private static void cmd(TestSingleplayerContext sp, String c) { sp.getServer().runCommand(c); }

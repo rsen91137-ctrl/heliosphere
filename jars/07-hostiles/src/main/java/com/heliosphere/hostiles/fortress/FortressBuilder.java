@@ -479,7 +479,7 @@ public final class FortressBuilder {
                 level.setBlock(c, Blocks.CHEST.defaultBlockState().setValue(ChestBlock.FACING, Direction.WEST), 3);
                 if (level.getBlockEntity(c) instanceof ChestBlockEntity chest) FortressLoot.fill(chest, tier, 4 + tier + r.nextInt(3), r);
             }
-            List<String> pool = EnemyRoster.pool(tier);
+            List<String> pool = EnemyRoster.groundPool(tier);
             int guards = 5 + (int) Math.round(tier * 1.6);
             java.util.Collections.shuffle(guardSpots, new java.util.Random(r.nextLong()));
             for (int i = 0; i < guards && !guardSpots.isEmpty(); i++) {
@@ -509,6 +509,14 @@ public final class FortressBuilder {
                 level.setBlock(at, Fortresses.POINT_DEFENCE.defaultBlockState(), 3);
                 if (level.getBlockEntity(at) instanceof PointDefenceBlockEntity pd) pd.setup(tier);
                 aa.add(at);
+            }
+            // air cover: strike aircraft circling high over the larger fortresses (they stay within 420 blocks of it)
+            int cover = tier >= 13 ? 3 : tier >= 11 ? 2 : tier >= 9 ? 1 : 0;
+            int top = keepTop != null ? keepTop.getY() : y0 + wallH;
+            for (int i = 0; i < cover; i++) {
+                double a = i * Math.PI * 2 / Math.max(1, cover);
+                garrison(level, i == 1 ? com.heliosphere.hostiles.arsenal.StrikeCraft.JET : com.heliosphere.hostiles.arsenal.StrikeCraft.DRONE,
+                        cx + 0.5 + Math.cos(a) * 30, top + 40, cz + 0.5 + Math.sin(a) * 30, tier);
             }
             return new Result(placed, bosses, keepTop, aa);
         }

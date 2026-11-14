@@ -26,4 +26,5 @@ tasks.register('prodFxTest', ClientProductionRunTask) {
     runDir = project.layout.projectDirectory.dir('run-fx')
     useXVFB = true
     if (project.hasProperty('only')) jvmArgs.add("-Dheliosphere.test.only=${project.property('only')}")
+    if (project.hasProperty('icons')) jvmArgs.add("-Dheliosphere.test.icons=${project.property('icons')}")
 }

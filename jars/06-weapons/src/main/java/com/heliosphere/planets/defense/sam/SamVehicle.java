@@ -137,6 +137,8 @@ public class SamVehicle extends Entity {
     @Override public boolean canBeCollidedWith(Entity other) { return true; }
     @Override public boolean isPushable() { return false; }
     @Override public float maxUpStep() { return 1.05f; }
+    /** Tracks and wheels make no footsteps: the engine sound is played by the client (SamEngineSound). */
+    @Override protected MovementEmission getMovementEmission() { return MovementEmission.EVENTS; }
     @Override public boolean fireImmune() { return true; }
     @Override public InterpolationHandler getInterpolation() { return interpolation; }
     @Override public boolean shouldRenderAtSqrDistance(double d) { return d < 256 * 256; }
@@ -513,7 +515,7 @@ public class SamVehicle extends Entity {
     public InteractionResult interact(Player p, InteractionHand hand) {
         if (hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
         if (!(level() instanceof ServerLevel)) return InteractionResult.SUCCESS;
-        if (p.getItemInHand(hand).getItem() instanceof SamWrenchItem) { pack(p); return InteractionResult.SUCCESS; }
+        if (p.getItemInHand(hand).getItem() instanceof SamWrenchItem) { SamWrenchItem.recover(p, p.getItemInHand(hand), this); return InteractionResult.SUCCESS; }
         status(p);
         if (p instanceof ServerPlayer sp) SamOperation.panel(sp, this);
         return InteractionResult.SUCCESS;

@@ -7,5 +7,22 @@
       }
     ],
     "subtitle": "subtitles.heliosphere.geiger"
+  },
+  "sam_engine": {
+    "sounds": [
+      {
+        "name": "heliosphere:sam_engine",
+        "stream": false
+      }
+    ],
+    "subtitle": "subtitles.heliosphere.sam_engine"
+  },
+  "sam_engine_start": {
+    "sounds": [
+      {
+        "name": "heliosphere:sam_engine_start"
+      }
+    ],
+    "subtitle": "subtitles.heliosphere.sam_engine_start"
   }
 }

@@ -313,6 +313,40 @@ def operation_lang():
         'hud.heliosphere.sam_iff_on': 'IFF on', 'hud.heliosphere.sam_iff_off': 'IFF off'})
 
 
+def wrench_lang():
+    """The wrench carries a vehicle inside it, and the vehicles' engine sounds."""
+    merge('zh_cn', {
+        'item.heliosphere.sam_wrench.hint': '右键防空车：把整辆车装进扳手（导弹、电量、模式一并保留），再对地面右键放出；右键防空电池组或弹药箱：连同电量、弹药收回背包',
+        'item.heliosphere.sam_wrench.loaded': '已装载：%s（导弹 %s/%s，电量 %s）',
+        'item.heliosphere.sam_wrench.deploy_hint': '对地面右键放出（车头朝向你面对的方向）',
+        'message.heliosphere.sam_wrench_stowed': '已将 %s 装入回收扳手（导弹 %s 枚，电量 %s）——对地面右键即可放出',
+        'message.heliosphere.sam_wrench_deployed': '%s 已放出（导弹 %s 枚，电量 %s）',
+        'message.heliosphere.sam_wrench_full': '扳手里已经装着 %s，这辆车改为打包成物品放进背包',
+        'subtitles.heliosphere.sam_engine': '防空车引擎轰鸣',
+        'subtitles.heliosphere.sam_engine_start': '防空车引擎启动',
+    })
+    merge('zh_tw', {
+        'item.heliosphere.sam_wrench.hint': '右鍵防空車：把整輛車裝進扳手（導彈、電量、模式一併保留），再對地面右鍵放出；右鍵防空電池組或彈藥箱：連同電量、彈藥收回背包',
+        'item.heliosphere.sam_wrench.loaded': '已裝載：%s（導彈 %s/%s，電量 %s）',
+        'item.heliosphere.sam_wrench.deploy_hint': '對地面右鍵放出（車頭朝向你面對的方向）',
+        'message.heliosphere.sam_wrench_stowed': '已將 %s 裝入回收扳手（導彈 %s 枚，電量 %s）——對地面右鍵即可放出',
+        'message.heliosphere.sam_wrench_deployed': '%s 已放出（導彈 %s 枚，電量 %s）',
+        'message.heliosphere.sam_wrench_full': '扳手裡已經裝著 %s，這輛車改為打包成物品放進背包',
+        'subtitles.heliosphere.sam_engine': '防空車引擎轟鳴',
+        'subtitles.heliosphere.sam_engine_start': '防空車引擎啟動',
+    })
+    merge('en_us', {
+        'item.heliosphere.sam_wrench.hint': 'Right-click a vehicle to stow the whole vehicle in the wrench (missiles, charge and mode kept), then right-click the ground to roll it out; right-click a battery pack or ammo crate to pack it into your inventory',
+        'item.heliosphere.sam_wrench.loaded': 'Carrying: %s (%s/%s missiles, %s FE)',
+        'item.heliosphere.sam_wrench.deploy_hint': 'Right-click the ground to roll it out (facing your way)',
+        'message.heliosphere.sam_wrench_stowed': 'Stowed %s in the recovery wrench (%s missiles, %s FE) - right-click the ground to roll it out',
+        'message.heliosphere.sam_wrench_deployed': '%s rolled out (%s missiles, %s FE)',
+        'message.heliosphere.sam_wrench_full': 'The wrench already carries %s: this vehicle was packed into an item instead',
+        'subtitles.heliosphere.sam_engine': 'Air defence vehicle engine rumbles',
+        'subtitles.heliosphere.sam_engine_start': 'Air defence vehicle engine starts',
+    })
+
+
 if __name__ == '__main__':
     crate_textures(); crate_model()
     for rid, spec in ROUNDS.items(): round_icon(rid, *spec)
@@ -321,4 +355,5 @@ if __name__ == '__main__':
     wrench_and_drops()
     operation_lang()
     vehicle_lang()
+    wrench_lang()
     print('sam ammo assets written')

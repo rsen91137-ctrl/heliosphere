@@ -52,5 +52,10 @@
   "event.heliosphere.siege.won": "★ 围攻已擊退！戰利品掉落在你腳下（已擊退 %s 次，之後的進攻會更强）",
   "event.heliosphere.siege.over": "围攻結束，機械部隊暂时撤離……它们還會回來。",
   "message.heliosphere.titan_salvo": "§c§l⚠ 泰坦導彈齊射！立刻尋找掩體",
-  "block.heliosphere.point_defence_launcher": "要塞點防禦攔截陣地"
+  "block.heliosphere.point_defence_launcher": "要塞點防禦攔截陣地",
+  "entity.heliosphere.strike_drone": "VIII型察打無人機",
+  "item.heliosphere.strike_drone_deployment": "VIII型察打無人機部署器（創造）",
+  "entity.heliosphere.strike_jet": "鷂隼固定翼攻擊機",
+  "item.heliosphere.strike_jet_deployment": "鷂隼固定翼攻擊機部署器（創造）",
+  "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外發射了超視距導彈！躲進有頂的建築，或用防空系統攔截"
 }

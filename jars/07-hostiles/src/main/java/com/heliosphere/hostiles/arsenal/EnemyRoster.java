@@ -16,7 +16,8 @@ public final class EnemyRoster {
 
     /** Weapon modes added by this overlay (0-6 are the released ones). */
     public static final int FLAME = 7, LANCE = 8, MORTAR = 9, KAMIKAZE = 10, AEGIS = 11, TITAN = 12, BLADE = 13,
-            PLASMA = 14, GRAVITY = 15, PHASE = 16, OVERSEER = 17, CARRIER = 18, COLOSSUS = 19;
+            PLASMA = 14, GRAVITY = 15, PHASE = 16, OVERSEER = 17, CARRIER = 18, COLOSSUS = 19,
+            STANDOFF = 20, STRIKE = 21;
 
     /** First day that never comes: machines kept out of the Earth patrols, met in fortresses and on other worlds. */
     private static final int NEVER = 100000;
@@ -46,6 +47,9 @@ public final class EnemyRoster {
             new Role("laser_drone", "光矛狙击无人机", 50, 110, 8, 30, LANCE, 100, 80, true, 1.2f, 0.7f),
             new Role("stalker", "幽影刺客", 55, 90, 6, 18, BLADE, 18, 2.4f, false, 0.8f, 2.1f),
             new Role("titan_walker", "泰坦重装机甲", 90, 650, 22, 28, TITAN, 60, 64, false, 3.0f, 5.2f),
+            // strike aircraft: they fight from beyond visual range (StrikeCraft); the range here is only for the cannon
+            new Role("strike_drone", "VIII型察打无人机", 65, 180, 10, 30, STANDOFF, 40, 28, true, 2.2f, 0.9f),
+            new Role("strike_jet", "鹞隼固定翼攻击机", 80, 320, 14, 36, STRIKE, 30, 28, true, 2.8f, 1.2f),
             // Mk VII and up: fortresses and the outer worlds
             new Role("plasma_drone", "VII型等离子无人机", NEVER, 260, 18, 30, PLASMA, 45, 64, true, 1.6f, 0.9f),
             new Role("graviton_walker", "引力碾压机甲", NEVER, 420, 22, 26, GRAVITY, 50, 24, false, 2.2f, 2.9f),
@@ -64,7 +68,8 @@ public final class EnemyRoster {
             Map.entry("repair_automaton", 2), Map.entry("siege_drone", 3), Map.entry("arc_hound", 3), Map.entry("emp_spider", 3),
             Map.entry("missile_drone", 4), Map.entry("mortar_walker", 4), Map.entry("flame_walker", 4), Map.entry("shield_bearer", 5),
             Map.entry("siege_walker", 5), Map.entry("hunter_drone", 5), Map.entry("laser_drone", 5), Map.entry("stalker", 5),
-            Map.entry("rail_sentinel", 6), Map.entry("titan_walker", 7), Map.entry("plasma_drone", 7), Map.entry("graviton_walker", 8),
+            Map.entry("rail_sentinel", 6), Map.entry("titan_walker", 7), Map.entry("plasma_drone", 7),
+            Map.entry("strike_drone", 7), Map.entry("strike_jet", 8), Map.entry("graviton_walker", 8),
             Map.entry("phase_stalker", 8), Map.entry("fortress_overseer", 9), Map.entry("hive_carrier", 9), Map.entry("colossus", 10));
 
     public static final java.util.Set<String> BOSSES = java.util.Set.of("fortress_overseer", "hive_carrier", "colossus");
@@ -78,6 +83,13 @@ public final class EnemyRoster {
         for (Map.Entry<String, Integer> e : TIER.entrySet())
             if (!BOSSES.contains(e.getKey()) && e.getValue() <= max && e.getValue() >= min) out.add(e.getKey());
         out.sort(String::compareTo);
+        return out;
+    }
+
+    /** Machines that stand guard inside a fortress or step out of its fabricators: the strike aircraft are not among them. */
+    public static List<String> groundPool(int difficulty) {
+        List<String> out = new ArrayList<>(pool(difficulty));
+        out.removeIf(StrikeCraft::isId);
         return out;
     }
 

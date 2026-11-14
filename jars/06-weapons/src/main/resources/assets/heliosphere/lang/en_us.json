@@ -105,7 +105,7 @@
   "item.heliosphere.fire_control_computer": "Air Defence Fire-Control Computer",
   "item.heliosphere.launcher_module": "Missile Launcher Rack",
   "item.heliosphere.sam_wrench": "Air Defence Recovery Wrench",
-  "item.heliosphere.sam_wrench.hint": "Right-click a vehicle, battery pack or ammo crate to pack it up with its missiles, charge or rounds",
+  "item.heliosphere.sam_wrench.hint": "Right-click a vehicle to stow the whole vehicle in the wrench (missiles, charge and mode kept), then right-click the ground to roll it out; right-click a battery pack or ammo crate to pack it into your inventory",
   "message.heliosphere.sam_packed": "Packed up %s (%s missiles, %s FE)",
   "message.heliosphere.sam_packed_simple": "Packed up %s",
   "message.heliosphere.sam_taken": "Someone is already operating this vehicle",
@@ -166,5 +166,12 @@
   "message.heliosphere.jetpack_too_weak": "Gravity here (%s g) is beyond this pack (about %s g at most)",
   "message.heliosphere.point_defence_engaging": "⚠ A difficulty %s machine fortress is shooting down your missile! Destroy the launchers on its roofs first",
   "message.heliosphere.nuke_intercepted": "Your tactical nuke was shot down in the air; no nuclear explosion",
-  "message.heliosphere.missile_intercepted": "Your missile was intercepted"
+  "message.heliosphere.missile_intercepted": "Your missile was intercepted",
+  "item.heliosphere.sam_wrench.loaded": "Carrying: %s (%s/%s missiles, %s FE)",
+  "item.heliosphere.sam_wrench.deploy_hint": "Right-click the ground to roll it out (facing your way)",
+  "message.heliosphere.sam_wrench_stowed": "Stowed %s in the recovery wrench (%s missiles, %s FE) - right-click the ground to roll it out",
+  "message.heliosphere.sam_wrench_deployed": "%s rolled out (%s missiles, %s FE)",
+  "message.heliosphere.sam_wrench_full": "The wrench already carries %s: this vehicle was packed into an item instead",
+  "subtitles.heliosphere.sam_engine": "Air defence vehicle engine rumbles",
+  "subtitles.heliosphere.sam_engine_start": "Air defence vehicle engine starts"
 }

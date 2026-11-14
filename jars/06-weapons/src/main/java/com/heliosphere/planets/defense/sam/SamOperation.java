@@ -47,6 +47,7 @@ public final class SamOperation {
         if (on == p) return;
         if (p.isPassenger()) p.stopRiding();
         if (!p.startRiding(v, true, true)) return;
+        p.level().playSound(null, v.getX(), v.getY() + 1, v.getZ(), SamSites.ENGINE_START, net.minecraft.sounds.SoundSource.NEUTRAL, 1.4f, 1.0f);
         p.displayClientMessage(Component.translatable("message.heliosphere.sam_boarded", Component.translatable("block.heliosphere." + v.kind().id),
                 Component.translatable(v.manual() ? "message.heliosphere.sam_mode_manual" : "message.heliosphere.sam_mode_auto")).withStyle(ChatFormatting.AQUA), false);
     }

@@ -23,7 +23,9 @@ public enum MissileSpec {
     /** The tactical nuke's warhead rocket: unguided, straight and fast, good for 5000 blocks. */
     NUKE_ROCKET     (Model.NUKE,          0,  20, 0.300, 700, 0.140, 0.0025, 7.5,  0, 1.0, 0,     0,  0, 1.5, 0,  999, 0.00, 0.000, 720, 2.0, false, 0),
     /** A hit-to-kill interceptor (machine fortresses' point defence): very fast, very agile, kills missiles only. */
-    INTERCEPTOR     (Model.IRIS,          0,  16, 0.420,  70, 0.150, 0.0024, 9.5, 70, 1.0, 5.0, 180, 40, 5.0, 3.0,  2, 0.60, 0.012, 260, 1.2, false, 0);
+    INTERCEPTOR     (Model.IRIS,          0,  16, 0.420,  70, 0.150, 0.0024, 9.5, 70, 1.0, 5.0, 180, 40, 5.0, 3.0,  2, 0.60, 0.012, 260, 1.2, false, 0),
+    /** Stand-off missile of the machine strike aircraft: launched from 200-320 blocks, a long sustainer and a seeker that rides out short gaps. */
+    STANDOFF        (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 100, 30, 1.8, 4.0,  4, 0.00, 0.010, 360, 0.6, true,  48);
 
     /** One g of overload, in blocks per tick squared. */
     public static final double G = 0.04;

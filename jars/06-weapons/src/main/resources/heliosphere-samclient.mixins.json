@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.planets.defense.sam.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["SamCrewHiddenMixin"],
+  "injectors": {"defaultRequire": 1}
+}

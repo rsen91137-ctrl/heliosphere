@@ -46,7 +46,7 @@ public final class EnemyArsenal implements ModInitializer {
         Missiles.init();
     }
 
-    private static void later(ServerLevel level, int ticks, Runnable r) {
+    static void later(ServerLevel level, int ticks, Runnable r) {
         TASKS.computeIfAbsent(level, l -> new ArrayList<>()).add(new Task(level.getGameTime() + ticks, r));
     }
 
@@ -126,6 +126,7 @@ public final class EnemyArsenal implements ModInitializer {
             case EnemyRoster.OVERSEER -> overseer(mob, level, target, r);
             case EnemyRoster.CARRIER -> carrier(mob, level, target, r);
             case EnemyRoster.COLOSSUS -> colossus(mob, level, target, r);
+            case EnemyRoster.STANDOFF, EnemyRoster.STRIKE -> StrikeCraft.cannon(mob, level, target, r.damage());
             default -> { return false; }
         }
         return true;
@@ -468,6 +469,7 @@ public final class EnemyArsenal implements ModInitializer {
     // ---- spawning -----------------------------------------------------------------------------------------------
 
     public static void spawned(ServerLevel level, String id, double x, double y, double z, LivingEntity target, TechMob mob) {
+        if (mob != null && StrikeCraft.isId(id)) StrikeCraft.wake(level, mob.position());
         if (mob == null || spawningSwarm || !"swarm_drone".equals(id)) return;
         spawningSwarm = true;
         try {

@@ -277,7 +277,8 @@ public final class Sieges implements ModInitializer {
         List<String> pool = EnemyRoster.pool(d);
         List<String> pick = switch (s.kind) {
             case RECON -> filter(pool, id -> id.contains("drone"));
-            case BOMBARD -> filter(pool, id -> id.equals("mortar_walker") || id.equals("siege_drone") || id.equals("missile_drone") || id.equals("siege_walker"));
+            case BOMBARD -> filter(pool, id -> id.equals("mortar_walker") || id.equals("siege_drone") || id.equals("missile_drone") || id.equals("siege_walker")
+                    || id.equals("strike_drone") || id.equals("strike_jet"));
             case INFILTRATION -> filter(pool, id -> id.contains("stalker") || id.equals("arc_hound") || id.equals("emp_spider"));
             default -> pool;
         };

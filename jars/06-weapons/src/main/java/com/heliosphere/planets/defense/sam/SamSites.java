@@ -47,6 +47,13 @@ public final class SamSites implements ModInitializer {
         return null;
     }
     public static BlockEntityType<FieldBatteryBlockEntity> BATTERY_ENTITY;
+    /** The vehicles' diesel: a loop while crewed (pitched with speed) and the start-up when someone climbs aboard. */
+    public static net.minecraft.sounds.SoundEvent ENGINE, ENGINE_START;
+
+    private static net.minecraft.sounds.SoundEvent sound(String name) {
+        Identifier i = Identifier.fromNamespaceAndPath("heliosphere", name);
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, i, net.minecraft.sounds.SoundEvent.createVariableRangeEvent(i));
+    }
 
     @Override
     public void onInitialize() {
@@ -67,6 +74,8 @@ public final class SamSites implements ModInitializer {
         ResourceKey<EntityType<?>> vehicleKey = ResourceKey.create(Registries.ENTITY_TYPE, vehicleId);
         VEHICLE = Registry.register(BuiltInRegistries.ENTITY_TYPE, vehicleKey, EntityType.Builder.<SamVehicle>of(SamVehicle::new, MobCategory.MISC).sized(2.9f, 2.4f)
                 .fireImmune().clientTrackingRange(16).updateInterval(2).build(vehicleKey));
+        ENGINE = sound("sam_engine");
+        ENGINE_START = sound("sam_engine_start");
         SamOperation.init();
         Reg.tab("weapons");
         for (SamKind k : SamKind.values()) {

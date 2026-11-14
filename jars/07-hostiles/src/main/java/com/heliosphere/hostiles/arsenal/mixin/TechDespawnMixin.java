@@ -15,11 +15,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Mob.class)
 public class TechDespawnMixin {
     private static final double FAR = 176 * 176;
+    private static final double STRIKE_FAR = (com.heliosphere.hostiles.arsenal.StrikeCraft.ACQUIRE + 60) * (com.heliosphere.hostiles.arsenal.StrikeCraft.ACQUIRE + 60);
 
     @Inject(method = "removeWhenFarAway", at = @At("HEAD"), cancellable = true)
     private void heliosphere$machines(double distSqr, CallbackInfoReturnable<Boolean> cir) {
         if (!((Object) this instanceof TechMob m)) return;
         if (m.getTags().contains("heliosphere.fortress") || m.getTags().contains("heliosphere.siege") || m.hasCustomName()) cir.setReturnValue(false);
+        else if (com.heliosphere.hostiles.arsenal.StrikeCraft.is(m)) cir.setReturnValue(distSqr > STRIKE_FAR);   // they fight from 200-330 blocks out
         else cir.setReturnValue(distSqr > FAR);
     }
 }

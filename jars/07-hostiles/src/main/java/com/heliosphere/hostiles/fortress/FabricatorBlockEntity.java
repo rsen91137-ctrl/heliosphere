@@ -52,7 +52,7 @@ public class FabricatorBlockEntity extends BlockEntity {
         if (level.getEntitiesOfClass(TechMob.class, new AABB(pos).inflate(24)).size() >= cap + 2) return;
         BlockPos at = exit(level, pos);
         if (at == null) return;
-        List<String> pool = EnemyRoster.pool(tier);
+        List<String> pool = EnemyRoster.groundPool(tier);
         String id = pool.get(level.random.nextInt(pool.size()));
         TechMob m = TechCombat.spawn(level, id, at.getX() + 0.5, at.getY(), at.getZ() + 0.5, near);
         if (m == null) return;
