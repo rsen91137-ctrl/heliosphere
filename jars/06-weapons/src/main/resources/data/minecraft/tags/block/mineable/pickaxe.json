@@ -1,0 +1,129 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "heliosphere:defense_silo",
+      "required": false
+    },
+    {
+      "id": "heliosphere:point_defence_launcher",
+      "required": false
+    },
+    {
+      "id": "heliosphere:wind_turbine",
+      "required": false
+    },
+    {
+      "id": "heliosphere:geothermal_generator",
+      "required": false
+    },
+    {
+      "id": "heliosphere:rtg",
+      "required": false
+    },
+    {
+      "id": "heliosphere:hydrogen_fuel_cell",
+      "required": false
+    },
+    {
+      "id": "heliosphere:fission_reactor",
+      "required": false
+    },
+    {
+      "id": "heliosphere:lithium_battery_cabinet",
+      "required": false
+    },
+    {
+      "id": "heliosphere:supercapacitor_bank",
+      "required": false
+    },
+    {
+      "id": "heliosphere:grid_storage_array",
+      "required": false
+    },
+    {
+      "id": "heliosphere:habitat_field_emitter",
+      "required": false
+    },
+    {
+      "id": "heliosphere:stargate",
+      "required": false
+    },
+    {
+      "id": "heliosphere:gunsmith_bench",
+      "required": false
+    },
+    {
+      "id": "heliosphere:trinitite",
+      "required": false
+    },
+    {
+      "id": "heliosphere:defense_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sonic_defense_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:laser_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sonic_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:autocannon_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:flak_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:missile_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:rail_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:tesla_turret",
+      "required": false
+    },
+    {
+      "id": "heliosphere:buk_telar",
+      "required": false
+    },
+    {
+      "id": "heliosphere:buk_tads",
+      "required": false
+    },
+    {
+      "id": "heliosphere:samp_tel",
+      "required": false
+    },
+    {
+      "id": "heliosphere:samp_tads",
+      "required": false
+    },
+    {
+      "id": "heliosphere:iris_tel",
+      "required": false
+    },
+    {
+      "id": "heliosphere:iris_tads",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sam_battery",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sam_ammo_crate",
+      "required": false
+    }
+  ]
+}

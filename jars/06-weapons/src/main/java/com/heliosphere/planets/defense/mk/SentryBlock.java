@@ -42,8 +42,35 @@ public class SentryBlock extends BaseEntityBlock {
         return level.isClientSide() || type != Sentries.BLOCK_ENTITY ? null : (l, p, s, be) -> ((SentryBlockEntity) be).tick((ServerLevel) l);
     }
 
+    /** Mined with a pickaxe, the turret drops with its upgrade and its charge, and keeps them when set down again. */
+    @Override
+    protected java.util.List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder params) {
+        java.util.List<ItemStack> drops = super.getDrops(state, params);
+        if (params.getOptionalParameter(net.minecraft.world.level.storage.loot.parameters.LootContextParams.BLOCK_ENTITY) instanceof SentryBlockEntity be
+                && !be.creative() && (be.mk() > 0 || be.energy() > 0))
+            for (ItemStack st : drops) if (st.getItem() == asItem()) store(st, be.mk(), be.energy());
+        return drops;
+    }
+
+    public static final String MK = "turret_mk", POWER = "turret_power";
+
+    static void store(ItemStack st, int mk, long power) {
+        net.minecraft.world.item.component.CustomData.update(net.minecraft.core.component.DataComponents.CUSTOM_DATA, st, t -> { t.putInt(MK, mk); t.putLong(POWER, power); });
+    }
+
+    /** {Mk, power} stored on a turret item, or null. */
+    public static long[] stored(ItemStack st) {
+        var d = st.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        if (d == null) return null;
+        var t = d.copyTag();
+        return t.contains(MK) ? new long[]{t.getIntOr(MK, 0), t.getLongOr(POWER, 0)} : null;
+    }
+
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, LivingEntity placer, ItemStack stack) {
+        long[] kept = stored(stack);
+        if (kept != null && level.getBlockEntity(pos) instanceof SentryBlockEntity be0)
+            be0.adopt(kept[1], (int) kept[0], placer instanceof Player pp ? pp.getUUID() : null);
         if (level.getBlockEntity(pos) instanceof SentryBlockEntity be && placer instanceof Player p) {
             be.owner(p.getUUID());
             if (p.isCreative()) be.creative(true);                 // creative mode: fights at once, no power needed

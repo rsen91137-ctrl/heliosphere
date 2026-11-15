@@ -205,5 +205,6 @@
   "message.heliosphere.shoulder_sentry_upgraded": "Shoulder sentry upgraded to Mk %s",
   "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit",
   "message.heliosphere.turret_no_power": "%s has no power (%s/%s FE) and cannot fire: connect it to a generator or battery with cable",
-  "message.heliosphere.shoulder_sentry_saved": "The chestplate broke: the shoulder sentry came off into your inventory (or at your feet if it is full)"
+  "message.heliosphere.shoulder_sentry_saved": "The chestplate broke: the shoulder sentry came off into your inventory (or at your feet if it is full)",
+  "item.heliosphere.turret_kept": "Upgraded to Mk %s · %s FE stored (kept when set down)"
 }

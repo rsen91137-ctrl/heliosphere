@@ -205,5 +205,6 @@
   "message.heliosphere.shoulder_sentry_upgraded": "肩載哨戒炮已升級到 Mk %s",
   "message.heliosphere.shoulder_sentry_has_mk": "這門哨戒炮已經是 Mk %s 了，需要更高級的升級套件",
   "message.heliosphere.turret_no_power": "%s 沒電了（%s/%s FE），看到敵人也無法開火：用電纜把它接到發電機或電池組上",
-  "message.heliosphere.shoulder_sentry_saved": "胸甲損壞了：肩載哨戒砲已經卸下放回背包（背包滿時掉在腳下）"
+  "message.heliosphere.shoulder_sentry_saved": "胸甲損壞了：肩載哨戒砲已經卸下放回背包（背包滿時掉在腳下）",
+  "item.heliosphere.turret_kept": "已升級 Mk %s · 儲電 %s FE（放下後保留）"
 }

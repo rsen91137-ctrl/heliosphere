@@ -74,6 +74,44 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "stack" -> stack(ctx, sp);
                     case "shoulderfx" -> shoulderFx(ctx, sp);
                     case "gear2" -> gear2(ctx, sp);
+                    case "harvest" -> server(sp, s -> {               // blocks that need a tool no tool is right for: they never drop
+                        java.util.List<String> bad = new java.util.ArrayList<>();
+                        var tools = new net.minecraft.world.item.ItemStack[]{new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_PICKAXE),
+                                new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_AXE), new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_SHOVEL),
+                                new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_HOE), new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.SHEARS)};
+                        for (var b : net.minecraft.core.registries.BuiltInRegistries.BLOCK) {
+                            var id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(b);
+                            if (!id.getNamespace().equals("heliosphere")) continue;
+                            var st = b.defaultBlockState();
+                            if (!st.requiresCorrectToolForDrops() || st.getDestroySpeed(s.overworld(), net.minecraft.core.BlockPos.ZERO) < 0) continue;
+                            boolean ok = false;
+                            for (var t : tools) ok |= t.isCorrectToolForDrops(st);
+                            if (!ok) bad.add(id.getPath());
+                        }
+                        report.add("[info] harvest: blocks no tool can drop " + bad.size() + ": " + bad);
+                        // a Mk III turret mined with a pickaxe, picked up and set down again
+                        ServerPlayer p = player(s);
+                        var l = s.overworld();
+                        p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+                        var pos = p.blockPosition().offset(2, 0, 0);
+                        l.setBlock(pos.below(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+                        l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(com.heliosphere.planets.defense.mk.TurretKind.LASER).defaultBlockState(), 3);
+                        ((com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos)).adopt(3210, 3, p.getUUID());
+                        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_PICKAXE));
+                        boolean broke = p.gameMode.destroyBlock(pos);
+                        var drops = l.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new net.minecraft.world.phys.AABB(pos).inflate(2));
+                        var it = drops.isEmpty() ? net.minecraft.world.item.ItemStack.EMPTY : drops.getFirst().getItem().copy();
+                        long[] kept = com.heliosphere.planets.defense.mk.SentryBlock.stored(it);
+                        report.add("[info] turret mined with an iron pickaxe: broke " + broke + ", drop " + it + ", kept " + (kept == null ? "nothing" : "Mk " + kept[0] + ", " + kept[1] + " FE"));
+                        drops.forEach(net.minecraft.world.entity.Entity::discard);
+                        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, it);
+                        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos.below()).add(0, 0.5, 0), net.minecraft.core.Direction.UP, pos.below(), false);
+                        p.gameMode.useItemOn(p, l, it, net.minecraft.world.InteractionHand.MAIN_HAND, hit);
+                        if (l.getBlockEntity(pos) instanceof com.heliosphere.planets.defense.mk.SentryBlockEntity be)
+                            report.add("[info] set down again: Mk " + be.mk() + ", " + be.energy() + " FE");
+                        else report.add("[info] set down again: no turret at " + pos);
+                        p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+                    });
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
