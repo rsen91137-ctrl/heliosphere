@@ -64,6 +64,27 @@ public final class Sieges implements ModInitializer {
         long next = -1;
         int beaten;
         int launched;
+        /** Technologies the machines have noticed (Alarm keys), and the counter-attack they owe for the last one. */
+        List<String> alarms = new ArrayList<>();
+        long retaliateAt = -1;
+        String retaliateWhy;
+        boolean warned;
+    }
+
+    /**
+     * Technologies that alarm the machines: the first time a player holds one of these (or rides a rocket), the
+     * machines gather a large force and strike four to six minutes later, wherever the player is (their shelter if they
+     * are home). Each alarm also brings every later siege 7% sooner and one level harder, for good.
+     */
+    enum Alarm {
+        ENERGY("energy", "laser_rifle", "gauss_pistol", "coilgun", "plasma_cannon", "railgun"),
+        HEAVY("heavy", "antimatter_rifle", "singularity_cannon", "nuke_launcher", "nuke_warhead", "smart_launcher"),
+        ROCKET("rocket", "launch_console", "rocket_sounding", "rocket_qiming_1", "rocket_qiming_2", "rocket_dawn_3", "rocket_prospector",
+                "rocket_europa_surveyor", "rocket_titan_explorer", "rocket_horizon_x", "rocket_phobos_clipper", "rocket_enceladus_pioneer"),
+        AIR("air", "buk_telar", "buk_tads", "samp_tel", "samp_tads", "iris_tel", "iris_tads");
+        final String key;
+        final java.util.Set<String> items;
+        Alarm(String key, String... items) { this.key = key; this.items = java.util.Set.of(items); }
     }
 
     static final class Cell {
@@ -91,7 +112,8 @@ public final class Sieges implements ModInitializer {
         ServerLevel level;
         BlockPos home;
         Kind kind;
-        int difficulty, wave, total;
+        int difficulty, wave, total, waves;
+        boolean big;                                             // a counter-attack for a technology: one more wave, half as many machines again
         long nextWave, started;
         final List<UUID> mobs = new ArrayList<>();
         ServerBossEvent bar;
@@ -151,14 +173,16 @@ public final class Sieges implements ModInitializer {
             if (p.isSpectator()) continue;
             Memory m = mem(p);
             learn(p, m);
-            if (p.isCreative() || busy(p)) { save(p, m); continue; }
             long now = server.overworld().getGameTime();
+            if (!p.isCreative()) alarms(p, m, now, day);
+            if (p.isCreative() || busy(p)) { save(p, m); continue; }
             // closer together as the machines evolve (2.5 days at stage 1, half a day at stage 15), and once air defence exists
             int gap = com.heliosphere.hostiles.arsenal.Evolution.siegeGap(com.heliosphere.hostiles.arsenal.Evolution.stage(day),
                     com.heliosphere.planets.defense.sam.SamSites.airDefenceBuilt(server));
+            gap = Math.round(gap * Math.max(0.6f, 1 - 0.07f * m.alarms.size()));                 // each alarmed technology: 7% sooner
             if (m.next < 0 || m.next - now > gap * 3L / 2) m.next = now + gap + p.getRandom().nextInt(gap / 2);
             Cell home = shelter(m);
-            if (home != null && day >= 3 && now >= m.next && home.dim.equals(dim(p.level()))) {
+            if (home != null && day >= GRACE_DAYS && now >= m.next && home.dim.equals(dim(p.level()))) {   // the first days: time to build
                 BlockPos c = home.center(p.level());
                 if (p.blockPosition().distSqr(new BlockPos(c.getX(), p.getBlockY(), c.getZ())) < 80 * 80 && p.level().getChunkSource().getChunkNow(c.getX() >> 4, c.getZ() >> 4) != null) {
                     int d = difficulty(p, m, day);
@@ -169,6 +193,73 @@ public final class Sieges implements ModInitializer {
             }
             save(p, m);
         }
+    }
+
+    /** For the world test: the noticed technologies and when the counter-attack is due; and bring it forward. */
+    public static String alarmState(ServerPlayer p) { Memory m = mem(p); return m.alarms + " due " + m.retaliateAt + " (" + m.retaliateWhy + ")"; }
+    public static void alarmNow(ServerPlayer p, long at) { Memory m = mem(p); if (m.retaliateAt > 0) { m.retaliateAt = at; m.warned = true; } }
+    /** For the world test: the counter-attacks under way, as "kind difficulty waves machines". */
+    public static List<String> bigSieges() {
+        List<String> out = new ArrayList<>();
+        for (Siege s : ACTIVE) if (s.big) out.add(s.kind + " d" + s.difficulty + " waves " + s.waves + " wave " + s.wave + " machines " + s.total);
+        return out;
+    }
+
+    /** No sieges before this day: the first days are for building up. */
+    public static final int GRACE_DAYS = 10;
+
+    /** Notices new technologies, warns, and launches the counter-attack when it is due. */
+    private static void alarms(ServerPlayer p, Memory m, long now, long day) {
+        if (m.alarms == null) m.alarms = new ArrayList<>();
+        for (Alarm a : Alarm.values()) {
+            if (m.alarms.contains(a.key) || !holds(p, a)) continue;
+            m.alarms.add(a.key);
+            if (m.retaliateAt < 0) {
+                m.retaliateAt = now + 4800 + p.getRandom().nextInt(2400);              // four to six minutes
+                m.retaliateWhy = a.key;
+                m.warned = false;
+            }
+            for (ServerPlayer q : p.level().players())
+                if (q == p || q.distanceToSqr(p) < 160 * 160)
+                    q.displayClientMessage(Component.translatable("event.heliosphere.alarm." + a.key, p.getDisplayName(), (m.retaliateAt - now) / 1200)
+                            .withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false);
+            p.level().playSound(null, p.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.6f, 0.5f);
+        }
+        if (m.retaliateAt < 0) return;
+        if (!m.warned && now >= m.retaliateAt - 1200) {
+            m.warned = true;
+            p.displayClientMessage(Component.translatable("event.heliosphere.alarm.soon").withStyle(ChatFormatting.RED, ChatFormatting.BOLD), false);
+            p.level().playSound(null, p.blockPosition(), SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 3f, 0.5f);
+        }
+        if (now < m.retaliateAt || busy(p) || !p.isAlive() || p.isSpectator() || Planets.isSpace(p.level())) return;
+        // at the shelter if the player is home, otherwise wherever the player is
+        BlockPos target = p.blockPosition();
+        Cell home = shelter(m);
+        if (home != null && home.dim.equals(dim(p.level()))) {
+            BlockPos c = home.center(p.level());
+            if (p.blockPosition().distSqr(new BlockPos(c.getX(), p.getBlockY(), c.getZ())) < 80 * 80) target = c;
+        }
+        int d = Mth.clamp(difficulty(p, m, day) + 2, 1, 15);
+        Siege s = begin(p, p.level(), target, d >= Kind.ONSLAUGHT.from ? Kind.ONSLAUGHT : Kind.ASSAULT, d);
+        s.big = true;
+        s.waves = s.kind.waves + 1;
+        s.bar.setName(Component.translatable("event.heliosphere.alarm.bar", Component.translatable("event.heliosphere.alarm.tech." + m.retaliateWhy), d));
+        m.retaliateAt = -1;
+        m.launched++;
+        int gap = com.heliosphere.hostiles.arsenal.Evolution.siegeGap(com.heliosphere.hostiles.arsenal.Evolution.stage(day), false);
+        m.next = Math.max(m.next, now + gap / 2);                                      // no ordinary siege right on its heels
+    }
+
+    private static boolean holds(ServerPlayer p, Alarm a) {
+        if (a == Alarm.ROCKET && p.getVehicle() != null && p.getVehicle().getClass().getSimpleName().contains("Rocket")) return true;
+        var inv = p.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) {
+            var st = inv.getItem(i);
+            if (st.isEmpty()) continue;
+            var id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(st.getItem());
+            if (id.getNamespace().equals("heliosphere") && a.items.contains(id.getPath())) return true;
+        }
+        return false;
     }
 
     private static String dim(Level l) { return l.dimension().identifier().toString(); }
@@ -218,7 +309,8 @@ public final class Sieges implements ModInitializer {
     }
 
     private static int difficulty(ServerPlayer p, Memory m, long day) {
-        int d = com.heliosphere.hostiles.arsenal.Evolution.stage(day) + Math.min(3, m.beaten / 3);   // beating sieges hardens them, by 3 at most
+        int d = com.heliosphere.hostiles.arsenal.Evolution.stage(day) + Math.min(3, m.beaten / 3)   // beating sieges hardens them, by 3 at most
+                + (m.alarms == null ? 0 : Math.min(3, m.alarms.size()));                     // and so does each alarming technology
         if (p.level().dimension() != Level.OVERWORLD) {
             var body = Planets.bodyOf(p.level());
             if (body != null) d += WorldTiers.base(body.id) - 1;
@@ -235,9 +327,9 @@ public final class Sieges implements ModInitializer {
 
     // ---- the siege ----------------------------------------------------------------------------------------------
 
-    static void begin(ServerPlayer p, ServerLevel level, BlockPos home, Kind kind, int difficulty) {
+    static Siege begin(ServerPlayer p, ServerLevel level, BlockPos home, Kind kind, int difficulty) {
         Siege s = new Siege();
-        s.player = p.getUUID(); s.level = level; s.home = home; s.kind = kind; s.difficulty = difficulty;
+        s.player = p.getUUID(); s.level = level; s.home = home; s.kind = kind; s.difficulty = difficulty; s.waves = kind.waves;
         s.started = level.getGameTime();
         s.nextWave = s.started + (kind == Kind.INFILTRATION ? 300 : 600);
         s.bar = new ServerBossEvent(Component.translatable("event.heliosphere.siege." + kind.key() + ".bar", difficulty),
@@ -252,6 +344,7 @@ public final class Sieges implements ModInitializer {
                 level.playSound(null, q.blockPosition(), SoundEvents.RAID_HORN.value(), SoundSource.HOSTILE, 4f, kind == Kind.ONSLAUGHT ? 0.6f : 1.1f);
                 s.bar.addPlayer(q);
             }
+        return s;
     }
 
     private static void run(MinecraftServer server) {
@@ -261,7 +354,7 @@ public final class Sieges implements ModInitializer {
             long now = l.getGameTime();
             ServerPlayer p = server.getPlayerList().getPlayer(s.player);
             if (p == null || p.level() != l || now - s.started > 12000) { end(s, false); it.remove(); continue; }
-            if (s.wave < s.kind.waves && now >= s.nextWave) {
+            if (s.wave < s.waves && now >= s.nextWave) {
                 wave(s, p);
                 s.wave++;
                 s.nextWave = now + 900;
@@ -270,12 +363,13 @@ public final class Sieges implements ModInitializer {
                 s.mobs.removeIf(id -> { Entity e = l.getEntity(id); return e == null || !e.isAlive(); });
                 float left = s.total == 0 ? 1f : s.mobs.size() / (float) s.total;
                 s.bar.setProgress(Mth.clamp(left, 0f, 1f));
-                s.bar.setName(Component.translatable("event.heliosphere.siege." + s.kind.key() + ".bar", s.difficulty)
-                        .append(Component.translatable("event.heliosphere.siege.left", s.mobs.size(), s.wave, s.kind.waves)));
+                s.bar.setName((s.big ? Component.translatable("event.heliosphere.alarm.bar.short", s.difficulty)
+                        : Component.translatable("event.heliosphere.siege." + s.kind.key() + ".bar", s.difficulty))
+                        .append(Component.translatable("event.heliosphere.siege.left", s.mobs.size(), s.wave, s.waves)));
                 for (ServerPlayer q : l.players())
                     if (q.blockPosition().distSqr(s.home) < 160 * 160) s.bar.addPlayer(q); else s.bar.removePlayer(q);
                 if (p.isDeadOrDying()) { end(s, false); it.remove(); continue; }
-                if (s.wave >= s.kind.waves && s.mobs.isEmpty() && s.total > 0) { end(s, true); it.remove(); }
+                if (s.wave >= s.waves && s.mobs.isEmpty() && s.total > 0) { end(s, true); it.remove(); }
             }
         }
     }
@@ -284,7 +378,7 @@ public final class Sieges implements ModInitializer {
         ServerLevel l = s.level;
         RandomSource r = l.random;
         int d = s.difficulty;
-        boolean last = s.wave == s.kind.waves - 1;
+        boolean last = s.wave == s.waves - 1;
         List<String> pool = new ArrayList<>(EnemyRoster.pool(d));
         long day = l.getServer().overworld().getDayTime() / 24000L;
         if (l.dimension() == Level.OVERWORLD) {                   // on Earth only what the machines have already evolved
@@ -306,6 +400,7 @@ public final class Sieges implements ModInitializer {
             case INFILTRATION -> 2 + d / 4;
             case ONSLAUGHT -> 5 + d / 2;
         };
+        if (s.big) n = n * 3 / 2 + 1;                             // a counter-attack: half as many again
         double a = r.nextDouble() * Math.PI * 2;
         double dist = s.kind == Kind.INFILTRATION ? 14 + r.nextInt(8) : s.kind == Kind.BOMBARD ? 44 + r.nextInt(12) : 34 + r.nextInt(14);
         boolean pods = s.kind == Kind.ASSAULT || s.kind == Kind.ONSLAUGHT;
@@ -333,7 +428,7 @@ public final class Sieges implements ModInitializer {
         }
         for (ServerPlayer q : l.players())
             if (q.blockPosition().distSqr(s.home) < 160 * 160) {
-                q.displayClientMessage(Component.translatable(pods ? "event.heliosphere.siege.pods" : "event.heliosphere.siege.wave", s.wave + 1, s.kind.waves,
+                q.displayClientMessage(Component.translatable(pods ? "event.heliosphere.siege.pods" : "event.heliosphere.siege.wave", s.wave + 1, s.waves,
                         Component.translatable("event.heliosphere.dir." + direction(a))).withStyle(ChatFormatting.RED), true);
                 l.playSound(null, q.blockPosition(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.HOSTILE, 1.2f, 0.7f);
             }

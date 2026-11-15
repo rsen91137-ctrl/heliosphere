@@ -39,13 +39,14 @@ public final class Evolution {
 
     /** Shortest wait between two sieges at this stage, in ticks (the actual wait is up to half as long again). */
     public static int siegeGap(int stage, boolean airDefence) {
-        int gap = Math.round(Mth.lerp(k(stage), 60000, 12000));
+        // falls faster through the middle stages: 2.5 days at stage 1, ~1.1 at stage 8, half a day at stage 15
+        int gap = (int) Math.round(60000 * Math.pow(0.2, k(stage)));
         return airDefence ? Math.round(gap * 0.6f) : gap;
     }
 
     /** Ticks between two rounds of natural deployment. */
     public static long deploymentPace(int stage, boolean airDefence) {
-        long pace = Math.round(Mth.lerp(k(stage), 1200, 300));
+        long pace = Math.round(1200 * Math.pow(0.25, k(stage)));
         return airDefence ? Math.max(200, pace / 2) : pace;
     }
 

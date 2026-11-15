@@ -66,5 +66,16 @@
   "event.heliosphere.siege.covered": "The machines know you are under a roof: bunker busters are on the way!",
   "event.heliosphere.evolution": "⚠ Machine evolution: stage %s of %s",
   "event.heliosphere.evolution.new": "New: %s. Sieges about every %s-%s days; machines on Earth have +%s%% health and more armour.",
-  "event.heliosphere.evolution.none": "(no new machine this stage)%s Sieges about every %s-%s days; machines on Earth have +%s%% health and more armour."
+  "event.heliosphere.evolution.none": "(no new machine this stage)%s Sieges about every %s-%s days; machines on Earth have +%s%% health and more armour.",
+  "event.heliosphere.alarm.energy": "⚠ The machines have detected %s's ENERGY WEAPONS! A large force is gathering and will strike back in about %s minutes",
+  "event.heliosphere.alarm.heavy": "⚠ The machines have detected %s's SUPER-HEAVY / NUCLEAR WEAPONS! A large force is gathering and will strike back in about %s minutes",
+  "event.heliosphere.alarm.rocket": "⚠ The machines have detected %s's ROCKETRY! A large force is gathering and will strike back in about %s minutes",
+  "event.heliosphere.alarm.air": "⚠ The machines have detected %s's AIR DEFENCE! A large force is gathering and will strike back in about %s minutes",
+  "event.heliosphere.alarm.soon": "⚠ The machines' counter-attack arrives in 1 minute! Get ready",
+  "event.heliosphere.alarm.bar": "Machine counter-attack (against %s) · difficulty %s",
+  "event.heliosphere.alarm.bar.short": "Machine counter-attack · difficulty %s",
+  "event.heliosphere.alarm.tech.energy": "energy weapons",
+  "event.heliosphere.alarm.tech.heavy": "super-heavy weapons",
+  "event.heliosphere.alarm.tech.rocket": "rocketry",
+  "event.heliosphere.alarm.tech.air": "air defence"
 }

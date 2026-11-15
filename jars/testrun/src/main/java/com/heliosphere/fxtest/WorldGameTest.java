@@ -74,6 +74,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "stack" -> stack(ctx, sp);
                     case "shoulderfx" -> shoulderFx(ctx, sp);
                     case "gear2" -> gear2(ctx, sp);
+                    case "alarm" -> alarm(ctx, sp);
                     case "harvest" -> server(sp, s -> {               // blocks that need a tool no tool is right for: they never drop
                         java.util.List<String> bad = new java.util.ArrayList<>();
                         var tools = new net.minecraft.world.item.ItemStack[]{new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_PICKAXE),
@@ -1476,6 +1477,43 @@ public class WorldGameTest implements FabricClientGameTest {
         ctx.waitTicks(30);
         shot(ctx, "gear2_cloth_bare_sentry");
         ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** Picking up an energy weapon alarms the machines: a warning, then a large counter-attack where the player stands. */
+    private void alarm(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 10000 140 10000");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            s.overworld().setDayTime(130L * 24000 + 6000);                     // day 130, stage 6
+            StringBuilder gaps = new StringBuilder();
+            for (int st : new int[]{1, 4, 8, 12, 15}) gaps.append(" stage ").append(st).append(": ").append(String.format("%.2f", com.heliosphere.hostiles.arsenal.Evolution.siegeGap(st, false) / 24000.0)).append(" d");
+            report.add("[info] siege gaps:" + gaps + "; no sieges before day " + com.heliosphere.hostiles.siege.Sieges.GRACE_DAYS);
+            ServerPlayer p = player(s);
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 6000, 4));
+            p.getInventory().add(new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("laser_rifle")));
+        });
+        ctx.waitTicks(220);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            report.add("[info] alarm after holding a laser rifle: " + com.heliosphere.hostiles.siege.Sieges.alarmState(p));
+            com.heliosphere.hostiles.siege.Sieges.alarmNow(p, s.overworld().getGameTime() + 20);
+        });
+        ctx.waitTicks(220);
+        server(sp, s -> report.add("[info] counter-attacks under way: " + com.heliosphere.hostiles.siege.Sieges.bigSieges()));
+        ctx.waitTicks(700);
+        server(sp, s -> {
+            report.add("[info] counter-attack after the first wave: " + com.heliosphere.hostiles.siege.Sieges.bigSieges());
+            ServerPlayer p = player(s);
+            var mobs = s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(80));
+            java.util.Map<String, Integer> kinds = new java.util.TreeMap<>();
+            for (var m : mobs) kinds.merge(m.role() == null ? "?" : m.role().id(), 1, Integer::sum);
+            report.add("[info] machines round the player: " + kinds);
+        });
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+        shot(ctx, "alarm_counter_attack");
+        server(sp, s -> { for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(120))) m.discard(); });
         cmd(sp, "gamemode creative @a");
     }
 

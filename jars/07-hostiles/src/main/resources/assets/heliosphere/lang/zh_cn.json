@@ -66,5 +66,16 @@
   "event.heliosphere.siege.covered": "机械发现你躲在屋顶下：钻地弹将从天而降！",
   "event.heliosphere.evolution": "⚠ 机械进化：第 %s / %s 阶段",
   "event.heliosphere.evolution.new": "新出现：%s。围攻约每 %s～%s 天一次；地球上的机械生命 +%s%%，护甲更厚。",
-  "event.heliosphere.evolution.none": "（本阶段没有新机型）%s围攻约每 %s～%s 天一次；地球上的机械生命 +%s%%，护甲更厚。"
+  "event.heliosphere.evolution.none": "（本阶段没有新机型）%s围攻约每 %s～%s 天一次；地球上的机械生命 +%s%%，护甲更厚。",
+  "event.heliosphere.alarm.energy": "⚠ 机器侦测到 %s 掌握了【能量武器】技术！一支大规模机械部队正在集结，约 %s 分钟后发起反击",
+  "event.heliosphere.alarm.heavy": "⚠ 机器侦测到 %s 掌握了【超重型武器/核武器】技术！一支大规模机械部队正在集结，约 %s 分钟后发起反击",
+  "event.heliosphere.alarm.rocket": "⚠ 机器侦测到 %s 掌握了【航天火箭】技术！一支大规模机械部队正在集结，约 %s 分钟后发起反击",
+  "event.heliosphere.alarm.air": "⚠ 机器侦测到 %s 建立了【防空系统】！一支大规模机械部队正在集结，约 %s 分钟后发起反击",
+  "event.heliosphere.alarm.soon": "⚠ 机械反击部队 1 分钟后抵达！做好准备",
+  "event.heliosphere.alarm.bar": "机械大规模反击（针对%s） · 难度 %s",
+  "event.heliosphere.alarm.bar.short": "机械大规模反击 · 难度 %s",
+  "event.heliosphere.alarm.tech.energy": "能量武器",
+  "event.heliosphere.alarm.tech.heavy": "超重型武器",
+  "event.heliosphere.alarm.tech.rocket": "航天火箭",
+  "event.heliosphere.alarm.tech.air": "防空系统"
 }
