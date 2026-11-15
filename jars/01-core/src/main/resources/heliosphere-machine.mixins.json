@@ -9,7 +9,8 @@
     "FurnaceHeatMixin",
     "MachineStartMixin",
     "MachineButtonMixin",
-    "MachineStackMixin"
+    "MachineStackMixin",
+    "HealthCapMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -12,8 +12,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * The flight, computed by the wearer's own game before the player moves each tick (so it is as smooth as walking):
- * jump held in the air thrusts up (gravity of the world is taken off the pack's thrust), with side thrusters the
- * movement keys push you about, and sneaking in the air holds you still.
+ * jump held in the air thrusts up (gravity of the world is taken off the pack's thrust), sneak held in the air flies
+ * down under control (no fall damage), both together hover (the packs with hold), and the movement keys push you about.
  */
 public final class JetpackClient {
     private JetpackClient() {}
@@ -34,12 +34,15 @@ public final class JetpackClient {
         double g = 0.08 * Environment.gravity(mc.level);
         Vec3 v = p.getDeltaMovement();
         double vx = v.x, vy = v.y, vz = v.z;
-        if (keys.jump() && air) {
-            double a = k.thrust(g / 0.08);
-            if (vy < k.maxRise) vy = Math.min(k.maxRise + g, vy + a);
-        } else if (k.hold && keys.shift() && air) {               // hold still: cancel the fall and most drift
+        if (keys.jump() && keys.shift() && air && k.hold) {      // hold still: cancel the fall and most drift
             vy = vy * 0.6 + g;
             vx *= 0.85; vz *= 0.85;
+        } else if (keys.jump() && air) {
+            double a = k.thrust(g / 0.08);
+            if (vy < k.maxRise) vy = Math.min(k.maxRise + g, vy + a);
+        } else if (keys.shift() && air) {                           // fly down: a steady descent instead of a fall
+            double down = -k.maxRise * 0.8;
+            vy = vy < down ? Math.min(vy + Math.max(g * 2, 0.06), down) : Math.max(down, vy - g);
         }
         if (k.side > 0 && air) {
             double f = (keys.forward() ? 1 : 0) - (keys.backward() ? 1 : 0), s = (keys.left() ? 1 : 0) - (keys.right() ? 1 : 0);
@@ -49,7 +52,7 @@ public final class JetpackClient {
                 double len = Math.hypot(f, s);
                 vx += (fx * f + sx * s) / len * k.side;
                 vz += (fz * f + sz * s) / len * k.side;
-                double h = Math.hypot(vx, vz), cap = 0.6;
+                double h = Math.hypot(vx, vz), cap = 0.75;
                 if (h > cap) { vx *= cap / h; vz *= cap / h; }
             }
         }

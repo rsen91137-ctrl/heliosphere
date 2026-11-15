@@ -3,6 +3,7 @@ package com.heliosphere.planets.defense.mk;
 import com.heliosphere.core.machine.EnergyNode;
 import com.heliosphere.planets.weapon.fx.CombatVfx;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -141,20 +142,35 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         m.hurtServer(level, source(level), damage);
     }
 
+    /** A small burst and sparks where a shot lands. */
+    private static void impact(ServerLevel level, Vec3 at, net.minecraft.core.particles.SimpleParticleType sparks, float burst) {
+        CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFC070, at, at, burst);
+        level.sendParticles(sparks, at.x, at.y, at.z, 10, 0.2, 0.2, 0.2, 0.25);
+    }
+
     private void fire(ServerLevel level, TurretKind k, Vec3 head, List<Mob> targets) {
         float dmg = k.damage(mk);
         Mob t = targets.getFirst();
         Vec3 at = t.getBoundingBox().getCenter();
         Vec3 muzzle = head.add(at.subtract(head).normalize().scale(0.7));
+        // at the muzzle: smoke for the guns, sparks for the energy weapons
+        boolean energy = k == TurretKind.LASER || k == TurretKind.TESLA || k == TurretKind.SONIC || k == TurretKind.RAIL;
+        level.sendParticles(energy ? ParticleTypes.ELECTRIC_SPARK : ParticleTypes.SMOKE, muzzle.x, muzzle.y, muzzle.z, energy ? 6 : 4, 0.08, 0.08, 0.08, energy ? 0.15 : 0.02);
+        if (!energy && k != TurretKind.MISSILE) level.sendParticles(ParticleTypes.FLAME, muzzle.x, muzzle.y, muzzle.z, 2, 0.04, 0.04, 0.04, 0.01);
         switch (k) {
             case LASER -> {
-                CombatVfx.send(level, CombatVfx.BEAM, k.colour, muzzle, at, 1.2f);
+                CombatVfx.send(level, CombatVfx.BEAM, k.colour, muzzle, at, 2.4f + mk * 0.2f);
+                impact(level, at, ParticleTypes.ELECTRIC_SPARK, 0.25f);
                 hit(level, t, dmg);
                 t.igniteForSeconds(3);
                 level.playSound(null, worldPosition, SoundEvents.BEACON_POWER_SELECT, SoundSource.BLOCKS, 0.9f, 1.9f);
             }
             case SONIC -> {
                 CombatVfx.send(level, CombatVfx.RING, k.colour, head.add(0, -0.6, 0), head, (float) k.range(mk) * 0.6f);
+                for (Mob m : targets.subList(0, Math.min(8, targets.size()))) {
+                    Vec3 c = m.getBoundingBox().getCenter();
+                    level.sendParticles(ParticleTypes.SONIC_BOOM, c.x, c.y, c.z, 1, 0, 0, 0, 0);
+                }
                 int n = 0;
                 for (Mob m : targets) {
                     if (n++ >= 8) break;
@@ -167,7 +183,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
             }
             case AUTOCANNON -> {
                 Vec3 spread = at.add(level.random.nextGaussian() * 0.25, level.random.nextGaussian() * 0.25, level.random.nextGaussian() * 0.25);
-                CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, spread, 1f);
+                CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, spread, 2.2f + mk * 0.15f);
+                impact(level, spread, ParticleTypes.CRIT, 0.22f);
                 hit(level, t, dmg);
                 level.playSound(null, worldPosition, SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.BLOCKS, 0.8f, 1.6f + level.random.nextFloat() * 0.2f);
             }
@@ -175,7 +192,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
                 // an airburst round: scattered round an aircraft, close over a ground target (time fuze set short)
                 double s = airborne(level, t) ? 1.0 : 0.35;
                 Vec3 burst = at.add(level.random.nextGaussian() * s, level.random.nextGaussian() * 0.5 * s + (s < 1 ? 0.4 : 0), level.random.nextGaussian() * s);
-                CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, burst, 1.4f);
+                CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, burst, 2.4f);
                 CombatVfx.send(level, CombatVfx.EXPLOSION, k.colour, burst, burst, 1.3f);
                 for (Mob m : targets) if (m.getBoundingBox().getCenter().distanceTo(burst) < 3.5) hit(level, m, dmg);
                 level.playSound(null, worldPosition, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.9f, 1.7f);
@@ -205,7 +222,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
                 for (int i = 0; i < jumps; i++) {
                     Mob m = targets.get(i);
                     Vec3 to = m.getBoundingBox().getCenter();
-                    CombatVfx.send(level, CombatVfx.BEAM, k.colour, from, to, 0.7f);
+                    CombatVfx.send(level, CombatVfx.BEAM, k.colour, from, to, 1.5f);
+                    level.sendParticles(ParticleTypes.ELECTRIC_SPARK, to.x, to.y, to.z, 12, 0.3, 0.4, 0.3, 0.3);
                     hit(level, m, d);
                     from = to;
                     d *= 0.8f;

@@ -75,6 +75,26 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "shoulderfx" -> shoulderFx(ctx, sp);
                     case "gear2" -> gear2(ctx, sp);
                     case "alarm" -> alarm(ctx, sp);
+                    case "silo" -> silo(ctx, sp);
+                    case "turretfx" -> turretFx(ctx, sp);
+                    case "jet2" -> jet2(ctx, sp);
+                    case "latesiege" -> {                                  // day 312: what an assault brings now
+                        cmd(sp, "execute in minecraft:overworld run tp @p 12200 140 12200");
+                        ctx.waitTicks(60);
+                        server(sp, s -> s.overworld().setDayTime(312L * 24000 + 6000));
+                        cmd(sp, "gamemode survival @a");
+                        cmd(sp, "effect give @p minecraft:resistance 300 4");
+                        cmd(sp, "hssiege assault 14");
+                        ctx.waitTicks(700);
+                        server(sp, s -> {
+                            java.util.Map<String, Integer> kinds = new java.util.TreeMap<>();
+                            for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(160)))
+                                kinds.merge((m.role() == null ? "?" : m.role().id()) + "(" + (int) m.getMaxHealth() + "hp)", 1, Integer::sum);
+                            report.add("[info] day 312 assault (difficulty 14), first wave: " + kinds);
+                            for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(200))) m.discard();
+                        });
+                        cmd(sp, "gamemode creative @a");
+                    }
                     case "harvest" -> server(sp, s -> {               // blocks that need a tool no tool is right for: they never drop
                         java.util.List<String> bad = new java.util.ArrayList<>();
                         var tools = new net.minecraft.world.item.ItemStack[]{new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_PICKAXE),
@@ -1514,6 +1534,154 @@ public class WorldGameTest implements FabricClientGameTest {
         ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
         shot(ctx, "alarm_counter_attack");
         server(sp, s -> { for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(120))) m.discard(); });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** A difficulty 12 fortress' nuclear silo: fuelling warnings, the launch, and a Buk battery shooting the missile down. */
+    private void silo(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 11000 140 11000");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            var l = s.overworld();
+            l.setDayTime(312L * 24000 + 6000);
+            ServerPlayer p = player(s);
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 12000, 4));
+            o[0] = p.getBlockX(); o[1] = p.getBlockY(); o[2] = p.getBlockZ();
+            // health past 1024 now holds
+            var colossus = com.heliosphere.planets.tech.TechCombat.spawn(l, "colossus", p.getX() + 40, p.getY(), p.getZ(), null);
+            var titan = com.heliosphere.planets.tech.TechCombat.spawn(l, "titan_walker", p.getX() + 30, p.getY(), p.getZ(), null);
+            var overseer = com.heliosphere.planets.tech.TechCombat.spawn(l, "fortress_overseer", p.getX() + 50, p.getY(), p.getZ(), null);
+            report.add("[info] health: colossus " + (colossus == null ? "-" : colossus.getMaxHealth()) + ", overseer " + (overseer == null ? "-" : overseer.getMaxHealth())
+                    + ", titan " + (titan == null ? "-" : titan.getMaxHealth()));
+            for (var m : new net.minecraft.world.entity.Entity[]{colossus, titan, overseer}) if (m != null) m.discard();
+            // a silo fortress 600 blocks east, with its countdown nearly run; a Buk battery by the player
+            com.heliosphere.hostiles.fortress.Fortresses.testSilo(l, p.getBlockX() + 600, p.getBlockZ(), 12, 300);
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            for (int dx = -14; dx <= 14; dx++) for (int dz = -14; dz <= 14; dz++) for (int dy = 0; dy < 25; dy++)
+                l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, g + dy, o[2] + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, new net.minecraft.core.BlockPos(o[0] - 6, g, o[2]), p, null);
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, new net.minecraft.core.BlockPos(o[0] + 6, g, o[2]), p, null);
+            var bat = new net.minecraft.core.BlockPos(o[0], g, o[2] + 6);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            p.teleportTo(o[0] + 0.5, g + 4, o[2] + 12.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        ctx.waitTicks(380);
+        server(sp, s -> report.add("[info] silo: launched " + com.heliosphere.hostiles.fortress.Fortresses.siloLaunches() + ", machine nukes in the air "
+                + s.overworld().getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, player(s).getBoundingBox().inflate(400), m -> m.spec() == com.heliosphere.planets.defense.sam.MissileSpec.ICBM).size()));
+        look(ctx, -90, -25);
+        shot(ctx, "silo_launch");
+        for (int k = 0; k < 40 && com.heliosphere.planets.defense.sam.GuidedMissile.icbmsShotDown == 0; k++) {
+            ctx.waitTicks(10);
+            if (k % 2 == 0) server(sp, s -> {
+                var l = s.overworld();
+                StringBuilder b = new StringBuilder("[info] t" + l.getGameTime() % 100000 + ":");
+                for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, player(s).getBoundingBox().inflate(900)))
+                    b.append(' ').append(m.spec()).append(String.format("@%.0f,%.0f,%.0f", m.getX() - o[0], m.getY(), m.getZ() - o[2]));
+                for (var v : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.SamVehicle.class, player(s).getBoundingBox().inflate(40)))
+                    b.append(" | ").append(v.kind()).append(" ammo ").append(v.ammo()).append(" E ").append(v.energy());
+                report.add(b.toString());
+            });
+        }
+        server(sp, s -> report.add("[info] icbm trace:" + com.heliosphere.planets.defense.sam.GuidedMissile.ICBM_TRACE));
+        server(sp, s -> report.add("[info] silo: machine nukes shot down " + com.heliosphere.planets.defense.sam.GuidedMissile.icbmsShotDown + ", still flying "
+                + s.overworld().getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, player(s).getBoundingBox().inflate(600), m -> m.spec() == com.heliosphere.planets.defense.sam.MissileSpec.ICBM).size()));
+        shot(ctx, "silo_after");
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** Every turret firing, seen from behind them by day. */
+    private void turretFx(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 11400 140 11400");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(6000);
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -10; i <= 26; i++) for (int j = -6; j <= 30; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 10; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            int i = 0;
+            for (var k : com.heliosphere.planets.defense.mk.TurretKind.values()) {
+                var pos = new net.minecraft.core.BlockPos(x0 + i * 3 - 2, g, z0 + 4);
+                l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(k).defaultBlockState(), 3);
+                ((com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos)).creative(true);
+                for (int n = 0; n < 2; n++) {
+                    var z = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                    z.snapTo(x0 + i * 3 - 2 + 0.5 + n, g + (k == com.heliosphere.planets.defense.mk.TurretKind.FLAK ? 6 : 0), z0 + 20.5, 180, 0);
+                    z.setNoAi(true); z.setNoGravity(k == com.heliosphere.planets.defense.mk.TurretKind.FLAK); z.setPersistenceRequired();
+                    z.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(2000); z.setHealth(2000);
+                    l.addFreshEntity(z);
+                }
+                i++;
+            }
+            p.teleportTo(x0 + 8.5, g + 3, z0 - 3.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        ctx.runOnClient(mc -> mc.gui.getChat().clearMessages(false));
+        look(ctx, 0, 12);
+        ctx.waitTicks(60);
+        for (int k = 0; k < 3; k++) { ctx.waitTicks(3); shot(ctx, "turret_fx_" + k); }
+        server(sp, s -> { for (var z : s.overworld().getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, player(s).getBoundingBox().inflate(60))) z.discard(); });
+    }
+
+    /** The jetpack climbs on jump and flies down on sneak; a portable sentry clipped onto it fires. */
+    private void jet2(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        double[] y = new double[4];
+        cmd(sp, "execute in minecraft:overworld run tp @p 11800 140 11800");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(6000);
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            for (int i = -8; i <= 8; i++) for (int j = -8; j <= 16; j++) for (int h = 0; h < 40; h++)
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            var pack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("jetpack"));
+            com.heliosphere.planets.gear.JetpackItem.setFuel(pack, com.heliosphere.planets.gear.JetpackItem.TANK);
+            boolean fits = com.heliosphere.planets.gear.ShoulderSentry.fits(pack);
+            com.heliosphere.planets.gear.ShoulderSentry.setMk(pack, 3);
+            com.heliosphere.planets.gear.ShoulderSentry.setCharge(pack, 15000);
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, pack);
+            report.add("[info] sentry fits the jetpack: " + fits + ", charge on it " + com.heliosphere.planets.gear.ShoulderSentry.charge(pack) + ", fuel " + com.heliosphere.planets.gear.JetpackItem.fuel(pack));
+            var z = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            z.snapTo(x0 + 0.5, g, z0 + 10.5, 180, 0);
+            z.setNoAi(true); z.setPersistenceRequired();
+            l.addFreshEntity(z);
+            y[0] = p.getY();
+        });
+        int shots0 = com.heliosphere.planets.gear.ShoulderSentry.shots;
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(true));
+        ctx.waitTicks(3);
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(false));
+        ctx.waitTicks(2);
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(true));
+        ctx.waitTicks(40);
+        server(sp, s -> y[1] = player(s).getY());
+        ctx.runOnClient(mc -> { mc.options.keyJump.setDown(false); mc.options.keyShift.setDown(true); });
+        ctx.waitTicks(20);
+        server(sp, s -> y[2] = player(s).getY());
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        shot(ctx, "jet2_descending");
+        ctx.waitTicks(40);
+        ctx.runOnClient(mc -> { mc.options.keyShift.setDown(false); mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); });
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            y[3] = p.getY();
+            report.add(String.format("[info] jetpack: ground %.1f, after 2 s of jump %.1f (%.1f b/s), after 1 s of sneak %.1f (%.1f b/s), landed %.1f, health %.1f, sentry shots %d",
+                    y[0], y[1], (y[1] - y[0]) / 2, y[2], (y[2] - y[1]), y[3], p.getHealth(), com.heliosphere.planets.gear.ShoulderSentry.shots - shots0));
+        });
         cmd(sp, "gamemode creative @a");
     }
 

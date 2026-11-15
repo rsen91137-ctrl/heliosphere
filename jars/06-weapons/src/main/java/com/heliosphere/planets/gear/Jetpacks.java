@@ -73,7 +73,7 @@ public final class Jetpacks {
             int fuel = JetpackItem.fuel(pack);
             if (fuel < JetpackItem.TANK - JetpackItem.CANISTER && refill(p)) { fuel += JetpackItem.CANISTER; JetpackItem.setFuel(pack, fuel); }
             boolean up = in.jump() && !p.onGround();
-            boolean hold = j.kind.hold && in.shift() && !p.onGround();
+            boolean hold = in.shift() && !p.onGround();                  // flying down (or hovering with jump)
             boolean side = j.kind.side > 0 && !p.onGround() && (in.forward() || in.backward() || in.left() || in.right());
             if (fuel <= 0 || !(up || hold || side)) continue;
             THRUSTING.add(p.getUUID());

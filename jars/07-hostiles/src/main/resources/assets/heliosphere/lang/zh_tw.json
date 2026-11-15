@@ -77,5 +77,12 @@
   "event.heliosphere.alarm.tech.energy": "能量武器",
   "event.heliosphere.alarm.tech.heavy": "超重型武器",
   "event.heliosphere.alarm.tech.rocket": "航天火箭",
-  "event.heliosphere.alarm.tech.air": "防空系統"
+  "event.heliosphere.alarm.tech.air": "防空系統",
+  "block.heliosphere.machine_nuke_silo": "機械核彈井",
+  "event.heliosphere.silo.arming": "☢ 核彈警報：機械堡壘的核彈井（%s, %s）開始加注燃料，目標是 %s, %s！%s 秒後發射。摧毀核彈井可以阻止發射，或者部署防空系統在空中攔截",
+  "event.heliosphere.silo.countdown": "☢ 機械核彈還有 %s 秒發射（目標 %s, %s）",
+  "event.heliosphere.silo.seconds": "☢ 機械核彈發射倒數：%s",
+  "event.heliosphere.silo.launch": "☢ 機械核彈已發射！約 %s 秒後落在 %s, %s——立刻撤離到 60 格外，或用防空系統攔截",
+  "event.heliosphere.silo.destroyed": "核彈井已被摧毀，發射中止",
+  "message.heliosphere.icbm_intercepted": "☢ 機械核彈已在空中被攔截擊毀！"
 }

@@ -15,10 +15,10 @@ package com.heliosphere.planets.gear;
  */
 public enum JetpackKind {
     //          id                       thrust  burn  side   hold   maxRise  armour  colour
-    STANDARD   ("jetpack",                0.13,  1.0,  0.0,  false, 0.55,    3, 0xB8BCC2),
-    HEAVY      ("heavy_jetpack",          0.34,  3.0,  0.0,  false, 0.65,    5, 0x5C6470),
-    LOW_G      ("rcs_pack",               0.03,  0.25, 0.025, true,  0.45,    2, 0xE6E6E0),
-    ADAPTIVE   ("adaptive_jetpack",      -1.0,   1.5,  0.03, true,  0.7,     6, 0x2E3440);
+    STANDARD   ("jetpack",                0.15,  1.0,  0.02, false, 0.7,     3, 0xB8BCC2),
+    HEAVY      ("heavy_jetpack",          0.38,  3.0,  0.02, false, 0.8,     5, 0x5C6470),
+    LOW_G      ("rcs_pack",               0.035, 0.25, 0.03, true,  0.55,    2, 0xE6E6E0),
+    ADAPTIVE   ("adaptive_jetpack",      -1.0,   1.5,  0.04, true,  0.9,     6, 0x2E3440);
 
     public final String id;
     public final double thrust, burn, side, maxRise;

@@ -50,19 +50,20 @@ public final class Evolution {
         return airDefence ? Math.max(200, pace / 2) : pace;
     }
 
-    /** A machine deployed on Earth (not a fortress garrison, which has its own scaling): +5% health and +0.6 armour a stage. */
+    /** A machine deployed on Earth (not a fortress garrison, which has its own scaling): +5% health and +0.6 armour a stage, twice that from stage 10. */
     public static void toughen(TechMob mob) {
         if (mob == null || mob.getTags().contains("heliosphere.fortress")) return;
         int st = stage();
         if (st <= 1) return;
         var hp = mob.getAttribute(Attributes.MAX_HEALTH);
         if (hp != null && hp.getModifier(TOUGHER) == null) {
-            hp.addPermanentModifier(new AttributeModifier(TOUGHER, 0.05 * (st - 1), AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            // +5% a stage, and another +5% a stage from stage 10 (day 216): +100% at stage 15
+            hp.addPermanentModifier(new AttributeModifier(TOUGHER, 0.05 * (st - 1) + 0.05 * Math.max(0, st - 9), AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
             mob.setHealth(mob.getMaxHealth());
         }
         var armour = mob.getAttribute(Attributes.ARMOR);
         if (armour != null && armour.getModifier(TOUGHER) == null)
-            armour.addPermanentModifier(new AttributeModifier(TOUGHER, 0.6 * (st - 1), AttributeModifier.Operation.ADD_VALUE));
+            armour.addPermanentModifier(new AttributeModifier(TOUGHER, 0.6 * (st - 1) + 0.6 * Math.max(0, st - 9), AttributeModifier.Operation.ADD_VALUE));
     }
 
     /** The machines that first appear in this stage. */
@@ -89,7 +90,7 @@ public final class Evolution {
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
             p.displayClientMessage(Component.translatable("event.heliosphere.evolution", st, STAGES).withStyle(ChatFormatting.DARK_RED, ChatFormatting.BOLD), false);
             p.displayClientMessage(Component.translatable(fresh.isEmpty() ? "event.heliosphere.evolution.none" : "event.heliosphere.evolution.new", names,
-                    String.format("%.1f", days), String.format("%.1f", days * 1.5f), 5 * (st - 1)).withStyle(ChatFormatting.RED), false);
+                    String.format("%.1f", days), String.format("%.1f", days * 1.5f), 5 * (st - 1) + 5 * Math.max(0, st - 9)).withStyle(ChatFormatting.RED), false);
             p.level().playSound(null, p.blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.5f, 0.6f);
         }
     }

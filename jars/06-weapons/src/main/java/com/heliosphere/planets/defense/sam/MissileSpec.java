@@ -27,7 +27,12 @@ public enum MissileSpec {
     /** Stand-off missile of the machine strike aircraft: launched from 200-320 blocks, a long sustainer and a seeker that rides out short gaps. */
     STANDOFF        (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 100, 30, 1.8, 4.0,  4, 0.00, 0.010, 360, 0.6, true,  48),
     /** Bunker buster of the machines: flies on the target's position whatever is in between, bores through blocks and goes off deep. */
-    PENETRATOR      (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 360, 4000, 1.8, 4.5,  4, 0.00, 0.010, 420, 0.6, true,  0);
+    PENETRATOR      (Model.MACHINE_HEAVY, 0,  22, 0.110, 120, 0.022, 0.0042, 2.4, 14, 4.0, 3.5, 360, 4000, 1.8, 4.5,  4, 0.00, 0.010, 420, 0.6, true,  0),
+    /**
+     * The machines' nuclear missile, from a fortress silo: climbs straight up for two seconds, then turns onto the
+     * marked target and comes down on it at about 45 blocks a second - slow enough for air defence to shoot it down.
+     */
+    ICBM            (Model.NUKE,          0,  40, 0.060, 900, 0.020, 0.0040, 2.2, 10, 4.0, 3.0, 360, 4000, 3.0, 6.0, 40, 0.10, 0.010, 1800, 0.3, true,  0);
 
     /** One g of overload, in blocks per tick squared. */
     public static final double G = 0.04;

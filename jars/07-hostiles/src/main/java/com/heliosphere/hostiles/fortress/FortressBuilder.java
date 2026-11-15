@@ -531,7 +531,7 @@ public final class FortressBuilder {
         m.setPersistenceRequired();
         m.addTag("heliosphere.fortress");
         var health = m.getAttribute(Attributes.MAX_HEALTH);
-        if (health != null && health.getModifier(ELITE) == null) {
+        if (health != null && health.getModifier(ELITE) == null && !EnemyRoster.BOSSES.contains(id)) {
             health.addPermanentModifier(new AttributeModifier(ELITE, 0.12 * tier, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
             m.setHealth(m.getMaxHealth());
         }

@@ -47,8 +47,8 @@ public final class StrikeCraft {
 
     /** Players beyond this are not hunted; natural aircraft beyond it from every player leave. */
     public static final double ACQUIRE = 400;
-    /** Natural strike aircraft near one player at a time; more are recalled when they arrive. */
-    private static final int CAP = 2;
+    /** Natural strike aircraft near one player at a time (more are recalled when they arrive): 2, then one more a stage from stage 10, 7 at stage 15. */
+    private static int cap() { return 2 + Math.max(0, Evolution.stage() - 9); }
 
     /** Diagnostics for the world test. */
     public static int launched;
@@ -143,7 +143,7 @@ public final class StrikeCraft {
         int n = 0;
         for (TechMob m : level.getEntitiesOfClass(TechMob.class, mob.getBoundingBox().inflate(ACQUIRE), x -> x != mob && x.isAlive() && is(x)))
             n++;
-        return n >= CAP;
+        return n >= cap();
     }
 
     /** Why the last missile was allowed (for the world test). */

@@ -1,0 +1,1 @@
+{"parent": "minecraft:block/cube_bottom_top", "textures": {"top": "heliosphere:block/machine_nuke_silo_top", "side": "heliosphere:block/machine_nuke_silo_side", "bottom": "heliosphere:block/machine_nuke_silo_bottom"}}

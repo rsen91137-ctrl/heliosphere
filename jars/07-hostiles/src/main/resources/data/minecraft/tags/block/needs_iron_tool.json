@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "heliosphere:robot_fabricator"
+    "heliosphere:robot_fabricator",
+    "heliosphere:machine_nuke_silo"
   ]
 }

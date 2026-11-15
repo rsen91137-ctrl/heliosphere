@@ -205,6 +205,12 @@ public final class Sieges implements ModInitializer {
         return out;
     }
 
+    /** The centre of the player's shelter when it is in their current world, or null. */
+    public static BlockPos shelterOf(ServerPlayer p) {
+        Cell c = shelter(mem(p));
+        return c == null || !c.dim.equals(dim(p.level())) ? null : c.center(p.level());
+    }
+
     /** No sieges before this day: the first days are for building up. */
     public static final int GRACE_DAYS = 10;
 
@@ -320,7 +326,8 @@ public final class Sieges implements ModInitializer {
 
     private static Kind pick(RandomSource r, int d, Memory m) {
         List<Kind> ok = new ArrayList<>();
-        for (Kind k : Kind.values()) if (d >= k.from && (k != Kind.ONSLAUGHT || m.beaten >= 3)) ok.add(k);
+        boolean late = com.heliosphere.hostiles.arsenal.Evolution.stage() >= 10;          // the last months: onslaughts without having earned them
+        for (Kind k : Kind.values()) if (d >= k.from && (k != Kind.ONSLAUGHT || m.beaten >= 3 || late)) ok.add(k);
         if (ok.size() > 1 && r.nextFloat() < 0.6f) ok.remove(Kind.RECON);
         return ok.get(r.nextInt(ok.size()));
     }
@@ -401,6 +408,8 @@ public final class Sieges implements ModInitializer {
             case ONSLAUGHT -> 5 + d / 2;
         };
         if (s.big) n = n * 3 / 2 + 1;                             // a counter-attack: half as many again
+        int stage = com.heliosphere.hostiles.arsenal.Evolution.stage(l.getServer().overworld().getDayTime() / 24000L);
+        if (stage >= 10) n += n * (stage - 9) / 10;              // the last months: up to half as many again by stage 15
         double a = r.nextDouble() * Math.PI * 2;
         double dist = s.kind == Kind.INFILTRATION ? 14 + r.nextInt(8) : s.kind == Kind.BOMBARD ? 44 + r.nextInt(12) : 34 + r.nextInt(14);
         boolean pods = s.kind == Kind.ASSAULT || s.kind == Kind.ONSLAUGHT;
@@ -417,6 +426,16 @@ public final class Sieges implements ModInitializer {
             for (ServerPlayer q : l.players())
                 if (q.blockPosition().distSqr(s.home) < 160 * 160)
                     q.displayClientMessage(Component.translatable(deep ? "event.heliosphere.siege.underground" : "event.heliosphere.siege.covered").withStyle(ChatFormatting.DARK_RED), false);
+        }
+        // the last months: every wave brings a wing of stand-off strike aircraft (drones from stage 10, jets from 11)
+        if (stage >= 10 && (s.kind != Kind.INFILTRATION)) {
+            long dayNow = l.getServer().overworld().getDayTime() / 24000L;
+            boolean earth = l.dimension() == Level.OVERWORLD;
+            int drones = stage - 8 + (s.big ? 2 : 0);
+            int jets = stage >= 11 && (!earth || EnemyRoster.unlocked(com.heliosphere.hostiles.arsenal.StrikeCraft.JET, dayNow)) ? stage - 10 + (s.big ? 1 : 0) : 0;
+            if (earth && !EnemyRoster.unlocked(com.heliosphere.hostiles.arsenal.StrikeCraft.DRONE, dayNow)) drones = 0;
+            for (int i = 0; i < drones; i++) spawn(s, p, com.heliosphere.hostiles.arsenal.StrikeCraft.DRONE, a + Math.PI + r.nextGaussian() * 0.6, dist + 60 + r.nextInt(40), false);
+            for (int i = 0; i < jets; i++) spawn(s, p, com.heliosphere.hostiles.arsenal.StrikeCraft.JET, a + Math.PI + r.nextGaussian() * 0.6, dist + 80 + r.nextInt(40), false);
         }
         if (s.kind == Kind.ONSLAUGHT && last) {
             String boss = EnemyRoster.boss(Math.max(6, d));

@@ -58,12 +58,14 @@ public final class Fortresses implements ModInitializer {
     public static BlockEntityType<FabricatorBlockEntity> FABRICATOR_BE;
     public static Block POINT_DEFENCE;
     public static BlockEntityType<PointDefenceBlockEntity> POINT_DEFENCE_BE;
+    /** The machines' nuclear silo hatch (Silos). */
+    public static Block SILO;
 
     private static final Gson GSON = new GsonBuilder().create();
     private static AttachmentType<String> saved;
 
     /** One fortress as stored in the world. */
-    static final class Fort {
+    public static final class Fort {
         int x, y, z, tier;
         List<long[]> fabs = new ArrayList<>();
         String boss;                       // the only warden of fortresses built before several were possible
@@ -72,6 +74,11 @@ public final class Fortresses implements ModInitializer {
         int keepY;
         /** Point-defence launchers (difficulty 7 and up); null for fortresses built before there were any. */
         List<long[]> aa;
+        /** The nuclear silo (difficulty 9 and up, see Silos): where, its countdown, its cooldown, its target. */
+        long silo, siloAt, siloCool, siloTarget;
+        boolean siloPlaced, siloDead;
+        int siloState, siloStep;
+        transient UUID siloMissile, siloMarker;
 
         /** Wardens still standing (reads old saves too). */
         List<String> wardens() {
@@ -105,6 +112,7 @@ public final class Fortresses implements ModInitializer {
         POINT_DEFENCE = Reg.blockWithItem("point_defence_launcher", PointDefenceBlock::new,
                 Reg.metal(MapColor.COLOR_GRAY, 30f).strength(30f, 900f).requiresCorrectToolForDrops().noLootTable().noOcclusion());
         POINT_DEFENCE_BE = Reg.blockEntity("point_defence_launcher", PointDefenceBlockEntity::new, POINT_DEFENCE);
+        SILO = Reg.blockWithItem("machine_nuke_silo", Block::new, Reg.metal(MapColor.COLOR_RED, 50f).lightLevel(s -> 7).strength(50f, 1200f).requiresCorrectToolForDrops());
         saved = AttachmentRegistry.createPersistent(Identifier.fromNamespaceAndPath("heliosphere", "machine_fortresses_v1"), Codec.STRING);
         ServerTickEvents.END_WORLD_TICK.register(Fortresses::tick);
         net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback.EVENT.register((d, ctx, env) -> d.register(
@@ -123,6 +131,22 @@ public final class Fortresses implements ModInitializer {
             if (entity instanceof com.heliosphere.planets.tech.TechMob mob) machineDown(mob, source);
         });
     }
+
+    /** For the world test: a fortress record with a silo at (x, z) whose countdown runs out in {@code ticks}. */
+    public static void testSilo(ServerLevel level, int x, int z, int tier, int ticks) {
+        State st = state(level);
+        Fort f = new Fort();
+        f.x = x; f.z = z; f.tier = tier; f.bossDead = true;
+        f.y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+        f.keepY = f.y;
+        f.fabs = new ArrayList<>(); f.aa = new ArrayList<>();
+        f.fabs.add(new long[]{new BlockPos(x, f.y - 30, z).asLong()});            // not conquered while the test runs
+        st.forts.add(f);
+        Silos.tick(level, f);
+        f.siloAt = level.getGameTime() + ticks;
+    }
+
+    public static String siloLaunches() { return Silos.launched + " (" + Silos.lastLaunch + ")"; }
 
     private static State state(ServerLevel level) {
         return STATES.computeIfAbsent(level, l -> {
@@ -176,6 +200,12 @@ public final class Fortresses implements ModInitializer {
         }
         long t = level.getGameTime();
         if (t % 5 == 2) wakePointDefence(level);
+        if (t % 20 == 11 && !level.players().isEmpty() && hosts(level)) {        // the nuclear silos count down whether or not they are loaded
+            State ss = state(level);
+            boolean d = false;
+            for (Fort f : ss.forts) d |= Silos.tick(level, f);
+            if (d) save(level);
+        }
         if (t % 40 != 7 || level.players().isEmpty() || !hosts(level)) return;
         State st = state(level);
         boolean dirty = false;

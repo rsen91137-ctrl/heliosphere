@@ -77,5 +77,12 @@
   "event.heliosphere.alarm.tech.energy": "energy weapons",
   "event.heliosphere.alarm.tech.heavy": "super-heavy weapons",
   "event.heliosphere.alarm.tech.rocket": "rocketry",
-  "event.heliosphere.alarm.tech.air": "air defence"
+  "event.heliosphere.alarm.tech.air": "air defence",
+  "block.heliosphere.machine_nuke_silo": "Machine Nuclear Silo",
+  "event.heliosphere.silo.arming": "☢ NUCLEAR ALERT: the machine fortress silo at %s, %s is fuelling, target %s, %s! Launch in %s seconds. Destroy the silo to stop it, or have air defence shoot the missile down",
+  "event.heliosphere.silo.countdown": "☢ Machine nuke launches in %s seconds (target %s, %s)",
+  "event.heliosphere.silo.seconds": "☢ Machine nuke launch in %s",
+  "event.heliosphere.silo.launch": "☢ Machine nuke LAUNCHED! It comes down on %2$s, %3$s in about %1$s seconds - get 60 blocks away now, or intercept it",
+  "event.heliosphere.silo.destroyed": "The nuclear silo is destroyed: launch aborted",
+  "message.heliosphere.icbm_intercepted": "☢ The machine nuke has been shot down in flight!"
 }
