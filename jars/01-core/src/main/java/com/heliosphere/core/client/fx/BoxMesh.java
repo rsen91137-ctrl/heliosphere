@@ -39,6 +39,8 @@ public final class BoxMesh {
     public void rx(double a) { m.rotateX((float) a); }
     public void ry(double a) { m.rotateY((float) a); }
     public void rz(double a) { m.rotateZ((float) a); }
+    /** Uniform scale of everything drawn after it (normals stay unit length). */
+    public void scale(double k) { m.scale((float) k); }
 
     /** A solid box in colour {@code rgb}; skipped in the bright pass. */
     public void box(double x0, double y0, double z0, double x1, double y1, double z1, int tile, int rgb) { box(x0, y0, z0, x1, y1, z1, tile, rgb, false); }

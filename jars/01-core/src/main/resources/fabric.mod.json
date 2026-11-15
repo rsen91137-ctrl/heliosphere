@@ -6,6 +6,9 @@
   "entrypoints": {
     "client": [
       "com.heliosphere.core.client.fx.FxClient"
+    ],
+    "main": [
+      "com.heliosphere.core.machine.StackFix"
     ]
   },
   "mixins": [

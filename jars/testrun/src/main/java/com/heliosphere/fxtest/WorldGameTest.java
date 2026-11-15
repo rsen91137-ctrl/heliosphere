@@ -70,6 +70,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "fixes" -> fixes(ctx, sp);
                     case "turrets" -> turrets(ctx, sp);
                     case "startbtn" -> startButton(ctx, sp);
+                    case "turretmk" -> turretMk(ctx, sp);
+                    case "stack" -> stack(ctx, sp);
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
@@ -1218,6 +1220,82 @@ public class WorldGameTest implements FabricClientGameTest {
                     + ", steel left " + asm.getItem(0).getCount());
         });
         ctx.runOnClient(mc -> mc.setScreen(null));
+    }
+
+    /** Every turret at Mk 0 to V side by side, for the look of the upgrades. */
+    private void turretMk(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 8800 140 8800");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -3; i <= 16; i++) for (int j = -3; j <= 16; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 8; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            var kinds = com.heliosphere.planets.defense.mk.TurretKind.values();
+            for (int r = 0; r < kinds.length; r++) for (int mk = 0; mk <= 5; mk++) {
+                var pos = new net.minecraft.core.BlockPos(x0 + mk * 2, g, z0 + r * 2);
+                l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(kinds[r]).defaultBlockState(), 3);
+                var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                be.adopt(0, mk, null);
+            }
+            p.teleportTo(x0 + 5, g + 5.5, z0 - 4.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        ctx.waitTicks(40);
+        look(ctx, 20, 38);
+        ctx.waitTicks(20);
+        shot(ctx, "turret_mk_all");
+        server(sp, s -> { ServerPlayer p = player(s); p.teleportTo(o[0] + 5.5, o[1] + 1.6, o[2] - 2.2); });
+        ctx.waitTicks(20);
+        look(ctx, 0, 18);
+        ctx.waitTicks(20);
+        shot(ctx, "turret_mk_laser");
+        server(sp, s -> { ServerPlayer p = player(s); p.teleportTo(o[0] + 5.5, o[1] + 1.6, o[2] + 6.0 - 2.2); });
+        ctx.waitTicks(20);
+        look(ctx, 0, 18);
+        ctx.waitTicks(20);
+        shot(ctx, "turret_mk_flak");
+    }
+
+    /** Titanium plates from the CNC machine stack (in its output slot and in the inventory); an old plate with a tolerance is cleared. */
+    private void stack(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            var pos = p.blockPosition().offset(2, 0, 0);
+            o[0] = pos.getX(); o[1] = pos.getY(); o[2] = pos.getZ();
+            l.setBlock(pos, com.heliosphere.core.Reg.getBlock("cnc_machine").defaultBlockState(), 3);
+            var cnc = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(pos);
+            cnc.setItem(0, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("ti64_ingot"), 12));
+            var old = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("ti64_plate"), 3);
+            old.set(com.heliosphere.core.env.HelioComponents.QUALITY, new com.heliosphere.core.env.HelioComponents.Quality(0.83f, false));
+            p.getInventory().setItem(5, old);
+            p.getInventory().setItem(6, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("ti64_plate"), 2));
+        });
+        for (int k = 0; k < 60; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var m = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); m.setEnergy(m.capacity()); });
+        }
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var cnc = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            StringBuilder b = new StringBuilder();
+            for (int k = 0; k < cnc.getContainerSize(); k++) if (!cnc.getItem(k).isEmpty())
+                b.append(k).append(':').append(cnc.getItem(k).getCount()).append('x').append(cnc.getItem(k).getItem()).append(cnc.getItem(k).getComponentsPatch().isEmpty() ? "" : " " + cnc.getItem(k).getComponentsPatch()).append("  ");
+            report.add("[info] cnc after 30 s with 12 titanium ingots: " + b);
+            var a = p.getInventory().getItem(5); var c = p.getInventory().getItem(6);
+            report.add("[info] old plate cleared: " + !a.has(com.heliosphere.core.env.HelioComponents.QUALITY) + ", stacks with a plain plate: "
+                    + net.minecraft.world.item.ItemStack.isSameItemSameComponents(a, c));
+        });
+        cmd(sp, "gamemode creative @a");
     }
 
     /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */
