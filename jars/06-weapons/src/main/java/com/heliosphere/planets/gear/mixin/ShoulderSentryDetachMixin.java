@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class ShoulderSentryDetachMixin {
     @Inject(method = "overrideOtherStackedOnMe", at = @At("HEAD"), cancellable = true)
     private void heliosphere$takeOff(ItemStack me, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess access, CallbackInfoReturnable<Boolean> cir) {
-        if (ShoulderSentry.charge(me) < 0) return;
+        if (ShoulderSentry.bare(me) || ShoulderSentry.charge(me) < 0) return;
         if (com.heliosphere.planets.defense.mk.Sentries.kitLevel(other) > 0) {             // a kit onto the armour upgrades the sentry on it
             long e = ShoulderSentry.charge(me);
             boolean used = com.heliosphere.planets.defense.mk.PortableSentryItem.upgrade(other, player, ShoulderSentry.mk(me), k -> ShoulderSentry.setMk(me, k));

@@ -31,7 +31,7 @@ public final class ShoulderSentryClient {
             if (renderer instanceof AvatarRenderer<?> avatar) helper.register(new Layer(avatar));
         });
         ItemTooltipCallback.EVENT.register((stack, tctx, ttype, lines) -> {
-            long e = ShoulderSentry.charge(stack);
+            long e = ShoulderSentry.bare(stack) ? -1 : ShoulderSentry.charge(stack);
             if (e >= 0) {
                 int mk = ShoulderSentry.mk(stack);
                 lines.add(Component.translatable("item.heliosphere.shoulder_sentry.fitted", e, ShoulderSentry.capacity(mk)).withStyle(ChatFormatting.AQUA));

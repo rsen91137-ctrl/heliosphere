@@ -22,6 +22,10 @@ public final class ImpactFxClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // the acid-proof roof cloth lets the light through: drawn translucent
+        net.minecraft.world.level.block.Block cloth = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "acid_roof_cloth"));
+        if (cloth instanceof com.heliosphere.disasters.acid.AcidClothBlock)
+            net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap.putBlock(cloth, net.minecraft.client.renderer.chunk.ChunkSectionLayer.TRANSLUCENT);
         ClientPlayNetworking.registerGlobalReceiver(ImpactFx.ID, (p, ctx) -> ctx.client().execute(() -> show(p, ctx.client())));
         ClientPlayNetworking.registerGlobalReceiver(RemoteImpact.ID, (p, ctx) -> ctx.client().execute(() -> remote(p, ctx.client())));
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {

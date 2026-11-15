@@ -73,6 +73,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "turretmk" -> turretMk(ctx, sp);
                     case "stack" -> stack(ctx, sp);
                     case "shoulderfx" -> shoulderFx(ctx, sp);
+                    case "gear2" -> gear2(ctx, sp);
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
@@ -1368,6 +1369,75 @@ public class WorldGameTest implements FabricClientGameTest {
         shot(ctx, "shoulder_fire_front");
         ctx.runOnClient(mc -> { mc.options.hideGui = false; mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); });
         cmd(sp, "time set 6000");
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** The sentry survives its chestplate breaking; it can be worn bare; the acid cloth lets the sun through to a solar panel. */
+    private void gear2(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 9600 140 9600");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            p.getInventory().clearContent();
+            var chest = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.IRON_CHESTPLATE);
+            com.heliosphere.planets.gear.ShoulderSentry.setMk(chest, 2);
+            com.heliosphere.planets.gear.ShoulderSentry.setCharge(chest, 7777);
+            chest.setDamageValue(chest.getMaxDamage() - 1);
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+            chest.hurtAndBreak(3, l, p, it -> {});
+            var back = net.minecraft.world.item.ItemStack.EMPTY;
+            for (int i = 0; i < p.getInventory().getContainerSize(); i++) if (p.getInventory().getItem(i).getItem() == com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM) back = p.getInventory().getItem(i);
+            report.add("[info] chestplate broke: chest now " + p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST) + ", sentry back in inventory " + !back.isEmpty()
+                    + (back.isEmpty() ? "" : ", Mk " + com.heliosphere.planets.defense.mk.PortableSentryItem.mk(back) + ", " + com.heliosphere.planets.defense.mk.PortableSentryItem.energy(back) + " FE"));
+            // worn bare: right-click with it
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, back.copy());
+            for (int i = 0; i < p.getInventory().getContainerSize(); i++) if (i != p.getInventory().getSelectedSlot() && p.getInventory().getItem(i).getItem() == com.heliosphere.planets.defense.mk.Sentries.PORTABLE_ITEM) p.getInventory().setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+            var r = p.gameMode.useItem(p, l, p.getMainHandItem(), net.minecraft.world.InteractionHand.MAIN_HAND);
+            var worn = p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+            report.add("[info] bare sentry: use " + r + ", chest slot " + worn + ", charge " + com.heliosphere.planets.gear.ShoulderSentry.charge(worn) + ", Mk " + com.heliosphere.planets.gear.ShoulderSentry.mk(worn));
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -6; i <= 6; i++) for (int j = -6; j <= 14; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 8; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            var z = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            z.snapTo(x0 + 0.5, g, z0 + 8.5, 180, 0);
+            z.setNoAi(true); z.setPersistenceRequired();
+            l.addFreshEntity(z);
+            // a solar panel under a roof of acid cloth, and one under a roof of stone
+            var cloth = com.heliosphere.core.Reg.getBlock("acid_roof_cloth").defaultBlockState();
+            for (int i = -5; i <= -1; i++) for (int j = -5; j <= -1; j++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + 4, z0 + j), cloth, 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0 - 3, g, z0 - 3), com.heliosphere.core.Reg.getBlock("solar_panel").defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0 + 3, g + 4, z0 - 3), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(x0 + 3, g, z0 - 3), com.heliosphere.core.Reg.getBlock("solar_panel").defaultBlockState(), 3);
+        });
+        int s0 = com.heliosphere.planets.gear.ShoulderSentry.shots;
+        ctx.waitTicks(200);
+        server(sp, s -> {
+            var l = s.overworld();
+            int x0 = o[0], g = o[1], z0 = o[2];
+            report.add("[info] bare sentry shots in 10 s: " + (com.heliosphere.planets.gear.ShoulderSentry.shots - s0));
+            var under = new net.minecraft.core.BlockPos(x0 - 3, g + 1, z0 - 3);
+            var clothState = l.getBlockState(new net.minecraft.core.BlockPos(x0 - 3, g + 4, z0 - 3));
+            report.add("[info] acid cloth: " + clothState.getBlock().getClass().getSimpleName() + ", sky light under it " + l.getBrightness(net.minecraft.world.level.LightLayer.SKY, under)
+                    + ", canSeeSky " + l.canSeeSky(under) + ", rain cover (surface height " + l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x0 - 3, z0 - 3) + " > " + (g + 1) + ")");
+            report.add("[info] solar under cloth " + ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(new net.minecraft.core.BlockPos(x0 - 3, g, z0 - 3))).energy()
+                    + " FE, under stone " + ((com.heliosphere.core.machine.EnergyNode) l.getBlockEntity(new net.minecraft.core.BlockPos(x0 + 3, g, z0 - 3))).energy() + " FE");
+            report.add("[info] early machines: patrol " + role("patrol_drone") + ", assault " + role("assault_drone") + ", security " + role("security_walker") + ", mortar " + role("mortar_walker"));
+            ServerPlayer p = player(s);
+            p.teleportTo(x0 - 3.5, g, z0 + 1.5);
+        });
+        ctx.runOnClient(mc -> { mc.gui.getChat().clearMessages(false); mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK); });
+        look(ctx, 180, -35);
+        ctx.waitTicks(30);
+        shot(ctx, "gear2_cloth_bare_sentry");
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
         cmd(sp, "gamemode creative @a");
     }
 

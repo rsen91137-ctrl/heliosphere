@@ -38,7 +38,10 @@ public final class Sentries implements ModInitializer {
             BLOCKS.put(k, Reg.blockWithItem(k.id, p -> new SentryBlock(p, k), Reg.metal(MapColor.METAL, 4.5f)));
         BLOCK_ENTITY = Reg.blockEntity("sentry", SentryBlockEntity::new, BLOCKS.values().toArray(Block[]::new));
         for (String kit : KITS) Reg.item(kit);
-        PORTABLE_ITEM = Reg.item("portable_sentry", PortableSentryItem::new, new Item.Properties().stacksTo(1));
+        PORTABLE_ITEM = Reg.item("portable_sentry", PortableSentryItem::new, new Item.Properties().stacksTo(1)
+                .component(net.minecraft.core.component.DataComponents.EQUIPPABLE,      // worn on its own, without armour
+                        net.minecraft.world.item.equipment.Equippable.builder(net.minecraft.world.entity.EquipmentSlot.CHEST)
+                                .setEquipSound(net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_IRON).build()));
         MachineType.addProvider(Sentries::recipes);
         ServerTickEvents.END_WORLD_TICK.register(Sentries::tick);
         com.heliosphere.planets.weapon.guided.SmartLauncher.init();

@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.heliosphere.disasters.acid.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["AcidClothMixin"],
+  "injectors": {"defaultRequire": 1}
+}

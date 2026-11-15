@@ -15,6 +15,7 @@
   "mixins": [
     "heliosphere-tide.mixins.json",
     "heliosphere-giant-sky.mixins.json",
-    "heliosphere-collapse.mixins.json"
+    "heliosphere-collapse.mixins.json",
+    "heliosphere-acid.mixins.json"
   ]
 }

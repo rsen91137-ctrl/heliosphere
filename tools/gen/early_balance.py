@@ -6,10 +6,10 @@ import json, re
 
 P = 'jars/11-guide/src/main/resources/assets/heliosphere/guide/enemies.json'
 STATS = {  # id: (health, armour or None to keep, damage)
-    'patrol_drone': (26, None, 3), 'assault_drone': (46, None, 4.5), 'security_walker': (60, None, 5.5),
-    'repair_automaton': (45, None, 0), 'arc_hound': (58, None, 8), 'emp_spider': (90, None, 6),
-    'siege_drone': (100, None, 13), 'missile_drone': (150, None, 20),
-    'swarm_drone': (12, 0, 10), 'mortar_walker': (120, 10, 12), 'flame_walker': (140, 10, 4),
+    'patrol_drone': (30, None, 3.5), 'assault_drone': (54, None, 5.5), 'security_walker': (70, None, 6.5),
+    'repair_automaton': (52, None, 0), 'arc_hound': (64, None, 9), 'emp_spider': (95, None, 6.5),
+    'siege_drone': (110, None, 15), 'missile_drone': (155, None, 21),
+    'swarm_drone': (12, 0, 12), 'mortar_walker': (130, 11, 14), 'flame_walker': (145, 11, 4.5),
 }
 
 
@@ -27,8 +27,8 @@ for e in d:
         if arm is not None: t = re.sub(r'护甲\d+(\.\d+)?', f'护甲{fmt(arm)}', t, count=1)
         t = re.sub(r'(导弹)?伤害\d+(\.\d+)?', lambda m: f'{m.group(1) or ""}伤害{fmt(dmg)}', t, count=1)
         e[k] = t
-    if rid == 'swarm_drone': e['description'] = e['description'].replace('最高 16 点伤害', '最高 10 点伤害')
-    if rid == 'mortar_walker': e['description'] = e['description'].replace('最高 16 点伤害', '最高 12 点伤害')
+    if rid == 'swarm_drone': e['description'] = e['description'].replace('最高 16 点伤害', '最高 12 点伤害').replace('最高 10 点伤害', '最高 12 点伤害')
+    if rid == 'mortar_walker': e['description'] = e['description'].replace('最高 16 点伤害', '最高 14 点伤害').replace('最高 12 点伤害', '最高 14 点伤害')
 with open(P, 'w', encoding='utf-8') as f:
     json.dump(d, f, ensure_ascii=False, indent=2); f.write('\n')
 print('bestiary figures updated')

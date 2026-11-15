@@ -38,7 +38,9 @@ import java.util.UUID;
  * from its 10000 FE battery. The turret upgrade kits raise it to Mk I-V (up to 32 damage, 32 blocks, a shot every
  * quarter second, 40000 FE; two targets at once from Mk III, three at Mk V):
  * click a kit onto the sentry, or onto armour that carries it. It charges while you stand next to a power block (generators, battery banks) and slowly
- * from its solar panel by day under the open sky. In creative mode it needs no charge.
+ * from its solar panel by day under the open sky. In creative mode it needs no charge. It can also be worn on its own,
+ * without armour: right-click with it, or put it in the chest slot. When the chestplate carrying it breaks, the sentry
+ * comes off into the inventory (or drops) with its charge and Mk instead of being lost with the armour.
  */
 public final class ShoulderSentry {
     private ShoulderSentry() {}
@@ -65,11 +67,18 @@ public final class ShoulderSentry {
 
     /** Upgrade level of the sentry on this armour (0 as built). */
     public static int mk(ItemStack st) {
+        if (bare(st)) return PortableSentryItem.mk(st);
         var d = st.get(DataComponents.CUSTOM_DATA);
         return d == null ? 0 : d.copyTag().getIntOr(MK, 0);
     }
 
-    public static void setMk(ItemStack st, int mk) { CustomData.update(DataComponents.CUSTOM_DATA, st, t -> t.putInt(MK, i(mk))); }
+    public static void setMk(ItemStack st, int mk) {
+        if (bare(st)) { long e = PortableSentryItem.energy(st); PortableSentryItem.setMk(st, mk); PortableSentryItem.setEnergy(st, e); return; }
+        CustomData.update(DataComponents.CUSTOM_DATA, st, t -> t.putInt(MK, i(mk)));
+    }
+
+    /** The sentry worn on its own, strapped to the shoulder without armour (it goes in the chest slot itself). */
+    public static boolean bare(ItemStack st) { return !st.isEmpty() && st.getItem() instanceof PortableSentryItem; }
 
     private static final Map<UUID, Integer> COOLDOWN = new HashMap<>();
     /** Shots fired since start (for tests). */
@@ -81,6 +90,7 @@ public final class ShoulderSentry {
 
     /** Whether the stack can carry the sentry: anything worn on the chest. */
     public static boolean fits(ItemStack st) {
+        if (bare(st)) return false;                               // not a sentry onto a sentry
         var eq = st.get(DataComponents.EQUIPPABLE);
         return eq != null && eq.slot() == EquipmentSlot.CHEST;
     }
@@ -88,6 +98,7 @@ public final class ShoulderSentry {
     /** The charge of the sentry on this armour, or -1 if none is fitted. */
     public static long charge(ItemStack st) {
         if (st.isEmpty()) return -1;
+        if (bare(st)) return PortableSentryItem.energy(st);
         var d = st.get(DataComponents.CUSTOM_DATA);
         if (d == null) return -1;
         CompoundTag t = d.copyTag();
@@ -95,6 +106,7 @@ public final class ShoulderSentry {
     }
 
     public static void setCharge(ItemStack st, long e) {
+        if (bare(st)) { PortableSentryItem.setEnergy(st, e); return; }
         long cap = capacity(mk(st));
         CustomData.update(DataComponents.CUSTOM_DATA, st, t -> t.putLong(KEY, Mth.clamp(e, 0, cap)));
     }
@@ -113,6 +125,14 @@ public final class ShoulderSentry {
         PortableSentryItem.setEnergy(s, Math.max(0, e));
         remove(armour);
         return s;
+    }
+
+    /** The chestplate carrying the sentry is about to break: the sentry comes off into the inventory, or drops at the feet. */
+    public static void armourBreaking(ItemStack armour, ServerPlayer p) {
+        if (p == null || bare(armour) || charge(armour) < 0) return;
+        ItemStack sentry = takeOff(armour.copy());
+        if (!p.getInventory().add(sentry)) p.drop(sentry, false);
+        p.displayClientMessage(Component.translatable("message.heliosphere.shoulder_sentry_saved").withStyle(ChatFormatting.YELLOW), false);
     }
 
     /** Where the gun sits: over the right shoulder. */

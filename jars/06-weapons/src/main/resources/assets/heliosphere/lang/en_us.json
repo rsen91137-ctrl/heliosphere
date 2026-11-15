@@ -197,12 +197,13 @@
   "missile.heliosphere.penetrator": "Bunker buster",
   "item.heliosphere.portable_sentry": "Portable Shoulder Sentry",
   "item.heliosphere.portable_sentry.charge": "Charge %s / %s FE",
-  "item.heliosphere.portable_sentry.hint": "Wear it on a chestplate: in your inventory pick it up and click it onto any chestplate (or other chest armour); right-click that armour with an empty cursor to take it off. Worn, it shoots hostile creatures and machines it can see within %s blocks (%s damage a shot). Charges while you stand next to a power block (generators, battery banks) and slowly from its solar panel by day.",
+  "item.heliosphere.portable_sentry.hint": "Two ways to wear it: right-click (or put it in the chest slot) to strap it on with no armour; or pick it up in the inventory and click it onto any chestplate, right-click that chestplate with an empty cursor to take it off (if the chestplate breaks, the sentry comes off and is kept). While worn it shoots every hostile creature and machine it can see within %s blocks (%s damage a shot). It charges next to power blocks (generators, batteries) and slowly from its solar panel by day under the open sky.",
   "item.heliosphere.shoulder_sentry.fitted": "Shoulder sentry fitted · %s/%s FE (right-click with an empty cursor to take it off)",
   "message.heliosphere.shoulder_sentry_charging": "Shoulder sentry charging: %s / %s FE",
   "message.heliosphere.shoulder_sentry_occupied": "This armour already carries a sentry",
   "item.heliosphere.portable_sentry.stats": "Mk %s · %s damage a shot · %s blocks · every %s s · %s targets at once",
   "message.heliosphere.shoulder_sentry_upgraded": "Shoulder sentry upgraded to Mk %s",
   "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit",
-  "message.heliosphere.turret_no_power": "%s has no power (%s/%s FE) and cannot fire: connect it to a generator or battery with cable"
+  "message.heliosphere.turret_no_power": "%s has no power (%s/%s FE) and cannot fire: connect it to a generator or battery with cable",
+  "message.heliosphere.shoulder_sentry_saved": "The chestplate broke: the shoulder sentry came off into your inventory (or at your feet if it is full)"
 }

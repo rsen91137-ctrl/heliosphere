@@ -197,12 +197,13 @@
   "missile.heliosphere.penetrator": "鑽地彈",
   "item.heliosphere.portable_sentry": "便攜式肩載哨戒炮",
   "item.heliosphere.portable_sentry.charge": "電量 %s / %s FE",
-  "item.heliosphere.portable_sentry.hint": "掛在胸甲上使用：在物品欄裡拿起它，點到任意胸甲（或其他胸部裝備）上即可掛載；空手右鍵那件胸甲取下。穿著時自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。站在發電機/電池組等電源方塊旁邊會充電，白天露天靠太陽能板慢充。",
+  "item.heliosphere.portable_sentry.hint": "兩種戴法：右鍵（或放進胸甲欄）直接戴在肩上，不需要盔甲；或在物品欄裡拿起它點到任意胸甲上掛載，空手右鍵那件胸甲取下（胸甲壞了砲塔會自動卸下保留）。穿戴時自動射擊 %s 格內看得見的敵對生物和機械（每發 %s 傷害）。站在發電機/電池組等電源方塊旁邊會充電，白天露天靠太陽能板慢充。",
   "item.heliosphere.shoulder_sentry.fitted": "已掛載肩載哨戒炮 · 電量 %s/%s FE（空手右鍵取下）",
   "message.heliosphere.shoulder_sentry_charging": "肩載哨戒炮充電中：%s / %s FE",
   "message.heliosphere.shoulder_sentry_occupied": "這件盔甲上已經掛著一門哨戒炮了",
   "item.heliosphere.portable_sentry.stats": "等級 Mk %s · 每發 %s 傷害 · 射程 %s 格 · 每 %s 秒一輪 · 同時打 %s 個目標",
   "message.heliosphere.shoulder_sentry_upgraded": "肩載哨戒炮已升級到 Mk %s",
   "message.heliosphere.shoulder_sentry_has_mk": "這門哨戒炮已經是 Mk %s 了，需要更高級的升級套件",
-  "message.heliosphere.turret_no_power": "%s 沒電了（%s/%s FE），看到敵人也無法開火：用電纜把它接到發電機或電池組上"
+  "message.heliosphere.turret_no_power": "%s 沒電了（%s/%s FE），看到敵人也無法開火：用電纜把它接到發電機或電池組上",
+  "message.heliosphere.shoulder_sentry_saved": "胸甲損壞了：肩載哨戒砲已經卸下放回背包（背包滿時掉在腳下）"
 }
