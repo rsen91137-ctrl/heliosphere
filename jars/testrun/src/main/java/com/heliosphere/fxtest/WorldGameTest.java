@@ -72,6 +72,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "startbtn" -> startButton(ctx, sp);
                     case "turretmk" -> turretMk(ctx, sp);
                     case "stack" -> stack(ctx, sp);
+                    case "shoulderfx" -> shoulderFx(ctx, sp);
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
@@ -1295,6 +1296,78 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] old plate cleared: " + !a.has(com.heliosphere.core.env.HelioComponents.QUALITY) + ", stacks with a plain plate: "
                     + net.minecraft.world.item.ItemStack.isSameItemSameComponents(a, c));
         });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** The shoulder sentry firing, seen from behind and from the side; what it hits, and the hostiles round it, glow. */
+    private void shoulderFx(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 9200 140 9200");
+        ctx.waitTicks(60);
+        cmd(sp, "time set 13000");
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -6; i <= 6; i++) for (int j = -4; j <= 20; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 6; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.setYRot(0); p.setYBodyRot(0); p.setYHeadRot(0);
+            var chest = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_CHESTPLATE);
+            com.heliosphere.planets.gear.ShoulderSentry.setMk(chest, 3);
+            com.heliosphere.planets.gear.ShoulderSentry.setCharge(chest, 18000);
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 2000, 4));
+            for (int k = 0; k < 5; k++) {
+                var z = net.minecraft.world.entity.EntityType.ZOMBIE.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+                z.snapTo(x0 + 0.5 + (k - 2) * 1.6, g, z0 + 12.5 + (k % 2), 180, 0);
+                z.setNoAi(true); z.setPersistenceRequired();
+                z.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(400); z.setHealth(400);
+                l.addFreshEntity(z);
+            }
+        });
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        look(ctx, 0, 8);
+        ctx.waitTicks(30);
+        int shots0 = com.heliosphere.planets.gear.ShoulderSentry.shots;
+        for (int k = 0; k < 40 && com.heliosphere.planets.gear.ShoulderSentry.shots == shots0; k++) ctx.waitTicks(1);
+        ctx.waitTicks(1);
+        shot(ctx, "shoulder_fire_back");
+        ctx.waitTicks(20);
+        server(sp, s -> {
+            var l = s.overworld();
+            var zs = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Zombie.class, new net.minecraft.world.phys.AABB(o[0] - 8, o[1] - 2, o[2], o[0] + 8, o[1] + 4, o[2] + 20));
+            report.add("[info] shoulder sentry: shots " + (com.heliosphere.planets.gear.ShoulderSentry.shots - shots0) + ", zombies glowing "
+                    + zs.stream().filter(z -> z.hasEffect(net.minecraft.world.effect.MobEffects.GLOWING)).count() + "/" + zs.size()
+                    + ", health " + zs.stream().map(z -> String.format("%.0f", z.getHealth())).toList());
+        });
+        cmd(sp, "time set 6000");
+        ctx.runOnClient(mc -> { mc.gui.getChat().clearMessages(false); mc.options.hideGui = true; mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT); });
+        look(ctx, 0, 0);
+        ctx.runOnClient(mc -> { if (mc.player != null) { mc.player.setYRot(-55); mc.player.setYBodyRot(-55); } });
+        ctx.waitTicks(10);
+        shot(ctx, "shoulder_model_mk3");
+        server(sp, s -> {
+            var chest = player(s).getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+            com.heliosphere.planets.gear.ShoulderSentry.setMk(chest, 5);
+        });
+        ctx.waitTicks(10);
+        shot(ctx, "shoulder_model_mk5");
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK));
+        look(ctx, 30, 10);
+        ctx.waitTicks(10);
+        shot(ctx, "shoulder_model_mk5_back");
+        int s1 = com.heliosphere.planets.gear.ShoulderSentry.shots;
+        for (int k = 0; k < 40 && com.heliosphere.planets.gear.ShoulderSentry.shots == s1; k++) ctx.waitTicks(1);
+        ctx.waitTicks(1);
+        shot(ctx, "shoulder_fire_front");
+        ctx.runOnClient(mc -> { mc.options.hideGui = false; mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON); });
+        cmd(sp, "time set 6000");
         cmd(sp, "gamemode creative @a");
     }
 

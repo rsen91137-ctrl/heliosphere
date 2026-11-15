@@ -59,7 +59,7 @@ public final class SentryRenderer implements BlockEntityRenderer<SentryBlockEnti
     /** Per Mk 0-V: paint tint (mixed into the kind's colour), trim colour, body material, stripe colour. */
     private static final int[] TINT = {-1, 0x4A5058, 0xB89E6A, 0x3C4A64, 0x1E2024, 0xECEEF2};
     private static final int[] TRIM = {0xE8B420, 0xD07A28, 0xC8B080, 0x4A88D0, 0xD8A830, 0x60E8FF};
-    private static final int[] BODY = {BoxMesh.PLATE, BoxMesh.PLATE, BoxMesh.HEAVY, BoxMesh.CARBON, BoxMesh.CARBON, BoxMesh.VISOR};
+    private static final int[] BODY = {BoxMesh.PLATE, BoxMesh.PLATE, BoxMesh.HEAVY, BoxMesh.CARBON, BoxMesh.CARBON, BoxMesh.PLATE};
     private static final int[] STRIPE = {0x60FF90, 0x60FF90, 0xA0FF60, 0x60C0FF, 0xFFC040, 0x80FFFF};
 
     static int mix(int a, int b, float t) {

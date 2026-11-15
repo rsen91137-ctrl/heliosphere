@@ -162,13 +162,32 @@ public final class ShoulderSentry {
                 Vec3 c = target.getBoundingBox().getCenter();
                 target.hurtServer(level, level.damageSources().playerAttack(p), damage(mk));
                 target.invulnerableTime = 0;
-                CombatVfx.send(level, CombatVfx.TRACER, mk >= 4 ? 0x80E0FF : 0xFFD070, muzzle, c, 0.9f + mk * 0.12f);
+                // a heavy tracer with its muzzle flash, a small burst and sparks where it hits
+                Vec3 from = muzzle.add(c.subtract(muzzle).normalize().scale(0.25));
+                CombatVfx.send(level, CombatVfx.TRACER, mk >= 4 ? 0x80E0FF : 0xFFD070, from, c, 2.0f + mk * 0.2f);
+                CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFC060, c, c, 0.28f + mk * 0.03f);
+                level.sendParticles(net.minecraft.core.particles.ParticleTypes.ELECTRIC_SPARK, c.x, c.y, c.z, 10, 0.2, 0.2, 0.2, 0.25);
+                level.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT, c.x, c.y, c.z, 6, 0.25, 0.25, 0.25, 0.3);
+                spot(level, target, c);
             }
-            level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 0.8f, 1.5f + mk * 0.05f);
+            level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.CROSSBOW_SHOOT, SoundSource.PLAYERS, 0.9f, 1.5f + mk * 0.05f);
+            level.playSound(null, muzzle.x, muzzle.y, muzzle.z, SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.PLAYERS, 0.55f, 1.7f + mk * 0.04f);
             if (!free) setCharge(chest, e - (long) COST * guns);
             COOLDOWN.put(p.getUUID(), interval(mk));
             shots += guns;
         }
+    }
+
+    /** Seconds a hit machine or monster stays outlined (glowing), and how far round it others are marked too. */
+    public static final int SPOT_TICKS = 160;
+    public static final double SPOT_RADIUS = 5;
+
+    /** What the sentry hits glows for 8 seconds, and so do the hostiles within 5 blocks of it, seen through walls by everyone. */
+    private static void spot(ServerLevel level, Mob target, Vec3 at) {
+        target.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING, SPOT_TICKS, 0, false, false));
+        for (Mob m : level.getEntitiesOfClass(Mob.class, new AABB(at, at).inflate(SPOT_RADIUS)))
+            if (m != target && m instanceof Enemy && m.isAlive() && !(m instanceof OwnableEntity))
+                m.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.GLOWING, SPOT_TICKS * 3 / 4, 0, false, false));
     }
 
     /** From power blocks within a block of the feet, and the sun. */

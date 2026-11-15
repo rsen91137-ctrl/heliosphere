@@ -44,7 +44,10 @@ public final class CombatVfxClient implements ClientModInitializer {
         Vec3 a = p.start(), b = p.end();
         double dist = me.getEyePosition().distanceTo(a);
         switch (p.kind()) {
-            case CombatVfx.TRACER, CombatVfx.BEAM -> shot(p, mc, level, me, seed);
+            case CombatVfx.TRACER, CombatVfx.BEAM -> {
+                shot(p, mc, level, me, seed);
+                com.heliosphere.planets.gear.client.ShoulderSentryClient.heard(a, b, level.getGameTime());   // a shoulder sentry's shot: flash and recoil on its model
+            }
             case CombatVfx.RING -> {
                 int c = p.color();
                 boolean warhead = ((c >> 16) & 255) > (c & 255) + 40;
