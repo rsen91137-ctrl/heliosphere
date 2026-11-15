@@ -69,6 +69,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "recipes" -> recipes(ctx, sp);
                     case "fixes" -> fixes(ctx, sp);
                     case "turrets" -> turrets(ctx, sp);
+                    case "startbtn" -> startButton(ctx, sp);
                     case "death" -> death(ctx, sp);
                     case "pointdef" -> pointDefence(ctx, sp);
                     case "bvr" -> bvr(ctx, sp);
@@ -942,6 +943,7 @@ public class WorldGameTest implements FabricClientGameTest {
             String[][] in = {{"steel_plate", "8"}, {"processor", "2"}, {"electric_motor", "2"}, {"circuit_board", "4"}, {"battery_cell", "4"}, {"canister_oxygen", "4"}};
             for (int k = 0; k < in.length; k++) asm.setItem(k, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(in[k][0]), Integer.parseInt(in[k][1])));
             asm.setEnergy(asm.capacity());
+            ((com.heliosphere.core.machine.Startable) asm).heliosphere$arm(true);   // its start button
             // a lit furnace, a cable and a battery bank
             var fur = new net.minecraft.core.BlockPos(x0 + 4, g, z0);
             l.setBlock(fur, net.minecraft.world.level.block.Blocks.FURNACE.defaultBlockState(), 3);
@@ -1173,6 +1175,49 @@ public class WorldGameTest implements FabricClientGameTest {
         look(ctx, 0, 10);
         shot(ctx, "turrets");
         cmd(sp, "gamemode creative @a");
+    }
+
+    /** The assembly station waits for its start button: half the inputs in, nothing happens; all in, still nothing; press start, it makes it. */
+    private void startButton(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 8400 140 8400");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            var pos = p.blockPosition().offset(2, 0, 0);
+            o[0] = pos.getX(); o[1] = pos.getY(); o[2] = pos.getZ();
+            l.setBlock(pos.below(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+            l.setBlock(pos, com.heliosphere.core.Reg.getBlock("assembly_station").defaultBlockState(), 3);
+            var asm = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(pos);
+            asm.setEnergy(asm.capacity());
+            asm.setItem(0, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("steel_plate"), 8));   // a nozzle bell's worth, and more
+            p.openMenu(asm);
+        });
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            var asm = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            report.add("[info] start button: 8 steel plates in for 3 s, not started: slot 0 " + asm.getItem(0).getCount() + ", output " + asm.getItem(9));
+            String[][] in = {{"processor", "2"}, {"electric_motor", "2"}, {"circuit_board", "4"}, {"battery_cell", "4"}, {"canister_oxygen", "4"}};
+            for (int k = 0; k < in.length; k++) asm.setItem(k + 1, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get(in[k][0]), Integer.parseInt(in[k][1])));
+        });
+        ctx.waitTicks(20);
+        shot(ctx, "start_button");
+        ctx.runOnClient(mc -> {
+            if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs)
+                mc.gameMode.handleInventoryButtonClick(cs.getMenu().containerId, 0);
+            report.add("[info] start button pressed on " + (mc.screen == null ? "no screen" : mc.screen.getClass().getSimpleName()));
+        });
+        for (int k = 0; k < 75; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var asm = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); asm.setEnergy(asm.capacity()); });
+        }
+        server(sp, s -> {
+            var asm = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            report.add("[info] start button: after pressing, output " + asm.getItem(9) + ", still armed " + ((com.heliosphere.core.machine.Startable) asm).heliosphere$armed()
+                    + ", steel left " + asm.getItem(0).getCount());
+        });
+        ctx.runOnClient(mc -> mc.setScreen(null));
     }
 
     /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */

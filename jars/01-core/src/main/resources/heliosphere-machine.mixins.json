@@ -6,7 +6,9 @@
   "mixins": [
     "MachineRecipePickMixin",
     "MachineRecipeFixMixin",
-    "FurnaceHeatMixin"
+    "FurnaceHeatMixin",
+    "MachineStartMixin",
+    "MachineButtonMixin"
   ],
   "injectors": {
     "defaultRequire": 1

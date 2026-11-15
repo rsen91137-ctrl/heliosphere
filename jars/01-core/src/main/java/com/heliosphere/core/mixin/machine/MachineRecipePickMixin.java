@@ -3,6 +3,7 @@ package com.heliosphere.core.mixin.machine;
 import com.heliosphere.core.machine.MachineBlockEntity;
 import com.heliosphere.core.machine.MachineRecipe;
 import com.heliosphere.core.machine.MachineType;
+import com.heliosphere.core.machine.Startable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,7 +18,8 @@ import java.util.List;
  * emitter, the turbopump inside the portable sentry...) always won and the bigger one could never be made; and of
  * recipes told apart only by where the machine stands (the planet core drill), only the first was ever tried. Now the
  * most specific recipe wins: one whose condition holds where the machine stands, then the one using the most kinds of
- * input, then the most items, then the earlier.
+ * input, then the most items, then the earlier. A machine with a start button ({@link Startable}) chooses only when
+ * it is pressed, and keeps to that recipe until its materials run out.
  */
 @Mixin(value = MachineBlockEntity.class, remap = false)
 public abstract class MachineRecipePickMixin {
@@ -28,6 +30,16 @@ public abstract class MachineRecipePickMixin {
     private void heliosphere$mostSpecific(MachineType type, CallbackInfoReturnable<MachineRecipe> cir) {
         MachineBlockEntity self = (MachineBlockEntity) (Object) this;
         List<MachineRecipe> list = type.recipes();
+        Startable gate = Startable.gated(type) ? (Startable) self : null;
+        if (gate != null) {                                         // waits for its start button
+            if (!gate.heliosphere$armed()) { cir.setReturnValue(null); return; }
+            int locked = gate.heliosphere$locked();
+            if (locked >= 0) {                                       // the recipe locked in by the press, while its materials last
+                if (locked < list.size() && matches(list.get(locked), type)) cir.setReturnValue(list.get(locked));
+                else { gate.heliosphere$arm(false); cir.setReturnValue(null); }
+                return;
+            }
+        }
         MachineRecipe best = null;
         long bestKey = Long.MIN_VALUE;
         for (int i = 0; i < list.size(); i++) {
@@ -39,6 +51,10 @@ public abstract class MachineRecipePickMixin {
             long key = ((here ? 1L : 0L) << 48) | ((long) Math.min(r.inputs.size(), 0xFF) << 40)
                     | ((long) Math.min(total, 0xFFFFFF) << 16) | (0xFFFF - Math.min(i, 0xFFFF));
             if (key > bestKey) { bestKey = key; best = r; }
+        }
+        if (gate != null) {
+            if (best == null) gate.heliosphere$arm(false);                // nothing to make: the press is spent
+            else gate.heliosphere$lock(list.indexOf(best));
         }
         cir.setReturnValue(best);
     }

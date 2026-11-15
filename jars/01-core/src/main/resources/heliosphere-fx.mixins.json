@@ -3,6 +3,11 @@
   "minVersion": "0.8",
   "package": "com.heliosphere.core.mixin.fx",
   "compatibilityLevel": "JAVA_21",
-  "client": ["LevelRendererFxMixin"],
-  "injectors": {"defaultRequire": 1}
+  "client": [
+    "LevelRendererFxMixin",
+    "ContainerScreenAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

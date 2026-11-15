@@ -36,5 +36,11 @@
   "advancement.heliosphere.war.jupiter_ocean": "Sea of Metal",
   "advancement.heliosphere.war.jupiter_ocean.desc": "Descend to Jupiter's metallic hydrogen ocean",
   "advancement.heliosphere.war.diamond_rain": "Raining Diamonds",
-  "advancement.heliosphere.war.diamond_rain.desc": "See diamonds fall in the depths of an ice giant"
+  "advancement.heliosphere.war.diamond_rain.desc": "See diamonds fall in the depths of an ice giant",
+  "button.heliosphere.machine_start": "▶ Start",
+  "button.heliosphere.machine_start.tip": "Press once everything is in: the recipe matching the inputs right now is made, again and again while the materials last, then it stops",
+  "button.heliosphere.machine_stop": "■",
+  "button.heliosphere.machine_stop.tip": "Stop (the current progress is lost, no materials are used)",
+  "message.heliosphere.machine_started": "Assembly station started: making what the inputs allow",
+  "message.heliosphere.machine_stopped": "Assembly station stopped"
 }

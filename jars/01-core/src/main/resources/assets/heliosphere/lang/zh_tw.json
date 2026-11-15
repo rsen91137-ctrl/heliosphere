@@ -36,5 +36,11 @@
   "advancement.heliosphere.war.jupiter_ocean": "金屬之海",
   "advancement.heliosphere.war.jupiter_ocean.desc": "下潛到木星的金屬氫海洋上空",
   "advancement.heliosphere.war.diamond_rain": "鑽石雨",
-  "advancement.heliosphere.war.diamond_rain.desc": "在冰巨星深處看見鑽石落下"
+  "advancement.heliosphere.war.diamond_rain.desc": "在冰巨星深處看見鑽石落下",
+  "button.heliosphere.machine_start": "▶ 開始",
+  "button.heliosphere.machine_start.tip": "把原料全部放好後按下：按此刻放入的原料選定配方開始合成，原料夠就一直做下去，用完自動停止",
+  "button.heliosphere.machine_stop": "■",
+  "button.heliosphere.machine_stop.tip": "停止合成（目前進度清零，原料不消耗）",
+  "message.heliosphere.machine_started": "總裝台已啟動：按放入的原料合成",
+  "message.heliosphere.machine_stopped": "總裝台已停止"
 }

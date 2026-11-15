@@ -8,5 +8,6 @@ public final class FxClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         HudRenderCallback.EVENT.register((graphics, delta) -> FxEngine.hud(graphics));
+        MachineButtons.init();
     }
 }
