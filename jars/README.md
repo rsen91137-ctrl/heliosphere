@@ -52,4 +52,6 @@ python3 tools/gen/planet_textures.py    # 星球地表贴图
 python3 tools/gen/giant_assets.py       # 巨行星云层、金属氢与离子海洋
 python3 tools/gen/guide_industry.py     # 卷轴：工业设施、矿石与原料说明
 python3 tools/gen/deployer_icons.py jars/testrun/run-fx/screenshots   # 部署器图标（先跑 -Ponly=world:icons）
+python3 tools/gen/food_synth_assets.py  # 食品合成机与十五种料理的贴图、模型
+python3 tools/gen/texture_polish.py     # 重绘 68 张旧贴图；上面的脚本会写回旧贴图，重跑它们之后必须最后再跑这一个
 ```

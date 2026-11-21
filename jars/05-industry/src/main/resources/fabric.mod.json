@@ -7,7 +7,8 @@
     "main": [
       "com.heliosphere.industry.power.Power",
       "com.heliosphere.industry.habitat.Habitat",
-      "com.heliosphere.industry.fun.LaoBaLunch"
+      "com.heliosphere.industry.fun.LaoBaLunch",
+      "com.heliosphere.industry.kitchen.Kitchen"
     ],
     "client": [
       "com.heliosphere.industry.power.client.PowerClient",
@@ -15,6 +16,7 @@
     ]
   },
   "mixins": [
-    "heliosphere-habitat.mixins.json"
+    "heliosphere-habitat.mixins.json",
+    "heliosphere-kitchen.mixins.json"
   ]
 }

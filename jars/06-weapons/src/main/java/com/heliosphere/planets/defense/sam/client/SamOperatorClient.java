@@ -1,5 +1,6 @@
 package com.heliosphere.planets.defense.sam.client;
 
+import com.heliosphere.planets.defense.sam.InterceptMode;
 import com.heliosphere.planets.defense.sam.SamKind;
 import com.heliosphere.planets.defense.sam.SamNet;
 import com.mojang.blaze3d.platform.InputConstants;
@@ -18,7 +19,8 @@ import org.lwjgl.glfw.GLFW;
 
 /**
  * The operator's station on screen: a box in the sky around every target the vehicle sees (the selected one
- * bracketed in red with its range), the vehicle's state, and the keys: R next target, F fire.
+ * bracketed in red with its range), the vehicle's state, what a launcher is set to intercept, and the keys: R next
+ * target, F fire.
  */
 public final class SamOperatorClient {
     private SamOperatorClient() {}
@@ -71,7 +73,8 @@ public final class SamOperatorClient {
         // the panel: vehicle, mode, ammunition, keys
         SamKind kind = SamKind.values()[Math.max(0, Math.min(SamKind.values().length - 1, p.kind()))];
         int x = w / 2 - 115, y = 6;                                         // top centre: clear of the chat and the hotbar
-        g.fill(x - 4, y - 4, x + 230, y + 46, 0x90101418);
+        boolean launcher = !kind.radar && !p.driving();
+        g.fill(x - 4, y - 4, x + 230, y + (launcher ? 58 : 46), 0x90101418);
         g.drawString(mc.font, Component.translatable("block.heliosphere." + kind.id), x, y, 0xFFFFFFFF);
         Component state = p.driving() ? Component.translatable(p.stowing() ? "hud.heliosphere.sam_stowing" : "hud.heliosphere.sam_driving")
                 : kind.radar ? Component.translatable("hud.heliosphere.sam_tracks", p.targets().size())
@@ -79,6 +82,10 @@ public final class SamOperatorClient {
                         p.ammo(), p.magazine(), p.targets().size());
         g.drawString(mc.font, state, x, y + 12, 0xFFFFD060);
         g.drawString(mc.font, Component.translatable(p.driving() ? "hud.heliosphere.sam_keys_drive" : "hud.heliosphere.sam_keys"), x, y + 26, 0xFFB0B0B0);
+        if (launcher) {                                                     // what the launcher intercepts: the picture shows only that
+            InterceptMode mode = InterceptMode.byIndex(p.intercept());
+            g.drawString(mc.font, Component.translatable("hud.heliosphere.sam_intercept", Component.translatable(mode.key())), x, y + 40, mode == InterceptMode.ALL ? 0xFFB0B0B0 : 0xFFFFB040);
+        }
     }
 
     /**

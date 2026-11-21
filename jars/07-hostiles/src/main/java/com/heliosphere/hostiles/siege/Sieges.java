@@ -281,7 +281,7 @@ public final class Sieges implements ModInitializer {
         if (com.heliosphere.hostiles.arsenal.Evolution.stage(day) < 3 || Planets.isSpace(l) || !p.isAlive()) return false;
         if (l.dimension() != Level.OVERWORLD && Planets.bodyOf(l) == null) return false;        // not the Nether, the End, the flight cabin
         if (com.heliosphere.hostiles.arsenal.Underground.deep(l, p)) return false;              // deep underground: the diggers' business
-        int d = Math.max(1, difficulty(p, m, day) - 1);
+        int d = Math.max(1, difficulty(p, m, day) - 2);       // a raiding party, not the siege the shelter would get
         begin(p, l, p.blockPosition(), Kind.AIRBORNE, d);
         m.launched++;
         return true;
@@ -357,7 +357,7 @@ public final class Sieges implements ModInitializer {
         Siege s = new Siege();
         s.player = p.getUUID(); s.level = level; s.home = home; s.kind = kind; s.difficulty = difficulty; s.waves = kind.waves;
         s.started = level.getGameTime();
-        s.nextWave = s.started + (kind == Kind.INFILTRATION ? 300 : 600);
+        s.nextWave = s.started + (kind == Kind.INFILTRATION ? 300 : kind == Kind.AIRBORNE ? 200 : 600);   // drop troops give ten seconds
         s.bar = new ServerBossEvent(Component.translatable("event.heliosphere.siege." + kind.key() + ".bar", difficulty),
                 kind == Kind.ONSLAUGHT ? BossEvent.BossBarColor.RED : BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
         s.bar.setProgress(1f);
@@ -426,7 +426,7 @@ public final class Sieges implements ModInitializer {
             case BOMBARD -> 2 + d / 4;
             case INFILTRATION -> 2 + d / 4;
             case ONSLAUGHT -> 5 + d / 2;
-            case AIRBORNE -> 4 + d / 2;
+            case AIRBORNE -> 3 + d / 2;
         };
         if (s.big) n = n * 3 / 2 + 1;                             // a counter-attack: half as many again
         int stage = com.heliosphere.hostiles.arsenal.Evolution.stage(l.getServer().overworld().getDayTime() / 24000L);

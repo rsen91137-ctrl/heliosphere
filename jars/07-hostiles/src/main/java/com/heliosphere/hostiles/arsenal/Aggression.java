@@ -26,8 +26,8 @@ import java.util.WeakHashMap;
  *       see the player or the turret is the nearer of the two, and otherwise one time in three; the turret takes the
  *       weapon's damage (see SentryBlockEntity.damage: knocked out at zero for 30 seconds). EMP spiders hit turrets
  *       three times as hard. Blasts hurt turrets too (EnemyArsenal.blast).</li>
- *   <li>Drop troops (the airborne sieges) fight in a frenzy for fifteen seconds after landing: twice the rate of
- *       fire and faster on their feet.</li>
+ *   <li>Drop troops (the airborne sieges) fight in a frenzy for fifteen seconds after landing: half as fast again
+ *       at the trigger and faster on their feet.</li>
  * </ul>
  */
 public final class Aggression {
@@ -65,9 +65,9 @@ public final class Aggression {
         LivingEntity t = mob.getTarget();
         if (t == null) { m.noSight = 0; return; }
         if (mob.tickCount % 5 == 0) m.noSight = mob.hasLineOfSight(t) ? 0 : m.noSight + 5;
-        if (m.frenzy > 0) {                                           // twice the rate of fire
+        if (m.frenzy > 0) {                                           // half as fast again at the trigger
             m.frenzy--;
-            if ((Object) mob instanceof Cooldown c && c.heliosphere$cooldown() > 1) c.heliosphere$cooldown(c.heliosphere$cooldown() - 1);
+            if ((m.frenzy & 1) == 0 && (Object) mob instanceof Cooldown c && c.heliosphere$cooldown() > 1) c.heliosphere$cooldown(c.heliosphere$cooldown() - 1);
         }
         if (m.turretCd > 0) { m.turretCd--; return; }
         if (r.damage() <= 0) { m.turretCd = 100; return; }               // the repair automaton carries no weapon

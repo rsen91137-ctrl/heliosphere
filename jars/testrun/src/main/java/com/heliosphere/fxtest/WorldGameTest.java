@@ -81,6 +81,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "flakshells" -> flakShells(ctx, sp);
                     case "aggro" -> aggro(ctx, sp);
                     case "aggro2" -> aggro2(ctx, sp);
+                    case "food" -> food(ctx, sp);
+                    case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
                         cmd(sp, "execute in minecraft:overworld run tp @p 12200 140 12200");
                         ctx.waitTicks(60);
@@ -1847,9 +1849,9 @@ public class WorldGameTest implements FabricClientGameTest {
                 if (Math.abs(i) == 2 || Math.abs(j) == 2 || h == 3) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(), 3);
             p.teleportTo(x0 + 0.5, g, z0 + 0.5);
             p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
-            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);
-            p.setHealth(1000);
-            var a = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 0.5, g, z0 + 110.5, null);   // far: must notice
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(5000);
+            p.setHealth(5000);
+            var a = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 0.5, g, z0 + 78.5, null);   // far: must notice
             var b = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 6.5, g, z0 + 18.5, null);    // inside its firing distance, no sight
             if (a != null) { a.setPersistenceRequired(); far[0] = a.getUUID(); }
             if (b != null) { b.setPersistenceRequired(); far[1] = b.getUUID(); }
@@ -1860,7 +1862,8 @@ public class WorldGameTest implements FabricClientGameTest {
             var l = s.overworld();
             var a = far[0] == null ? null : l.getEntity(far[0]);
             var b = far[1] == null ? null : l.getEntity(far[1]);
-            report.add("[info] notice: walker spawned 110 blocks away, 15 s later " + (a instanceof com.heliosphere.planets.tech.TechMob m ? "target " + (m.getTarget() == p ? "player" : m.getTarget()) + ", distance " + (int) m.distanceTo(p) : "gone"));
+            report.add("[info] notice: walker spawned 78 blocks away, 15 s later " + (a instanceof com.heliosphere.planets.tech.TechMob m ? "target " + (m.getTarget() == p ? "player" : m.getTarget()) + ", distance " + (int) m.distanceTo(p)
+                    + ", its chunk ticks entities " + l.isPositionEntityTicking(m.blockPosition()) + ", age " + m.tickCount : "gone"));
             report.add("[info] no sight: walker spawned 19 blocks from a walled-in player, 15 s later " + (b instanceof com.heliosphere.planets.tech.TechMob m ? "distance " + String.format("%.1f", m.distanceTo(p)) + ", sees " + m.hasLineOfSight(p) : "gone"));
             for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
             // turrets against a squad: two laser turrets and an autocannon (charged, the player's), six machines 40 blocks out
@@ -1896,14 +1899,21 @@ public class WorldGameTest implements FabricClientGameTest {
                     + (com.heliosphere.planets.defense.mk.SentryBlockEntity.knockedOut - ko0) + ";" + b + "; machines left "
                     + l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(120)).size() + ", player health " + (int) p.getHealth());
             for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
-            p.setHealth(1000);
+            p.setHealth(5000);
         });
         // an airborne raid on the player
-        cmd(sp, "hssiege airborne 8");
-        ctx.waitTicks(700);
-        look(ctx, 0, -10);
-        shot(ctx, "aggro_airborne");
-        ctx.waitTicks(200);
+        cmd(sp, "execute as @p at @s run hssiege airborne 8");
+        for (int k = 0; k < 6; k++) {
+            ctx.waitTicks(200);
+            if (k == 3) { look(ctx, 0, -10); shot(ctx, "aggro_airborne"); }
+            int kk = k;
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                int n = 0, near = 0;
+                for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(80))) { n++; if (m.distanceTo(p) < 30) near++; }
+                report.add("[info] airborne +" + (kk + 1) * 10 + " s (client): machines " + n + ", within 30 blocks " + near + ", player health " + (int) p.getHealth());
+            });
+        }
         server(sp, s -> {
             ServerPlayer p = player(s);
             var l = s.overworld();
@@ -1913,7 +1923,7 @@ public class WorldGameTest implements FabricClientGameTest {
                 kinds.merge(m.role().id(), 1, Integer::sum);
                 if (m.distanceTo(p) < 30) near++;
             }
-            report.add("[info] airborne raid (difficulty 8), 45 s in: " + kinds + ", within 30 blocks " + near + ", player health 1000 -> " + (int) p.getHealth());
+            report.add("[info] airborne raid (difficulty 8), 45 s in: " + kinds + ", within 30 blocks " + near + ", player health 5000 -> " + (int) p.getHealth());
             for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
             p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
@@ -2110,6 +2120,175 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] battery picked up: broke=" + broke + " drops " + what);
         });
         cmd(sp, "gamemode creative @a");
+    }
+
+    /** The food synthesizer: hosts the industry machine, cooks a shake (one bucket back, not two), and the shake buffs. */
+    private void food(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 14000 140 14000");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            com.heliosphere.core.machine.MachineType.ensureLoaded();
+            var type = com.heliosphere.core.machine.MachineType.get("food_synthesizer");
+            boolean kit = false;
+            for (var r : com.heliosphere.core.machine.MachineType.get("assembly_station").recipes())
+                if (r.outputs.get(0).stack().getItem() == com.heliosphere.industry.kitchen.Kitchen.BLOCK.asItem()) kit = true;
+            report.add("[info] food synthesizer: recipes " + type.recipes().size() + ", meals " + com.heliosphere.industry.kitchen.Kitchen.MEALS.size() + ", built in the assembly station " + kit);
+            var pos = p.blockPosition().offset(2, 0, 0);
+            o[0] = pos.getX(); o[1] = pos.getY(); o[2] = pos.getZ();
+            l.setBlock(pos.below(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+            l.setBlock(pos, com.heliosphere.industry.kitchen.Kitchen.BLOCK.defaultBlockState(), 3);
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(pos);
+            be.setEnergy(be.capacity());
+            be.setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.MILK_BUCKET));
+            be.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.COCOA_BEANS, 2));
+            be.setItem(2, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.EGG, 1));
+            p.openMenu(be);
+        });
+        ctx.waitTicks(40);
+        shot(ctx, "food_synthesizer");
+        for (int k = 0; k < 50; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); be.setEnergy(be.capacity()); });
+        }
+        shot(ctx, "food_synthesizer_done");
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            StringBuilder b = new StringBuilder();
+            for (int k = 0; k < be.getContainerSize(); k++) if (!be.getItem(k).isEmpty()) b.append(" [").append(k).append("] ").append(be.getItem(k));
+            report.add("[info] shake cooked from 1 milk bucket, 2 cocoa, 1 egg:" + b);
+            // a second, different recipe: stew
+            for (int k = 0; k < be.getContainerSize(); k++) be.setItem(k, net.minecraft.world.item.ItemStack.EMPTY);
+            be.setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BEEF, 1));
+            be.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.POTATO, 2));
+            be.setItem(2, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.CARROT, 2));
+        });
+        for (int k = 0; k < 60; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); be.setEnergy(be.capacity()); });
+        }
+        ctx.runOnClient(mc -> mc.setScreen(null));
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2]));
+            StringBuilder b = new StringBuilder();
+            for (int k = 0; k < be.getContainerSize(); k++) if (!be.getItem(k).isEmpty()) b.append(" [").append(k).append("] ").append(be.getItem(k));
+            report.add("[info] stew cooked from beef, 2 potatoes, 2 carrots:" + b);
+            // eating: every meal in turn, on an empty stomach
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            for (var e : com.heliosphere.industry.kitchen.Kitchen.MEALS.entrySet()) {
+                p.removeAllEffects();
+                p.getFoodData().setFoodLevel(4);
+                var stack = new net.minecraft.world.item.ItemStack(e.getValue(), 2);
+                var left = stack.finishUsingItem(l, p);
+                StringBuilder fx = new StringBuilder();
+                for (var i : p.getActiveEffects()) fx.append(' ').append(i.getEffect().getRegisteredName().replace("minecraft:", "")).append(' ').append(i.getAmplifier() + 1).append('/').append(i.getDuration() / 20).append('s');
+                report.add("[info] " + e.getKey() + ": hunger 4 -> " + p.getFoodData().getFoodLevel() + "," + fx + ", left " + left.getCount());
+            }
+            p.removeAllEffects();
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+            // all fifteen in the hotbar and inventory for a look
+            int slot = 0;
+            for (var m : com.heliosphere.industry.kitchen.Kitchen.MEALS.values()) p.getInventory().setItem(slot++, new net.minecraft.world.item.ItemStack(m, 1 + slot % 3));
+            p.getInventory().setItem(slot, new net.minecraft.world.item.ItemStack(com.heliosphere.industry.kitchen.Kitchen.BLOCK));
+        });
+        ctx.waitTicks(10);
+        ctx.runOnClient(mc -> mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player)));
+        ctx.waitTicks(10);
+        shot(ctx, "food_meals");
+        ctx.runOnClient(mc -> mc.setScreen(null));
+        server(sp, s -> player(s).getInventory().clearContent());
+    }
+
+    /**
+     * A launcher told to intercept nuclear missiles only: drones overhead do not draw its fire, the machines' missile
+     * does. A second launcher beside it, on everything, shoots the drones.
+     */
+    private void samNuke(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        java.util.UUID[] ids = new java.util.UUID[2];
+        cmd(sp, "execute in minecraft:overworld run tp @p 14400 140 14400");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            var l = s.overworld();
+            l.setDayTime(312L * 24000 + 6000);
+            ServerPlayer p = player(s);
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 12000, 4));
+            o[0] = p.getBlockX(); o[2] = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            o[1] = g;
+            for (int dx = -16; dx <= 16; dx++) for (int dz = -16; dz <= 16; dz++) for (int dy = 0; dy < 25; dy++)
+                l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, g + dy, o[2] + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TADS, new net.minecraft.core.BlockPos(o[0] - 8, g, o[2]), p, null);
+            var nukes = sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, new net.minecraft.core.BlockPos(o[0] + 6, g, o[2]), p, null);
+            nukes.setIntercept(com.heliosphere.planets.defense.sam.InterceptMode.NUKES);
+            ids[0] = nukes.getUUID();
+            var bat = new net.minecraft.core.BlockPos(o[0], g, o[2] + 6);
+            l.setBlock(bat, com.heliosphere.planets.defense.sam.SamSites.BATTERY.defaultBlockState(), 3);
+            com.heliosphere.planets.defense.sam.SamSites.BATTERY.setPlacedBy(l, bat, l.getBlockState(bat), p, new net.minecraft.world.item.ItemStack(com.heliosphere.planets.defense.sam.SamSites.BATTERY));
+            p.teleportTo(o[0] + 0.5, g + 4, o[2] + 14.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            String[] drones = {"plasma_drone", "hunter_drone", "missile_drone", "assault_drone"};
+            for (int i = 0; i < drones.length; i++) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, drones[i], o[0] - 30 + i * 20, g + 35 + (i % 2) * 8, o[2] - 80, null);
+                if (m != null) { m.setPersistenceRequired(); m.setNoAi(true); m.setNoGravity(true); }
+            }
+        });
+        ctx.waitTicks(40);
+        // the panel of the nuclear-only launcher
+        server(sp, s -> { if (s.overworld().getEntity(ids[0]) instanceof com.heliosphere.planets.defense.sam.SamVehicle v) v.interact(player(s), net.minecraft.world.InteractionHand.MAIN_HAND); });
+        ctx.waitTicks(20);
+        shot(ctx, "sam_intercept_panel");
+        ctx.runOnClient(mc -> { report.add("[info] sam panel screen: " + (mc.screen == null ? "none" : mc.screen.getClass().getSimpleName())); mc.setScreen(null); });
+        ctx.waitTicks(260);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            var v = (com.heliosphere.planets.defense.sam.SamVehicle) l.getEntity(ids[0]);
+            report.add("[info] nuclear-only launcher, four drones overhead for 15 s: mode " + v.intercept() + ", rounds " + v.ammo() + ", drones alive "
+                    + l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200)).size() + ", missiles in the air "
+                    + l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, p.getBoundingBox().inflate(300)).size());
+            // a second launcher on everything
+            var all = sam(l, com.heliosphere.planets.defense.sam.SamKind.BUK_TELAR, new net.minecraft.core.BlockPos(o[0] + 12, o[1], o[2] + 4), p, null);
+            ids[1] = all.getUUID();
+            com.heliosphere.hostiles.fortress.Fortresses.testSilo(l, o[0] + 600, o[2], 12, 500);
+        });
+        ctx.waitTicks(360);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            var v = (com.heliosphere.planets.defense.sam.SamVehicle) l.getEntity(ids[0]);
+            var a = (com.heliosphere.planets.defense.sam.SamVehicle) l.getEntity(ids[1]);
+            report.add("[info] 18 s after a second launcher on everything joined: nuclear-only rounds " + v.ammo() + ", the other's rounds " + a.ammo() + ", drones alive "
+                    + l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200)).size());
+        });
+        int down0 = com.heliosphere.planets.defense.sam.GuidedMissile.icbmsShotDown; String launched0 = com.heliosphere.hostiles.fortress.Fortresses.siloLaunches();
+        for (int k = 0; k < 90 && com.heliosphere.planets.defense.sam.GuidedMissile.icbmsShotDown == down0; k++) {
+            ctx.waitTicks(10);
+            if (k % 4 == 0) server(sp, s -> {
+                var l = s.overworld();
+                StringBuilder b = new StringBuilder("[info] t" + l.getGameTime() % 100000 + ":");
+                for (var m : l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, player(s).getBoundingBox().inflate(900)))
+                    b.append(' ').append(m.spec()).append(String.format("@%.0f,%.0f,%.0f", m.getX() - o[0], m.getY(), m.getZ() - o[2]));
+                for (var u : ids) if (l.getEntity(u) instanceof com.heliosphere.planets.defense.sam.SamVehicle sv) b.append(" | ").append(sv.intercept()).append(" rounds ").append(sv.ammo());
+                report.add(b.toString());
+            });
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            var v = (com.heliosphere.planets.defense.sam.SamVehicle) l.getEntity(ids[0]);
+            var a = (com.heliosphere.planets.defense.sam.SamVehicle) l.getEntity(ids[1]);
+            report.add("[info] silo launches " + launched0 + " -> " + com.heliosphere.hostiles.fortress.Fortresses.siloLaunches() + ", machine nukes shot down " + (com.heliosphere.planets.defense.sam.GuidedMissile.icbmsShotDown - down0)
+                    + "; nuclear-only launcher rounds " + (v == null ? "gone" : v.ammo()) + ", the other's " + (a == null ? "gone" : a.ammo()));
+        });
+        cmd(sp, "gamemode creative @a");
+        cmd(sp, "kill @e[type=!player]");
     }
 
     /** Sets an air-defence vehicle down facing north, fully charged; {@code ammo} null for a full magazine. */

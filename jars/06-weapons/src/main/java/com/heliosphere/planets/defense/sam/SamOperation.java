@@ -17,7 +17,8 @@ import java.util.List;
 /**
  * Operating a vehicle by hand. Left-click a vehicle with an empty hand to take its hatch (one operator per
  * vehicle). The radar picture is drawn as boxes in the sky; R picks the next target, F fires (manual mode);
- * W/A/S/D drive (the launcher is stowed first); Shift leaves. Right-click a vehicle for its control panel.
+ * W/A/S/D drive (the launcher is stowed first); Shift leaves. Right-click a vehicle for its control panel: automatic
+ * or manual fire, IFF, and what a launcher intercepts (all targets, aircraft, missiles, or nuclear missiles only).
  */
 public final class SamOperation {
     private SamOperation() {}
@@ -59,7 +60,7 @@ public final class SamOperation {
     static void panel(ServerPlayer p, SamVehicle v) {
         AmmoCrateBlockEntity crate = AmmoCrateBlockEntity.near(p.level(), v.position(), v.kind().system);
         ServerPlayNetworking.send(p, new SamNet.Panel(v.getId(), v.kind().ordinal(), v.manual(), v.ammo(), v.kind().magazine, v.energy(), v.capacity(),
-                crate == null ? 0 : crate.count(v.kind().system), v.iff()));
+                crate == null ? 0 : crate.count(v.kind().system), v.iff(), v.intercept().ordinal()));
     }
 
     private static void act(ServerPlayer p, SamNet.Action a) {
@@ -86,7 +87,10 @@ public final class SamOperation {
             case SamNet.IFF_ON -> v.setIff(true);
             case SamNet.IFF_OFF -> v.setIff(false);
             case SamNet.BOARD -> board(p, v);
-            default -> { }
+            default -> {                                                            // what to intercept: launchers only
+                int mode = a.action() - SamNet.INTERCEPT;
+                if (mode >= 0 && mode < InterceptMode.values().length && !v.kind().radar) v.setIntercept(InterceptMode.byIndex(mode));
+            }
         }
     }
 
@@ -94,7 +98,7 @@ public final class SamOperation {
     static void picture(ServerPlayer p, SamVehicle v, ServerLevel level) {
         SamKind k = v.kind();
         if (v.driving()) {
-            ServerPlayNetworking.send(p, new SamNet.Picture(true, k.ordinal(), v.manual(), true, v.ammo(), k.magazine, -1, List.of(), v.iff(), 0, v.stowing()));
+            ServerPlayNetworking.send(p, new SamNet.Picture(true, k.ordinal(), v.manual(), true, v.ammo(), k.magazine, -1, List.of(), v.iff(), 0, v.stowing(), v.intercept().ordinal()));
             return;
         }
         List<Entity> seen = v.sensed(level);
@@ -109,6 +113,6 @@ public final class SamOperation {
             t.add(new double[]{c.x, c.y, c.z, c.distanceTo(site), x instanceof net.minecraft.world.entity.player.Player ? 1 : 0});
         }
         int range = k.radar ? k.radarRange : k.linkedRange;
-        ServerPlayNetworking.send(p, new SamNet.Picture(true, k.ordinal(), v.manual(), false, v.ammo(), k.magazine, sel, t, v.iff(), range, false));
+        ServerPlayNetworking.send(p, new SamNet.Picture(true, k.ordinal(), v.manual(), false, v.ammo(), k.magazine, sel, t, v.iff(), range, false, v.intercept().ordinal()));
     }
 }

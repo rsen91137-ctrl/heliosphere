@@ -51,6 +51,8 @@ import java.util.WeakHashMap;
  * targets or its launcher engages them. A radar keeps contacts as tracks; a launcher takes its radar's tracks (or,
  * alone, what its own sensor sees), picks the most threatening target not already engaged, raises or turns its
  * launcher onto it and fires when laid. Missiles come from an ammunition crate nearby, power from a battery pack.
+ * The operator chooses on the panel what a launcher intercepts ({@link InterceptMode}); the machines' nuclear missile
+ * is always its first target, and gets up to two interceptors.
  *
  * <p>Left-click with an empty hand takes the hatch, right-click opens the control panel, the recovery wrench packs
  * it up. W/A/S/D drive (the launcher is stowed first), Shift leaves.
@@ -80,11 +82,16 @@ public class SamVehicle extends Entity {
     private boolean manual;
     /** Identification friend or foe: on, only hostile machines and monsters; off, players too. */
     private boolean iff = true;
+    /** What the operator has told this launcher to intercept; a launcher on a radar's picture still uses its own. */
+    private InterceptMode intercept = InterceptMode.ALL;
     private boolean fireQueued, registered;
     /** Set down in creative mode: needs no power. */
     private boolean creative;
     public void creative(boolean on) { creative = on; if (on) power = capacity(); }
-    private record Engagement(UUID missile, long since) {}
+    /** How many interceptors the launchers of a level put on one nuclear missile at a time. */
+    static final int NUKE_SALVO = 2;
+    private record Engagement(UUID target, long since) {}
+    /** Our missiles in the air, by missile, and what each was sent after. */
     private final Map<UUID, Engagement> engaged = new HashMap<>();
     private ChunkPos forcedAt;
     private float raise, turret, elev;
@@ -299,9 +306,9 @@ public class SamVehicle extends Entity {
                 if (++reloadTicks >= time) { reloadTicks = 0; if (crate.take(k.system)) setAmmo(ammo() + 1); }
             }
         }
-        engaged.values().removeIf(e -> {
-            Entity m = level.getEntity(e.missile);
-            return m == null || !m.isAlive() || level.getGameTime() - e.since > 420;
+        engaged.entrySet().removeIf(e -> {
+            Entity m = level.getEntity(e.getKey());
+            return m == null || !m.isAlive() || level.getGameTime() - e.getValue().since > 420;
         });
         if (radar == null || level.getGameTime() % 100 == 0) radar = findRadar(level, k);
         SamVehicle link = linkedRadar(level);
@@ -344,7 +351,10 @@ public class SamVehicle extends Entity {
         if (driving) return;
         if (aimer != null) {                                   // the operator fires where the turret points (guided onto the selection, if any)
             if (fireQueued && raise >= 0.995f && cooldown == 0 && ammo() > 0) { launch(level, k, target, op); fireQueued = false; }
-        } else if (target != null && laid && cooldown == 0 && ammo() > 0 && (!manual || fireQueued)) { launch(level, k, target, manual ? op : null); fireQueued = false; }
+        } else if (target != null && laid && cooldown == 0 && ammo() > 0 && (manual ? fireQueued : !covered(level, target))) {
+            launch(level, k, target, manual ? op : null);
+            fireQueued = false;
+        }
     }
 
     // ---- operated by hand ----
@@ -385,11 +395,13 @@ public class SamVehicle extends Entity {
     }
 
     /**
-     * Whether this vehicle may engage {@code e}. Players only with IFF off, never in creative or spectator mode and
-     * never its own operator. By hand the operator may lock any player it sees, on the ground or in the air; the
-     * automatic fire control takes only players in the air, and spares the vehicle's owner.
+     * Whether this vehicle may engage {@code e}: only what its operator has set it to intercept. Players only with
+     * IFF off, never in creative or spectator mode and never its own operator. By hand the operator may lock any
+     * player it sees, on the ground or in the air; the automatic fire control takes only players in the air, and
+     * spares the vehicle's owner.
      */
     boolean engages(Entity e, boolean byHand) {
+        if (!intercept.accepts(e)) return false;
         if (!(e instanceof Player pl)) return true;
         if (iff || !trackable(pl)) return false;
         if (byHand) return true;
@@ -400,6 +412,9 @@ public class SamVehicle extends Entity {
     public void setIff(boolean on) { iff = on; manualTarget = null; fireQueued = false; }
     public boolean manual() { return manual; }
     public void setManual(boolean on) { manual = on; manualTarget = null; fireQueued = false; }
+    public InterceptMode intercept() { return intercept; }
+    /** The operator's choice of what to intercept: the present target and selection are dropped and chosen anew. */
+    public void setIntercept(InterceptMode mode) { intercept = mode; manualTarget = null; current = null; fireQueued = false; }
     public void select(UUID target) { manualTarget = target; fireQueued = false; }
     public UUID selected() { return manualTarget; }
 
@@ -427,7 +442,11 @@ public class SamVehicle extends Entity {
         return best;
     }
 
-    /** The most threatening target in range that no missile of ours (or anyone's) is already chasing. */
+    /**
+     * The most threatening target in range that no missile of ours (or anyone's) is already chasing. A nuclear
+     * missile comes before everything else, one that has no interceptor yet before one that has, and is taken again
+     * until {@link #NUKE_SALVO} interceptors are on their way to it.
+     */
     private UUID choose(ServerLevel level, SamKind k, SamVehicle link, double range) {
         if (range <= 0) return null;
         Vec3 site = origin();
@@ -438,8 +457,10 @@ public class SamVehicle extends Entity {
         double bestScore = 0;
         for (Entity e : candidates) {
             if (!e.isAlive() || !engages(e, false)) continue;
-            if (engaged.containsKey(e.getUUID())) continue;
-            if (GuidedMissile.hunted(level, e.getUUID())) continue;                 // a missile from another launcher or turret has it
+            boolean nuke = InterceptMode.nuclear(e);
+            int onNuke = nuke ? interceptors(level, e) : 0;
+            if (nuke) { if (onNuke >= NUKE_SALVO) continue; }                       // two on a nuclear missile, whoever fired them
+            else if (firedAt(e.getUUID()) || GuidedMissile.hunted(level, e.getUUID())) continue;   // a missile of ours, another launcher's or a turret's has it
             Vec3 c = e.getBoundingBox().getCenter();
             double d = c.distanceTo(site);
             if (d > range || d < 6) continue;
@@ -449,9 +470,40 @@ public class SamVehicle extends Entity {
             double hp = e instanceof Mob m ? m.getMaxHealth() : 20;
             double score = (air ? 3 : 1) * (1 + closing * 20) * (1 + hp / 300) / (1 + d / 50);
             if (e instanceof GuidedMissile) score *= 6;                         // an incoming missile is the first threat
+            if (nuke) score *= onNuke == 0 ? 1e9 : 1e6;                         // and a nuclear one before all the others
             if (score > bestScore) { bestScore = score; best = e.getUUID(); }
         }
         return best;
+    }
+
+    /** Whether a missile of this launcher is still in the air after {@code target}. */
+    private boolean firedAt(UUID target) {
+        for (Engagement e : engaged.values()) if (e.target.equals(target)) return true;
+        return false;
+    }
+
+    /** A nuclear missile that already has its interceptors on the way: the automatic fire control leaves it to them. */
+    private static boolean covered(ServerLevel level, Entity target) {
+        return InterceptMode.nuclear(target) && interceptors(level, target) >= NUKE_SALVO;
+    }
+
+    /**
+     * Battery missiles of this level's launchers that still have a chance at {@code target}: guiding on it, and
+     * either with motor left to burn (the moments before a cold-launched round ignites included) or closing. One that
+     * flew past with a dead motor no longer keeps the next from being fired.
+     */
+    private static int interceptors(ServerLevel level, Entity target) {
+        UUID id = target.getUUID();
+        int n = 0;
+        for (SamVehicle v : LOADED.getOrDefault(level, Set.of()))
+            for (Map.Entry<UUID, Engagement> e : v.engaged.entrySet()) {
+                if (!e.getValue().target.equals(id) || !(level.getEntity(e.getKey()) instanceof GuidedMissile m) || !m.isAlive()) continue;
+                if (!id.equals(m.target())) continue;                              // lost it
+                MissileSpec spec = m.spec();
+                Vec3 to = target.position().subtract(m.position());
+                if (m.flightAge() < spec.ignite + spec.boost + spec.sustain || m.getDeltaMovement().subtract(target.getDeltaMovement()).dot(to) > 0) n++;
+            }
+        return n;
     }
 
     private void launch(ServerLevel level, SamKind k, Entity target, Player firer) {
@@ -460,7 +512,7 @@ public class SamVehicle extends Entity {
         Vec3 axis = toWorldDir(k.axis(turret, elev, raise));
         Entity from = firer != null ? firer : owner == null ? null : level.getPlayerByUUID(owner);
         GuidedMissile m = GuidedMissile.launch(level, k.missile, from, GuidedMissile.Side.DEFENCE, target, mouth, axis, k.damage, 0);
-        if (target != null) engaged.put(target.getUUID(), new Engagement(m.getUUID(), level.getGameTime()));
+        if (target != null) engaged.put(m.getUUID(), new Engagement(target.getUUID(), level.getGameTime()));
         setAmmo(ammo() - 1);
         tube++;
         cooldown = k.interval;
@@ -557,10 +609,11 @@ public class SamVehicle extends Entity {
                 linked ? k.linkedRange : k.ownRange, power, capacity()), true);
     }
 
-    /** What a packed vehicle carries: missiles, charge, mode, owner. */
+    /** What a packed vehicle carries: missiles, charge, mode, IFF, what it intercepts, owner. */
     public CompoundTag carry() {
         CompoundTag t = new CompoundTag();
         t.putInt("sam_ammo", ammo()); t.putLong("sam_power", power); t.putBoolean("sam_manual", manual); t.putBoolean("sam_iff", iff);
+        t.putString("sam_intercept", intercept.name());
         if (owner != null) t.putString("sam_owner", owner.toString());
         return t;
     }
@@ -570,6 +623,7 @@ public class SamVehicle extends Entity {
         power = Math.max(0, Math.min(capacity(), t.getLongOr("sam_power", 0)));
         manual = t.getBooleanOr("sam_manual", manual);
         iff = t.getBooleanOr("sam_iff", iff);
+        intercept = InterceptMode.byName(t.getStringOr("sam_intercept", ""), intercept);
         String o = t.getStringOr("sam_owner", "");
         if (!o.isEmpty()) try { owner = UUID.fromString(o); } catch (IllegalArgumentException ignored) {}
     }
@@ -603,6 +657,7 @@ public class SamVehicle extends Entity {
         entityData.set(AMMO, in.getIntOr("ammo", kind().magazine));
         manual = in.getBooleanOr("manual", false);
         iff = in.getBooleanOr("iff", true);
+        intercept = InterceptMode.byName(in.getStringOr("intercept", ""), InterceptMode.ALL);
         reloadTicks = in.getIntOr("reload", 0);
         raise = in.getFloatOr("raise", 0); turret = in.getFloatOr("turret", 0); elev = in.getFloatOr("elev", (float) Math.toRadians(5));
         tube = in.getIntOr("tube", 0);
@@ -619,6 +674,7 @@ public class SamVehicle extends Entity {
         out.putInt("ammo", ammo());
         out.putBoolean("manual", manual);
         out.putBoolean("iff", iff);
+        out.putString("intercept", intercept.name());
         out.putInt("reload", reloadTicks);
         out.putFloat("raise", raise); out.putFloat("turret", turret); out.putFloat("elev", elev);
         out.putInt("tube", tube);
