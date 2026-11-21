@@ -79,6 +79,8 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "turretfx" -> turretFx(ctx, sp);
                     case "jet2" -> jet2(ctx, sp);
                     case "flakshells" -> flakShells(ctx, sp);
+                    case "aggro" -> aggro(ctx, sp);
+                    case "aggro2" -> aggro2(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
                         cmd(sp, "execute in minecraft:overworld run tp @p 12200 140 12200");
                         ctx.waitTicks(60);
@@ -1752,6 +1754,169 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] flak: artillery rounds shot down " + com.heliosphere.planets.defense.mk.Incoming.shotDown + "; pillar turret's husk at its foot " + (hs.isEmpty() ? "dead" : "alive"));
             for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(80))) m.discard();
             player(s).setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
+    }
+
+    /** Do the machines attack? A survival player (1000 health) on open ground, machines 40 blocks away: shots, hits and behaviour over 30 s. */
+    private static final java.util.Map<java.util.UUID, int[]> AGGRO = new java.util.concurrent.ConcurrentHashMap<>();
+    private static volatile boolean aggroOn;
+    private static boolean aggroHooked;
+
+    private void aggro(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        java.util.List<java.util.UUID> ids = new java.util.ArrayList<>();
+        cmd(sp, "execute in minecraft:overworld run tp @p 13000 140 13000");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(200L * 24000 + 6000);
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            for (int i = -30; i <= 30; i++) for (int j = -10; j <= 60; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 14; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);
+            p.setHealth(1000);
+            String[] kinds = {"security_walker", "mortar_walker", "siege_walker", "assault_drone", "arc_hound", "flame_walker", "titan_walker", "stalker", "siege_drone", "rail_sentinel"};
+            for (int k = 0; k < kinds.length; k++) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, kinds[k], x0 - 27 + k * 6 + 0.5, g + (kinds[k].contains("drone") ? 8 : 0), z0 + 40.5, p);
+                if (m != null) { m.setPersistenceRequired(); ids.add(m.getUUID()); AGGRO.put(m.getUUID(), new int[6]); }
+            }
+            if (!aggroHooked) {
+                aggroHooked = true;
+                net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(srv -> {
+                    if (!aggroOn) return;
+                    try {
+                        var cdf = com.heliosphere.planets.tech.TechMob.class.getDeclaredField("cooldown"); cdf.setAccessible(true);
+                        for (var e : AGGRO.entrySet()) {
+                            if (!(srv.overworld().getEntity(e.getKey()) instanceof com.heliosphere.planets.tech.TechMob m)) continue;
+                            int[] a = e.getValue();
+                            int cd = cdf.getInt(m);
+                            a[0]++;                                         // ticks alive
+                            if (cd > a[5]) a[1]++;                          // cooldown went up: an attack
+                            a[5] = cd;
+                            var t = m.getTarget();
+                            if (t != null) { a[2]++; if (m.hasLineOfSight(t)) a[3]++; if (m.distanceTo(t) <= m.role().range()) a[4]++; }
+                        }
+                    } catch (ReflectiveOperationException ex) { }
+                });
+            }
+            aggroOn = true;
+        });
+        float[] health = new float[1];
+        ctx.waitTicks(600);
+        server(sp, s -> {
+            aggroOn = false;
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            report.add("[info] aggro: player health 1000 -> " + (int) p.getHealth() + " after 30 s, alive " + p.isAlive());
+            for (var id : ids) {
+                int[] a = AGGRO.get(id);
+                var e = l.getEntity(id);
+                String name = e instanceof com.heliosphere.planets.tech.TechMob m ? m.role().id() + String.format(" d%.0f/r%.0f", m.distanceTo(p), m.role().range()) : "(gone)";
+                report.add("[info] aggro " + name + ": ticks " + a[0] + ", attacks " + a[1] + ", with target " + a[2] + ", in sight " + a[3] + ", in range " + a[4]);
+            }
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(120))) m.discard();
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
+    }
+
+    /** The machines press: noticing from 110 blocks, closing in on a walled-in player, shooting turrets, and an airborne raid. */
+    private void aggro2(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        java.util.UUID[] far = new java.util.UUID[2];
+        cmd(sp, "execute in minecraft:overworld run tp @p 13600 140 13600");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(200L * 24000 + 6000);
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -20; i <= 20; i++) for (int j = -10; j <= 120; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 12; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            // the player walled in: a 3x3 room of stone bricks with a roof
+            for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) for (int h = 0; h <= 3; h++)
+                if (Math.abs(i) == 2 || Math.abs(j) == 2 || h == 3) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(), 3);
+            p.teleportTo(x0 + 0.5, g, z0 + 0.5);
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(1000);
+            p.setHealth(1000);
+            var a = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 0.5, g, z0 + 110.5, null);   // far: must notice
+            var b = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 6.5, g, z0 + 18.5, null);    // inside its firing distance, no sight
+            if (a != null) { a.setPersistenceRequired(); far[0] = a.getUUID(); }
+            if (b != null) { b.setPersistenceRequired(); far[1] = b.getUUID(); }
+        });
+        ctx.waitTicks(300);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            var a = far[0] == null ? null : l.getEntity(far[0]);
+            var b = far[1] == null ? null : l.getEntity(far[1]);
+            report.add("[info] notice: walker spawned 110 blocks away, 15 s later " + (a instanceof com.heliosphere.planets.tech.TechMob m ? "target " + (m.getTarget() == p ? "player" : m.getTarget()) + ", distance " + (int) m.distanceTo(p) : "gone"));
+            report.add("[info] no sight: walker spawned 19 blocks from a walled-in player, 15 s later " + (b instanceof com.heliosphere.planets.tech.TechMob m ? "distance " + String.format("%.1f", m.distanceTo(p)) + ", sees " + m.hasLineOfSight(p) : "gone"));
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
+            // turrets against a squad: two laser turrets and an autocannon (charged, the player's), six machines 40 blocks out
+            for (int i = -2; i <= 2; i++) for (int j = -2; j <= 2; j++) for (int h = 0; h <= 3; h++)
+                l.setBlock(new net.minecraft.core.BlockPos(o[0] + i, o[1] + h, o[2] + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+            var kinds = new com.heliosphere.planets.defense.mk.TurretKind[]{com.heliosphere.planets.defense.mk.TurretKind.LASER, com.heliosphere.planets.defense.mk.TurretKind.AUTOCANNON, com.heliosphere.planets.defense.mk.TurretKind.LASER};
+            for (int k = 0; k < 3; k++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] - 6 + k * 6, o[1], o[2] + 6);
+                l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(kinds[k]).defaultBlockState(), 3);
+                var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                be.adopt(be.capacity(), 1, p.getUUID());
+                be.setEnergy(be.capacity());
+            }
+            String[] squad = {"siege_walker", "siege_walker", "security_walker", "security_walker", "mortar_walker", "emp_spider"};
+            for (int k = 0; k < squad.length; k++) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, squad[k], o[0] - 12 + k * 5 + 0.5, o[1], o[2] + 46.5, p);
+                if (m != null) m.setPersistenceRequired();
+            }
+        });
+        int shots0 = com.heliosphere.hostiles.arsenal.Aggression.turretShots, ko0 = com.heliosphere.planets.defense.mk.SentryBlockEntity.knockedOut;
+        ctx.waitTicks(200);
+        look(ctx, 0, 5);
+        shot(ctx, "aggro_turrets");
+        ctx.waitTicks(300);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            StringBuilder b = new StringBuilder();
+            for (int k = 0; k < 3; k++)
+                if (l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] - 6 + k * 6, o[1], o[2] + 6)) instanceof com.heliosphere.planets.defense.mk.SentryBlockEntity be)
+                    b.append(' ').append(be.kind().id).append(' ').append((int) be.integrity()).append('/').append((int) be.maxIntegrity()).append(be.disabled() ? " DOWN" : "");
+            report.add("[info] turrets vs six machines, 25 s: shots at turrets " + (com.heliosphere.hostiles.arsenal.Aggression.turretShots - shots0) + ", knocked out "
+                    + (com.heliosphere.planets.defense.mk.SentryBlockEntity.knockedOut - ko0) + ";" + b + "; machines left "
+                    + l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(120)).size() + ", player health " + (int) p.getHealth());
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
+            p.setHealth(1000);
+        });
+        // an airborne raid on the player
+        cmd(sp, "hssiege airborne 8");
+        ctx.waitTicks(700);
+        look(ctx, 0, -10);
+        shot(ctx, "aggro_airborne");
+        ctx.waitTicks(200);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            java.util.Map<String, Integer> kinds = new java.util.TreeMap<>();
+            int near = 0;
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(80))) {
+                kinds.merge(m.role().id(), 1, Integer::sum);
+                if (m.distanceTo(p) < 30) near++;
+            }
+            report.add("[info] airborne raid (difficulty 8), 45 s in: " + kinds + ", within 30 blocks " + near + ", player health 1000 -> " + (int) p.getHealth());
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
         });
     }
 

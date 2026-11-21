@@ -84,5 +84,7 @@
   "event.heliosphere.silo.seconds": "☢ 机械核弹发射倒计时：%s",
   "event.heliosphere.silo.launch": "☢ 机械核弹已发射！约 %s 秒后落在 %s, %s——立刻撤离到 60 格外，或用防空系统拦截",
   "event.heliosphere.silo.destroyed": "核弹井已被摧毁，发射中止",
-  "message.heliosphere.icbm_intercepted": "☢ 机械核弹已在空中被拦截击毁！"
+  "message.heliosphere.icbm_intercepted": "☢ 机械核弹已在空中被拦截击毁！",
+  "event.heliosphere.siege.airborne.warn": "§l⚠ 雷达捕获大量空投舱：机械空降兵正在你头顶空投（难度 %s）§r 坐标 %s, %s",
+  "event.heliosphere.siege.airborne.bar": "机械空降突袭 · 难度 %s"
 }

@@ -92,6 +92,7 @@ public final class EnemyArsenal implements ModInitializer {
             e.push(push.x, 0.25 * k, push.z);
             e.hurtMarked = true;
         }
+        com.heliosphere.planets.defense.mk.SentryBlockEntity.blast(level, at, radius, damage);   // and the turrets in the blast
     }
 
     // ---- new weapons --------------------------------------------------------------------------------------------

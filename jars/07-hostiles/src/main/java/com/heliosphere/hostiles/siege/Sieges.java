@@ -100,7 +100,9 @@ public final class Sieges implements ModInitializer {
     }
 
     enum Kind {
-        RECON(1, 1), ASSAULT(2, 2), BOMBARD(4, 1), INFILTRATION(5, 2), ONSLAUGHT(7, 3);
+        RECON(1, 1), ASSAULT(2, 2), BOMBARD(4, 1), INFILTRATION(5, 2), ONSLAUGHT(7, 3),
+        /** Drop troops: pods come down round the player, wherever they are, and the machines come out fighting. */
+        AIRBORNE(3, 2);
         final int from, waves;
         Kind(int from, int waves) { this.from = from; this.waves = waves; }
         String key() { return name().toLowerCase(java.util.Locale.ROOT); }
@@ -189,7 +191,9 @@ public final class Sieges implements ModInitializer {
                     begin(p, p.level(), c, pick(p.getRandom(), d, m), d);
                     m.launched++;
                     m.next = now + gap + p.getRandom().nextInt(gap / 2);
-                }
+                } else if (roam(p, m, now, day, gap)) m.next = now + gap + p.getRandom().nextInt(gap / 2);
+            } else if (day >= GRACE_DAYS && now >= m.next && roam(p, m, now, day, gap)) {
+                m.next = now + gap + p.getRandom().nextInt(gap / 2);
             }
             save(p, m);
         }
@@ -266,6 +270,21 @@ public final class Sieges implements ModInitializer {
             if (id.getNamespace().equals("heliosphere") && a.items.contains(id.getPath())) return true;
         }
         return false;
+    }
+
+    /**
+     * Away from the shelter (or with none yet) a player is not left alone: when a siege is due, drop troops come down
+     * round them instead, one difficulty lower. From evolution stage 3, on the surface of Earth or a planet.
+     */
+    private static boolean roam(ServerPlayer p, Memory m, long now, long day, int gap) {
+        ServerLevel l = p.level();
+        if (com.heliosphere.hostiles.arsenal.Evolution.stage(day) < 3 || Planets.isSpace(l) || !p.isAlive()) return false;
+        if (l.dimension() != Level.OVERWORLD && Planets.bodyOf(l) == null) return false;        // not the Nether, the End, the flight cabin
+        if (com.heliosphere.hostiles.arsenal.Underground.deep(l, p)) return false;              // deep underground: the diggers' business
+        int d = Math.max(1, difficulty(p, m, day) - 1);
+        begin(p, l, p.blockPosition(), Kind.AIRBORNE, d);
+        m.launched++;
+        return true;
     }
 
     private static String dim(Level l) { return l.dimension().identifier().toString(); }
@@ -397,6 +416,7 @@ public final class Sieges implements ModInitializer {
             case BOMBARD -> filter(pool, id -> id.equals("mortar_walker") || id.equals("siege_drone") || id.equals("missile_drone") || id.equals("siege_walker")
                     || id.equals("strike_drone") || id.equals("strike_jet"));
             case INFILTRATION -> filter(pool, id -> id.contains("stalker") || id.equals("arc_hound") || id.equals("emp_spider"));
+            case AIRBORNE -> filter(pool, id -> !com.heliosphere.hostiles.arsenal.StrikeCraft.isId(id) && !id.equals("repair_automaton") && !id.equals("mortar_walker"));
             default -> pool;
         };
         if (pick.isEmpty()) pick = pool;
@@ -406,16 +426,19 @@ public final class Sieges implements ModInitializer {
             case BOMBARD -> 2 + d / 4;
             case INFILTRATION -> 2 + d / 4;
             case ONSLAUGHT -> 5 + d / 2;
+            case AIRBORNE -> 4 + d / 2;
         };
         if (s.big) n = n * 3 / 2 + 1;                             // a counter-attack: half as many again
         int stage = com.heliosphere.hostiles.arsenal.Evolution.stage(l.getServer().overworld().getDayTime() / 24000L);
         if (stage >= 10) n += n * (stage - 9) / 10;              // the last months: up to half as many again by stage 15
         double a = r.nextDouble() * Math.PI * 2;
-        double dist = s.kind == Kind.INFILTRATION ? 14 + r.nextInt(8) : s.kind == Kind.BOMBARD ? 44 + r.nextInt(12) : 34 + r.nextInt(14);
-        boolean pods = s.kind == Kind.ASSAULT || s.kind == Kind.ONSLAUGHT;
+        double dist = s.kind == Kind.INFILTRATION ? 14 + r.nextInt(8) : s.kind == Kind.BOMBARD ? 44 + r.nextInt(12)
+                : s.kind == Kind.AIRBORNE ? 12 + r.nextInt(8) : 34 + r.nextInt(14);
+        boolean pods = s.kind == Kind.ASSAULT || s.kind == Kind.ONSLAUGHT || s.kind == Kind.AIRBORNE;
         for (int i = 0; i < n; i++) {
             String id = pick.get(r.nextInt(pick.size()));
-            spawn(s, p, id, a + r.nextGaussian() * 0.25, dist + r.nextGaussian() * 3, pods);
+            if (s.kind == Kind.AIRBORNE) spawn(s, p, id, r.nextDouble() * Math.PI * 2, dist + r.nextGaussian() * 4, true);   // all round the player
+            else spawn(s, p, id, a + r.nextGaussian() * 0.25, dist + r.nextGaussian() * 3, pods);
         }
         if (s.kind == Kind.BOMBARD)                              // escorts for the guns
             for (int i = 0; i < 1 + d / 5; i++) spawn(s, p, pool.get(r.nextInt(pool.size())), a + r.nextGaussian() * 0.2, dist - 10, false);
@@ -492,7 +515,8 @@ public final class Sieges implements ModInitializer {
             }
         }
         for (int tries = 0; tries < 6; tries++) {
-            int x = (int) (s.home.getX() + Math.cos(a) * dist), z = (int) (s.home.getZ() + Math.sin(a) * dist);
+            BlockPos centre = s.kind == Kind.AIRBORNE ? p.blockPosition() : s.home;      // drop troops come down on the player
+            int x = (int) (centre.getX() + Math.cos(a) * dist), z = (int) (centre.getZ() + Math.sin(a) * dist);
             if (l.getChunkSource().getChunkNow(x >> 4, z >> 4) == null) { dist *= 0.8; continue; }
             int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
             if (!l.getFluidState(new BlockPos(x, y - 1, z)).isEmpty() && !id.contains("drone") && !id.equals("hive_carrier")) { a += 0.4; continue; }

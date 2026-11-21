@@ -79,6 +79,14 @@ public class SentryBlock extends BaseEntityBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        if (stack.is(com.heliosphere.core.Reg.get("steel_plate")) && level.getBlockEntity(pos) instanceof SentryBlockEntity hurt) {   // field repair
+            if (level.isClientSide()) return InteractionResult.SUCCESS;
+            if (!hurt.repair()) return InteractionResult.TRY_WITH_EMPTY_HAND;
+            if (!player.isCreative()) stack.shrink(1);
+            level.playSound(null, pos, net.minecraft.sounds.SoundEvents.ANVIL_USE, net.minecraft.sounds.SoundSource.BLOCKS, 0.7f, 1.4f);
+            player.displayClientMessage(Component.translatable("message.heliosphere.turret_repaired", (int) hurt.integrity(), (int) hurt.maxIntegrity()), true);
+            return InteractionResult.SUCCESS;
+        }
         int kit = Sentries.kitLevel(stack);
         if (kit <= 0) return InteractionResult.TRY_WITH_EMPTY_HAND;
         if (level.isClientSide()) return InteractionResult.SUCCESS;

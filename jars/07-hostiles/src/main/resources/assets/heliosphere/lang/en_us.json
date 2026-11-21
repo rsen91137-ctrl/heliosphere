@@ -84,5 +84,7 @@
   "event.heliosphere.silo.seconds": "☢ Machine nuke launch in %s",
   "event.heliosphere.silo.launch": "☢ Machine nuke LAUNCHED! It comes down on %2$s, %3$s in about %1$s seconds - get 60 blocks away now, or intercept it",
   "event.heliosphere.silo.destroyed": "The nuclear silo is destroyed: launch aborted",
-  "message.heliosphere.icbm_intercepted": "☢ The machine nuke has been shot down in flight!"
+  "message.heliosphere.icbm_intercepted": "☢ The machine nuke has been shot down in flight!",
+  "event.heliosphere.siege.airborne.warn": "§l⚠ Many drop pods on radar: machine drop troops are coming down on top of you (difficulty %s)§r at %s, %s",
+  "event.heliosphere.siege.airborne.bar": "Machine airborne raid · difficulty %s"
 }

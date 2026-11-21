@@ -31,6 +31,7 @@ final class Pods {
                 l.sendParticles(ParticleTypes.EXPLOSION, e.getX(), e.getY() + 0.3, e.getZ(), 2, 0.6, 0.1, 0.6, 0);
                 l.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, e.getX(), e.getY() + 0.3, e.getZ(), 14, 1.2, 0.2, 1.2, 0.02);
                 l.playSound(null, e.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.2f, 1.3f);
+                if (e instanceof com.heliosphere.planets.tech.TechMob m) com.heliosphere.hostiles.arsenal.Aggression.landed(m);   // out of the pod fighting
                 it.remove();
                 continue;
             }

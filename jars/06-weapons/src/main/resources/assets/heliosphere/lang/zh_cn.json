@@ -206,5 +206,20 @@
   "message.heliosphere.shoulder_sentry_has_mk": "这门哨戒炮已经是 Mk %s 了，需要更高级的升级套件",
   "message.heliosphere.turret_no_power": "%s 没电了（%s/%s FE），看到敌人也无法开火：用电缆把它接到发电机或电池组上",
   "message.heliosphere.shoulder_sentry_saved": "胸甲损坏了：肩载哨戒炮已经卸下放回背包（背包满时掉在脚下）",
-  "item.heliosphere.turret_kept": "已升级 Mk %s · 储电 %s FE（放下后保留）"
+  "item.heliosphere.turret_kept": "已升级 Mk %s · 储电 %s FE（放下后保留）",
+  "screen.heliosphere.sam_intercept": "拦截对象：%s",
+  "screen.heliosphere.sam_intercept.all": "全部目标",
+  "screen.heliosphere.sam_intercept.aircraft": "仅飞行器",
+  "screen.heliosphere.sam_intercept.missiles": "仅导弹",
+  "screen.heliosphere.sam_intercept.nukes": "仅核弹",
+  "screen.heliosphere.sam_intercept.tooltip": "点击切换这辆发射车拦截什么。每辆车单独设置，接入雷达车后也按自己的设置来；手动模式下 R 键也只能选到这一类目标。",
+  "screen.heliosphere.sam_intercept.all.desc": "· 全部目标：敌机、无人机和来袭导弹都打；一旦发现核弹，优先拦截核弹",
+  "screen.heliosphere.sam_intercept.aircraft.desc": "· 仅飞行器：只打敌机、无人机等空中单位（敌我识别关闭时也包括玩家），不拦截导弹",
+  "screen.heliosphere.sam_intercept.missiles.desc": "· 仅导弹：只拦截来袭导弹，核弹也算在内并且优先",
+  "screen.heliosphere.sam_intercept.nukes.desc": "· 仅核弹：导弹全部留给机械的核导弹，其他目标一概不理；每枚核弹最多同时有两枚拦截弹去打",
+  "hud.heliosphere.sam_intercept": "拦截对象：%s",
+  "message.heliosphere.turret_knocked_out": "⚠ %s 被机械打瘫了（%s, %s, %s）：30 秒后自动重启，或用钢板右键立刻修好",
+  "message.heliosphere.turret_integrity": " · 耐久 %s/%s",
+  "message.heliosphere.turret_down": " · §c已瘫痪，%3$s 秒后重启§r（耐久 %1$s/%2$s）",
+  "message.heliosphere.turret_repaired": "防御塔已修复：耐久 %s/%s"
 }

@@ -206,5 +206,20 @@
   "message.heliosphere.shoulder_sentry_has_mk": "這門哨戒炮已經是 Mk %s 了，需要更高級的升級套件",
   "message.heliosphere.turret_no_power": "%s 沒電了（%s/%s FE），看到敵人也無法開火：用電纜把它接到發電機或電池組上",
   "message.heliosphere.shoulder_sentry_saved": "胸甲損壞了：肩載哨戒砲已經卸下放回背包（背包滿時掉在腳下）",
-  "item.heliosphere.turret_kept": "已升級 Mk %s · 儲電 %s FE（放下後保留）"
+  "item.heliosphere.turret_kept": "已升級 Mk %s · 儲電 %s FE（放下後保留）",
+  "screen.heliosphere.sam_intercept": "攔截對象：%s",
+  "screen.heliosphere.sam_intercept.all": "全部目標",
+  "screen.heliosphere.sam_intercept.aircraft": "僅飛行器",
+  "screen.heliosphere.sam_intercept.missiles": "僅導彈",
+  "screen.heliosphere.sam_intercept.nukes": "僅核彈",
+  "screen.heliosphere.sam_intercept.tooltip": "點擊切換這輛發射車攔截什麼。每輛車單獨設定，接入雷達車後也按自己的設定來；手動模式下 R 鍵也只能選到這一類目標。",
+  "screen.heliosphere.sam_intercept.all.desc": "· 全部目標：敵機、無人機和來襲導彈都打；一旦發現核彈，優先攔截核彈",
+  "screen.heliosphere.sam_intercept.aircraft.desc": "· 僅飛行器：只打敵機、無人機等空中單位（敵我識別關閉時也包括玩家），不攔截導彈",
+  "screen.heliosphere.sam_intercept.missiles.desc": "· 僅導彈：只攔截來襲導彈，核彈也算在內並且優先",
+  "screen.heliosphere.sam_intercept.nukes.desc": "· 僅核彈：導彈全部留給機械的核導彈，其他目標一概不理；每枚核彈最多同時有兩枚攔截彈去打",
+  "hud.heliosphere.sam_intercept": "攔截對象：%s",
+  "message.heliosphere.turret_knocked_out": "⚠ %s 被機械打癱了（%s, %s, %s）：30 秒後自動重啟，或用鋼板右鍵立刻修好",
+  "message.heliosphere.turret_integrity": " · 耐久 %s/%s",
+  "message.heliosphere.turret_down": " · §c已癱瘓，%3$s 秒後重啟§r（耐久 %1$s/%2$s）",
+  "message.heliosphere.turret_repaired": "防禦塔已修復：耐久 %s/%s"
 }

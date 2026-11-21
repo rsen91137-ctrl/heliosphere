@@ -5,16 +5,16 @@ the other bestiary generators."""
 import json, re
 
 P = 'jars/11-guide/src/main/resources/assets/heliosphere/guide/enemies.json'
-STATS = {  # id: (health, armour or None to keep, damage)
+STATS = {  # id: (health, armour or None to keep, damage or None to keep)
     'patrol_drone': (30, None, 3.5), 'assault_drone': (54, None, 5.5), 'security_walker': (70, None, 6.5),
-    'repair_automaton': (52, None, 0), 'arc_hound': (64, None, 9), 'emp_spider': (95, None, 6.5),
-    'siege_drone': (110, None, 15), 'missile_drone': (155, None, 21),
-    'swarm_drone': (12, 0, 12), 'mortar_walker': (130, 11, 14), 'flame_walker': (145, 11, 4.5),
+    'repair_automaton': (52, None, 0), 'arc_hound': (78, None, 9), 'emp_spider': (115, None, 6.5),
+    'siege_drone': (130, None, 15), 'missile_drone': (260, None, 21),
+    'swarm_drone': (12, 0, 12), 'mortar_walker': (170, 11, 14), 'flame_walker': (190, 11, 4.5),
     # mid and late game, and the bosses (health past 1024 now holds)
-    'missile_drone': (200, None, 21), 'hunter_drone': (340, None, None), 'siege_walker': (440, None, None), 'rail_sentinel': (620, None, None),
-    'shield_bearer': (240, None, None), 'laser_drone': (170, None, None), 'stalker': (140, None, None), 'drill_walker': (460, None, None),
-    'titan_walker': (1600, None, None), 'strike_drone': (280, None, None), 'strike_jet': (520, None, None), 'plasma_drone': (450, None, None),
-    'graviton_walker': (1100, None, None), 'phase_stalker': (360, None, None),
+    'hunter_drone': (510, None, None), 'siege_walker': (660, None, None), 'rail_sentinel': (930, None, None),
+    'shield_bearer': (360, None, None), 'laser_drone': (255, None, None), 'stalker': (210, None, None), 'drill_walker': (690, None, None),
+    'titan_walker': (2200, None, None), 'strike_drone': (420, None, None), 'strike_jet': (780, None, None), 'plasma_drone': (680, None, None),
+    'graviton_walker': (1500, None, None), 'phase_stalker': (540, None, None),
     'fortress_overseer': (15000, None, None), 'hive_carrier': (20000, None, None), 'colossus': (40000, None, None),
 }
 

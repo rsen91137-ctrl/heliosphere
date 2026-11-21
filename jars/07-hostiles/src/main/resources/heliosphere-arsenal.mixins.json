@@ -12,7 +12,8 @@
     "TechDeploymentMixin",
     "TechDespawnMixin",
     "TechStrikeMixin",
-    "TechLootMixin"
+    "TechLootMixin",
+    "TechAggroMixin"
   ],
   "injectors": {
     "defaultRequire": 1

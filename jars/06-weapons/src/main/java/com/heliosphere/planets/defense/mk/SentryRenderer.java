@@ -27,6 +27,7 @@ public final class SentryRenderer implements BlockEntityRenderer<SentryBlockEnti
         TurretKind kind = TurretKind.LASER;
         int mk;
         float yaw, pitch, sinceShot, age;
+        boolean down;
     }
 
     @Override public State createRenderState() { return new State(); }
@@ -37,7 +38,8 @@ public final class SentryRenderer implements BlockEntityRenderer<SentryBlockEnti
         s.kind = be.kind();
         s.mk = be.mk();
         s.yaw = be.yaw;
-        s.pitch = be.pitch;
+        s.down = be.disabled();
+        s.pitch = s.down ? -22 : be.pitch;                          // knocked out: the guns droop
         long now = be.getLevel() == null ? 0 : be.getLevel().getGameTime();
         s.sinceShot = (now - be.lastShot) + partial;
         s.age = now + partial;
@@ -85,7 +87,7 @@ public final class SentryRenderer implements BlockEntityRenderer<SentryBlockEnti
         else m.cbox(0, 0.3, 0, 0.78, 0.12, 0.78, mk >= 3 ? BoxMesh.JOINT : BoxMesh.HAZARD, trim);
         m.cbox(0, 0.48, 0, 0.6 + mk * 0.02, 0.24, 0.6 + mk * 0.02, body, paint);
         double side = 0.31 + mk * 0.01;
-        for (int i = 0; i < mk; i++) for (int f = 0; f < 4; f++) {
+        for (int i = 0; i < (s.down ? 0 : mk); i++) for (int f = 0; f < 4; f++) {
             m.push();
             m.ry(f * Math.PI / 2);
             m.cglow(-side, 0.4 + i * 0.05, 0, 0.02, 0.03, 0.22, BoxMesh.LAMP, STRIPE[mk]);

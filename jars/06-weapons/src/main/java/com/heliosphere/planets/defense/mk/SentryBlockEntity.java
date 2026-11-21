@@ -64,6 +64,90 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
     @Override public boolean canReceive() { return true; }
     @Override public boolean canExtract() { return false; }
 
+    // ---- damage: the machines shoot back -------------------------------------------------------------------------
+    /** Turrets in the world (server side), for the machines to find: level -> positions. */
+    private static final java.util.Map<net.minecraft.world.level.Level, java.util.Set<BlockPos>> LIVE = new java.util.WeakHashMap<>();
+    private float integrity = -1;                                  // -1: never hit, full
+    private int disabled, sinceHit = 200;
+    /** Knocked out since start (for tests). */
+    public static int knockedOut;
+
+    /** What a turret takes before it is knocked out: 80, and 40 more a Mk. */
+    public float maxIntegrity() { return 80 + 40 * mk; }
+    public float integrity() { return integrity < 0 ? maxIntegrity() : Math.min(integrity, maxIntegrity()); }
+    public boolean disabled() { return disabled > 0; }
+
+    /**
+     * Hit by a machine's fire or blast. At zero the turret is knocked out for 30 seconds (it smokes and does not
+     * fire), then restarts at half strength; it mends by itself when left alone for five seconds, and a steel plate
+     * used on it repairs it at once. A turret set down in creative mode cannot be hurt.
+     */
+    public void damage(ServerLevel level, float amount) {
+        if (creative || disabled > 0 || amount <= 0) return;
+        integrity = integrity() - amount;
+        sinceHit = 0;
+        Vec3 h = head();
+        level.sendParticles(ParticleTypes.CRIT, h.x, h.y, h.z, 6, 0.3, 0.3, 0.3, 0.2);
+        if (integrity <= 0) {
+            integrity = 0;
+            disabled = 600;
+            knockedOut++;
+            level.sendParticles(ParticleTypes.LARGE_SMOKE, h.x, h.y, h.z, 16, 0.3, 0.3, 0.3, 0.03);
+            level.sendParticles(ParticleTypes.ELECTRIC_SPARK, h.x, h.y, h.z, 20, 0.4, 0.4, 0.4, 0.3);
+            level.playSound(null, worldPosition, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 1.2f, 1.5f);
+            Player p = owner == null ? null : level.getPlayerByUUID(owner);
+            if (p != null && p.distanceToSqr(h) < 96 * 96)
+                p.displayClientMessage(Component.translatable("message.heliosphere.turret_knocked_out", Component.translatable("block.heliosphere." + kind().id),
+                        worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()).withStyle(net.minecraft.ChatFormatting.RED), false);
+        }
+        sync();
+    }
+
+    /** A steel plate: back in action, 60 points mended. Returns whether there was anything to mend. */
+    boolean repair() {
+        if (disabled <= 0 && integrity() >= maxIntegrity()) return false;
+        disabled = 0;
+        integrity = Math.min(maxIntegrity(), integrity() + 60);
+        sync();
+        return true;
+    }
+
+    /** The nearest working turret a machine at {@code from} can reach and see, or null. */
+    public static SentryBlockEntity nearest(ServerLevel level, Vec3 from, double range) {
+        java.util.Set<BlockPos> set = LIVE.get(level);
+        if (set == null || set.isEmpty()) return null;
+        SentryBlockEntity best = null;
+        double bd = range * range;
+        for (java.util.Iterator<BlockPos> it = set.iterator(); it.hasNext(); ) {
+            BlockPos pos = it.next();
+            double d = pos.distToCenterSqr(from);
+            if (d >= bd || !level.isLoaded(pos)) continue;
+            if (!(level.getBlockEntity(pos) instanceof SentryBlockEntity be)) { it.remove(); continue; }
+            if (be.creative || be.disabled > 0) continue;
+            var hit = level.clip(new ClipContext(from, be.head(), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, net.minecraft.world.phys.shapes.CollisionContext.empty()));
+            if (hit.getType() != HitResult.Type.MISS && !hit.getBlockPos().equals(pos)) continue;       // something else in the way
+            bd = d; best = be;
+        }
+        return best;
+    }
+
+    /** A blast at {@code at}: every turret within {@code radius} is hit, less with distance. */
+    public static void blast(ServerLevel level, Vec3 at, double radius, float damage) {
+        java.util.Set<BlockPos> set = LIVE.get(level);
+        if (set == null || set.isEmpty()) return;
+        for (BlockPos pos : java.util.List.copyOf(set)) {
+            double d = Math.sqrt(pos.distToCenterSqr(at));
+            if (d > radius + 0.8 || !level.isLoaded(pos) || !(level.getBlockEntity(pos) instanceof SentryBlockEntity be)) continue;
+            be.damage(level, damage * (float) (0.4 + 0.6 * Math.max(0, 1 - d / Math.max(0.5, radius))));
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if (level != null) { var set = LIVE.get(level); if (set != null) set.remove(worldPosition); }
+    }
+
     /** Set down in creative mode: runs without power, from the moment it is placed. */
     private boolean creative;
     public void creative(boolean on) { creative = on; if (on) power = capacity(); setChanged(); }
@@ -71,6 +155,22 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
 
     // ---- combat ----
     void tick(ServerLevel level) {
+        if (level.getGameTime() % 20 == 0) LIVE.computeIfAbsent(level, l -> new java.util.HashSet<>()).add(worldPosition.immutable());
+        if (disabled > 0) {                                            // knocked out: smoking, silent
+            Vec3 h = head();
+            if (level.getGameTime() % 8 == 0) level.sendParticles(ParticleTypes.SMOKE, h.x, h.y, h.z, 3, 0.2, 0.2, 0.2, 0.01);
+            if (--disabled == 0) {
+                integrity = maxIntegrity() * 0.5f;
+                level.playSound(null, worldPosition, SoundEvents.BEACON_ACTIVATE, SoundSource.BLOCKS, 0.8f, 1.6f);
+                sync();
+            }
+            return;
+        }
+        if (sinceHit < 200) sinceHit++;
+        else if (integrity >= 0 && integrity < maxIntegrity() && level.getGameTime() % 20 == 0) {   // mends when left alone
+            integrity = Math.min(maxIntegrity(), integrity + 3);
+            if (integrity >= maxIntegrity()) { integrity = -1; sync(); }
+        }
         if (creative && power < capacity()) power = capacity();
         if (cooldown > 0) { cooldown--; return; }
         TurretKind k = kind();
@@ -280,7 +380,9 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         TurretKind k = kind();
         p.displayClientMessage(Component.translatable("message.heliosphere.turret_status",
                 Component.translatable("block.heliosphere." + k.id), mk, power, capacity(), String.format("%.0f", k.range(mk)),
-                String.format("%.1f", k.damage(mk)), String.format("%.1f", 20.0 / k.cooldown(mk)), k.energy), true);
+                String.format("%.1f", k.damage(mk)), String.format("%.1f", 20.0 / k.cooldown(mk)), k.energy)
+                .append(Component.translatable(disabled > 0 ? "message.heliosphere.turret_down" : "message.heliosphere.turret_integrity",
+                        (int) integrity(), (int) maxIntegrity(), (disabled + 19) / 20)), true);
     }
 
     // ---- sync and save ----
@@ -301,6 +403,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         yaw = in.getFloatOr("yaw", 0);
         pitch = in.getFloatOr("pitch", 0);
         lastShot = in.getLongOr("shot", 0);
+        integrity = in.getFloatOr("integrity", -1);
+        disabled = in.getIntOr("disabled", 0);
         String o = in.getStringOr("owner", "");
         owner = o.isEmpty() ? null : UUID.fromString(o);
     }
@@ -314,6 +418,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         out.putFloat("yaw", yaw);
         out.putFloat("pitch", pitch);
         out.putLong("shot", lastShot);
+        if (integrity >= 0) out.putFloat("integrity", integrity);
+        if (disabled > 0) out.putInt("disabled", disabled);
         if (owner != null) out.putString("owner", owner.toString());
     }
 }

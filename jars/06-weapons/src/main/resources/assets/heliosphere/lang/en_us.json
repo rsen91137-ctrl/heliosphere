@@ -206,5 +206,20 @@
   "message.heliosphere.shoulder_sentry_has_mk": "This sentry is already Mk %s: it needs a higher kit",
   "message.heliosphere.turret_no_power": "%s has no power (%s/%s FE) and cannot fire: connect it to a generator or battery with cable",
   "message.heliosphere.shoulder_sentry_saved": "The chestplate broke: the shoulder sentry came off into your inventory (or at your feet if it is full)",
-  "item.heliosphere.turret_kept": "Upgraded to Mk %s · %s FE stored (kept when set down)"
+  "item.heliosphere.turret_kept": "Upgraded to Mk %s · %s FE stored (kept when set down)",
+  "screen.heliosphere.sam_intercept": "Intercept: %s",
+  "screen.heliosphere.sam_intercept.all": "all targets",
+  "screen.heliosphere.sam_intercept.aircraft": "aircraft only",
+  "screen.heliosphere.sam_intercept.missiles": "missiles only",
+  "screen.heliosphere.sam_intercept.nukes": "nukes only",
+  "screen.heliosphere.sam_intercept.tooltip": "Click to change what this launcher intercepts. Each vehicle has its own setting and keeps it when linked to a radar; in manual mode R only steps through targets of that kind.",
+  "screen.heliosphere.sam_intercept.all.desc": "· All targets: aircraft, drones and incoming missiles; a nuclear missile is always engaged first",
+  "screen.heliosphere.sam_intercept.aircraft.desc": "· Aircraft only: enemy aircraft, drones and other flyers (players too with IFF off); missiles are ignored",
+  "screen.heliosphere.sam_intercept.missiles.desc": "· Missiles only: incoming missiles, nuclear ones included and first",
+  "screen.heliosphere.sam_intercept.nukes.desc": "· Nukes only: every round is kept for the machines' nuclear missile and nothing else is engaged; up to two interceptors fly at each one",
+  "hud.heliosphere.sam_intercept": "Intercept: %s",
+  "message.heliosphere.turret_knocked_out": "⚠ %s was knocked out by the machines (%s, %s, %s): it restarts in 30 seconds, or use a steel plate on it to repair it now",
+  "message.heliosphere.turret_integrity": " · integrity %s/%s",
+  "message.heliosphere.turret_down": " · §cknocked out, restarts in %3$s s§r (integrity %1$s/%2$s)",
+  "message.heliosphere.turret_repaired": "Turret repaired: integrity %s/%s"
 }
