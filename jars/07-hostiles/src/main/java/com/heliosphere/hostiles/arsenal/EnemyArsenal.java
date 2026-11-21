@@ -184,7 +184,9 @@ public final class EnemyArsenal implements ModInitializer {
         CombatVfx.send(level, CombatVfx.WARNING, flight, land, land, 4f);
         CombatVfx.send(level, CombatVfx.MORTAR, flight, from, land, 1f);
         level.playSound(null, mob.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.3f, 1.7f);
+        var shell = com.heliosphere.planets.defense.mk.Incoming.mortar(level, from, land, flight);   // flak can shoot it down on the way
         later(level, flight, () -> {
+            if (shell.cut) return;
             CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFB060, land.add(0, 0.6, 0), land, 2.4f);
             level.playSound(null, x, y, z, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 2.4f, 0.95f);
             blast(level, mob, land.add(0, 0.6, 0), 4.5f, r.damage());

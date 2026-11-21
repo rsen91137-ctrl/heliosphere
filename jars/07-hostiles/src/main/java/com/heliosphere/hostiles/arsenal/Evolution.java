@@ -53,6 +53,7 @@ public final class Evolution {
     /** A machine deployed on Earth (not a fortress garrison, which has its own scaling): +5% health and +0.6 armour a stage, twice that from stage 10. */
     public static void toughen(TechMob mob) {
         if (mob == null || mob.getTags().contains("heliosphere.fortress")) return;
+        if (mob.role() != null && EnemyRoster.BOSSES.contains(mob.role().id())) return;   // bosses keep their own (huge) health
         int st = stage();
         if (st <= 1) return;
         var hp = mob.getAttribute(Attributes.MAX_HEALTH);

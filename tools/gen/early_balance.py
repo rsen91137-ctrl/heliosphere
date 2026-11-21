@@ -13,9 +13,9 @@ STATS = {  # id: (health, armour or None to keep, damage)
     # mid and late game, and the bosses (health past 1024 now holds)
     'missile_drone': (200, None, 21), 'hunter_drone': (340, None, None), 'siege_walker': (440, None, None), 'rail_sentinel': (620, None, None),
     'shield_bearer': (240, None, None), 'laser_drone': (170, None, None), 'stalker': (140, None, None), 'drill_walker': (460, None, None),
-    'titan_walker': (1200, None, None), 'strike_drone': (280, None, None), 'strike_jet': (520, None, None), 'plasma_drone': (450, None, None),
-    'graviton_walker': (800, None, None), 'phase_stalker': (360, None, None),
-    'fortress_overseer': (10000, None, None), 'hive_carrier': (14000, None, None), 'colossus': (25000, None, None),
+    'titan_walker': (1600, None, None), 'strike_drone': (280, None, None), 'strike_jet': (520, None, None), 'plasma_drone': (450, None, None),
+    'graviton_walker': (1100, None, None), 'phase_stalker': (360, None, None),
+    'fortress_overseer': (15000, None, None), 'hive_carrier': (20000, None, None), 'colossus': (40000, None, None),
 }
 
 

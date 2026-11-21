@@ -437,7 +437,15 @@ public final class Sieges implements ModInitializer {
             for (int i = 0; i < drones; i++) spawn(s, p, com.heliosphere.hostiles.arsenal.StrikeCraft.DRONE, a + Math.PI + r.nextGaussian() * 0.6, dist + 60 + r.nextInt(40), false);
             for (int i = 0; i < jets; i++) spawn(s, p, com.heliosphere.hostiles.arsenal.StrikeCraft.JET, a + Math.PI + r.nextGaussian() * 0.6, dist + 80 + r.nextInt(40), false);
         }
-        if (s.kind == Kind.ONSLAUGHT && last) {
+        // the last months: a heavy (titan) closes every assault and bombardment, and the onslaughts bring real bosses
+        if (last && stage >= 12 && (s.kind == Kind.ASSAULT || s.kind == Kind.BOMBARD || s.kind == Kind.ONSLAUGHT)) {
+            long dayNow = l.getServer().overworld().getDayTime() / 24000L;
+            if (l.dimension() != Level.OVERWORLD || EnemyRoster.unlocked("titan_walker", dayNow))
+                for (int i = 0; i < 1 + (stage >= 14 ? 1 : 0) + (s.big ? 1 : 0); i++) spawn(s, p, "titan_walker", a + r.nextGaussian() * 0.3, dist + 4, false);
+        }
+        if (s.kind == Kind.ONSLAUGHT && last && stage >= 12) {
+            spawn(s, p, stage >= 14 ? "hive_carrier" : "fortress_overseer", a, dist + 8, false);
+        } else if (s.kind == Kind.ONSLAUGHT && last) {
             String boss = EnemyRoster.boss(Math.max(6, d));
             if (boss != null && l.dimension() == Level.OVERWORLD && !EnemyRoster.unlocked(boss, day)) {   // not yet evolved: the strongest that is
                 boss = null;

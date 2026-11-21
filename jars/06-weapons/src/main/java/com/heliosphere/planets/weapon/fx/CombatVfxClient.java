@@ -34,6 +34,13 @@ public final class CombatVfxClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(CombatVfxClient::ambience);
     }
 
+    /** Mortar arcs cut short by flak, by their landing point. */
+    private static final java.util.Set<Long> CUT = java.util.Collections.newSetFromMap(new java.util.LinkedHashMap<>() {
+        @Override protected boolean removeEldestEntry(java.util.Map.Entry<Long, Boolean> e) { return size() > 256; }
+    });
+
+    private static long shellKey(Vec3 v) { return (Math.round(v.x * 4) * 73856093L) ^ (Math.round(v.y * 4) * 19349663L) ^ (Math.round(v.z * 4) * 83492791L); }
+
     private static void shake(float amount) { if (amount > CameraShake.amount) CameraShake.amount = Math.min(1.2f, amount); }
 
     private static void handle(CombatVfx p, Minecraft mc) {
@@ -111,8 +118,11 @@ public final class CombatVfxClient implements ClientModInitializer {
                 FxEngine.add((s, t, env) -> Blasts.warning(s, t, a.x, a.y, a.z, radius, duration));
             }
             case CombatVfx.MORTAR -> {
+                long key = shellKey(b);
+                if (p.strength() < 0) { CUT.add(key); break; }                // shot down by flak: its arc ends
+                CUT.remove(key);
                 float flight = Math.max(0.5f, p.color() / 20f);
-                FxEngine.add((s, t, env) -> Blasts.shell(s, t, a.x, a.y, a.z, b.x, b.y, b.z, flight, seed));
+                FxEngine.add((s, t, env) -> !CUT.contains(key) && Blasts.shell(s, t, a.x, a.y, a.z, b.x, b.y, b.z, flight, seed));
             }
             case CombatVfx.SHIELD -> {
                 float radius = p.strength();

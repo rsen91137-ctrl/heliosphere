@@ -59,18 +59,18 @@ public final class EnemyRoster {
             new Role("stalker", "幽影刺客", 173, 140, 6, 18, BLADE, 18, 2.4f, false, 0.8f, 2.1f),
             // digs through rock to whoever hides from it (Underground)
             new Role("drill_walker", "穿岩钻掘机", 197, 460, 18, 22, DRILL, 16, 3.2f, false, 1.8f, 2.2f),
-            new Role("titan_walker", "泰坦重装机甲", 269, 1200, 22, 28, TITAN, 60, 64, false, 3.0f, 5.2f),
+            new Role("titan_walker", "泰坦重装机甲", 269, 1600, 22, 28, TITAN, 60, 64, false, 3.0f, 5.2f),
             // strike aircraft: they fight from beyond visual range (StrikeCraft); the range here is only for the cannon
             new Role("strike_drone", "VIII型察打无人机", 209, 280, 10, 30, STANDOFF, 40, 28, true, 2.2f, 0.9f),
             new Role("strike_jet", "鹞隼固定翼攻击机", 250, 520, 14, 36, STRIKE, 30, 28, true, 2.8f, 1.2f),
             // Mk VII and up: fortresses and the outer worlds
             new Role("plasma_drone", "VII型等离子无人机", 293, 450, 18, 30, PLASMA, 45, 64, true, 1.6f, 0.9f),
-            new Role("graviton_walker", "引力碾压机甲", 341, 800, 22, 26, GRAVITY, 50, 24, false, 2.2f, 2.9f),
+            new Role("graviton_walker", "引力碾压机甲", 341, 1100, 22, 26, GRAVITY, 50, 24, false, 2.2f, 2.9f),
             new Role("phase_stalker", "相位刺客", 317, 360, 14, 30, PHASE, 40, 3.2f, false, 0.9f, 2.3f),
             // bosses
-            new Role("fortress_overseer", "堡垒监管者", NEVER, 10000, 24, 34, OVERSEER, 70, 72, false, 2.4f, 4.2f),
-            new Role("hive_carrier", "蜂巢母舰", NEVER, 14000, 20, 26, CARRIER, 90, 80, true, 4.5f, 2.2f),
-            new Role("colossus", "末日巨像", NEVER, 25000, 28, 44, COLOSSUS, 80, 72, false, 4.0f, 8.0f));
+            new Role("fortress_overseer", "堡垒监管者", NEVER, 15000, 24, 34, OVERSEER, 70, 72, false, 2.4f, 4.2f),
+            new Role("hive_carrier", "蜂巢母舰", NEVER, 20000, 20, 26, CARRIER, 90, 80, true, 4.5f, 2.2f),
+            new Role("colossus", "末日巨像", NEVER, 40000, 28, 44, COLOSSUS, 80, 72, false, 4.0f, 8.0f));
 
     /**
      * Technology level of each machine, 1 to 10: what a fortress of a given difficulty fields, and what its

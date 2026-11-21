@@ -310,6 +310,9 @@ public class GuidedMissile extends Entity {
     private static final net.minecraft.server.level.TicketType FLIGHT_SIM_TICKET = new net.minecraft.server.level.TicketType(40L,
             net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
 
+    /** The air-defence vehicles' own missiles (the only ones that can bring down the machines' nuclear missile). */
+    static boolean sam(MissileSpec s) { return s == MissileSpec.BUK_9M317MA || s == MissileSpec.ASTER_30 || s == MissileSpec.IRIS_T_SL; }
+
     /** Flight trace of the machines' nuclear missiles (for tests). */
     public static final StringBuilder ICBM_TRACE = new StringBuilder();
 
@@ -510,7 +513,8 @@ public class GuidedMissile extends Entity {
         MissileSpec spec = spec();
         double kill = Math.max(spec.blast, spec.fuse) + 2;
         for (GuidedMissile gm : level.getEntitiesOfClass(GuidedMissile.class, new AABB(at, at).inflate(kill),
-                x -> x != this && x.side != side && x.isAlive() && x.spec() != MissileSpec.ASTER_BOOSTER && x.position().distanceTo(at) <= kill))
+                x -> x != this && x.side != side && x.isAlive() && x.spec() != MissileSpec.ASTER_BOOSTER && x.position().distanceTo(at) <= kill
+                        && (x.spec() != MissileSpec.ICBM || sam(spec))))            // the machines' nuke: only an air-defence vehicle's missile kills it
             gm.shotDown(level);
         if (spec == MissileSpec.ICBM) { nukeAt(level, at); return; }   // the machines' warhead: a nuclear blast where it comes down
         if (spec == MissileSpec.INTERCEPTOR) {

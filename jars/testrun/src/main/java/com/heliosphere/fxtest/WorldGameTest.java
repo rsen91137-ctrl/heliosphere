@@ -78,19 +78,21 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "silo" -> silo(ctx, sp);
                     case "turretfx" -> turretFx(ctx, sp);
                     case "jet2" -> jet2(ctx, sp);
+                    case "flakshells" -> flakShells(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
                         cmd(sp, "execute in minecraft:overworld run tp @p 12200 140 12200");
                         ctx.waitTicks(60);
                         server(sp, s -> s.overworld().setDayTime(312L * 24000 + 6000));
                         cmd(sp, "gamemode survival @a");
                         cmd(sp, "effect give @p minecraft:resistance 300 4");
-                        cmd(sp, "hssiege assault 14");
-                        ctx.waitTicks(700);
+                        cmd(sp, "hssiege onslaught 14");
+                        ctx.waitTicks(600);
+                        for (int w = 0; w < 4; w++) { ctx.waitTicks(900); }
                         server(sp, s -> {
                             java.util.Map<String, Integer> kinds = new java.util.TreeMap<>();
-                            for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(160)))
+                            for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(420)))
                                 kinds.merge((m.role() == null ? "?" : m.role().id()) + "(" + (int) m.getMaxHealth() + "hp)", 1, Integer::sum);
-                            report.add("[info] day 312 assault (difficulty 14), first wave: " + kinds);
+                            report.add("[info] day 312 onslaught (difficulty 14), all waves: " + kinds);
                             for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(200))) m.discard();
                         });
                         cmd(sp, "gamemode creative @a");
@@ -1683,6 +1685,74 @@ public class WorldGameTest implements FabricClientGameTest {
                     y[0], y[1], (y[1] - y[0]) / 2, y[2], (y[2] - y[1]), y[3], p.getHealth(), com.heliosphere.planets.gear.ShoulderSentry.shots - shots0));
         });
         cmd(sp, "gamemode creative @a");
+    }
+
+    /** Flak against artillery: a mortar walker shells a spot guarded by a flak turret; and a turret on a pillar fires down at its foot. */
+    private void flakShells(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 12600 140 12600");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(150L * 24000 + 6000);
+            int x0 = p.getBlockX(), z0 = p.getBlockZ();
+            int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0) + 1;
+            o[0] = x0; o[1] = g; o[2] = z0;
+            for (int i = -12; i <= 12; i++) for (int j = -6; j <= 60; j++) {
+                l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g - 1, z0 + j), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                for (int h = 0; h < 12; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 + i, g + h, z0 + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            }
+            // the flak turret and a husk it guards (the mortar's target), the mortar walker 45 blocks away
+            var flak = new net.minecraft.core.BlockPos(x0, g, z0);
+            l.setBlock(flak, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(com.heliosphere.planets.defense.mk.TurretKind.FLAK).defaultBlockState(), 3);
+            ((com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(flak)).creative(true);
+            var mortar = com.heliosphere.planets.tech.TechCombat.spawn(l, "mortar_walker", x0 + 0.5, g, z0 + 48.5, p);
+            if (mortar != null) { mortar.setPersistenceRequired(); mortar.setInvulnerable(true); }
+            // a laser turret on a 6-block pillar, a husk right at its foot
+            for (int h = 0; h < 6; h++) l.setBlock(new net.minecraft.core.BlockPos(x0 - 8, g + h, z0), net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState(), 3);
+            var top = new net.minecraft.core.BlockPos(x0 - 8, g + 6, z0);
+            l.setBlock(top, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(com.heliosphere.planets.defense.mk.TurretKind.LASER).defaultBlockState(), 3);
+            ((com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(top)).creative(true);
+            var h = net.minecraft.world.entity.EntityType.HUSK.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+            h.snapTo(x0 - 6.5, g, z0 + 0.5, 0, 0);
+            h.setNoAi(true); h.setPersistenceRequired();
+            l.addFreshEntity(h);
+            p.teleportTo(x0 + 6.5, g + 4, z0 - 6.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.RESISTANCE, 4000, 4));
+            if (mortar instanceof net.minecraft.world.entity.Mob m) m.setTarget(p);
+        });
+        ctx.runOnClient(mc -> mc.gui.getChat().clearMessages(false));
+        look(ctx, 20, 15);
+        int down0 = com.heliosphere.planets.defense.mk.Incoming.shotDown;
+        for (int k = 0; k < 10; k++) {                                      // ten mortar rounds and ten siege shells at the turret's ground
+            server(sp, s -> {
+                var l = s.overworld();
+                var from = new net.minecraft.world.phys.Vec3(o[0] + 0.5, o[1] + 2, o[2] + 48.5);
+                var land = new net.minecraft.world.phys.Vec3(o[0] + 3.5 + l.random.nextGaussian(), o[1], o[2] + 4.5 + l.random.nextGaussian());
+                com.heliosphere.planets.weapon.fx.CombatVfx.send(l, com.heliosphere.planets.weapon.fx.CombatVfx.MORTAR, 50, from, land, 1f);
+                com.heliosphere.planets.defense.mk.Incoming.mortar(l, from, land, 50);
+                var dir = land.add(0, 14, 0).subtract(from).normalize();
+                var owners = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(90));
+                if (!owners.isEmpty()) com.heliosphere.planets.tech.TechProjectile.launch(l, owners.getFirst(), player(s), from.add(0, 2, 0), dir, 2, 12f);
+            });
+            ctx.waitTicks(30);
+        }
+        ctx.waitTicks(60);
+        shot(ctx, "flak_shells");
+        server(sp, s -> report.add("[info] flak: of 10 mortar rounds and 10 siege shells, shot down " + (com.heliosphere.planets.defense.mk.Incoming.shotDown - down0)));
+        server(sp, s -> {
+            var l = s.overworld();
+            var hs = l.getEntitiesOfClass(net.minecraft.world.entity.monster.zombie.Husk.class, new net.minecraft.world.phys.AABB(o[0] - 10, o[1] - 2, o[2] - 3, o[0] - 4, o[1] + 4, o[2] + 3));
+            var mw = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(90));
+            report.add("[info] flak: mortar rounds fired " + com.heliosphere.planets.defense.mk.Incoming.fired + ", walkers " + mw.size()
+                    + (mw.isEmpty() ? "" : ", target " + mw.getFirst().getTarget() + ", dist " + (int) mw.getFirst().distanceTo(player(s))));
+            report.add("[info] flak: artillery rounds shot down " + com.heliosphere.planets.defense.mk.Incoming.shotDown + "; pillar turret's husk at its foot " + (hs.isEmpty() ? "dead" : "alive"));
+            for (var m : l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, player(s).getBoundingBox().inflate(80))) m.discard();
+            player(s).setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
     }
 
     /** Each jetpack, jump held for two seconds: on Earth the standard and heavy packs climb, the low-g pack cannot; on the Moon it can. */

@@ -106,7 +106,7 @@ public final class SentryRenderer implements BlockEntityRenderer<SentryBlockEnti
         m.cbox(0, 0.06, 0, 0.42 + mk * 0.03, 0.12, 0.42 + mk * 0.03, BoxMesh.JOINT, mk >= 4 ? trim : STEEL);   // turntable
         m.at(0, 0.32, 0);
         m.scale(1 + mk * 0.06);                                                         // the head grows with each Mk
-        float pitch = (float) Math.toRadians(-Math.max(-25, Math.min(80, s.pitch)));
+        float pitch = (float) Math.toRadians(-Math.max(-75, Math.min(85, s.pitch)));          // depression down to 75 degrees
         switch (k) {
             case LASER -> {
                 m.cbox(0, 0, 0, 0.44, 0.34, 0.5, body, paint);

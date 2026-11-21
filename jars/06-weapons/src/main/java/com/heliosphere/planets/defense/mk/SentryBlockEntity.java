@@ -77,6 +77,7 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         if (power < k.energy) { cooldown = 10; unpowered(level, k); return; }
         double range = k.range(mk);
         Vec3 head = head();
+        if (k == TurretKind.FLAK && shootShell(level, k, head, range)) return;   // artillery in the air comes first
         List<Mob> targets = targets(level, head, range, k);
         if (targets.isEmpty()) { cooldown = 6; return; }
         Mob first = targets.getFirst();
@@ -120,13 +121,55 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
         return out;
     }
 
+    /**
+     * The flak turret against artillery: mortar rounds and siege shells in the air within its range are engaged before
+     * anything else, a burst of flak at each; a burst brings the round down a little under half the time (+7% a Mk),
+     * and a round shot down does not go off where it was aimed. Not the machines' nuclear missile: only air-defence
+     * vehicles can stop that.
+     */
+    private boolean shootShell(ServerLevel level, TurretKind k, Vec3 head, double range) {
+        Object shell = Incoming.nearest(level, head, range);
+        if (shell == null) return false;
+        Vec3 at = Incoming.position(shell, level.getGameTime());
+        if (!clearTo(level, head, at)) return false;
+        Vec3 aim = at.subtract(head);
+        yaw = (float) Math.toDegrees(Math.atan2(-aim.x, aim.z));
+        pitch = (float) Math.toDegrees(Math.atan2(aim.y, Math.hypot(aim.x, aim.z)));
+        Vec3 muzzle = head.add(aim.normalize().scale(0.7));
+        power -= k.energy;
+        cooldown = k.cooldown(mk);
+        lastShot = level.getGameTime();
+        CombatVfx.send(level, CombatVfx.TRACER, k.colour, muzzle, at, 2.4f);
+        level.sendParticles(ParticleTypes.SMOKE, muzzle.x, muzzle.y, muzzle.z, 4, 0.08, 0.08, 0.08, 0.02);
+        level.playSound(null, worldPosition, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.BLOCKS, 0.9f, 1.8f);
+        if (level.random.nextFloat() < 0.45f + mk * 0.07f) Incoming.kill(level, shell);
+        else CombatVfx.send(level, CombatVfx.EXPLOSION, k.colour, at.add(level.random.nextGaussian(), level.random.nextGaussian(), level.random.nextGaussian()), at, 0.8f);
+        sync();
+        return true;
+    }
+
+    /** Line of sight from the gun to a point (starting a little out from the head, so it can fire down past its own block). */
+    private static boolean clearTo(ServerLevel level, Vec3 head, Vec3 p) {
+        Vec3 d = p.subtract(head);
+        Vec3 flat = new Vec3(d.x, 0, d.z);
+        Vec3 from = flat.lengthSqr() > 1e-4 ? head.add(flat.normalize().scale(0.6)) : head;
+        return level.clip(new ClipContext(from, p, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, net.minecraft.world.phys.shapes.CollisionContext.empty())).getType() == HitResult.Type.MISS;
+    }
+
     static boolean airborne(ServerLevel level, Mob m) {
         return m.isNoGravity() || m.getY() > level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, m.getBlockX(), m.getBlockZ()) + 2.5;
     }
 
-    private static boolean sees(ServerLevel level, Vec3 from, Mob m) {
+    /**
+     * Several points of the target are tried, so a robot half behind a block is still engaged. The ray starts a little
+     * out from the head towards the target, so a turret on a wall or a roof can fire down at what is below it
+     * (depression) instead of its own block hiding everything under it.
+     */
+    private static boolean sees(ServerLevel level, Vec3 head, Mob m) {
         AABB b = m.getBoundingBox();
         Vec3[] points = {b.getCenter(), m.getEyePosition(), new Vec3(b.getCenter().x, b.minY + 0.2, b.getCenter().z), new Vec3(b.getCenter().x, b.maxY - 0.1, b.getCenter().z)};
+        Vec3 flat = new Vec3(b.getCenter().x - head.x, 0, b.getCenter().z - head.z);
+        Vec3 from = flat.lengthSqr() > 1e-4 ? head.add(flat.normalize().scale(0.6)) : head;
         for (Vec3 p : points)
             if (level.clip(new ClipContext(from, p, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, m)).getType() == HitResult.Type.MISS) return true;
         return false;

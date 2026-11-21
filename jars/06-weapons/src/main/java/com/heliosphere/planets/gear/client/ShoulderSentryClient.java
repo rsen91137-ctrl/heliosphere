@@ -78,7 +78,7 @@ public final class ShoulderSentryClient {
                 since = now - shot.time;
             } else aim = aim(s);                                       // otherwise towards the nearest hostile
             int mk = ShoulderSentry.mk(s.chestEquipment);
-            float fAim = aim, fPitch = Mth.clamp(pitch, -30, 60), recoil = since < 3 ? 1 - since / 3f : 0;
+            float fAim = aim, fPitch = Mth.clamp(pitch, -70, 70), recoil = since < 3 ? 1 - since / 3f : 0;
             boolean flash = since < 2;
             float spin = s.ageInTicks;
             pose.pushPose();
