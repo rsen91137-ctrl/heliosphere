@@ -85,6 +85,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "starch" -> starch(ctx, sp);
                     case "capsule" -> capsule(ctx, sp);
                     case "borer" -> borer(ctx, sp);
+                    case "intro" -> intro(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
@@ -2260,6 +2261,31 @@ public class WorldGameTest implements FabricClientGameTest {
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
             p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
         });
+    }
+
+    /** The opening cinematic: one screenshot per scene, then it must close by itself. */
+    private void intro(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        long[] t0 = new long[1];
+        ctx.runOnClient(mc -> { mc.setScreen(new com.heliosphere.guide.client.IntroScreen()); t0[0] = net.minecraft.util.Util.getMillis(); });
+        int[] at = {2, 8, 16, 24, 32, 40, 48, 56};
+        for (int k = 0; k < at.length; k++) {
+            int target = at[k];
+            for (int guard = 0; guard < 2000; guard++) {
+                long[] now = new long[1];
+                ctx.runOnClient(mc -> now[0] = net.minecraft.util.Util.getMillis());
+                if (now[0] - t0[0] >= target * 1000L) break;
+                ctx.waitTick();
+            }
+            shot(ctx, "intro_" + String.format("%02d", target) + "s");
+        }
+        for (int guard = 0; guard < 4000; guard++) {
+            boolean[] open = new boolean[1];
+            ctx.runOnClient(mc -> open[0] = mc.screen instanceof com.heliosphere.guide.client.IntroScreen);
+            if (!open[0]) break;
+            ctx.waitTick();
+        }
+        ctx.runOnClient(mc -> report.add("[info] intro closed by itself after " + (net.minecraft.util.Util.getMillis() - t0[0]) / 1000 + " s, screen now " + (mc.screen == null ? "none" : mc.screen.getClass().getSimpleName())));
+        ctx.runOnClient(mc -> { if (mc.screen instanceof com.heliosphere.guide.client.IntroScreen) mc.setScreen(null); });
     }
 
     /** The tunnel borer bores into a wall of stone with an iron vein, a lava pocket in its way: tunnel, bin, sealing. */
