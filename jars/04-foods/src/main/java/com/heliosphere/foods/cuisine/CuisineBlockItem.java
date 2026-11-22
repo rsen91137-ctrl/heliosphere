@@ -22,6 +22,7 @@ public class CuisineBlockItem extends BlockItem {
     }
 
     @Override
+    @SuppressWarnings("deprecation")          // Item#appendHoverText: still how an item adds its own tooltip lines
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
         super.appendHoverText(stack, context, display, out, flag);
         for (String key : hints) out.accept(Component.translatable(key).withStyle(ChatFormatting.GRAY));

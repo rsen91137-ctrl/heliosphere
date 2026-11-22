@@ -84,10 +84,10 @@ public record CuisineTable(List<Effect> effects, List<Crop> crops, List<Ingredie
         for (JsonObject o : objects(root, "other")) other.add(new Named(str(o, "id")));
         List<Recipe> recipes = new ArrayList<>();
         for (JsonObject o : objects(root, "recipes"))
-            recipes.add(new Recipe(str(o, "machine"), stacks(o.getAsJsonArray("inputs")), stack(o.getAsJsonArray("output")), o.get("seconds").getAsInt()));
+            recipes.add(new Recipe(str(o, "machine"), stacks(o.getAsJsonArray("inputs")), stack(o.get("output")), o.get("seconds").getAsInt()));
         List<Assembly> assembly = new ArrayList<>();
         for (JsonObject o : objects(root, "assembly"))
-            assembly.add(new Assembly(stack(o.getAsJsonArray("output")), stacks(o.getAsJsonArray("inputs"))));
+            assembly.add(new Assembly(stack(o.get("output")), stacks(o.getAsJsonArray("inputs"))));
         return new CuisineTable(List.copyOf(effects), List.copyOf(crops), List.copyOf(ingredients), List.copyOf(dishes),
                 List.copyOf(machines), List.copyOf(tools), List.copyOf(blocks), List.copyOf(other), List.copyOf(recipes), List.copyOf(assembly));
     }
@@ -111,11 +111,18 @@ public record CuisineTable(List<Effect> effects, List<Crop> crops, List<Ingredie
         return new Food(o.get("n").getAsInt(), o.get("s").getAsFloat());
     }
 
-    private static Stack stack(JsonArray a) { return new Stack(a.get(0).getAsString(), a.get(1).getAsInt()); }
+    /** {@code ["ns:id", count]}, or a bare {@code "ns:id"} for one (the assembly outputs). */
+    private static Stack stack(JsonElement e) {
+        if (e.isJsonArray()) {
+            JsonArray a = e.getAsJsonArray();
+            return new Stack(a.get(0).getAsString(), a.size() > 1 ? a.get(1).getAsInt() : 1);
+        }
+        return new Stack(e.getAsString(), 1);
+    }
 
     private static List<Stack> stacks(JsonArray a) {
         List<Stack> out = new ArrayList<>();
-        if (a != null) for (JsonElement e : a) out.add(stack(e.getAsJsonArray()));
+        if (a != null) for (JsonElement e : a) out.add(stack(e));
         return List.copyOf(out);
     }
 

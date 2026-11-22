@@ -31,6 +31,7 @@ public class KitchenToolItem extends Item {
     }
 
     @Override
+    @SuppressWarnings("deprecation")          // Item#appendHoverText: still how an item adds its own tooltip lines
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
         out.accept(Component.translatable(TOOLTIP).withStyle(ChatFormatting.GRAY));
     }

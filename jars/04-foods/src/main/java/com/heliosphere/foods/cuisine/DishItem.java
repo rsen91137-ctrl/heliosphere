@@ -36,6 +36,7 @@ public class DishItem extends Item {
     public List<MobEffectInstance> buffs() { return buffs; }
 
     @Override
+    @SuppressWarnings("deprecation")          // Item#appendHoverText: still how an item adds its own tooltip lines
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
         if (buffs.isEmpty()) return;
         PotionContents.addPotionTooltip(buffs, out, 1f, context.tickRate());
