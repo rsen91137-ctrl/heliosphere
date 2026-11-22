@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "heliosphere:block/crop/eggplant_stage2"
+  }
+}

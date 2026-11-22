@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:flour",
+    "heliosphere:flour",
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "id": "heliosphere:dough",
+    "count": 3
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:paper",
+    "minecraft:wheat_seeds",
+    "minecraft:beetroot_seeds",
+    "minecraft:bone_meal"
+  ],
+  "result": {
+    "id": "heliosphere:seed_packet",
+    "count": 1
+  }
+}

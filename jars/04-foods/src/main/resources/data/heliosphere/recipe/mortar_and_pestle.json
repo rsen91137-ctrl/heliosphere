@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "TST",
+    " T "
+  ],
+  "key": {
+    "T": "minecraft:stone",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "heliosphere:mortar_and_pestle",
+    "count": 1
+  }
+}

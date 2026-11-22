@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:bread",
+    "minecraft:cooked_beef",
+    "heliosphere:lettuce",
+    "heliosphere:tomato",
+    "heliosphere:cheese"
+  ],
+  "result": {
+    "id": "heliosphere:hamburger",
+    "count": 1
+  }
+}

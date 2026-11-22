@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CTC",
+    "T T",
+    "STS"
+  ],
+  "key": {
+    "C": "minecraft:clay_ball",
+    "T": "minecraft:terracotta",
+    "S": "minecraft:oak_slab"
+  },
+  "result": {
+    "id": "heliosphere:fermenter",
+    "count": 1
+  }
+}

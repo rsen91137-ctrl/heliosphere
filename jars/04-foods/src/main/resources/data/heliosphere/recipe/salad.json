@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:lettuce",
+    "heliosphere:tomato",
+    "heliosphere:cucumber",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "heliosphere:salad",
+    "count": 1
+  }
+}

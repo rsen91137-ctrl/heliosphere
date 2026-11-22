@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "heliosphere:tanghulu",
+  "ingredients": [
+    "heliosphere:strawberry",
+    "heliosphere:strawberry",
+    "heliosphere:strawberry",
+    "minecraft:sugar",
+    "minecraft:stick"
+  ],
+  "result": {
+    "id": "heliosphere:tanghulu",
+    "count": 1
+  }
+}

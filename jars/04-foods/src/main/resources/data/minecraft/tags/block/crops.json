@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "heliosphere:rice",
+      "required": false
+    },
+    {
+      "id": "heliosphere:soybean",
+      "required": false
+    },
+    {
+      "id": "heliosphere:corn",
+      "required": false
+    },
+    {
+      "id": "heliosphere:peanut",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sesame",
+      "required": false
+    },
+    {
+      "id": "heliosphere:tomato",
+      "required": false
+    },
+    {
+      "id": "heliosphere:chili",
+      "required": false
+    },
+    {
+      "id": "heliosphere:bell_pepper",
+      "required": false
+    },
+    {
+      "id": "heliosphere:eggplant",
+      "required": false
+    },
+    {
+      "id": "heliosphere:cucumber",
+      "required": false
+    },
+    {
+      "id": "heliosphere:napa_cabbage",
+      "required": false
+    },
+    {
+      "id": "heliosphere:lettuce",
+      "required": false
+    },
+    {
+      "id": "heliosphere:spinach",
+      "required": false
+    },
+    {
+      "id": "heliosphere:onion",
+      "required": false
+    },
+    {
+      "id": "heliosphere:garlic",
+      "required": false
+    },
+    {
+      "id": "heliosphere:ginger",
+      "required": false
+    },
+    {
+      "id": "heliosphere:scallion",
+      "required": false
+    },
+    {
+      "id": "heliosphere:radish",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sweet_potato",
+      "required": false
+    },
+    {
+      "id": "heliosphere:taro",
+      "required": false
+    },
+    {
+      "id": "heliosphere:strawberry",
+      "required": false
+    },
+    {
+      "id": "heliosphere:grape",
+      "required": false
+    },
+    {
+      "id": "heliosphere:blueberry",
+      "required": false
+    },
+    {
+      "id": "heliosphere:pineapple",
+      "required": false
+    },
+    {
+      "id": "heliosphere:tea",
+      "required": false
+    },
+    {
+      "id": "heliosphere:coffee_shrub",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sichuan_pepper",
+      "required": false
+    },
+    {
+      "id": "heliosphere:mung_bean",
+      "required": false
+    },
+    {
+      "id": "heliosphere:barley",
+      "required": false
+    },
+    {
+      "id": "heliosphere:chinese_chive",
+      "required": false
+    }
+  ]
+}

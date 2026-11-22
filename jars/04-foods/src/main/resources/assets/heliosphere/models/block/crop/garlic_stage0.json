@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/crop",
+  "textures": {
+    "crop": "heliosphere:block/crop/garlic_stage0"
+  }
+}

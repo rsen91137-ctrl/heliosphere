@@ -3,7 +3,13 @@
   "minVersion": "0.8",
   "package": "com.heliosphere.foods.cuisine.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "mixins": [
+    "AcidMaskMixin",
+    "CropBlockPlanterMixin",
+    "DisasterDefensesMixin",
+    "LivingEntityFreezeMixin",
+    "PlayerExhaustionMixin"
+  ],
   "client": [],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,125 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "heliosphere:rice_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:soybean_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:corn_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:peanut_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sesame_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:tomato_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:chili_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:bell_pepper_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:eggplant_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:cucumber_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:napa_cabbage_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:lettuce_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:spinach_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:onion_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:garlic_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:ginger_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:scallion_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:radish_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sweet_potato_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:taro_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:strawberry_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:grape_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:blueberry_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:pineapple_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:tea_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:coffee_shrub_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:sichuan_pepper_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:mung_bean_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:barley_seeds",
+      "required": false
+    },
+    {
+      "id": "heliosphere:chinese_chive_seeds",
+      "required": false
+    }
+  ]
+}

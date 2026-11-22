@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "heliosphere:block/crop/sichuan_pepper_stage2"
+  }
+}

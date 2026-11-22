@@ -1,0 +1,33 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "heliosphere:wok",
+      "required": false
+    },
+    {
+      "id": "heliosphere:cooking_pot",
+      "required": false
+    },
+    {
+      "id": "heliosphere:oven",
+      "required": false
+    },
+    {
+      "id": "heliosphere:grain_mill",
+      "required": false
+    },
+    {
+      "id": "heliosphere:juicer",
+      "required": false
+    },
+    {
+      "id": "heliosphere:induction_stove",
+      "required": false
+    },
+    {
+      "id": "heliosphere:hydroponic_planter",
+      "required": false
+    }
+  ]
+}

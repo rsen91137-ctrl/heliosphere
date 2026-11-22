@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "heliosphere:cucumber",
+    "heliosphere:cucumber",
+    "heliosphere:garlic",
+    "heliosphere:vinegar",
+    "heliosphere:kitchen_knife",
+    "minecraft:bowl"
+  ],
+  "result": {
+    "id": "heliosphere:smashed_cucumber",
+    "count": 1
+  }
+}

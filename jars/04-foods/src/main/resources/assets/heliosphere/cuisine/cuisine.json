@@ -1,0 +1,3425 @@
+{
+ "effects": [
+  {
+   "id": "warmth",
+   "zh": "御寒",
+   "en": "Warmth",
+   "color": 16747069
+  },
+  {
+   "id": "rad_shield",
+   "zh": "抗辐射",
+   "en": "Radiation Shield",
+   "color": 8191850
+  },
+  {
+   "id": "acid_shield",
+   "zh": "耐酸",
+   "en": "Acid Ward",
+   "color": 13164618
+  },
+  {
+   "id": "nourished",
+   "zh": "饱腹",
+   "en": "Nourished",
+   "color": 15251546
+  }
+ ],
+ "crops": [
+  {
+   "id": "rice",
+   "zh": "水稻",
+   "en": "Rice",
+   "seed": "rice_seeds",
+   "produce": "rice",
+   "produceZh": "大米",
+   "produceEn": "Rice",
+   "raw": null,
+   "model": "crop",
+   "grass": 10
+  },
+  {
+   "id": "soybean",
+   "zh": "大豆",
+   "en": "Soybean",
+   "seed": "soybean_seeds",
+   "produce": "soybean",
+   "produceZh": "大豆",
+   "produceEn": "Soybeans",
+   "raw": null,
+   "model": "cross",
+   "grass": 10
+  },
+  {
+   "id": "corn",
+   "zh": "玉米",
+   "en": "Corn",
+   "seed": "corn_seeds",
+   "produce": "corn",
+   "produceZh": "玉米",
+   "produceEn": "Corn",
+   "raw": {
+    "n": 3,
+    "s": 0.5
+   },
+   "model": "crop",
+   "grass": 10
+  },
+  {
+   "id": "peanut",
+   "zh": "花生",
+   "en": "Peanut",
+   "seed": "peanut_seeds",
+   "produce": "peanut",
+   "produceZh": "花生",
+   "produceEn": "Peanuts",
+   "raw": {
+    "n": 2,
+    "s": 0.4
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "sesame",
+   "zh": "芝麻",
+   "en": "Sesame",
+   "seed": "sesame_seeds",
+   "produce": "sesame",
+   "produceZh": "芝麻",
+   "produceEn": "Sesame Seeds",
+   "raw": null,
+   "model": "crop",
+   "grass": 6
+  },
+  {
+   "id": "tomato",
+   "zh": "番茄",
+   "en": "Tomato",
+   "seed": "tomato_seeds",
+   "produce": "tomato",
+   "produceZh": "番茄",
+   "produceEn": "Tomato",
+   "raw": {
+    "n": 2,
+    "s": 0.4
+   },
+   "model": "cross",
+   "grass": 10
+  },
+  {
+   "id": "chili",
+   "zh": "辣椒",
+   "en": "Chili Pepper",
+   "seed": "chili_seeds",
+   "produce": "chili",
+   "produceZh": "辣椒",
+   "produceEn": "Chili Pepper",
+   "raw": {
+    "n": 1,
+    "s": 0.2
+   },
+   "model": "cross",
+   "grass": 9
+  },
+  {
+   "id": "bell_pepper",
+   "zh": "青椒",
+   "en": "Bell Pepper",
+   "seed": "bell_pepper_seeds",
+   "produce": "bell_pepper",
+   "produceZh": "青椒",
+   "produceEn": "Bell Pepper",
+   "raw": {
+    "n": 2,
+    "s": 0.4
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "eggplant",
+   "zh": "茄子",
+   "en": "Eggplant",
+   "seed": "eggplant_seeds",
+   "produce": "eggplant",
+   "produceZh": "茄子",
+   "produceEn": "Eggplant",
+   "raw": {
+    "n": 2,
+    "s": 0.4
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "cucumber",
+   "zh": "黄瓜",
+   "en": "Cucumber",
+   "seed": "cucumber_seeds",
+   "produce": "cucumber",
+   "produceZh": "黄瓜",
+   "produceEn": "Cucumber",
+   "raw": {
+    "n": 2,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "napa_cabbage",
+   "zh": "大白菜",
+   "en": "Napa Cabbage",
+   "seed": "napa_cabbage_seeds",
+   "produce": "napa_cabbage",
+   "produceZh": "大白菜",
+   "produceEn": "Napa Cabbage",
+   "raw": {
+    "n": 2,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 10
+  },
+  {
+   "id": "lettuce",
+   "zh": "生菜",
+   "en": "Lettuce",
+   "seed": "lettuce_seeds",
+   "produce": "lettuce",
+   "produceZh": "生菜",
+   "produceEn": "Lettuce",
+   "raw": {
+    "n": 1,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 9
+  },
+  {
+   "id": "spinach",
+   "zh": "菠菜",
+   "en": "Spinach",
+   "seed": "spinach_seeds",
+   "produce": "spinach",
+   "produceZh": "菠菜",
+   "produceEn": "Spinach",
+   "raw": {
+    "n": 1,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "onion",
+   "zh": "洋葱",
+   "en": "Onion",
+   "seed": "onion_seeds",
+   "produce": "onion",
+   "produceZh": "洋葱",
+   "produceEn": "Onion",
+   "raw": {
+    "n": 1,
+    "s": 0.3
+   },
+   "model": "crop",
+   "grass": 9
+  },
+  {
+   "id": "garlic",
+   "zh": "大蒜",
+   "en": "Garlic",
+   "seed": "garlic_seeds",
+   "produce": "garlic",
+   "produceZh": "大蒜",
+   "produceEn": "Garlic",
+   "raw": null,
+   "model": "crop",
+   "grass": 8
+  },
+  {
+   "id": "ginger",
+   "zh": "生姜",
+   "en": "Ginger",
+   "seed": "ginger_seeds",
+   "produce": "ginger",
+   "produceZh": "生姜",
+   "produceEn": "Ginger",
+   "raw": null,
+   "model": "crop",
+   "grass": 7
+  },
+  {
+   "id": "scallion",
+   "zh": "葱",
+   "en": "Scallion",
+   "seed": "scallion_seeds",
+   "produce": "scallion",
+   "produceZh": "葱",
+   "produceEn": "Scallion",
+   "raw": null,
+   "model": "crop",
+   "grass": 9
+  },
+  {
+   "id": "radish",
+   "zh": "白萝卜",
+   "en": "Daikon Radish",
+   "seed": "radish_seeds",
+   "produce": "radish",
+   "produceZh": "白萝卜",
+   "produceEn": "Daikon Radish",
+   "raw": {
+    "n": 2,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 8
+  },
+  {
+   "id": "sweet_potato",
+   "zh": "红薯",
+   "en": "Sweet Potato",
+   "seed": "sweet_potato_seeds",
+   "produce": "sweet_potato",
+   "produceZh": "红薯",
+   "produceEn": "Sweet Potato",
+   "raw": {
+    "n": 1,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 9
+  },
+  {
+   "id": "taro",
+   "zh": "芋头",
+   "en": "Taro",
+   "seed": "taro_seeds",
+   "produce": "taro",
+   "produceZh": "芋头",
+   "produceEn": "Taro",
+   "raw": null,
+   "model": "cross",
+   "grass": 6
+  },
+  {
+   "id": "strawberry",
+   "zh": "草莓",
+   "en": "Strawberry",
+   "seed": "strawberry_seeds",
+   "produce": "strawberry",
+   "produceZh": "草莓",
+   "produceEn": "Strawberry",
+   "raw": {
+    "n": 2,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 9
+  },
+  {
+   "id": "grape",
+   "zh": "葡萄",
+   "en": "Grape",
+   "seed": "grape_seeds",
+   "produce": "grape",
+   "produceZh": "葡萄",
+   "produceEn": "Grapes",
+   "raw": {
+    "n": 2,
+    "s": 0.3
+   },
+   "model": "crop",
+   "grass": 7
+  },
+  {
+   "id": "blueberry",
+   "zh": "蓝莓",
+   "en": "Blueberry",
+   "seed": "blueberry_seeds",
+   "produce": "blueberry",
+   "produceZh": "蓝莓",
+   "produceEn": "Blueberries",
+   "raw": {
+    "n": 1,
+    "s": 0.3
+   },
+   "model": "cross",
+   "grass": 7
+  },
+  {
+   "id": "pineapple",
+   "zh": "菠萝",
+   "en": "Pineapple",
+   "seed": "pineapple_seeds",
+   "produce": "pineapple",
+   "produceZh": "菠萝",
+   "produceEn": "Pineapple",
+   "raw": {
+    "n": 3,
+    "s": 0.4
+   },
+   "model": "cross",
+   "grass": 5
+  },
+  {
+   "id": "tea",
+   "zh": "茶树",
+   "en": "Tea Bush",
+   "seed": "tea_seeds",
+   "produce": "tea_leaves",
+   "produceZh": "茶叶",
+   "produceEn": "Tea Leaves",
+   "raw": null,
+   "model": "cross",
+   "grass": 6
+  },
+  {
+   "id": "coffee_shrub",
+   "zh": "咖啡树",
+   "en": "Coffee Shrub",
+   "seed": "coffee_shrub_seeds",
+   "produce": "coffee_beans",
+   "produceZh": "咖啡豆",
+   "produceEn": "Coffee Beans",
+   "raw": null,
+   "model": "cross",
+   "grass": 5
+  },
+  {
+   "id": "sichuan_pepper",
+   "zh": "花椒",
+   "en": "Sichuan Pepper",
+   "seed": "sichuan_pepper_seeds",
+   "produce": "sichuan_pepper",
+   "produceZh": "花椒",
+   "produceEn": "Sichuan Pepper",
+   "raw": null,
+   "model": "cross",
+   "grass": 5
+  },
+  {
+   "id": "mung_bean",
+   "zh": "绿豆",
+   "en": "Mung Bean",
+   "seed": "mung_bean_seeds",
+   "produce": "mung_bean",
+   "produceZh": "绿豆",
+   "produceEn": "Mung Beans",
+   "raw": null,
+   "model": "cross",
+   "grass": 7
+  },
+  {
+   "id": "barley",
+   "zh": "大麦",
+   "en": "Barley",
+   "seed": "barley_seeds",
+   "produce": "barley",
+   "produceZh": "大麦",
+   "produceEn": "Barley",
+   "raw": null,
+   "model": "crop",
+   "grass": 7
+  },
+  {
+   "id": "chinese_chive",
+   "zh": "韭菜",
+   "en": "Chinese Chive",
+   "seed": "chinese_chive_seeds",
+   "produce": "chinese_chive",
+   "produceZh": "韭菜",
+   "produceEn": "Chinese Chives",
+   "raw": {
+    "n": 1,
+    "s": 0.2
+   },
+   "model": "crop",
+   "grass": 7
+  }
+ ],
+ "ingredients": [
+  {
+   "id": "flour",
+   "zh": "面粉",
+   "en": "Flour",
+   "food": null
+  },
+  {
+   "id": "dough",
+   "zh": "面团",
+   "en": "Dough",
+   "food": null
+  },
+  {
+   "id": "noodles",
+   "zh": "面条",
+   "en": "Noodles",
+   "food": null
+  },
+  {
+   "id": "table_salt",
+   "zh": "食盐",
+   "en": "Table Salt",
+   "food": null
+  },
+  {
+   "id": "cooking_oil",
+   "zh": "食用油",
+   "en": "Cooking Oil",
+   "food": null
+  },
+  {
+   "id": "soy_sauce",
+   "zh": "酱油",
+   "en": "Soy Sauce",
+   "food": null
+  },
+  {
+   "id": "vinegar",
+   "zh": "醋",
+   "en": "Vinegar",
+   "food": null
+  },
+  {
+   "id": "tofu",
+   "zh": "豆腐",
+   "en": "Tofu",
+   "food": {
+    "n": 3,
+    "s": 0.4
+   }
+  },
+  {
+   "id": "cheese",
+   "zh": "奶酪",
+   "en": "Cheese",
+   "food": {
+    "n": 3,
+    "s": 0.6
+   }
+  },
+  {
+   "id": "butter",
+   "zh": "黄油",
+   "en": "Butter",
+   "food": null
+  },
+  {
+   "id": "kimchi",
+   "zh": "泡菜",
+   "en": "Kimchi",
+   "food": {
+    "n": 3,
+    "s": 0.4
+   }
+  },
+  {
+   "id": "steamed_rice",
+   "zh": "米饭",
+   "en": "Steamed Rice",
+   "food": {
+    "n": 6,
+    "s": 0.6
+   }
+  },
+  {
+   "id": "tapioca_pearls",
+   "zh": "珍珠粉圆",
+   "en": "Tapioca Pearls",
+   "food": null
+  }
+ ],
+ "dishes": [
+  {
+   "id": "mantou",
+   "zh": "馒头",
+   "en": "Mantou",
+   "n": 5,
+   "s": 0.6,
+   "effects": [],
+   "container": null
+  },
+  {
+   "id": "baozi",
+   "zh": "包子",
+   "en": "Baozi",
+   "n": 8,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "heliosphere:nourished",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "xiaolongbao",
+   "zh": "小笼包",
+   "en": "Xiaolongbao",
+   "n": 4,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 10,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "dumplings",
+   "zh": "饺子",
+   "en": "Dumplings",
+   "n": 6,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "ramen",
+   "zh": "拉面",
+   "en": "Ramen",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "heliosphere:nourished",
+     "seconds": 120,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 20,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "zhajiang_noodles",
+   "zh": "炸酱面",
+   "en": "Zhajiang Noodles",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "egg_fried_rice",
+   "zh": "蛋炒饭",
+   "en": "Egg Fried Rice",
+   "n": 8,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "yangzhou_fried_rice",
+   "zh": "扬州炒饭",
+   "en": "Yangzhou Fried Rice",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 180,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:haste",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "zongzi",
+   "zh": "粽子",
+   "en": "Zongzi",
+   "n": 8,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "heliosphere:nourished",
+     "seconds": 90,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "tangyuan",
+   "zh": "汤圆",
+   "en": "Tangyuan",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 15,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "mooncake",
+   "zh": "月饼",
+   "en": "Mooncake",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:luck",
+     "seconds": 300,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "spring_rolls",
+   "zh": "春卷",
+   "en": "Spring Rolls",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "youtiao",
+   "zh": "油条",
+   "en": "Youtiao",
+   "n": 5,
+   "s": 0.5,
+   "effects": [],
+   "container": null
+  },
+  {
+   "id": "jianbing",
+   "zh": "煎饼果子",
+   "en": "Jianbing",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 180,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:jump_boost",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "scallion_pancake",
+   "zh": "葱油饼",
+   "en": "Scallion Pancake",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "congee",
+   "zh": "皮蛋瘦肉粥",
+   "en": "Pork Congee",
+   "n": 9,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 20,
+     "level": 1
+    },
+    {
+     "effect": "heliosphere:rad_shield",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "pumpkin_congee",
+   "zh": "南瓜粥",
+   "en": "Pumpkin Congee",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 15,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "mapo_tofu",
+   "zh": "麻婆豆腐",
+   "en": "Mapo Tofu",
+   "n": 8,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 300,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:fire_resistance",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "kung_pao_chicken",
+   "zh": "宫保鸡丁",
+   "en": "Kung Pao Chicken",
+   "n": 9,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:strength",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "yuxiang_pork",
+   "zh": "鱼香肉丝",
+   "en": "Yuxiang Pork",
+   "n": 9,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "braised_pork",
+   "zh": "红烧肉",
+   "en": "Braised Pork Belly",
+   "n": 12,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "minecraft:absorption",
+     "seconds": 240,
+     "level": 1
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "sweet_sour_ribs",
+   "zh": "糖醋排骨",
+   "en": "Sweet and Sour Ribs",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "tomato_egg",
+   "zh": "番茄炒蛋",
+   "en": "Tomato and Egg",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 30,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "pepper_pork",
+   "zh": "青椒肉丝",
+   "en": "Pepper Pork",
+   "n": 8,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "di_san_xian",
+   "zh": "地三鲜",
+   "en": "Di San Xian",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:resistance",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "garlic_eggplant",
+   "zh": "鱼香茄子",
+   "en": "Garlic Eggplant",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:night_vision",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "stir_fried_greens",
+   "zh": "蒜蓉青菜",
+   "en": "Garlic Greens",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:health_boost",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "hot_sour_soup",
+   "zh": "酸辣汤",
+   "en": "Hot and Sour Soup",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 240,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "hot_pot",
+   "zh": "火锅",
+   "en": "Hot Pot",
+   "n": 14,
+   "s": 1.0,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 480,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:strength",
+     "seconds": 240,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 30,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "malatang",
+   "zh": "麻辣烫",
+   "en": "Malatang",
+   "n": 9,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 240,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:speed",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "pickled_fish",
+   "zh": "酸菜鱼",
+   "en": "Pickled Cabbage Fish",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:water_breathing",
+     "seconds": 300,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "roast_duck",
+   "zh": "北京烤鸭",
+   "en": "Roast Duck",
+   "n": 14,
+   "s": 1.0,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 30,
+     "level": 1
+    },
+    {
+     "effect": "minecraft:absorption",
+     "seconds": 300,
+     "level": 1
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "smashed_cucumber",
+   "zh": "拍黄瓜",
+   "en": "Smashed Cucumber",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:fire_resistance",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "beef_tomato_stew",
+   "zh": "番茄牛腩",
+   "en": "Beef Tomato Stew",
+   "n": 12,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "minecraft:resistance",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "curry_rice",
+   "zh": "咖喱饭",
+   "en": "Curry Rice",
+   "n": 12,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 240,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:strength",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "mung_bean_soup",
+   "zh": "绿豆汤",
+   "en": "Mung Bean Soup",
+   "n": 5,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "heliosphere:rad_shield",
+     "seconds": 300,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "ginger_tea",
+   "zh": "姜茶",
+   "en": "Ginger Tea",
+   "n": 2,
+   "s": 0.3,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 300,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "green_tea",
+   "zh": "绿茶",
+   "en": "Green Tea",
+   "n": 2,
+   "s": 0.3,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 180,
+     "level": 0
+    },
+    {
+     "effect": "heliosphere:rad_shield",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "bubble_tea",
+   "zh": "珍珠奶茶",
+   "en": "Bubble Tea",
+   "n": 5,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 180,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:jump_boost",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "soy_milk",
+   "zh": "豆浆",
+   "en": "Soy Milk",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 10,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "coffee",
+   "zh": "咖啡",
+   "en": "Coffee",
+   "n": 2,
+   "s": 0.3,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 180,
+     "level": 1
+    },
+    {
+     "effect": "minecraft:speed",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "grape_juice",
+   "zh": "葡萄汁",
+   "en": "Grape Juice",
+   "n": 4,
+   "s": 0.4,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "pineapple_juice",
+   "zh": "菠萝汁",
+   "en": "Pineapple Juice",
+   "n": 4,
+   "s": 0.4,
+   "effects": [
+    {
+     "effect": "minecraft:haste",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "strawberry_milkshake",
+   "zh": "草莓奶昔",
+   "en": "Strawberry Milkshake",
+   "n": 5,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:absorption",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "yogurt",
+   "zh": "酸奶",
+   "en": "Yogurt",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 20,
+     "level": 0
+    }
+   ],
+   "container": "bottle"
+  },
+  {
+   "id": "sesame_soup",
+   "zh": "芝麻糊",
+   "en": "Black Sesame Soup",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:night_vision",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "tanghulu",
+   "zh": "糖葫芦",
+   "en": "Tanghulu",
+   "n": 4,
+   "s": 0.4,
+   "effects": [
+    {
+     "effect": "minecraft:luck",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "roasted_sweet_potato",
+   "zh": "烤红薯",
+   "en": "Roasted Sweet Potato",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "popcorn",
+   "zh": "爆米花",
+   "en": "Popcorn",
+   "n": 2,
+   "s": 0.2,
+   "effects": [],
+   "container": null
+  },
+  {
+   "id": "corn_chowder",
+   "zh": "玉米浓汤",
+   "en": "Corn Chowder",
+   "n": 8,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "heliosphere:warmth",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "tomato_soup",
+   "zh": "番茄汤",
+   "en": "Tomato Soup",
+   "n": 7,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 20,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "strawberry_cake",
+   "zh": "草莓蛋糕",
+   "en": "Strawberry Cake",
+   "n": 4,
+   "s": 0.5,
+   "effects": [
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 15,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "blueberry_pie",
+   "zh": "蓝莓派",
+   "en": "Blueberry Pie",
+   "n": 8,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:night_vision",
+     "seconds": 240,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "soda_crackers",
+   "zh": "苏打饼干",
+   "en": "Soda Crackers",
+   "n": 3,
+   "s": 0.4,
+   "effects": [
+    {
+     "effect": "heliosphere:acid_shield",
+     "seconds": 240,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "pizza",
+   "zh": "披萨",
+   "en": "Pizza",
+   "n": 14,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "minecraft:strength",
+     "seconds": 180,
+     "level": 0
+    },
+    {
+     "effect": "minecraft:regeneration",
+     "seconds": 20,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "hamburger",
+   "zh": "汉堡",
+   "en": "Hamburger",
+   "n": 13,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "minecraft:absorption",
+     "seconds": 180,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "sandwich",
+   "zh": "三明治",
+   "en": "Sandwich",
+   "n": 7,
+   "s": 0.7,
+   "effects": [
+    {
+     "effect": "minecraft:speed",
+     "seconds": 60,
+     "level": 0
+    }
+   ],
+   "container": null
+  },
+  {
+   "id": "salad",
+   "zh": "蔬菜沙拉",
+   "en": "Garden Salad",
+   "n": 6,
+   "s": 0.6,
+   "effects": [
+    {
+     "effect": "minecraft:health_boost",
+     "seconds": 240,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "fries",
+   "zh": "薯条",
+   "en": "Fries",
+   "n": 3,
+   "s": 0.4,
+   "effects": [],
+   "container": null
+  },
+  {
+   "id": "pasta",
+   "zh": "番茄意面",
+   "en": "Tomato Pasta",
+   "n": 10,
+   "s": 0.8,
+   "effects": [
+    {
+     "effect": "minecraft:strength",
+     "seconds": 120,
+     "level": 0
+    }
+   ],
+   "container": "bowl"
+  },
+  {
+   "id": "steak",
+   "zh": "黄油牛排",
+   "en": "Butter Steak",
+   "n": 10,
+   "s": 0.9,
+   "effects": [
+    {
+     "effect": "minecraft:strength",
+     "seconds": 120,
+     "level": 1
+    }
+   ],
+   "container": null
+  }
+ ],
+ "machines": [
+  {
+   "id": "wok",
+   "zh": "炒锅",
+   "en": "Wok",
+   "inputs": 4,
+   "outputs": 1,
+   "heat": true,
+   "power": 0,
+   "gated": true
+  },
+  {
+   "id": "cooking_pot",
+   "zh": "汤锅",
+   "en": "Cooking Pot",
+   "inputs": 6,
+   "outputs": 1,
+   "heat": true,
+   "power": 0,
+   "gated": true
+  },
+  {
+   "id": "steamer",
+   "zh": "蒸笼",
+   "en": "Bamboo Steamer",
+   "inputs": 3,
+   "outputs": 1,
+   "heat": true,
+   "power": 0,
+   "gated": true
+  },
+  {
+   "id": "oven",
+   "zh": "电烤箱",
+   "en": "Electric Oven",
+   "inputs": 6,
+   "outputs": 1,
+   "heat": false,
+   "power": 30,
+   "gated": true
+  },
+  {
+   "id": "grain_mill",
+   "zh": "磨粉机",
+   "en": "Grain Mill",
+   "inputs": 1,
+   "outputs": 2,
+   "heat": false,
+   "power": 20,
+   "gated": false
+  },
+  {
+   "id": "juicer",
+   "zh": "榨汁机",
+   "en": "Juicer",
+   "inputs": 4,
+   "outputs": 2,
+   "heat": false,
+   "power": 20,
+   "gated": true
+  },
+  {
+   "id": "fermenter",
+   "zh": "发酵罐",
+   "en": "Fermentation Crock",
+   "inputs": 4,
+   "outputs": 2,
+   "heat": false,
+   "power": 0,
+   "gated": true
+  }
+ ],
+ "tools": [
+  {
+   "id": "kitchen_knife",
+   "zh": "菜刀",
+   "en": "Kitchen Knife",
+   "durability": 256
+  },
+  {
+   "id": "rolling_pin",
+   "zh": "擀面杖",
+   "en": "Rolling Pin",
+   "durability": 256
+  },
+  {
+   "id": "mortar_and_pestle",
+   "zh": "研钵",
+   "en": "Mortar and Pestle",
+   "durability": 256
+  }
+ ],
+ "blocks": [
+  {
+   "id": "induction_stove",
+   "zh": "电磁炉",
+   "en": "Induction Stove"
+  },
+  {
+   "id": "hydroponic_planter",
+   "zh": "水培种植槽",
+   "en": "Hydroponic Planter"
+  }
+ ],
+ "other": [
+  {
+   "id": "seed_packet",
+   "zh": "种子包",
+   "en": "Seed Packet"
+  }
+ ],
+ "recipes": [
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "minecraft:wheat",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:flour",
+    1
+   ],
+   "seconds": 5
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "heliosphere:barley",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:flour",
+    1
+   ],
+   "seconds": 5
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "minecraft:potato",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:starch",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "heliosphere:corn",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:starch",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "heliosphere:sweet_potato",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:starch",
+    2
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "heliosphere:taro",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:starch",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "grain_mill",
+   "inputs": [
+    [
+     "heliosphere:rock_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:table_salt",
+    3
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:peanut",
+     3
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:cooking_oil",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:sesame",
+     4
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:cooking_oil",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:soybean",
+     4
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:cooking_oil",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "fermenter",
+   "inputs": [
+    [
+     "heliosphere:soybean",
+     3
+    ],
+    [
+     "minecraft:wheat",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:soy_sauce",
+    2
+   ],
+   "seconds": 90
+  },
+  {
+   "machine": "fermenter",
+   "inputs": [
+    [
+     "heliosphere:rice",
+     3
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:vinegar",
+    2
+   ],
+   "seconds": 90
+  },
+  {
+   "machine": "fermenter",
+   "inputs": [
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:cheese",
+    3
+   ],
+   "seconds": 120
+  },
+  {
+   "machine": "fermenter",
+   "inputs": [
+    [
+     "heliosphere:napa_cabbage",
+     2
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:kimchi",
+    3
+   ],
+   "seconds": 90
+  },
+  {
+   "machine": "fermenter",
+   "inputs": [
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     3
+    ]
+   ],
+   "output": [
+    "heliosphere:yogurt",
+    3
+   ],
+   "seconds": 60
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "minecraft:milk_bucket",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:butter",
+    2
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:soybean",
+     3
+    ]
+   ],
+   "output": [
+    "heliosphere:tofu",
+    2
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:rice",
+     2
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:steamed_rice",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:starch",
+     2
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:tapioca_pearls",
+    3
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "steamer",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:mantou",
+    3
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "steamer",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:baozi",
+    3
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "steamer",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:ginger",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:xiaolongbao",
+    4
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:napa_cabbage",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:dumplings",
+    4
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:chinese_chive",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:dumplings",
+    4
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:noodles",
+     1
+    ],
+    [
+     "minecraft:cooked_beef",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:ramen",
+    1
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:noodles",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:soy_sauce",
+     1
+    ],
+    [
+     "heliosphere:cucumber",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:zhajiang_noodles",
+    1
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:steamed_rice",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:egg_fried_rice",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:steamed_rice",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:corn",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:yangzhou_fried_rice",
+    1
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:rice",
+     2
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "minecraft:bamboo",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:zongzi",
+    2
+   ],
+   "seconds": 20
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:starch",
+     2
+    ],
+    [
+     "heliosphere:sesame",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:tangyuan",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:sesame",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:mooncake",
+    2
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "heliosphere:napa_cabbage",
+     1
+    ],
+    [
+     "minecraft:carrot",
+     1
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:spring_rolls",
+    3
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:youtiao",
+    3
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ],
+    [
+     "heliosphere:youtiao",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:jianbing",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:scallion_pancake",
+    2
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:rice",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:congee",
+    1
+   ],
+   "seconds": 20
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:pumpkin",
+     1
+    ],
+    [
+     "heliosphere:rice",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:pumpkin_congee",
+    2
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:tofu",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "heliosphere:sichuan_pepper",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:mapo_tofu",
+    2
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:chicken",
+     1
+    ],
+    [
+     "heliosphere:peanut",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:kung_pao_chicken",
+    2
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "minecraft:carrot",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "heliosphere:vinegar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:yuxiang_pork",
+    2
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:porkchop",
+     2
+    ],
+    [
+     "heliosphere:soy_sauce",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "heliosphere:ginger",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:braised_pork",
+    2
+   ],
+   "seconds": 30
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:porkchop",
+     2
+    ],
+    [
+     "heliosphere:vinegar",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:sweet_sour_ribs",
+    2
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:tomato",
+     2
+    ],
+    [
+     "minecraft:egg",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:tomato_egg",
+    2
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:bell_pepper",
+     1
+    ],
+    [
+     "minecraft:porkchop",
+     1
+    ],
+    [
+     "heliosphere:soy_sauce",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:pepper_pork",
+    2
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:potato",
+     1
+    ],
+    [
+     "heliosphere:eggplant",
+     1
+    ],
+    [
+     "heliosphere:bell_pepper",
+     1
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:di_san_xian",
+    2
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:eggplant",
+     2
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:garlic_eggplant",
+    2
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:spinach",
+     2
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:stir_fried_greens",
+    2
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "heliosphere:lettuce",
+     2
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:stir_fried_greens",
+    2
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:tofu",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ],
+    [
+     "heliosphere:vinegar",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:hot_sour_soup",
+    2
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:beef",
+     1
+    ],
+    [
+     "minecraft:mutton",
+     1
+    ],
+    [
+     "heliosphere:napa_cabbage",
+     1
+    ],
+    [
+     "heliosphere:tofu",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "heliosphere:sichuan_pepper",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:hot_pot",
+    2
+   ],
+   "seconds": 30
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:spinach",
+     1
+    ],
+    [
+     "heliosphere:tofu",
+     1
+    ],
+    [
+     "heliosphere:noodles",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:malatang",
+    1
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:cod",
+     1
+    ],
+    [
+     "heliosphere:kimchi",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:pickled_fish",
+    1
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:salmon",
+     1
+    ],
+    [
+     "heliosphere:kimchi",
+     1
+    ],
+    [
+     "heliosphere:chili",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:pickled_fish",
+    1
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "minecraft:chicken",
+     2
+    ],
+    [
+     "heliosphere:scallion",
+     1
+    ],
+    [
+     "heliosphere:cucumber",
+     1
+    ],
+    [
+     "heliosphere:flour",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:roast_duck",
+    1
+   ],
+   "seconds": 40
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "minecraft:beef",
+     2
+    ],
+    [
+     "heliosphere:tomato",
+     2
+    ],
+    [
+     "minecraft:potato",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:beef_tomato_stew",
+    2
+   ],
+   "seconds": 30
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:steamed_rice",
+     2
+    ],
+    [
+     "minecraft:carrot",
+     1
+    ],
+    [
+     "minecraft:potato",
+     1
+    ],
+    [
+     "heliosphere:onion",
+     1
+    ],
+    [
+     "minecraft:chicken",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:curry_rice",
+    2
+   ],
+   "seconds": 20
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:mung_bean",
+     2
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:mung_bean_soup",
+    1
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:ginger",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:ginger_tea",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:tea_leaves",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:green_tea",
+    1
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:tea_leaves",
+     1
+    ],
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "heliosphere:tapioca_pearls",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     3
+    ]
+   ],
+   "output": [
+    "heliosphere:bubble_tea",
+    3
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:soybean",
+     2
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:soy_milk",
+    1
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:coffee_beans",
+     2
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:coffee",
+    1
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:grape",
+     3
+    ],
+    [
+     "minecraft:glass_bottle",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:grape_juice",
+    1
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:pineapple",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:pineapple_juice",
+    2
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "juicer",
+   "inputs": [
+    [
+     "heliosphere:strawberry",
+     2
+    ],
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:glass_bottle",
+     3
+    ]
+   ],
+   "output": [
+    "heliosphere:strawberry_milkshake",
+    3
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:sesame",
+     3
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:sesame_soup",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:sweet_potato",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:roasted_sweet_potato",
+    1
+   ],
+   "seconds": 10
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:corn",
+     1
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:popcorn",
+    4
+   ],
+   "seconds": 6
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:corn",
+     2
+    ],
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "heliosphere:butter",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     2
+    ]
+   ],
+   "output": [
+    "heliosphere:corn_chowder",
+    2
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:tomato",
+     3
+    ],
+    [
+     "heliosphere:onion",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:tomato_soup",
+    1
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     2
+    ],
+    [
+     "minecraft:egg",
+     2
+    ],
+    [
+     "heliosphere:strawberry",
+     3
+    ],
+    [
+     "minecraft:milk_bucket",
+     1
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:strawberry_cake",
+    6
+   ],
+   "seconds": 30
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     1
+    ],
+    [
+     "heliosphere:blueberry",
+     3
+    ],
+    [
+     "minecraft:sugar",
+     1
+    ],
+    [
+     "minecraft:egg",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:blueberry_pie",
+    2
+   ],
+   "seconds": 20
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     2
+    ],
+    [
+     "heliosphere:sodium_carbonate",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:soda_crackers",
+    6
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:dough",
+     1
+    ],
+    [
+     "heliosphere:tomato",
+     1
+    ],
+    [
+     "heliosphere:cheese",
+     1
+    ],
+    [
+     "heliosphere:bell_pepper",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:pizza",
+    1
+   ],
+   "seconds": 25
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:potato",
+     2
+    ],
+    [
+     "heliosphere:cooking_oil",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:fries",
+    3
+   ],
+   "seconds": 8
+  },
+  {
+   "machine": "cooking_pot",
+   "inputs": [
+    [
+     "heliosphere:noodles",
+     1
+    ],
+    [
+     "heliosphere:tomato",
+     1
+    ],
+    [
+     "heliosphere:cheese",
+     1
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ],
+    [
+     "minecraft:bowl",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:pasta",
+    1
+   ],
+   "seconds": 12
+  },
+  {
+   "machine": "wok",
+   "inputs": [
+    [
+     "minecraft:beef",
+     1
+    ],
+    [
+     "heliosphere:butter",
+     1
+    ],
+    [
+     "heliosphere:garlic",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:steak",
+    1
+   ],
+   "seconds": 10
+  }
+ ],
+ "assembly": [
+  {
+   "output": "heliosphere:oven",
+   "inputs": [
+    [
+     "heliosphere:steel_plate",
+     4
+    ],
+    [
+     "heliosphere:copper_wire",
+     4
+    ],
+    [
+     "heliosphere:circuit_board",
+     1
+    ],
+    [
+     "minecraft:glass",
+     1
+    ],
+    [
+     "minecraft:furnace",
+     1
+    ]
+   ]
+  },
+  {
+   "output": "heliosphere:grain_mill",
+   "inputs": [
+    [
+     "heliosphere:steel_plate",
+     3
+    ],
+    [
+     "heliosphere:electric_motor",
+     1
+    ],
+    [
+     "minecraft:grindstone",
+     1
+    ],
+    [
+     "minecraft:hopper",
+     1
+    ]
+   ]
+  },
+  {
+   "output": "heliosphere:juicer",
+   "inputs": [
+    [
+     "heliosphere:steel_plate",
+     2
+    ],
+    [
+     "heliosphere:electric_motor",
+     1
+    ],
+    [
+     "minecraft:glass",
+     3
+    ],
+    [
+     "heliosphere:circuit_board",
+     1
+    ]
+   ]
+  },
+  {
+   "output": "heliosphere:induction_stove",
+   "inputs": [
+    [
+     "heliosphere:steel_plate",
+     3
+    ],
+    [
+     "heliosphere:copper_wire",
+     6
+    ],
+    [
+     "heliosphere:circuit_board",
+     1
+    ],
+    [
+     "minecraft:black_stained_glass",
+     1
+    ]
+   ]
+  },
+  {
+   "output": "heliosphere:hydroponic_planter",
+   "inputs": [
+    [
+     "heliosphere:steel_plate",
+     3
+    ],
+    [
+     "heliosphere:circuit_board",
+     1
+    ],
+    [
+     "minecraft:glass",
+     2
+    ],
+    [
+     "minecraft:glowstone_dust",
+     4
+    ],
+    [
+     "minecraft:bone_meal",
+     4
+    ]
+   ]
+  }
+ ]
+}
