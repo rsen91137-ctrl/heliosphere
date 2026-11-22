@@ -44,6 +44,10 @@ public final class Jetpacks {
     public static final Map<JetpackKind, JetpackItem> ITEMS = new EnumMap<>(JetpackKind.class);
     /** Players thrusting this tick (the flight check leaves them alone). */
     public static final Set<UUID> THRUSTING = new HashSet<>();
+    /** Ticks within which a second press of the jump key lights the pack (one press is an ordinary jump). */
+    public static final int DOUBLE_TAP = 7;
+    /** Per player: jump key held last tick, tick of the last press, pack lit. */
+    private static final Map<UUID, int[]> TAPS = new java.util.HashMap<>();
 
     public static void init() {
         Reg.tab("tools");
@@ -72,6 +76,12 @@ public final class Jetpacks {
             Input in = p.getLastClientInput();
             int fuel = JetpackItem.fuel(pack);
             if (fuel < JetpackItem.TANK - JetpackItem.CANISTER && refill(p)) { fuel += JetpackItem.CANISTER; JetpackItem.setFuel(pack, fuel); }
+            int[] tap = TAPS.computeIfAbsent(p.getUUID(), u -> new int[]{0, -100, 0});
+            int now = server.getTickCount();
+            if (in.jump() && tap[0] == 0) { if (now - tap[1] <= DOUBLE_TAP) tap[2] = 1; tap[1] = now; }
+            tap[0] = in.jump() ? 1 : 0;
+            if (p.onGround() && !in.jump()) tap[2] = 0;                       // landed: the next flight needs a double tap
+            if (tap[2] == 0) continue;
             boolean up = in.jump() && !p.onGround();
             boolean hold = in.shift() && !p.onGround();                  // flying down (or hovering with jump)
             boolean side = j.kind.side > 0 && !p.onGround() && (in.forward() || in.backward() || in.left() || in.right());

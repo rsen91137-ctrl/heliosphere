@@ -161,7 +161,7 @@
   "item.heliosphere.adaptive_jetpack": "自適應噴氣背包",
   "item.heliosphere.adaptive_jetpack.desc": "任何重力下自動匹配推力，帶側推與懸停",
   "item.heliosphere.jetpack.fuel": "燃料 %s%%（身上的氫氣罐會自動補充）",
-  "item.heliosphere.jetpack.keys": "空中按住跳躍上升，潛行向下飛%s",
+  "item.heliosphere.jetpack.keys": "雙擊空格點火起飛（單擊只是普通跳躍），按住空格上升、按住潛行下降%s",
   "item.heliosphere.jetpack.keys_hold": "，移動鍵側推，跳躍+潛行懸停",
   "message.heliosphere.jetpack_too_weak": "這裡的重力 %sg 超出了這個背包的推力（最多約 %sg）",
   "message.heliosphere.point_defence_engaging": "⚠ 難度 %s 的機械堡壘防空正在攔截你的導彈！先摧毀它們樓頂的攔截陣地",
@@ -221,5 +221,7 @@
   "message.heliosphere.turret_knocked_out": "⚠ %s 被機械打癱了（%s, %s, %s）：30 秒後自動重啟，或用鋼板右鍵立刻修好",
   "message.heliosphere.turret_integrity": " · 耐久 %s/%s",
   "message.heliosphere.turret_down": " · §c已癱瘓，%3$s 秒後重啟§r（耐久 %1$s/%2$s）",
-  "message.heliosphere.turret_repaired": "防禦塔已修復：耐久 %s/%s"
+  "message.heliosphere.turret_repaired": "防禦塔已修復：耐久 %s/%s",
+  "item.heliosphere.jetpack.winged": "已裝鞘翅：鞘翅滑翔，按住空格靠噴氣上升（空手右鍵背包取下鞘翅）",
+  "item.heliosphere.jetpack.wingless": "在物品欄裡把鞘翅點到背包上即可裝上，兩者一起用"
 }

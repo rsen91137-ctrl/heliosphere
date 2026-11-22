@@ -22,18 +22,35 @@ public final class JetpackClient {
         ClientTickEvents.START_CLIENT_TICK.register(JetpackClient::tick);
     }
 
+    /** Double tap of the jump key: the pack lights. One tap is an ordinary jump. */
+    private static boolean wasJump, lit;
+    private static int lastTap = -100, clock;
+
     private static void tick(Minecraft mc) {
         LocalPlayer p = mc.player;
         if (p == null || mc.level == null || mc.isPaused()) return;
+        clock++;
         JetpackItem j = Jetpacks.worn(p);
-        if (j == null || p.getAbilities().flying || p.isPassenger() || p.isInWater() || p.isFallFlying()) return;
-        if (JetpackItem.fuel(p.getItemBySlot(EquipmentSlot.CHEST)) <= 0) return;
-        JetpackKind k = j.kind;
         var keys = p.input.keyPresses;
+        boolean tap = keys.jump() && !wasJump;
+        wasJump = keys.jump();
+        if (j == null || p.getAbilities().flying || p.isPassenger() || p.isInWater()) { lit = false; return; }
+        if (tap) { if (clock - lastTap <= Jetpacks.DOUBLE_TAP) lit = true; lastTap = clock; }
+        if (p.onGround() && !keys.jump()) lit = false;                  // landed: the next flight needs a double tap again
+        if (!lit || JetpackItem.fuel(p.getItemBySlot(EquipmentSlot.CHEST)) <= 0) return;
+        JetpackKind k = j.kind;
         boolean air = !p.onGround();
         double g = 0.08 * Environment.gravity(mc.level);
         Vec3 v = p.getDeltaMovement();
         double vx = v.x, vy = v.y, vz = v.z;
+        if (p.isFallFlying()) {                                          // gliding on the fitted elytra: the jump key climbs
+            if (keys.jump()) {
+                double a = k.thrust(g / 0.08) * 0.8;
+                if (vy < k.maxRise) vy = Math.min(k.maxRise, vy + a);
+                p.setDeltaMovement(vx, vy, vz);
+            }
+            return;
+        }
         if (keys.jump() && keys.shift() && air && k.hold) {      // hold still: cancel the fall and most drift
             vy = vy * 0.6 + g;
             vx *= 0.85; vz *= 0.85;

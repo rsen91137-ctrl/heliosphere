@@ -161,7 +161,7 @@
   "item.heliosphere.adaptive_jetpack": "Adaptive Jetpack",
   "item.heliosphere.adaptive_jetpack.desc": "Matches its thrust to any gravity, with side thrusters and hold",
   "item.heliosphere.jetpack.fuel": "Fuel %s%% (hydrogen canisters you carry refill it)",
-  "item.heliosphere.jetpack.keys": "Hold jump in the air to climb, sneak to fly down%s",
+  "item.heliosphere.jetpack.keys": "Double-tap jump to light the pack (one tap is a normal jump); hold jump to climb, sneak to descend%s",
   "item.heliosphere.jetpack.keys_hold": ", movement keys push you sideways, jump + sneak to hover",
   "message.heliosphere.jetpack_too_weak": "Gravity here (%s g) is beyond this pack (about %s g at most)",
   "message.heliosphere.point_defence_engaging": "⚠ A difficulty %s machine fortress is shooting down your missile! Destroy the launchers on its roofs first",
@@ -221,5 +221,7 @@
   "message.heliosphere.turret_knocked_out": "⚠ %s was knocked out by the machines (%s, %s, %s): it restarts in 30 seconds, or use a steel plate on it to repair it now",
   "message.heliosphere.turret_integrity": " · integrity %s/%s",
   "message.heliosphere.turret_down": " · §cknocked out, restarts in %3$s s§r (integrity %1$s/%2$s)",
-  "message.heliosphere.turret_repaired": "Turret repaired: integrity %s/%s"
+  "message.heliosphere.turret_repaired": "Turret repaired: integrity %s/%s",
+  "item.heliosphere.jetpack.winged": "Elytra fitted: glide on the wings, hold jump to climb on thrust (right-click the pack with an empty hand to take the elytra off)",
+  "item.heliosphere.jetpack.wingless": "Click an elytra onto the pack in your inventory to fit it and use both"
 }
