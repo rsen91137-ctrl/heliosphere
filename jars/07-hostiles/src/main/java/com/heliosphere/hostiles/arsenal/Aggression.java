@@ -77,13 +77,13 @@ public final class Aggression {
         if (turret == null) { m.turretCd = 20; return; }
         Vec3 at = Vec3.atCenterOf(turret.getBlockPos()).add(0, 0.3, 0);
         boolean nearer = at.distanceToSqr(eye) < t.distanceToSqr(mob);
-        if (m.noSight == 0 && !nearer && level.random.nextInt(3) != 0) { m.turretCd = 20; return; }
+        if (m.noSight == 0 && !nearer && level.random.nextInt(2) != 0) { m.turretCd = 20; return; }   // half the fire on turrets even with the player in sight
         boolean emp = "emp_spider".equals(r.id());
         boolean heavy = r.mode() == 2 || r.mode() == EnemyRoster.MORTAR || r.mode() == EnemyRoster.TITAN || r.mode() == EnemyRoster.PLASMA;
         CombatVfx.send(level, emp ? CombatVfx.BEAM : CombatVfx.TRACER, emp ? 0x80C0FF : 0xFF5030, eye, at, heavy ? 2.4f : 1.4f);
         if (heavy) CombatVfx.send(level, CombatVfx.EXPLOSION, 0xFFB060, at, at, 0.9f);
         level.playSound(null, mob.blockPosition(), heavy ? SoundEvents.GENERIC_EXPLODE.value() : SoundEvents.FIREWORK_ROCKET_BLAST, SoundSource.HOSTILE, 1.0f, heavy ? 1.5f : 1.2f);
-        turret.damage(level, Math.max(4, r.damage()) * (emp ? 3f : heavy ? 1.5f : 1f));
+        turret.damage(level, Math.max(4, r.damage()) * (emp ? 3f : heavy ? 1.5f : 1f) * (mob.getTags().contains("heliosphere.siege") ? 1.5f : 1f));
         turretShots++;
         m.turretCd = Math.max(25, (int) (r.interval() * 1.2f));
     }

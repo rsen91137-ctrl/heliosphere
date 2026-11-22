@@ -428,6 +428,7 @@ public final class Sieges implements ModInitializer {
             case ONSLAUGHT -> 5 + d / 2;
             case AIRBORNE -> 3 + d / 2;
         };
+        if (d >= 8) n += n * (d - 7) / 6;                        // hard sieges: up to two thirds more machines a wave at difficulty 11+
         if (s.big) n = n * 3 / 2 + 1;                             // a counter-attack: half as many again
         int stage = com.heliosphere.hostiles.arsenal.Evolution.stage(l.getServer().overworld().getDayTime() / 24000L);
         if (stage >= 10) n += n * (stage - 9) / 10;              // the last months: up to half as many again by stage 15
@@ -496,6 +497,23 @@ public final class Sieges implements ModInitializer {
         return new String[]{"east", "south", "west", "north"}[i];
     }
 
+    private static final net.minecraft.resources.Identifier HARDENED = net.minecraft.resources.Identifier.fromNamespaceAndPath("heliosphere", "siege_hardened");
+
+    /**
+     * Siege machines grow with the siege's difficulty: from difficulty 6 each level adds 12 % health (difficulty 11:
+     * +72 %), bosses excepted, on top of the evolution's toughening. No extra armour: past about 20 armour vanilla
+     * cuts small hits by 80 % and the turrets would do nothing.
+     */
+    static void hardened(TechMob m, int difficulty) {
+        if (difficulty <= 5 || (m.role() != null && EnemyRoster.BOSSES.contains(m.role().id()))) return;
+        var hp = m.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+        if (hp != null && hp.getModifier(HARDENED) == null) {
+            hp.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(HARDENED, 0.12 * (difficulty - 5),
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+            m.setHealth(m.getMaxHealth());
+        }
+    }
+
     private static void spawn(Siege s, ServerPlayer p, String id, double a, double dist, boolean pod) {
         ServerLevel l = s.level;
         boolean ground = !pod && !id.contains("drone") && !id.equals("hive_carrier") && !id.equals("strike_jet");
@@ -524,6 +542,7 @@ public final class Sieges implements ModInitializer {
             TechMob m = TechCombat.spawn(l, id, x + 0.5, sy, z + 0.5, p);
             if (m == null) { spawnFails++; return; }
             m.addTag(TAG);
+            hardened(m, s.difficulty);
             if (m instanceof Mob mob) mob.setTarget(p);
             if (pod) {
                 m.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 160, 0, false, false));

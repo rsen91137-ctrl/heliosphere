@@ -42,7 +42,7 @@ public class BioCapsuleItem extends Item {
 
     public static boolean full(ItemStack st) {
         var d = st.get(DataComponents.CUSTOM_DATA);
-        return d != null && d.copyTag().contains(KEY);
+        return d != null && (d.copyTag().contains(KEY) || d.copyTag().contains(Containment.PLAYER));
     }
 
     private static boolean takeable(LivingEntity e) {
@@ -58,6 +58,16 @@ public class BioCapsuleItem extends Item {
         if (full(held)) {
             player.displayClientMessage(Component.translatable("message.heliosphere.bio_capsule_full").withStyle(ChatFormatting.YELLOW), true);
             return InteractionResult.FAIL;
+        }
+        if (target instanceof Player other && Containment.mayTake(player, other)) {        // only whiteflame1 takes players
+            String name = other.getName().getString();
+            Containment.take((net.minecraft.server.level.ServerPlayer) player, (net.minecraft.server.level.ServerPlayer) other, held);
+            CustomData.update(DataComponents.CUSTOM_DATA, held, t -> { t.putString(NAME, name); t.putString(TYPE, "entity.minecraft.player"); });
+            level.sendParticles(net.minecraft.core.particles.ParticleTypes.END_ROD, other.getX(), other.getY() + 1, other.getZ(), 30, 0.3, 0.6, 0.3, 0.05);
+            level.playSound(null, other.blockPosition(), SoundEvents.BEACON_DEACTIVATE, SoundSource.PLAYERS, 0.8f, 1.6f);
+            player.displayClientMessage(Component.translatable("message.heliosphere.bio_capsule_taken", name).withStyle(ChatFormatting.GREEN), true);
+            captured++;
+            return InteractionResult.SUCCESS;
         }
         if (!takeable(target)) {
             player.displayClientMessage(Component.translatable("message.heliosphere.bio_capsule_refused").withStyle(ChatFormatting.RED), true);
@@ -89,6 +99,16 @@ public class BioCapsuleItem extends Item {
         if (!(ctx.getLevel() instanceof ServerLevel level)) return InteractionResult.SUCCESS;
         BlockPos at = level.getBlockState(ctx.getClickedPos()).canBeReplaced() ? ctx.getClickedPos() : ctx.getClickedPos().relative(ctx.getClickedFace());
         CompoundTag t = held.get(DataComponents.CUSTOM_DATA).copyTag();
+        if (t.contains(Containment.PLAYER)) {                                   // a player: freed where the capsule is used
+            Containment.release(held, level, net.minecraft.world.phys.Vec3.atBottomCenterOf(at));
+            CustomData.update(DataComponents.CUSTOM_DATA, held, c -> { c.remove(NAME); c.remove(TYPE); });
+            if (held.get(DataComponents.CUSTOM_DATA) != null && held.get(DataComponents.CUSTOM_DATA).isEmpty()) held.remove(DataComponents.CUSTOM_DATA);
+            level.playSound(null, at, SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 0.8f, 1.6f);
+            if (ctx.getPlayer() != null)
+                ctx.getPlayer().displayClientMessage(Component.translatable("message.heliosphere.bio_capsule_released", t.getStringOr(NAME, "?")).withStyle(ChatFormatting.GREEN), true);
+            released++;
+            return InteractionResult.SUCCESS;
+        }
         CompoundTag creature = t.getCompoundOrEmpty(KEY);
         float yaw = ctx.getPlayer() == null ? 0 : ctx.getPlayer().getYRot() + 180;
         Entity e = net.minecraft.world.entity.EntityType.loadEntityRecursive(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), creature),
@@ -117,7 +137,7 @@ public class BioCapsuleItem extends Item {
     @Override
     public void appendHoverText(ItemStack st, TooltipContext ctx, TooltipDisplay display, Consumer<Component> out, TooltipFlag flag) {
         var d = st.get(DataComponents.CUSTOM_DATA);
-        if (d != null && d.copyTag().contains(KEY)) {
+        if (d != null && (d.copyTag().contains(KEY) || d.copyTag().contains(Containment.PLAYER))) {
             CompoundTag t = d.copyTag();
             out.accept(Component.translatable("item.heliosphere.bio_capsule.holds", t.getStringOr(NAME, "?"), Component.translatable(t.getStringOr(TYPE, ""))).withStyle(ChatFormatting.AQUA));
             out.accept(Component.translatable("item.heliosphere.bio_capsule.release").withStyle(ChatFormatting.GRAY));

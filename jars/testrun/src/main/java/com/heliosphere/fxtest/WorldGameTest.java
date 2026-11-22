@@ -82,6 +82,9 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "aggro" -> aggro(ctx, sp);
                     case "aggro2" -> aggro2(ctx, sp);
                     case "food" -> food(ctx, sp);
+                    case "starch" -> starch(ctx, sp);
+                    case "capsule" -> capsule(ctx, sp);
+                    case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
                         cmd(sp, "execute in minecraft:overworld run tp @p 12200 140 12200");
@@ -2149,6 +2152,7 @@ public class WorldGameTest implements FabricClientGameTest {
         });
         ctx.waitTicks(40);
         shot(ctx, "food_synthesizer");
+        ctx.runOnClient(mc -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs) mc.gameMode.handleInventoryButtonClick(cs.getMenu().containerId, 0); });
         for (int k = 0; k < 50; k++) {
             ctx.waitTicks(10);
             server(sp, s -> { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); be.setEnergy(be.capacity()); });
@@ -2167,6 +2171,7 @@ public class WorldGameTest implements FabricClientGameTest {
             be.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.POTATO, 2));
             be.setItem(2, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.CARROT, 2));
         });
+        ctx.runOnClient(mc -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs) mc.gameMode.handleInventoryButtonClick(cs.getMenu().containerId, 0); });
         for (int k = 0; k < 60; k++) {
             ctx.waitTicks(10);
             server(sp, s -> { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0], o[1], o[2])); be.setEnergy(be.capacity()); });
@@ -2203,6 +2208,191 @@ public class WorldGameTest implements FabricClientGameTest {
         shot(ctx, "food_meals");
         ctx.runOnClient(mc -> mc.setScreen(null));
         server(sp, s -> player(s).getInventory().clearContent());
+    }
+
+    /** Day 312, a difficulty-11 assault against four Mk III turrets: how the machines hold up now. */
+    private void siege11(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 15600 140 15600");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            l.setDayTime(312L * 24000 + 6000);
+            o[0] = p.getBlockX(); o[2] = p.getBlockZ();
+            o[1] = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(5000);
+            p.setHealth(5000);
+            var kinds = new com.heliosphere.planets.defense.mk.TurretKind[]{com.heliosphere.planets.defense.mk.TurretKind.LASER, com.heliosphere.planets.defense.mk.TurretKind.AUTOCANNON,
+                    com.heliosphere.planets.defense.mk.TurretKind.RAIL, com.heliosphere.planets.defense.mk.TurretKind.MISSILE};
+            int[][] at = {{-4, -4}, {4, -4}, {-4, 4}, {4, 4}};
+            for (int k = 0; k < 4; k++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + at[k][0], o[1], o[2] + at[k][1]);
+                l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(kinds[k]).defaultBlockState(), 3);
+                var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                be.adopt(be.capacity(), 3, p.getUUID());
+                be.setEnergy(be.capacity());
+            }
+        });
+        cmd(sp, "execute as @p at @s run hssiege assault 11");
+        for (int k = 0; k < 8; k++) {
+            ctx.waitTicks(200);
+            int kk = k;
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = s.overworld();
+                var mobs = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(120));
+                StringBuilder b = new StringBuilder();
+                for (int i = 0; i < Math.min(3, mobs.size()); i++) b.append(' ').append(mobs.get(i).role().id()).append(' ').append((int) mobs.get(i).getHealth()).append('/').append((int) mobs.get(i).getMaxHealth());
+                StringBuilder t = new StringBuilder();
+                for (var be : new java.util.ArrayList<net.minecraft.world.level.block.entity.BlockEntity>()) {}
+                int[][] at = {{-4, -4}, {4, -4}, {-4, 4}, {4, 4}};
+                for (int[] a : at) if (l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + a[0], o[1], o[2] + a[1])) instanceof com.heliosphere.planets.defense.mk.SentryBlockEntity be)
+                    t.append(' ').append((int) be.integrity()).append(be.disabled() ? "D" : "");
+                report.add("[info] siege 11 +" + (kk + 1) * 10 + " s: machines " + mobs.size() + ";" + b + "; turrets" + t + "; player " + (int) p.getHealth());
+            });
+        }
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            for (var m : s.overworld().getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(200))) m.discard();
+            p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
+    }
+
+    /** The bio capsule: a stranger cannot take a player, whiteflame1 can; the captive only watches; letting out frees them. */
+    private void capsule(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        double[] o = new double[3];
+        net.minecraft.world.item.ItemStack[] capsule = new net.minecraft.world.item.ItemStack[1];
+        cmd(sp, "execute in minecraft:overworld run tp @p 15200 140 15200");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            l.setDayTime(6000);
+            o[0] = p.getX(); o[1] = p.getY(); o[2] = p.getZ();
+            var stranger = net.fabricmc.fabric.api.entity.FakePlayer.get(l, new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "someone_else"));
+            var keeper = net.fabricmc.fabric.api.entity.FakePlayer.get(l, new com.mojang.authlib.GameProfile(java.util.UUID.randomUUID(), "whiteflame1"));
+            keeper.snapTo(p.getX() + 2, p.getY(), p.getZ(), 90, 0);
+            var item = (com.heliosphere.industry.habitat.BioCapsuleItem) com.heliosphere.industry.habitat.Habitat.CAPSULE;
+            var a = new net.minecraft.world.item.ItemStack(item);
+            stranger.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, a);
+            var r1 = item.interactLivingEntity(a, stranger, p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            report.add("[info] capsule: a stranger tries to take the player: " + r1 + ", taken " + com.heliosphere.industry.habitat.Containment.captive(p) + ", mode " + p.gameMode().getName());
+            var b = new net.minecraft.world.item.ItemStack(item);
+            keeper.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, b);
+            var r2 = item.interactLivingEntity(b, keeper, p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            capsule[0] = keeper.getItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND);
+            report.add("[info] capsule: whiteflame1 takes the player: " + r2 + ", taken " + com.heliosphere.industry.habitat.Containment.captive(p) + ", mode " + p.gameMode().getName()
+                    + ", fly speed " + p.getAbilities().getFlyingSpeed() + ", capsule full " + com.heliosphere.industry.habitat.BioCapsuleItem.full(capsule[0]));
+        });
+        ctx.waitTicks(20);
+        server(sp, s -> player(s).teleportTo(o[0] + 30, o[1] + 10, o[2]));      // try to get away
+        ctx.waitTicks(20);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            report.add("[info] capsule: teleported 30 blocks away, 1 s later the captive is " + String.format("%.1f", Math.sqrt(p.distanceToSqr(o[0] + 2, o[1] + 1, o[2]))) + " blocks from the capsule, spectator " + p.isSpectator());
+        });
+        look(ctx, 0, 20);
+        shot(ctx, "capsule_captive_view");
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            boolean freed = com.heliosphere.industry.habitat.Containment.release(capsule[0], s.overworld(), new net.minecraft.world.phys.Vec3(o[0], o[1], o[2] + 3));
+            report.add("[info] capsule: let out: " + freed + ", taken " + com.heliosphere.industry.habitat.Containment.captive(p) + ", mode " + p.gameMode().getName()
+                    + ", fly speed " + p.getAbilities().getFlyingSpeed() + ", at " + String.format("%.1f %.1f %.1f", p.getX() - o[0], p.getY() - o[1], p.getZ() - o[2]));
+        });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /**
+     * Starch from CO2: the reactor makes starch from a CO2 canister and a water bucket; the synthesizer, told which dish
+     * by a click in its recipe list, makes starch-made bread from starch alone, feeding one shank less.
+     */
+    private void starch(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 14800 140 14800");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = s.overworld();
+            l.setDayTime(6000);
+            var pos = p.blockPosition().offset(2, 0, 0);
+            o[0] = pos.getX(); o[1] = pos.getY(); o[2] = pos.getZ();
+            for (int dx = -1; dx <= 6; dx++) { l.setBlock(pos.offset(dx, -1, 0), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 3);
+                for (int dy = 0; dy < 6; dy++) l.setBlock(pos.offset(dx, dy, 0), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3); }
+            l.setBlock(pos, com.heliosphere.industry.kitchen.Starch.REACTOR_BLOCK.defaultBlockState(), 3);
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(pos);
+            be.setEnergy(be.capacity());
+            be.setItem(0, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("canister_co2"), 2));
+            be.setItem(1, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.WATER_BUCKET));
+            var air = pos.offset(4, 0, 0);                        // a second reactor with only a water bucket: open-air capture
+            l.setBlock(air, com.heliosphere.industry.kitchen.Starch.REACTOR_BLOCK.defaultBlockState(), 3);
+            var be2 = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(air);
+            be2.setEnergy(be2.capacity());
+            be2.setItem(0, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.WATER_BUCKET));
+            p.openMenu(be);
+            com.heliosphere.core.machine.MachineType.ensureLoaded();
+            report.add("[info] starch reactor recipes " + com.heliosphere.industry.kitchen.Starch.REACTOR.recipes().size() + ", synthesizer recipes "
+                    + com.heliosphere.industry.kitchen.Kitchen.SYNTHESIZER.recipes().size());
+        });
+        ctx.waitTicks(30);
+        shot(ctx, "starch_reactor");
+        for (int k = 0; k < 52; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { for (int dx : new int[]{0, 4}) { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0] + dx, o[1], o[2])); be.setEnergy(be.capacity()); } });
+        }
+        server(sp, s -> {
+            for (int dx : new int[]{0, 4}) {
+                var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0] + dx, o[1], o[2]));
+                StringBuilder b = new StringBuilder();
+                for (int k = 0; k < be.getContainerSize(); k++) if (!be.getItem(k).isEmpty()) b.append(" [").append(k).append("] ").append(be.getItem(k));
+                report.add("[info] starch reactor " + (dx == 0 ? "with CO2 canisters and a water bucket" : "with only a water bucket (open air)") + ", 26 s:" + b);
+            }
+        });
+        ctx.runOnClient(mc -> mc.setScreen(null));
+        // the synthesizer: 20 starch, the starch-made bread chosen in its list
+        int[] breadIndex = {-1};
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            var pos = new net.minecraft.core.BlockPos(o[0] + 2, o[1], o[2]);
+            l.setBlock(pos, com.heliosphere.industry.kitchen.Kitchen.BLOCK.defaultBlockState(), 3);
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(pos);
+            be.setEnergy(be.capacity());
+            be.setItem(0, new net.minecraft.world.item.ItemStack(com.heliosphere.industry.kitchen.Starch.STARCH, 20));
+            var list = com.heliosphere.industry.kitchen.Kitchen.SYNTHESIZER.recipes();
+            for (int i = 0; i < list.size(); i++)
+                if (list.get(i).outputs.get(0).stack().is(net.minecraft.world.item.Items.BREAD) && list.get(i).inputs.size() == 1) breadIndex[0] = i;
+            p.openMenu(be);
+        });
+        ctx.waitTicks(40);
+        server(sp, s -> {
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 2, o[1], o[2]));
+            report.add("[info] synthesizer with 20 starch, nothing chosen, 2 s: starch left " + be.getItem(0).getCount() + ", output " + be.getItem(6));
+        });
+        ctx.runOnClient(mc -> { if (mc.screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?> cs) mc.gameMode.handleInventoryButtonClick(cs.getMenu().containerId, com.heliosphere.core.machine.Startable.FIRST_RECIPE + breadIndex[0]); });
+        ctx.waitTicks(20);
+        shot(ctx, "starch_synthesizer");
+        for (int k = 0; k < 30; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> { var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 2, o[1], o[2])); be.setEnergy(be.capacity()); });
+        }
+        server(sp, s -> {
+            var be = (com.heliosphere.core.machine.MachineBlockEntity) s.overworld().getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 2, o[1], o[2]));
+            var out = be.getItem(6);
+            var food = out.get(net.minecraft.core.component.DataComponents.FOOD);
+            report.add("[info] bread chosen (entry " + breadIndex[0] + "), 15 s: starch left " + be.getItem(0).getCount() + ", output " + out + " named '" + out.getHoverName().getString()
+                    + "', food " + (food == null ? "-" : food.nutrition() + "/" + food.saturation()) + " (real bread 5/6.0), armed " + ((com.heliosphere.core.machine.Startable) be).heliosphere$armed());
+            ServerPlayer p = player(s);
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.getFoodData().setFoodLevel(4);
+            out.copyWithCount(1).finishUsingItem(s.overworld(), p);
+            report.add("[info] eating one starch-made bread: hunger 4 -> " + p.getFoodData().getFoodLevel());
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+        });
+        ctx.runOnClient(mc -> mc.setScreen(null));
     }
 
     /**

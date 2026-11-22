@@ -4,6 +4,7 @@
     {
       "id": "heliosphere:food_synthesizer",
       "required": false
-    }
+    },
+    "heliosphere:starch_reactor"
   ]
 }

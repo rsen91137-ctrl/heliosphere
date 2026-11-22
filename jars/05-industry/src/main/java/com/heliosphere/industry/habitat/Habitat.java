@@ -34,6 +34,7 @@ public final class Habitat implements ModInitializer {
                 .isValidSpawn((s, l, p, t) -> false).isRedstoneConductor((s, l, p) -> false).isSuffocating((s, l, p) -> false).isViewBlocking((s, l, p) -> false));
         EMITTER_ENTITY = Reg.blockEntity("habitat_field_emitter", HabitatEmitterBlockEntity::new, EMITTER);
         CAPSULE = Reg.item("bio_capsule", BioCapsuleItem::new, new Item.Properties().stacksTo(1));
+        Containment.init();
         LifeSupport.init();
         MachineType.addProvider(Habitat::recipes);
     }

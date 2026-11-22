@@ -3,6 +3,13 @@
   "minVersion": "0.8",
   "package": "com.heliosphere.industry.habitat.mixin",
   "compatibilityLevel": "JAVA_21",
-  "mixins": ["HabitatEnvironmentMixin", "HabitatGravityMixin", "HabitatFallMixin"],
-  "injectors": {"defaultRequire": 1}
+  "mixins": [
+    "HabitatEnvironmentMixin",
+    "HabitatGravityMixin",
+    "HabitatFallMixin",
+    "CaptiveTeleportMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
