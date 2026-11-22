@@ -1,0 +1,5 @@
+apply from: rootProject.file('jars/overlay.gradle')
+
+dependencies {
+    implementation project(path: ':jars:01-core', configuration: 'namedElements')
+}

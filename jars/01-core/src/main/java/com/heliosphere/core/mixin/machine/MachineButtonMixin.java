@@ -11,7 +11,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** The start (0) and stop (1) buttons of a machine screen ({@link Startable}), pressed on the client, handled here. */
+/**
+ * The start (0) and stop (1) buttons of a machine screen ({@link Startable}) and the entries of its recipe list
+ * ({@link Startable#FIRST_RECIPE} + index), clicked on the client, handled here.
+ */
 @Mixin(AbstractContainerMenu.class)
 public abstract class MachineButtonMixin {
     @Inject(method = "clickMenuButton", at = @At("HEAD"), cancellable = true)
@@ -25,6 +28,13 @@ public abstract class MachineButtonMixin {
             } else if (id == 1) {
                 s.heliosphere$arm(false);
                 player.displayClientMessage(Component.translatable("message.heliosphere.machine_stopped").withStyle(ChatFormatting.YELLOW), true);
+            } else if (id >= Startable.FIRST_RECIPE && id - Startable.FIRST_RECIPE < menu.machine.recipes().size()) {   // a recipe clicked in the list
+                int index = id - Startable.FIRST_RECIPE;
+                s.heliosphere$arm(true);
+                s.heliosphere$lock(Startable.CHOSEN + index);
+                var outputs = menu.machine.recipes().get(index).outputs;
+                Component what = outputs.isEmpty() ? Component.literal("?") : outputs.get(0).stack().getHoverName();
+                player.displayClientMessage(Component.translatable("message.heliosphere.machine_chosen", what).withStyle(ChatFormatting.GREEN), true);
             }
         }
         cir.setReturnValue(true);

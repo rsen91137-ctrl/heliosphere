@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "LevelRendererFxMixin",
-    "ContainerScreenAccessor"
+    "ContainerScreenAccessor",
+    "MachineScreenAccessor",
+    "MachineScreenRecipesMixin"
   ],
   "injectors": {
     "defaultRequire": 1

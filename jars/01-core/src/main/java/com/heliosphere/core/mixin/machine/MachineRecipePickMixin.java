@@ -19,7 +19,8 @@ import java.util.List;
  * recipes told apart only by where the machine stands (the planet core drill), only the first was ever tried. Now the
  * most specific recipe wins: one whose condition holds where the machine stands, then the one using the most kinds of
  * input, then the most items, then the earlier. A machine with a start button ({@link Startable}) chooses only when
- * it is pressed, and keeps to that recipe until its materials run out.
+ * it is pressed, and keeps to that recipe until its materials run out; a recipe chosen from its recipe list is made
+ * until the stop button, the machine waiting whenever the materials run short.
  */
 @Mixin(value = MachineBlockEntity.class, remap = false)
 public abstract class MachineRecipePickMixin {
@@ -34,6 +35,11 @@ public abstract class MachineRecipePickMixin {
         if (gate != null) {                                         // waits for its start button
             if (!gate.heliosphere$armed()) { cir.setReturnValue(null); return; }
             int locked = gate.heliosphere$locked();
+            if (locked >= Startable.CHOSEN) {                        // chosen from the list: that one, waiting while materials are short
+                int i = locked - Startable.CHOSEN;
+                cir.setReturnValue(i < list.size() && matches(list.get(i), type) ? list.get(i) : null);
+                return;
+            }
             if (locked >= 0) {                                       // the recipe locked in by the press, while its materials last
                 if (locked < list.size() && matches(list.get(locked), type)) cir.setReturnValue(list.get(locked));
                 else { gate.heliosphere$arm(false); cir.setReturnValue(null); }

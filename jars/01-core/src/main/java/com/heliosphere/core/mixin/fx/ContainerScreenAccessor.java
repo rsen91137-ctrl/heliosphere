@@ -10,4 +10,5 @@ public interface ContainerScreenAccessor {
     @Accessor("leftPos") int heliosphere$left();
     @Accessor("topPos") int heliosphere$top();
     @Accessor("imageWidth") int heliosphere$width();
+    @Accessor("imageHeight") int heliosphere$height();
 }

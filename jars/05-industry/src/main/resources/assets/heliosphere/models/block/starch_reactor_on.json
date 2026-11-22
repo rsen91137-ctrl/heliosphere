@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "heliosphere:block/machine/starch_reactor_top",
+    "front": "heliosphere:block/machine/starch_reactor_front_on",
+    "side": "heliosphere:block/machine/starch_reactor_side"
+  }
+}

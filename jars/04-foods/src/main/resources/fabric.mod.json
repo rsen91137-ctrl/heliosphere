@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "heliosphere_overlay_foods",
+  "version": "0",
+  "name": "Overlay for 04-foods. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
+  "entrypoints": {
+    "main": [
+      "com.heliosphere.foods.cuisine.Cuisine"
+    ],
+    "client": [
+      "com.heliosphere.foods.cuisine.client.CuisineClient"
+    ]
+  },
+  "mixins": [
+    "heliosphere-cuisine.mixins.json"
+  ]
+}

@@ -5,6 +5,7 @@ import com.heliosphere.core.machine.MachineBlock;
 import com.heliosphere.core.machine.MachineBlockEntity;
 import com.heliosphere.core.machine.MachineRecipe;
 import com.heliosphere.core.machine.MachineType;
+import com.heliosphere.core.machine.Startable;
 import com.heliosphere.industry.Industry;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Holder;
@@ -77,6 +78,8 @@ public final class Kitchen implements ModInitializer {
                 fx(MobEffects.RESISTANCE, 5 * MINUTE, 0), fx(MobEffects.ABSORPTION, 5 * MINUTE, 1), fx(MobEffects.REGENERATION, MINUTE, 0));
 
         MachineType.addProvider(Kitchen::recipes);
+        Startable.gate(MACHINE_ID);              // a start button, and the recipe list to choose from: several starch dishes share their ingredients
+        Starch.register();
     }
 
     private static MobEffectInstance fx(Holder<MobEffect> effect, int ticks, int amplifier) {

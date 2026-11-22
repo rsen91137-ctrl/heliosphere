@@ -38,9 +38,10 @@
   "advancement.heliosphere.war.diamond_rain": "Raining Diamonds",
   "advancement.heliosphere.war.diamond_rain.desc": "See diamonds fall in the depths of an ice giant",
   "button.heliosphere.machine_start": "▶ Start",
-  "button.heliosphere.machine_start.tip": "Press once everything is in: the recipe matching the inputs right now is made, again and again while the materials last, then it stops",
+  "button.heliosphere.machine_start.tip": "Press once everything is in: the recipe matching the ingredients now is chosen and made while they last, then the machine stops. Or click an entry of the recipe list on the right: only that recipe is made; the machine waits while ingredients are short and goes on when they are back, until you press ■",
   "button.heliosphere.machine_stop": "■",
-  "button.heliosphere.machine_stop.tip": "Stop (the current progress is lost, no materials are used)",
-  "message.heliosphere.machine_started": "Assembly station started: making what the inputs allow",
-  "message.heliosphere.machine_stopped": "Assembly station stopped"
+  "button.heliosphere.machine_stop.tip": "Stop and forget the chosen recipe (progress is lost, nothing is used up)",
+  "message.heliosphere.machine_started": "Started: making what the ingredients match",
+  "message.heliosphere.machine_stopped": "Stopped",
+  "message.heliosphere.machine_chosen": "Recipe chosen: %s (starts when the ingredients are in; ■ to cancel)"
 }

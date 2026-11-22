@@ -38,9 +38,10 @@
   "advancement.heliosphere.war.diamond_rain": "钻石雨",
   "advancement.heliosphere.war.diamond_rain.desc": "在冰巨星深处看见钻石落下",
   "button.heliosphere.machine_start": "▶ 开始",
-  "button.heliosphere.machine_start.tip": "把原料全部放好后按下：按此刻放入的原料选定配方开始合成，原料够就一直做下去，用完自动停止",
+  "button.heliosphere.machine_start.tip": "把原料全部放好后按下：按此刻放入的原料选定配方开始合成，原料够就一直做下去，用完自动停止。也可以直接点右边配方列表里的一项：只做那一项，原料不够时等着，补上就接着做，直到按 ■",
   "button.heliosphere.machine_stop": "■",
-  "button.heliosphere.machine_stop.tip": "停止合成（当前进度清零，原料不消耗）",
-  "message.heliosphere.machine_started": "总装台已启动：按放入的原料合成",
-  "message.heliosphere.machine_stopped": "总装台已停止"
+  "button.heliosphere.machine_stop.tip": "停止合成并取消选中的配方（当前进度清零，原料不消耗）",
+  "message.heliosphere.machine_started": "已启动：按放入的原料合成",
+  "message.heliosphere.machine_stopped": "已停止",
+  "message.heliosphere.machine_chosen": "已选定配方：%s（原料齐了就开始，按 ■ 取消）"
 }
