@@ -43,6 +43,9 @@ for i in SAM_VEHICLES + ROUNDS + ['sam_ammo_crate', 'sam_battery', 'creative_amm
 for i in SAM_PARTS: CATEGORY[i] = '零部件'
 for i in POWER + ['habitat_field_emitter', 'habitat_field_panel']: CATEGORY[i] = '机器'
 CATEGORY['bio_capsule'] = '工具装备'
+CATEGORY['tunnel_borer'] = '机器'
+CATEGORY['starch_reactor'] = '机器'
+CATEGORY['starch'] = '食物'
 CATEGORY['laoba_lunch'] = '食物'
 for i in JETPACKS + ['sam_wrench']: CATEGORY[i] = '工具装备'
 for s in ARMOUR_SETS:
@@ -60,10 +63,18 @@ SOURCES = {
     'robot_fabricator': ['机械堡垒里的机器人制造站：不能获取，摧毁它们才能攻破堡垒'],
     'creative_ammo_box': ['创造模式专用：在创造物品栏中取得；生存模式请用弹药和枪匠台'],
     'point_defence_launcher': ['只出现在 7 级以上机械堡垒的塔楼和主楼楼顶：不能获取，摧毁它'],
+    'machine_nuke_silo': ['9 级以上机械堡垒楼顶的核弹井（进化第 10 阶段起）：不能获取；倒计时内拆掉它可中止发射，掉落核弹头'],
+    'tunnel_segment': ['盾构采矿机掘进时自动嵌入隧道壁，封住水、岩浆和洞穴缺口（用镐挖下可回收）'],
+    'tunnel_lamp': ['盾构采矿机每前进 6 格在隧道顶部自动嵌一块（用镐挖下可回收）'],
 }
 SPAWNER = ['创造模式专用：放出对应的机器敌人（测试和做地图用）；生存模式里它们由机器自己派来']
 
 PURPOSES = {
+    'tunnel_borer': '「穿山甲」盾构采矿机：对地面右键放下（3×3×3 空地），右键乘坐。W 掘进 3×3 隧道，空格+W 上斜、Ctrl+W 下斜，S 后退，A/D 转向，G 自动掘进，E 面板；潜行+右键面板，潜行+左键收回（保留仓内物品和电量）。54 格收集仓、废石过滤、侧采矿脉、封堵岩浆和水、自动衬砌与照明，烧仓里的燃料充电。',
+    'tunnel_segment': '盾构管片：盾构机嵌在隧道壁上的预制混凝土块，也可以合成来当建材。',
+    'tunnel_lamp': '照明管片：带灯的盾构管片，亮度 15。',
+    'starch': '淀粉：人工光合淀粉反应器用 CO₂ 和水做出来。在食品合成机里只用淀粉就能做各种料理和主食（比正常的少一格饱食度），在汤锅里还能做珍珠粉圆和汤圆。',
+    'starch_reactor': '人工光合淀粉反应器：用电把二氧化碳（CO₂ 罐、干冰或露天空气）和水（水桶、冰）变成淀粉；CO₂ + 氢气不用水，产量最高。',
     'buk_telar': '「山毛榉-M3」发射车：6 枚 9M317MA，自带跟踪雷达（无雷达车时 96 格，联网 500 格）。对地面使用放下；空手左键上车，右键控制面板（自动/手动、敌我识别）。手动模式炮塔跟随视角，可转到任意方向发射。',
     'buk_tads': '「山毛榉-M3」雷达车：搜索半径 520 格，为 48 格内同系统的发射车提供目标。',
     'samp_tel': '「SAMP/T」紫菀-30 发射车：8 联装垂直发射，无自带传感器，需雷达车联网（500 格）。',
@@ -184,7 +195,7 @@ def recipe_files():
     """Crafting recipes of the overlays, then of the released jars (the overlays win)."""
     seen = set()
     for path in glob.glob('jars/*/src/main/resources/data/heliosphere/recipe/*.json'):
-        seen.add(os.path.basename(path)); yield json.load(open(path, encoding='utf-8'))
+        seen.add(os.path.basename(path)); r = json.load(open(path, encoding='utf-8')); r['_overlay'] = True; yield r
     for jar in sorted(glob.glob('base/*.jar')):
         z = zipfile.ZipFile(jar)
         for n in z.namelist():
@@ -204,7 +215,7 @@ def crafting():
                 counts[i] = counts.get(i, 0) + 1
             res = r['result']
             entry = {'m': '工作台（无序）', 'i': [[k, v] for k, v in counts.items()], 'o': [[res['id'], res.get('count', 1), 1.0]]}
-            if res['id'] == 'heliosphere:laoba_lunch': out.setdefault(res['id'], []).append(entry)   # only the new one: the released shapeless ones are already listed
+            if r.get('_overlay'): out.setdefault(res['id'], []).append(entry)   # the overlays' own: the released shapeless ones are already listed
             continue
         if r.get('type') != 'minecraft:crafting_shaped': continue
         key = {c: (v if isinstance(v, str) else v[0] if isinstance(v, list) and v and isinstance(v[0], str) else str(v)) for c, v in r['key'].items()}

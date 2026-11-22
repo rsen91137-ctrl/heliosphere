@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SSS",
+    "SIS",
+    "SSS"
+  ],
+  "key": {
+    "S": "minecraft:stone",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "heliosphere:tunnel_segment",
+    "count": 8
+  }
+}

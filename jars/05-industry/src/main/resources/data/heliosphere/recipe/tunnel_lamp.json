@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "heliosphere:tunnel_segment",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "heliosphere:tunnel_lamp",
+    "count": 1
+  }
+}
