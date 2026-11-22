@@ -84,6 +84,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "food" -> food(ctx, sp);
                     case "starch" -> starch(ctx, sp);
                     case "capsule" -> capsule(ctx, sp);
+                    case "borer" -> borer(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
@@ -2259,6 +2260,60 @@ public class WorldGameTest implements FabricClientGameTest {
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
             p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
         });
+    }
+
+    /** The tunnel borer bores into a wall of stone with an iron vein, a lava pocket in its way: tunnel, bin, sealing. */
+    private void borer(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        com.heliosphere.industry.borer.TunnelBorer[] b = new com.heliosphere.industry.borer.TunnelBorer[1];
+        cmd(sp, "execute in minecraft:overworld run tp @p 16000 140 16000");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            l.setDayTime(6000);
+            o[0] = p.getBlockX(); o[2] = p.getBlockZ();
+            o[1] = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            for (int dx = -4; dx <= 4; dx++) for (int dz = -2; dz <= 24; dz++) for (int dy = -1; dy <= 6; dy++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz);
+                var st = dy == -1 ? net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()
+                        : dz < 3 ? net.minecraft.world.level.block.Blocks.AIR.defaultBlockState() : net.minecraft.world.level.block.Blocks.STONE.defaultBlockState();
+                l.setBlock(pos, st, 2);
+            }
+            for (int k = 0; k < 4; k++) l.setBlock(new net.minecraft.core.BlockPos(o[0] + 3, o[1] + 1 + (k % 2), o[2] + 6 + k / 2), net.minecraft.world.level.block.Blocks.IRON_ORE.defaultBlockState(), 2);
+            l.setBlock(new net.minecraft.core.BlockPos(o[0] - 2, o[1] + 1, o[2] + 9), net.minecraft.world.level.block.Blocks.LAVA.defaultBlockState(), 3);
+            l.setBlock(new net.minecraft.core.BlockPos(o[0], o[1] + 1, o[2] + 11), net.minecraft.world.level.block.Blocks.DIAMOND_ORE.defaultBlockState(), 2);
+            b[0] = com.heliosphere.industry.borer.TunnelBorer.place(l, new net.minecraft.core.BlockPos(o[0], o[1], o[2] + 1), net.minecraft.core.Direction.SOUTH, p, false,
+                    new net.minecraft.world.item.ItemStack(com.heliosphere.industry.borer.Borers.ITEM));
+            report.add("[info] borer placed " + (b[0] != null) + " at " + (b[0] == null ? "-" : b[0].blockPosition()) + ", energy " + (b[0] == null ? 0 : b[0].energy()));
+            p.teleportTo(o[0] + 0.5, o[1] + 4, o[2] - 4.5);
+        });
+        look(ctx, 0, 25);
+        ctx.waitTicks(20);
+        shot(ctx, "borer_outside");
+        for (int k = 0; k < 14; k++) {
+            server(sp, s -> { if (b[0] != null && !b[0].busy()) b[0].stepNow(0); });
+            ctx.waitTicks(30);
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            var m = b[0];
+            if (m == null) return;
+            int lava = 0, air = 0;
+            for (int dz = 3; dz < 3 + m.dug(); dz++) for (int dx = -1; dx <= 1; dx++) for (int dy = 0; dy < 3; dy++)
+                if (l.getBlockState(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz)).isAir()) air++;
+            for (int dz = 3; dz < 15; dz++) for (int dx = -2; dx <= 2; dx++) for (int dy = -1; dy <= 3; dy++)
+                if (l.getFluidState(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz)).is(net.minecraft.tags.FluidTags.LAVA)) lava++;
+            report.add("[info] borer after 14 steps: dug " + m.dug() + ", status " + m.statusKey() + ", energy " + m.energy() + ", at " + m.blockPosition() + ", ores " + m.ores()
+                    + ", bin items " + m.itemsInBin() + " (raw iron " + m.countInBin(net.minecraft.world.item.Items.RAW_IRON) + ", diamonds " + m.countInBin(net.minecraft.world.item.Items.DIAMOND)
+                    + ", cobblestone " + m.countInBin(net.minecraft.world.item.Items.COBBLESTONE) + "), air in bored tunnel " + air + ", lava left near the tunnel " + lava);
+            ServerPlayer p = player(s);
+            m.board(p);
+        });
+        ctx.waitTicks(20);
+        look(ctx, 0, 5);
+        shot(ctx, "borer_cockpit");
+        server(sp, s -> { ServerPlayer p = player(s); p.stopRiding(); report.add("[info] borer: rode it, then got out at " + p.blockPosition()); });
     }
 
     /** The bio capsule: a stranger cannot take a player, whiteflame1 can; the captive only watches; letting out frees them. */

@@ -8,11 +8,13 @@
       "com.heliosphere.industry.power.Power",
       "com.heliosphere.industry.habitat.Habitat",
       "com.heliosphere.industry.fun.LaoBaLunch",
-      "com.heliosphere.industry.kitchen.Kitchen"
+      "com.heliosphere.industry.kitchen.Kitchen",
+      "com.heliosphere.industry.borer.Borers"
     ],
     "client": [
       "com.heliosphere.industry.power.client.PowerClient",
-      "com.heliosphere.industry.habitat.client.HabitatClient"
+      "com.heliosphere.industry.habitat.client.HabitatClient",
+      "com.heliosphere.industry.borer.client.BorerClient"
     ]
   },
   "mixins": [

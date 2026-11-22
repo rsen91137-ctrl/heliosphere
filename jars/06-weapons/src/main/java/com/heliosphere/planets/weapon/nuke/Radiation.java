@@ -2,7 +2,11 @@ package com.heliosphere.planets.weapon.nuke;
 
 import com.heliosphere.core.env.SpaceSuits;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -24,13 +28,31 @@ public final class Radiation {
         return Math.min(1, sum * 0.16f);
     }
 
-    /** Fraction of the dose that reaches the body. A sealed suit stops nearly all of it; better suits, more. */
+    /**
+     * Fraction of the dose that reaches the body. A sealed suit stops nearly all of it; better suits, more. The
+     * radiation shield food buff (heliosphere:rad_shield, foods module) lets a quarter of the rest through.
+     */
     public static float exposure(LivingEntity e) {
         if (e instanceof Player p && (p.isCreative() || p.isSpectator())) return 0;
         if (com.heliosphere.planets.weapon.armor.ArmorEffects.radiationProof(e)) return 0;
         SpaceSuits.Protection suit = SpaceSuits.of(e);
-        if (!suit.sealed()) return 1f;
-        return suit.tier() >= 3 ? 0f : suit.tier() == 2 ? 0.05f : 0.15f;
+        float through = !suit.sealed() ? 1f : suit.tier() >= 3 ? 0f : suit.tier() == 2 ? 0.05f : 0.15f;
+        Holder<MobEffect> shield = radShield();
+        if (through > 0 && shield != null && e.hasEffect(shield)) through *= 0.25f;
+        return through;
+    }
+
+    /** The radiation shield buff, looked up by id once (absent without the foods module, which this one does not need). */
+    private static Holder<MobEffect> radShield;
+    private static boolean radShieldLooked;
+
+    private static Holder<MobEffect> radShield() {
+        if (!radShieldLooked) {
+            radShield = BuiltInRegistries.MOB_EFFECT.get(Identifier.fromNamespaceAndPath("heliosphere", "rad_shield"))
+                    .<Holder<MobEffect>>map(h -> h).orElse(null);
+            radShieldLooked = true;
+        }
+        return radShield;
     }
 
     /** Applies a dose rate (0..1 after protection) for the next few seconds. */

@@ -5,6 +5,8 @@
       "id": "heliosphere:food_synthesizer",
       "required": false
     },
-    "heliosphere:starch_reactor"
+    "heliosphere:starch_reactor",
+    "heliosphere:tunnel_segment",
+    "heliosphere:tunnel_lamp"
   ]
 }
