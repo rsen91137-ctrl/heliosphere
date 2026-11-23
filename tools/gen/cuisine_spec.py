@@ -115,7 +115,7 @@ DISHES = [
     ('xiaolongbao', '小笼包', 'Xiaolongbao', 4, 0.7, [('regeneration', 10, 0)], None, 'three small pleated soup dumplings in a bamboo steamer'),
     ('dumplings', '饺子', 'Dumplings', 6, 0.7, [('heliosphere:warmth', 180, 0)], None, 'four crescent dumplings on a plate'),
     ('ramen', '拉面', 'Ramen', 10, 0.8, [('heliosphere:nourished', 120, 0), ('regeneration', 20, 0)], 'bowl', 'a bowl of noodles in broth with beef slices, half an egg and scallion'),
-    ('zhajiang_noodles', '炸酱面', 'Zhajiang Noodles', 10, 0.8, [('haste', 180, 0)], 'bowl', 'noodles topped with dark brown bean sauce and cucumber strips'),
+    ('zhajiang_noodles', '炸酱面', 'Zhajiang Noodles', 10, 0.8, [('haste', 180, 0)], None, 'noodles topped with dark brown bean sauce and cucumber strips'),
     ('egg_fried_rice', '蛋炒饭', 'Egg Fried Rice', 8, 0.7, [('speed', 120, 0)], 'bowl', 'golden fried rice with egg bits and green scallion'),
     ('yangzhou_fried_rice', '扬州炒饭', 'Yangzhou Fried Rice', 10, 0.8, [('speed', 180, 0), ('haste', 180, 0)], 'bowl', 'fried rice with egg, pink pork, yellow corn and green scallion'),
     ('zongzi', '粽子', 'Zongzi', 8, 0.8, [('heliosphere:nourished', 90, 0)], None, 'a pyramid of sticky rice wrapped in green bamboo leaves tied with string'),
@@ -128,18 +128,18 @@ DISHES = [
     ('congee', '皮蛋瘦肉粥', 'Pork Congee', 9, 0.8, [('regeneration', 20, 1), ('heliosphere:rad_shield', 120, 0)], 'bowl', 'a bowl of creamy white rice porridge with pork shreds and dark egg pieces'),
     ('pumpkin_congee', '南瓜粥', 'Pumpkin Congee', 7, 0.7, [('regeneration', 15, 0)], 'bowl', 'a bowl of smooth orange pumpkin porridge'),
     # Sichuan and home cooking
-    ('mapo_tofu', '麻婆豆腐', 'Mapo Tofu', 8, 0.8, [('heliosphere:warmth', 300, 0), ('fire_resistance', 120, 0)], 'bowl', 'white tofu cubes in glossy red chili sauce with minced pork'),
-    ('kung_pao_chicken', '宫保鸡丁', 'Kung Pao Chicken', 9, 0.8, [('strength', 180, 0)], 'bowl', 'diced chicken with peanuts and dried red chilies'),
-    ('yuxiang_pork', '鱼香肉丝', 'Yuxiang Pork', 9, 0.8, [('speed', 180, 0)], 'bowl', 'shredded pork with carrot strips in a red-brown sauce'),
+    ('mapo_tofu', '麻婆豆腐', 'Mapo Tofu', 8, 0.8, [('heliosphere:warmth', 300, 0), ('fire_resistance', 120, 0)], None, 'white tofu cubes in glossy red chili sauce with minced pork'),
+    ('kung_pao_chicken', '宫保鸡丁', 'Kung Pao Chicken', 9, 0.8, [('strength', 180, 0)], None, 'diced chicken with peanuts and dried red chilies'),
+    ('yuxiang_pork', '鱼香肉丝', 'Yuxiang Pork', 9, 0.8, [('speed', 180, 0)], None, 'shredded pork with carrot strips in a red-brown sauce'),
     ('braised_pork', '红烧肉', 'Braised Pork Belly', 12, 0.9, [('absorption', 240, 1)], 'bowl', 'glossy dark red cubes of pork belly'),
-    ('sweet_sour_ribs', '糖醋排骨', 'Sweet and Sour Ribs', 10, 0.8, [('haste', 180, 0)], 'bowl', 'glazed shiny red-brown ribs with sesame'),
-    ('tomato_egg', '番茄炒蛋', 'Tomato and Egg', 7, 0.7, [('regeneration', 30, 0)], 'bowl', 'red tomato chunks with fluffy yellow scrambled egg'),
-    ('pepper_pork', '青椒肉丝', 'Pepper Pork', 8, 0.7, [('haste', 120, 0)], 'bowl', 'green pepper strips with shredded pork'),
-    ('di_san_xian', '地三鲜', 'Di San Xian', 7, 0.7, [('resistance', 60, 0)], 'bowl', 'potato, purple eggplant and green pepper in brown sauce'),
-    ('garlic_eggplant', '鱼香茄子', 'Garlic Eggplant', 6, 0.6, [('night_vision', 120, 0)], 'bowl', 'soft purple eggplant strips in red garlic sauce'),
-    ('stir_fried_greens', '蒜蓉青菜', 'Garlic Greens', 4, 0.5, [('health_boost', 180, 0)], 'bowl', 'bright green leafy greens with garlic bits'),
+    ('sweet_sour_ribs', '糖醋排骨', 'Sweet and Sour Ribs', 10, 0.8, [('haste', 180, 0)], None, 'glazed shiny red-brown ribs with sesame'),
+    ('tomato_egg', '番茄炒蛋', 'Tomato and Egg', 7, 0.7, [('regeneration', 30, 0)], None, 'red tomato chunks with fluffy yellow scrambled egg'),
+    ('pepper_pork', '青椒肉丝', 'Pepper Pork', 8, 0.7, [('haste', 120, 0)], None, 'green pepper strips with shredded pork'),
+    ('di_san_xian', '地三鲜', 'Di San Xian', 7, 0.7, [('resistance', 60, 0)], None, 'potato, purple eggplant and green pepper in brown sauce'),
+    ('garlic_eggplant', '鱼香茄子', 'Garlic Eggplant', 6, 0.6, [('night_vision', 120, 0)], None, 'soft purple eggplant strips in red garlic sauce'),
+    ('stir_fried_greens', '蒜蓉青菜', 'Garlic Greens', 4, 0.5, [('health_boost', 180, 0)], None, 'bright green leafy greens with garlic bits'),
     ('hot_sour_soup', '酸辣汤', 'Hot and Sour Soup', 7, 0.7, [('heliosphere:warmth', 240, 0)], 'bowl', 'a dark brown soup with tofu strips and egg ribbons'),
-    ('hot_pot', '火锅', 'Hot Pot', 14, 1.0, [('heliosphere:warmth', 480, 0), ('strength', 240, 0), ('regeneration', 30, 0)], 'bowl', 'a pot split into red chili broth and white broth with meat and vegetables'),
+    ('hot_pot', '火锅', 'Hot Pot', 14, 1.0, [('heliosphere:warmth', 480, 0), ('strength', 240, 0), ('regeneration', 30, 0)], None, 'a pot split into red chili broth and white broth with meat and vegetables'),
     ('malatang', '麻辣烫', 'Malatang', 9, 0.8, [('heliosphere:warmth', 240, 0), ('speed', 60, 0)], 'bowl', 'a bowl of red spicy broth with skewered vegetables, tofu and noodles'),
     ('pickled_fish', '酸菜鱼', 'Pickled Cabbage Fish', 10, 0.8, [('water_breathing', 300, 0)], 'bowl', 'white fish slices with pickled greens and red chili in yellow broth'),
     ('roast_duck', '北京烤鸭', 'Roast Duck', 14, 1.0, [('regeneration', 30, 1), ('absorption', 300, 1)], None, 'a glossy mahogany roast bird on a plate with pancakes'),
@@ -297,6 +297,7 @@ r('cooking_pot', [('tomato', 3), ('onion', 1), ('minecraft:bowl', 1)], 'tomato_s
 r('oven', [('flour', 2), ('minecraft:egg', 2), ('strawberry', 3), ('minecraft:milk_bucket', 1), ('minecraft:sugar', 1)], 'strawberry_cake', 6, 30)
 r('oven', [('flour', 1), ('blueberry', 3), ('minecraft:sugar', 1), ('minecraft:egg', 1)], 'blueberry_pie', 2, 20)
 r('oven', [('flour', 2), ('heliosphere:sodium_carbonate', 1), ('table_salt', 1)], 'soda_crackers', 6, 15)
+r('oven', [('flour', 2), ('heliosphere:caustic_soda', 1), ('table_salt', 1)], 'soda_crackers', 4, 15)   # Earth's soda from the electrolyzer: acid rain starts on Earth
 # western
 r('oven', [('dough', 1), ('tomato', 1), ('cheese', 1), ('bell_pepper', 1)], 'pizza', 1, 25)
 r('crafting', [('minecraft:bread', 1), ('minecraft:cooked_beef', 1), ('lettuce', 1), ('tomato', 1), ('cheese', 1)], 'hamburger', 1)

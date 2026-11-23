@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -60,6 +61,8 @@ public final class Cuisine implements ModInitializer {
     public static final String TIP_PLANTER = "tooltip.heliosphere.hydroponic_planter";
     /** Right-click message of the stove and the planter: block name, stored FE, capacity. */
     public static final String MSG_STORED = "message.heliosphere.cuisine.stored";
+    /** Shown where a language file lacks {@link #MSG_STORED} (the en_us text). */
+    static final String MSG_STORED_FALLBACK = "%s · Charge %s / %s FE";
 
     /** Id of the block entity type all cookware machines share. */
     public static final String MACHINE_BE_ID = "cuisine_machine";
@@ -135,7 +138,9 @@ public final class Cuisine implements ModInitializer {
             if (m.gated()) Startable.gate(m.id());
             MACHINES.put(m.id(), type);
 
-            CookwareBlock block = Reg.block(m.id(), p -> new CookwareBlock(p, m.id(), () -> MACHINE_BE, m.heat(), m.gated()),
+            // heat machines cook on what they stand on: their recipes take no power (see recipes())
+            boolean usesPower = !m.heat() && m.power() > 0;
+            CookwareBlock block = Reg.block(m.id(), p -> new CookwareBlock(p, m.id(), () -> MACHINE_BE, m.heat(), m.gated(), usesPower),
                     cookwareProperties(m.id(), CookwareBlock.fullCube(m.id())));
             List<String> hints = new ArrayList<>();
             if (m.heat()) hints.add(TIP_HEAT);
@@ -236,10 +241,14 @@ public final class Cuisine implements ModInitializer {
         }
     }
 
+    /** Ingredients made into a glass bottle: using one in a recipe gives the bottle back. */
+    private static final java.util.Set<String> BOTTLED = java.util.Set.of("soy_sauce", "vinegar", "cooking_oil");
+
     private static void registerIngredients() {
         for (CuisineTable.Ingredient i : TABLE.ingredients()) {
             Item.Properties p = new Item.Properties();
             if (i.food() != null) edible(p, i.food(), false, servedIn(i.id()), List.of());
+            if (BOTTLED.contains(i.id())) p.craftRemainder(net.minecraft.world.item.Items.GLASS_BOTTLE);   // the sauce is used, the bottle comes back
             Item item = Reg.item(i.id(), Item::new, p);
             INGREDIENTS.put(i.id(), item);
             put(i.id(), item);
@@ -408,10 +417,13 @@ public final class Cuisine implements ModInitializer {
         return null;
     }
 
-    /** Tells {@code player} how much a stove or planter holds. */
+    /**
+     * Tells {@code player} how much a stove or planter holds. The numbers are formatted here on the server, so in a
+     * fixed locale (a dedicated server's default locale is anybody's guess).
+     */
     static void showCharge(Player player, Block block, EnergyNode node) {
-        player.displayClientMessage(Component.translatable(MSG_STORED, block.getName(),
-                String.format("%,d", node.energy()), String.format("%,d", node.capacity())).withStyle(ChatFormatting.AQUA), true);
+        player.displayClientMessage(Component.translatableWithFallback(MSG_STORED, MSG_STORED_FALLBACK, block.getName(),
+                String.format(Locale.ROOT, "%,d", node.energy()), String.format(Locale.ROOT, "%,d", node.capacity())).withStyle(ChatFormatting.AQUA), true);
     }
 
     /** Every item of the expansion by id, read-only. */

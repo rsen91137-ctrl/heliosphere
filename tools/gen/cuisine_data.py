@@ -32,22 +32,25 @@ NS = 'heliosphere'
 # Player-facing descriptions of the food buffs (effect.heliosphere.<id>.desc), from the notes in S.EFFECTS.
 EFFECT_DESC = {
     'warmth': ('免疫撞击冬季的霜冻，在细雪中也不会冻僵', 'Immune to the frost of the impact winter and to freezing in powder snow'),
-    'rad_shield': ('身体受到的辐射剂量减为四分之一', 'Cuts the radiation dose reaching the body to a quarter'),
+    'rad_shield': ('核爆辐射尘对身体的剂量减为四分之一', 'Cuts the dose from nuclear fallout reaching the body to a quarter'),
     'acid_shield': ('酸雨不再造成伤害', 'Acid rain does no harm'),
-    'nourished': ('饥饿值不会下降', 'Hunger does not drop'),
+    'nourished': ('跑跳、挖掘、战斗都不消耗饥饿值（自然回血仍会消耗）', 'Running, mining and fighting use no hunger (healing still does)'),
 }
 
 # Keys the Java side reads besides the item / block / effect names (zh_cn, en_us; zh_tw is converted).
+# Vanilla names are the game's own: lava is 熔岩 (岩浆块 is the magma block), powder snow 细雪 (粉雪 in zh_tw).
 FIXED = [
-    ('tooltip.heliosphere.cuisine.heat', '放在热源上使用：营火、火、岩浆、岩浆块、点燃的熔炉/烟熏炉/高炉或电磁炉',
-     'Place it on a heat source: campfire, fire, lava, magma block, a lit furnace/smoker/blast furnace or an induction stove'),
+    ('tooltip.heliosphere.cuisine.heat', '放在热源上使用：营火、火、熔岩、岩浆块、点燃的熔炉/烟熏炉/高炉或通电的电磁炉',
+     'Place it on a heat source: a campfire, fire, lava, a magma block, a lit furnace/smoker/blast furnace or a powered induction stove'),
     ('condition.heliosphere.needs_heat', '需要热源', 'Needs heat below'),
     ('tooltip.heliosphere.cuisine.tool', '合成时留在合成格里，每次消耗 1 点耐久', 'Stays in the crafting grid, losing 1 durability per use'),
     ('tooltip.heliosphere.cuisine.choose', '放好食材后，点右侧配方列表里的菜开始做（或按 ▶）',
      'Put the ingredients in, then click the dish in the recipe list (or press ▶)'),
-    ('tooltip.heliosphere.seed_packet', '右键打开：随机得到 3 包作物种子', 'Right-click: three random crop seeds'),
-    ('tooltip.heliosphere.hydroponic_planter', '作物直接种在上面，不需要耕地和水；通电（8 FE/t）时长得更快并发光',
-     'Plant crops right on it, no farmland or water needed; grows faster and gives light while powered (8 FE/t)'),
+    ('tooltip.heliosphere.seed_packet', '右键打开：随机得到 3 粒作物种子', 'Right-click: three random crop seeds'),
+    ('tooltip.heliosphere.hydroponic_planter', '作物直接种在上面，不需要耕地和水；通电（8 FE/t）后作物长得更快，种植槽也会发光',
+     'Plant crops right on it, no farmland or water needed; while powered (8 FE/t) they grow faster and it gives light'),
+    # right-click on the stove or the planter with an empty hand: block name, stored FE, capacity (Cuisine.showCharge)
+    ('message.heliosphere.cuisine.stored', '%s · 电量 %s / %s FE', '%s · Charge %s / %s FE'),
     ('tooltip.heliosphere.induction_stove', '通电后作为炒锅、汤锅、蒸笼的热源（烹饪时 12 FE/t）',
      'Powered, it heats a wok, pot or steamer on top (12 FE/t while cooking)'),
     ('screen.heliosphere.cuisine.heat_ok', '热源：有', 'Heat: yes'),
@@ -62,9 +65,14 @@ EXTRA = []
 # that converts differently by meaning (面 noodle/surface, 干, 卷, 卜 ...) is in neither table and must be covered by a
 # word, so a new name with it fails here instead of being converted wrongly.
 TW_WORDS = {
-    '面粉': '麵粉', '面团': '麵糰', '面条': '麵條', '拉面': '拉麵', '炸酱面': '炸醬麵', '意面': '意麵', '擀面杖': '擀麵杖',
+    '面粉': '麵粉', '面团': '麵糰', '面条': '麵條', '拉面': '拉麵', '炸酱面': '炸醬麵', '擀面杖': '擀麵杖',
     '上面': '上面', '萝卜': '蘿蔔', '饼干': '餅乾', '春卷': '春捲', '咖喱': '咖哩', '御寒': '禦寒',
     '细雪': '粉雪',  # powder snow: the block's name in the Taiwanese game
+    # Taiwan's own words for these foods (the mainland word reads as something else there or is not used): 意麵 is a
+    # Tainan egg noodle and 奶酪 a milk pudding; pineapple is 鳳梨, yogurt 優格, butter 奶油, sweet potato 地瓜,
+    # hydroponics 水耕, raw rice 白米
+    '意面': '義大利麵', '奶酪': '起司', '菠萝': '鳳梨', '酸奶': '優格', '黄油': '奶油', '红薯': '地瓜', '水培': '水耕',
+    '大米': '白米',
 }
 TW_CHARS = dict(zip(
     '丝为会伤体侧冻减击剂叶发后团圆块头姜宫并开扬时机条树汉汤没浆浓炉点烟烧烫热熏电盐种笼红细绿芦苏萝营萨葱蓝辐酱里钵锅键长随饥饪饭饱饺饼饿馒鱼鲜鸡鸭麦黄',
@@ -72,8 +80,10 @@ TW_CHARS = dict(zip(
 TW_SAME = set(
     '一丁三上下不中久之也京作使保值做僵光免再冬刀分列到包北南受右合和咖啡四在地培堡大奶好始婆子季害寒射小岩州得快意成'
     '或打抗披拉拍按排接撞擀放方明昔春更月有材杖果格植椒榨槽次每水汁沙油治泡洋派消源火炒炸烤烹煎熔燃爆牛物玉珍珠瓜生用留'
-    '番疫瘦白的皮直研磁磨稻箱米粉粥粽糊糕糖罐耐耕耗肉腐腩腹芋芝花茄茶草莓菜菠萄葡葫蒜蒸蓉蔬薯蛋表要豆身辣通造配酪酵酸醋'
+    '番疫瘦白的皮直研磁磨稻箱米粉粒粥粽糊糕糖罐耐耕耗肉腐腩腹芋芝花茄茶草莓菜菠萄葡葫蒜蒸蓉蔬薯蛋表要豆身辣通造配酪酵酸醋'
     '量降雨雪需霜青韭食香骨高麻')
+TW_CHARS.update({'尘': '塵', '战': '戰', '斗': '鬥', '对': '對', '缓': '緩'})
+TW_SAME |= set('核跑跳挖掘都自然回仍血')
 TW_WORD_KEYS = sorted(TW_WORDS, key=len, reverse=True)
 
 
@@ -181,12 +191,17 @@ def flat_items():
     return ids
 
 
+# Drawn diagonally like the vanilla tools (handle bottom left), so held like a sword or a stick, not like food.
+HANDHELD = {'kitchen_knife', 'rolling_pin'}
+
+
 def items():
     ids = flat_items()
+    assert HANDHELD <= set(ids), HANDHELD - set(ids)
     for i in ids:
         write(f'assets/{NS}/items/{i}.json', {'model': {'type': 'minecraft:model', 'model': f'{NS}:item/{i}'}})
-        write(f'assets/{NS}/models/item/{i}.json',
-              {'parent': 'minecraft:item/generated', 'textures': {'layer0': f'{NS}:item/{i}'}})
+        parent = 'minecraft:item/handheld' if i in HANDHELD else 'minecraft:item/generated'
+        write(f'assets/{NS}/models/item/{i}.json', {'parent': parent, 'textures': {'layer0': f'{NS}:item/{i}'}})
     return len(ids)
 
 

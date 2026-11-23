@@ -22,8 +22,9 @@ import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * The hydroponic planter: a crop of the expansion, or wheat, carrots, potatoes or beetroot, is planted right on it and
- * grows as on watered farmland (the tray holds the nutrient solution), needing neither farmland nor water. While it
- * holds energy it draws 8 FE/t, lights up (light 12) and gives the crop on it an extra growth tick every two seconds.
+ * grows as on watered farmland (the tray holds the nutrient solution), needing neither farmland nor water. Powered
+ * (lit), it draws 8 FE/t, gives light 12 and gives the crop on it an extra growth tick every two seconds; see
+ * {@link HydroponicPlanterBlockEntity} for when it lights up.
  */
 public class HydroponicPlanterBlock extends BaseEntityBlock {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
@@ -39,7 +40,9 @@ public class HydroponicPlanterBlock extends BaseEntityBlock {
     /**
      * What the planters under a crop at {@code cropPos} add to its growth speed (CropBlock.getGrowthSpeed): as much as
      * watered farmland would, 3 for the one right under it and 3/4 for each planter beside that one; 0 when the crop is
-     * not standing on a planter.
+     * not standing on a planter. This is before crowding: vanilla halves its whole sum when {@link #crowded} holds, and
+     * the caller halves this as well (added after the halving, a field of one crop grew twice as fast on planters as
+     * on watered farmland).
      */
     public static float growthBonus(BlockGetter level, BlockPos cropPos) {
         BlockPos below = cropPos.below();
@@ -49,6 +52,19 @@ public class HydroponicPlanterBlock extends BaseEntityBlock {
             if ((dx != 0 || dz != 0) && level.getBlockState(below.offset(dx, 0, dz)).getBlock() instanceof HydroponicPlanterBlock) bonus += 0.75f;
         }
         return bonus;
+    }
+
+    /**
+     * Whether CropBlock.getGrowthSpeed halves the growth speed of {@code crop} at {@code pos} for crowding, by the same
+     * test: the same crop beside it both east-west and north-south, or on a diagonal.
+     */
+    public static boolean crowded(Block crop, BlockGetter level, BlockPos pos) {
+        BlockPos n = pos.north(), s = pos.south(), w = pos.west(), e = pos.east();
+        boolean rowX = level.getBlockState(w).is(crop) || level.getBlockState(e).is(crop);
+        boolean rowZ = level.getBlockState(n).is(crop) || level.getBlockState(s).is(crop);
+        if (rowX && rowZ) return true;
+        return level.getBlockState(w.north()).is(crop) || level.getBlockState(e.north()).is(crop)
+                || level.getBlockState(e.south()).is(crop) || level.getBlockState(w.south()).is(crop);
     }
 
     @Override protected MapCodec<? extends BaseEntityBlock> codec() { return CODEC; }

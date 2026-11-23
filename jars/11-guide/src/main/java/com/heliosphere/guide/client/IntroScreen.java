@@ -3,6 +3,7 @@ package com.heliosphere.guide.client;
 import com.heliosphere.guide.Guide;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.AddressMode;
@@ -22,6 +23,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
@@ -51,10 +53,18 @@ public final class IntroScreen extends Screen {
 
     private static final String KEY = "intro.heliosphere.v2.";
     private static final float DURATION = 60f;
-    /** Skip keys are ignored this long after opening, so a held jump key does not skip by accident. */
+    /** Skip keys are ignored this long after opening, so a jump key pressed as the screen opens does not skip by accident. */
     private static final float SKIP_GRACE = 0.6f;
+    /**
+     * A skip fades the picture and the score out over this long before the screen closes. The screen stays open (and
+     * swallows input) meanwhile: the score's fade runs on sound ticks, which stop while the game is paused, so a second
+     * ESC must not reach the pause menu before the score is silent.
+     */
+    private static final float SKIP_FADE = 0.35f;
     /** From here on (the title card) any key or click closes the screen. */
     private static final float ANY_KEY_FROM = 53.6f;
+    /** The picture fades to black from here to the end, and the score fades with it. */
+    private static final float END_FADE = 59.15f;
     private static final float[] SCENE_START = {0f, 4f, 12f, 20f, 28f, 36f, 45f, 52f};
     private static final float ORBIT_CUT = 40.5f;
     private static final float IMPACT = 47.2f;
@@ -168,11 +178,16 @@ public final class IntroScreen extends Screen {
     private static final float[] DB_A = new float[DEBRIS], DB_V = new float[DEBRIS];
     private static final float[] FS_X = new float[FSTARS], FS_Y = new float[FSTARS], FS_B = new float[FSTARS];
     private static final float JET_T0 = 2.3f, JET_SPEED = 230f, MISSILE_T0 = 3.05f, JET_KILL = 4.45f;
+    /**
+     * Days left on the impact countdown when the disasters begin: acid rain on day 270 of the 365, 95 days before the
+     * impact (the released ImpactWinter starts 100 days before the deadline; tools/gen/disaster_timeline.py).
+     */
+    private static final float DISASTERS_AT = 95f;
     /** Where earth_burning.png has its crater, as a fraction of the sprite's half size from its centre. */
     private static final float CRATER_X = -0.008f, CRATER_Y = -0.148f;
     /** The base's own guns and its missile launcher, as fractions of base.png. */
     private static final float[] GUN_FX = {0.098f, 0.635f, 0.908f}, GUN_FY = {0.49f, 0.45f, 0.48f};
-    private static final float SAM_FX = 0.835f, SAM_FY = 0.58f;
+    private static final float SAM_FX = 0.848f, SAM_FY = 0.634f;   // the launcher's tube mouths (tools/gen/intro_art.py)
 
     static {
         for (int i = 0; i < WARP; i++) {
@@ -188,7 +203,7 @@ public final class IntroScreen extends Screen {
             } while (x * x + y * y > 0.66f);
             HOT_X[i] = x;
             HOT_Y[i] = y;
-            HOT_D[i] = 268f - i * 7.6f - rnd() * 4f;
+            HOT_D[i] = DISASTERS_AT - 2f - i * 2.65f - rnd() * 1.4f;
             HOT_S[i] = rnd();
         }
         for (int i = 0; i < BLIPS; i++) {
@@ -257,7 +272,7 @@ public final class IntroScreen extends Screen {
         for (int i = 0; i < 4; i++) cue(c, 6.75f + i * 0.35f, S_BIT, 1.9f, 0.12f);
         for (int i = 0; i < 4; i++) cue(c, 8.25f + i * 0.25f, S_BIT, (i & 1) == 0 ? 0.9f : 0.7f, 0.33f);
         cue(c, 12.0f, S_BASS, 0.6f, 0.35f);
-        // 12-20 the day counter falls: ticks, a stamp at day 270, a last tone at day 1
+        // 12-20 the day counter falls: ticks, a stamp when the disasters begin (95 days left), a last tone at day 1
         for (float t = 12.6f; t < 14.4f; t += 0.12f) cue(c, t, S_HAT, 1.2f + 0.6f * (t - 12.6f) / 1.8f, 0.1f);
         cue(c, 14.4f, S_BASS, 0.5f, 0.5f);
         cue(c, 14.4f, S_BIT, 0.8f, 0.35f);
@@ -321,10 +336,19 @@ public final class IntroScreen extends Screen {
     // =========================================================================================== state
 
     private IntroMusic music;
+    /** The cue sounds played so far that may still be ringing (thunder and bells last seconds): stopped on skip and close. */
+    private final List<SoundInstance> cueSounds = new ArrayList<>();
+    /**
+     * Keys known to be down: held when the screen opened, or pressed and not yet released. Their auto-repeat reaches
+     * {@link #keyPressed} too, and must not count as a fresh press (a jump key held through the grace would skip).
+     */
+    private final boolean[] keyDown = new boolean[GLFW.GLFW_KEY_LAST + 1];
     private long lastMillis = -1L;
     private float time;
     private int nextCue;
     private boolean closing;
+    /** {@link Util#getMillis()} when a skip started, or -1. */
+    private long skipMillis = -1L;
     private final boolean[] present = new boolean[ARTS.length];
     private boolean texturesLoaded;
 
@@ -383,20 +407,22 @@ public final class IntroScreen extends Screen {
         gs = Math.max(1, minecraft.getWindow().getGuiScale());
         loadStrings();
         layoutCaptions();
-        if (music == null) {
+        if (lastMillis < 0L) {
+            // first opening: start the clock and note the keys already held, so their auto-repeat cannot skip
+            lastMillis = Util.getMillis();
+            for (int key = GLFW.GLFW_KEY_SPACE; key <= GLFW.GLFW_KEY_LAST; key++)
+                keyDown[key] = InputConstants.isKeyDown(minecraft.getWindow(), key);
+        }
+        if (music == null && skipMillis < 0L) {
             minecraft.getMusicManager().stopPlaying();
             music = new IntroMusic();
             minecraft.getSoundManager().play(music);
         }
-        if (lastMillis < 0L) lastMillis = Util.getMillis();
     }
 
     @Override
     public void removed() {
-        if (music != null) {
-            music.fadeOut();
-            music = null;
-        }
+        stopSounds();
         releaseTextures();
         super.removed();
     }
@@ -404,7 +430,7 @@ public final class IntroScreen extends Screen {
     @Override
     public void tick() {
         update();
-        if (time >= DURATION) onClose();
+        if (time >= DURATION || skipMillis >= 0L && skipFade() >= 1f) onClose();
     }
 
     @Override
@@ -422,22 +448,55 @@ public final class IntroScreen extends Screen {
     @Override
     public boolean keyPressed(KeyEvent event) {
         int key = event.key();
-        boolean function = key >= GLFW.GLFW_KEY_F1 && key <= GLFW.GLFW_KEY_F25;
-        if (time >= ANY_KEY_FROM && !function) {
-            onClose();
-            return true;
-        }
-        if (event.isEscape() || key == GLFW.GLFW_KEY_SPACE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) {
-            if (time >= SKIP_GRACE) onClose();
-            return true;
-        }
-        return false;
+        if (key >= GLFW.GLFW_KEY_F1 && key <= GLFW.GLFW_KEY_F25) return false;
+        // auto-repeat of a key that is already down arrives here too: only a fresh press skips
+        boolean tracked = key >= 0 && key < keyDown.length, repeat = tracked && keyDown[key];
+        if (tracked) keyDown[key] = true;
+        boolean skipKey = event.isEscape() || key == GLFW.GLFW_KEY_SPACE || key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER;
+        boolean anyKey = time >= ANY_KEY_FROM;
+        if (!repeat && (anyKey || skipKey && time >= SKIP_GRACE)) skip();
+        return skipKey || anyKey || skipMillis >= 0L;
+    }
+
+    @Override
+    public boolean keyReleased(KeyEvent event) {
+        int key = event.key();
+        if (key >= 0 && key < keyDown.length) keyDown[key] = false;
+        return super.keyReleased(event);
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (time >= ANY_KEY_FROM) onClose();
+        if (time >= ANY_KEY_FROM) skip();
         return true;
+    }
+
+    /** Starts a skip: no more cues, the ringing ones stop, the picture and the score fade out, then {@link #tick} closes. */
+    private void skip() {
+        if (skipMillis >= 0L || closing) return;
+        skipMillis = Util.getMillis();
+        stopCueSounds();
+        if (music != null) music.fadeOut();
+    }
+
+    /** 0 until a skip starts, then rising to 1 over {@link #SKIP_FADE}. */
+    private float skipFade() {
+        return skipMillis < 0L ? 0f : clamp01((Util.getMillis() - skipMillis) / (SKIP_FADE * 1000f));
+    }
+
+    /** Silences everything the cinematic still plays: the score (already faded out after a skip) and the cue sounds. */
+    private void stopSounds() {
+        if (music != null) {
+            minecraft.getSoundManager().stop(music);
+            music = null;
+        }
+        stopCueSounds();
+    }
+
+    private void stopCueSounds() {
+        SoundManager sounds = minecraft.getSoundManager();
+        for (SoundInstance s : cueSounds) sounds.stop(s);
+        cueSounds.clear();
     }
 
     @Override
@@ -454,10 +513,16 @@ public final class IntroScreen extends Screen {
         if (dt < 0L) dt = 0L;
         if (dt > 1000L) dt = 250L;
         time = Math.min(DURATION, time + dt / 1000f);
+        if (time >= END_FADE && music != null) music.fadeOut();
+        if (skipMillis >= 0L) return;
         while (nextCue < CUES.length && CUES[nextCue][0] <= time) {
             float[] c = CUES[nextCue++];
             if (time - c[0] > 0.4f) continue;
-            minecraft.getSoundManager().play(SimpleSoundInstance.forUI(soundOf((int) c[1]), c[2], c[3]));
+            SoundManager sounds = minecraft.getSoundManager();
+            for (int i = cueSounds.size() - 1; i >= 0; i--) if (!sounds.isActive(cueSounds.get(i))) cueSounds.remove(i);
+            SoundInstance s = SimpleSoundInstance.forUI(soundOf((int) c[1]), c[2], c[3]);
+            sounds.play(s);
+            cueSounds.add(s);
         }
     }
 
@@ -553,12 +618,17 @@ public final class IntroScreen extends Screen {
         if (s.isEmpty()) return;
         int total = font.width(s);
         int count = Math.max(1, (total + maxW - 1) / maxW);
-        // aim for equal lines; widen the aim when word boundaries would spill onto an extra line
+        // aim for equal lines; widen the aim when word boundaries would spill onto an extra line. When even full-width
+        // lines need more lines than that, balance again over the number they really take, so no lone word trails.
         List<String> lines = new ArrayList<>();
-        for (int target = Math.min(maxW, total / count + 6); ; target = Math.min(maxW, target + Math.max(4, target / 12))) {
-            lines.clear();
-            wrapAt(s, target, lines);
-            if (lines.size() <= count || target >= maxW) break;
+        for (int pass = 0; pass < 2; pass++) {
+            for (int target = Math.min(maxW, total / count + 6); ; target = Math.min(maxW, target + Math.max(4, target / 12))) {
+                lines.clear();
+                wrapAt(s, target, lines);
+                if (lines.size() <= count || target >= maxW) break;
+            }
+            if (lines.size() <= count) break;
+            count = lines.size();
         }
         out.addAll(lines);
     }
@@ -693,7 +763,7 @@ public final class IntroScreen extends Screen {
         return new GenTexture("heliosphere intro scanlines", img, true, false);
     }
 
-    /** The score, with a short fade when the cinematic is skipped. */
+    /** The score, with a short fade when the cinematic is skipped (silent after 7 ticks, about {@link #SKIP_FADE}). */
     private static final class IntroMusic extends AbstractTickableSoundInstance {
         private boolean fading;
 
@@ -714,7 +784,7 @@ public final class IntroScreen extends Screen {
         @Override
         public void tick() {
             if (!fading) return;
-            volume -= 0.12f;
+            volume -= 0.15f;
             if (volume <= 0f) {
                 volume = 0f;
                 stop();
@@ -777,6 +847,8 @@ public final class IntroScreen extends Screen {
             drawTimecode(scene, t);
             flashes(t);
             drawControls(t);
+            float skipped = skipFade();
+            if (skipped > 0f) rect(0f, 0f, W, H, col(0x000000, skipped));
         } finally {
             g = null;
         }
@@ -859,7 +931,8 @@ public final class IntroScreen extends Screen {
             end();
             float k = Math.min(15f / 9f, (2f * VX - 200f) / Math.max(1, bannerMainW));
             ctext(bannerMain, bannerMainW, sx(-slide), sy(by - 13f), crispDown(k * U), col(0xFFFFFF, ba), 0, true);
-            hudText(bannerSub, -slide, by + 7f, 7f, 2f * VX - 200f, col(0xFFD2CC, ba), 0, false);
+            // the sub line may use the banner up to the hazard caps (they start 22 du inside the edges)
+            hudText(bannerSub, -slide, by + 7f, 7f, 2f * VX - 60f, col(0xFFD2CC, ba), 0, false);
         }
         if (lt >= 1.0f && ((int) (lt * 3.2f)) % 3 != 2) hudText(notDrill, 0f, -11f, 8.5f, 0f, col(0xFFD23A, 0.95f), 0, true);
 
@@ -1019,7 +1092,12 @@ public final class IntroScreen extends Screen {
             float rt = 2.75f + i * 0.35f;
             if (lt < rt) break;
             float ra = range(lt, rt, rt + 0.12f), ry = y0 + 24f + i * rowH;
-            hudText(rowLabel[i], x0 + 6f, ry, 8.2f, w * 0.55f, col(0xD8B8B4, ra), -1, true);
+            // in a small window text cannot shrink with the design, so label and value share the panel: the value
+            // (sized for its final text, it types in) may use what the label leaves, at least half; the label then
+            // shrinks first. At usual sizes both keep their natural scale.
+            int fv = font.width(i == 3 ? "99.7%" : ROW_VALUE[i]), fl = font.width(rowLabel[i]);
+            float kv = hudScale(fv, 8.2f, Math.max(w * 0.5f - 6f, w - 16f - fl * hudScale(fl, 8.2f, 0f) / U));
+            text(rowLabel[i], sx(x0 + 6f), sy(ry), hudScale(fl, 8.2f, w - 16f - fv * kv / U), col(0xD8B8B4, ra), -1, true);
             String v;
             int vc = 0xFFFFFF;
             if (i == 3) {
@@ -1032,7 +1110,7 @@ public final class IntroScreen extends Screen {
                 v = probStr;
                 if (pt > 0.9f) vc = (((int) (lt * 4f)) & 1) == 0 ? 0xFF3A2E : 0xFFFFFF;
             } else v = typed(ROW_VALUE[i], (lt - rt) * 28f);
-            hudText(v, x0 + w - 6f, ry, 8.2f, 0f, col(vc, ra), 1, true);
+            text(v, sx(x0 + w - 6f), sy(ry), kv, col(vc, ra), 1, true);
         }
     }
 
@@ -1040,11 +1118,11 @@ public final class IntroScreen extends Screen {
 
     private static float dayAt(float lt) {
         if (lt < 0.6f) return 365f;
-        if (lt < 2.4f) return lerp(365f, 270f, easeInOut(range(lt, 0.6f, 2.4f)));
-        if (lt < 3.3f) return 270f;
+        if (lt < 2.4f) return lerp(365f, DISASTERS_AT, easeInOut(range(lt, 0.6f, 2.4f)));
+        if (lt < 3.3f) return DISASTERS_AT;
         if (lt < 7.2f) {
             float p = range(lt, 3.3f, 7.2f);
-            return lerp(270f, 1f, p * (0.35f + 0.65f * p));
+            return lerp(DISASTERS_AT, 1f, p * (0.35f + 0.65f * p));
         }
         return 1f;
     }
@@ -1081,7 +1159,7 @@ public final class IntroScreen extends Screen {
         // wildfires spread as the days run out
         for (int i = 0; i < HOT; i++) {
             if (day > HOT_D[i]) continue;
-            float in = range(HOT_D[i] - day, 0f, 12f);
+            float in = range(HOT_D[i] - day, 0f, 4f);
             float fl = 0.7f + 0.3f * (float) Math.sin(lt * 9f + i * 1.7f);
             float fx = HOT_X[i] * er, fy = HOT_Y[i] * er;
             glow(fx, fy, er * (0.03f + 0.025f * HOT_S[i]), 0xFF5A14, 0.85f * fl * in);
@@ -2001,7 +2079,7 @@ public final class IntroScreen extends Screen {
             float f = d < 0.14f ? 1f : (float) Math.exp(-(d - 0.14f) * 2.4f);
             if (f > 0.01f) rect(0f, 0f, W, H, col(lerpColor(0xFFFFFF, 0xFFE2B0, clamp01(d)), f));
         }
-        float fo = range(t, 59.15f, 60f);
+        float fo = range(t, END_FADE, DURATION);
         if (fo > 0f) rect(0f, 0f, W, H, col(0x000000, fo));
     }
 
@@ -2451,13 +2529,16 @@ public final class IntroScreen extends Screen {
     /** Text at a HUD position, {@code size} design units per font line, shrunk to {@code maxW} design units when given. */
     private void hudText(String s, float x, float y, float size, float maxW, int argb, int align, boolean shadow) {
         if (s.isEmpty()) return;
-        float kdu = size / 9f;
-        int fw = font.width(s);
-        boolean fit = maxW > 0f && fw * kdu > maxW;
-        if (fit) kdu = maxW / fw;
-        // in small windows the design scale would shrink labels below legibility: keep them at least 3/4 of GUI size
-        float k = fit ? crispDown(kdu * U) : Math.max(crispK(kdu * U), crispK(0.75f));
-        text(s, sx(x), sy(y), k, argb, align, shadow);
+        text(s, sx(x), sy(y), hudScale(font.width(s), size, maxW), argb, align, shadow);
+    }
+
+    /** The scale {@link #hudText} draws a string of {@code fw} font pixels at. */
+    private float hudScale(int fw, float size, float maxW) {
+        // in small windows the design scale would shrink labels below legibility: keep them at least 3/4 of GUI size,
+        // but never wider than the room they are given (maxW design units), down to one screen pixel per font pixel
+        float k = Math.max(crispK(size / 9f * U), crispK(0.75f));
+        if (maxW > 0f && fw * k > maxW * U) k = crispDown(maxW * U / fw);
+        return k;
     }
 
     private static String typed(String s, float chars) {

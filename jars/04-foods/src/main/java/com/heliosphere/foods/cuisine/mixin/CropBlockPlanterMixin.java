@@ -22,9 +22,10 @@ public abstract class CropBlockPlanterMixin {
         if (state.getBlock() instanceof HydroponicPlanterBlock) cir.setReturnValue(true);
     }
 
+    /** The planters count as watered farmland: added into the sum before vanilla's halving for crowded rows, as farmland is. */
     @Inject(method = "getGrowthSpeed", at = @At("RETURN"), cancellable = true)
     private static void heliosphere$planterWater(Block block, BlockGetter level, BlockPos pos, CallbackInfoReturnable<Float> cir) {
         float bonus = HydroponicPlanterBlock.growthBonus(level, pos);
-        if (bonus > 0) cir.setReturnValue(cir.getReturnValueF() + bonus);
+        if (bonus > 0) cir.setReturnValue(cir.getReturnValueF() + (HydroponicPlanterBlock.crowded(block, level, pos) ? bonus / 2 : bonus));
     }
 }

@@ -72,7 +72,7 @@ try:
     _CUI = json.load(open('jars/04-foods/src/main/resources/assets/heliosphere/cuisine/cuisine.json', encoding='utf-8'))
     for _c in _CUI['crops']:
         CATEGORY[_c['seed']] = '食物'; CATEGORY[_c['produce']] = '食物'
-        SOURCES.setdefault(_c['seed'], ['破坏草丛、高草和蕨约 6% 掉落一包随机作物种子', '右键种子包随机得到 3 包作物种子', f"收获成熟的{_c['zh']}也会掉种子"])
+        SOURCES.setdefault(_c['seed'], ['破坏草丛、高草和蕨约 6% 掉落一粒随机作物种子', '右键种子包随机得到 3 粒作物种子', f"收获成熟的{_c['zh']}也会掉种子"])
         SOURCES.setdefault(_c['produce'], [f"种植{_c['zh']}（耕地或水培种植槽），长到第 4 阶段收获 1～3 个"])
     for _k in ('ingredients', 'dishes'):
         for _x in _CUI[_k]: CATEGORY[_x['id']] = '食物'
@@ -96,7 +96,7 @@ PURPOSES = {
     'kitchen_knife': '菜刀：合成时留在合成格里（每次 1 点耐久），切面条、拍黄瓜、做三明治。',
     'rolling_pin': '擀面杖：合成时留在合成格里（每次 1 点耐久），和菜刀一起把面团做成面条。',
     'mortar_and_pestle': '研钵：合成时留在合成格里（每次 1 点耐久），把小麦磨成面粉、岩盐磨成食盐。',
-    'seed_packet': '种子包：右键打开，随机得到 3 包作物种子。',
+    'seed_packet': '种子包：右键打开，随机得到 3 粒作物种子。',
     'tunnel_borer': '「穿山甲」盾构采矿机：对地面右键放下（3×3×3 空地），右键乘坐。W 掘进 3×3 隧道，空格+W 上斜、Ctrl+W 下斜，S 后退，A/D 转向，G 自动掘进，E 面板；潜行+右键面板，潜行+左键收回（保留仓内物品和电量）。54 格收集仓、废石过滤、侧采矿脉、封堵岩浆和水、自动衬砌与照明，烧仓里的燃料充电。',
     'tunnel_segment': '盾构管片：盾构机嵌在隧道壁上的预制混凝土块，也可以合成来当建材。',
     'tunnel_lamp': '照明管片：带灯的盾构管片，亮度 15。',

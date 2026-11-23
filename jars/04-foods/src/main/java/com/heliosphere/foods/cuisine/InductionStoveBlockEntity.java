@@ -10,7 +10,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 /** The induction stove's charge: filled from the grid like any machine, spent only while a heat machine on top cooks. */
 public class InductionStoveBlockEntity extends BlockEntity implements EnergyNode {
-    public static final long CAPACITY = 4000;
+    public static final long CAPACITY = 16000;   // a 30 s dish (7200 FE) finishes even on a weak grid
     /** FE per tick while the wok, pot or steamer on top is cooking. */
     public static final int USE = 12;
 

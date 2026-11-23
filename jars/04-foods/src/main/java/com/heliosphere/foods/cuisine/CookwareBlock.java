@@ -41,18 +41,21 @@ public class CookwareBlock extends MachineBlock {
     public final boolean heat;
     /** Has a start button and a clickable recipe list. */
     public final boolean gated;
+    /** Runs on grid power (oven, grain mill, juicer); the others take none from the cables (CookwarePowerMixin). */
+    public final boolean usesPower;
 
-    public CookwareBlock(Properties properties, String typeId, Supplier<BlockEntityType<MachineBlockEntity>> beType, boolean heat, boolean gated) {
+    public CookwareBlock(Properties properties, String typeId, Supplier<BlockEntityType<MachineBlockEntity>> beType, boolean heat, boolean gated, boolean usesPower) {
         super(properties, typeId, beType);
         this.beType = beType;
         this.shape = shapeOf(typeId);
         this.heat = heat;
         this.gated = gated;
+        this.usesPower = usesPower;
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(p -> new CookwareBlock(p, typeId, beType, heat, gated));
+        return simpleCodec(p -> new CookwareBlock(p, typeId, beType, heat, gated, usesPower));
     }
 
     @Override

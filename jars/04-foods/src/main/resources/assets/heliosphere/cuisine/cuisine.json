@@ -621,7 +621,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "egg_fried_rice",
@@ -815,7 +815,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "kung_pao_chicken",
@@ -830,7 +830,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "yuxiang_pork",
@@ -845,7 +845,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "braised_pork",
@@ -875,7 +875,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "tomato_egg",
@@ -890,7 +890,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "pepper_pork",
@@ -905,7 +905,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "di_san_xian",
@@ -920,7 +920,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "garlic_eggplant",
@@ -935,7 +935,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "stir_fried_greens",
@@ -950,7 +950,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "hot_sour_soup",
@@ -990,7 +990,7 @@
      "level": 0
     }
    ],
-   "container": "bowl"
+   "container": null
   },
   {
    "id": "malatang",
@@ -3203,6 +3203,28 @@
    "output": [
     "heliosphere:soda_crackers",
     6
+   ],
+   "seconds": 15
+  },
+  {
+   "machine": "oven",
+   "inputs": [
+    [
+     "heliosphere:flour",
+     2
+    ],
+    [
+     "heliosphere:caustic_soda",
+     1
+    ],
+    [
+     "heliosphere:table_salt",
+     1
+    ]
+   ],
+   "output": [
+    "heliosphere:soda_crackers",
+    4
    ],
    "seconds": 15
   },
