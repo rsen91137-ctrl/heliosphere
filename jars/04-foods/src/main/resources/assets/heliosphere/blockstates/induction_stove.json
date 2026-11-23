@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "heliosphere:block/induction_stove"
+    },
+    "lit=true": {
+      "model": "heliosphere:block/induction_stove_on"
+    }
+  }
+}

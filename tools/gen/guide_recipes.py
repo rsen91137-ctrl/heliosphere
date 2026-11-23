@@ -67,9 +67,36 @@ SOURCES = {
     'tunnel_segment': ['盾构采矿机掘进时自动嵌入隧道壁，封住水、岩浆和洞穴缺口（用镐挖下可回收）'],
     'tunnel_lamp': ['盾构采矿机每前进 6 格在隧道顶部自动嵌一块（用镐挖下可回收）'],
 }
+# the food expansion (04-foods): categories, where seeds and produce come from
+try:
+    _CUI = json.load(open('jars/04-foods/src/main/resources/assets/heliosphere/cuisine/cuisine.json', encoding='utf-8'))
+    for _c in _CUI['crops']:
+        CATEGORY[_c['seed']] = '食物'; CATEGORY[_c['produce']] = '食物'
+        SOURCES.setdefault(_c['seed'], ['破坏草丛、高草和蕨约 6% 掉落一包随机作物种子', '右键种子包随机得到 3 包作物种子', f"收获成熟的{_c['zh']}也会掉种子"])
+        SOURCES.setdefault(_c['produce'], [f"种植{_c['zh']}（耕地或水培种植槽），长到第 4 阶段收获 1～3 个"])
+    for _k in ('ingredients', 'dishes'):
+        for _x in _CUI[_k]: CATEGORY[_x['id']] = '食物'
+    for _x in _CUI['machines'] + _CUI['blocks']: CATEGORY[_x['id']] = '机器'
+    for _x in _CUI['tools'] + _CUI['other']: CATEGORY[_x['id']] = '工具装备'
+except FileNotFoundError:
+    _CUI = None
+
 SPAWNER = ['创造模式专用：放出对应的机器敌人（测试和做地图用）；生存模式里它们由机器自己派来']
 
 PURPOSES = {
+    'wok': '炒锅：放在热源上（营火、火、岩浆块、点燃的熔炉/烟熏炉/高炉或通电的电磁炉）。放好食材后在右侧配方列表点要炒的菜。',
+    'cooking_pot': '汤锅：放在热源上，煮汤、炖菜、米饭、豆腐、饺子、火锅等；在配方列表点选要做的。',
+    'steamer': '蒸笼：放在热源上，蒸馒头、包子、小笼包。',
+    'oven': '电烤箱：通电使用，烤月饼、披萨、蛋糕、烤鸭、烤红薯、苏打饼干等。',
+    'grain_mill': '磨粉机：通电，自动把小麦/大麦磨成面粉，把土豆、玉米、红薯、芋头磨成淀粉，把岩盐磨成食盐。',
+    'juicer': '榨汁机：通电，榨果汁、豆浆、奶昔、食用油、黄油，做珍珠奶茶。',
+    'fermenter': '发酵罐：不用电，慢慢发酵出酱油、醋、奶酪、泡菜、酸奶。',
+    'induction_stove': '电磁炉：接电缆后成为上面炒锅、汤锅、蒸笼的热源（烹饪时 12 FE/t）。空手右键查看储能。',
+    'hydroponic_planter': '水培种植槽：作物直接种在上面，不需要耕地和水；通电（8 FE/t）时长得更快并提供光照。',
+    'kitchen_knife': '菜刀：合成时留在合成格里（每次 1 点耐久），切面条、拍黄瓜、做三明治。',
+    'rolling_pin': '擀面杖：合成时留在合成格里（每次 1 点耐久），和菜刀一起把面团做成面条。',
+    'mortar_and_pestle': '研钵：合成时留在合成格里（每次 1 点耐久），把小麦磨成面粉、岩盐磨成食盐。',
+    'seed_packet': '种子包：右键打开，随机得到 3 包作物种子。',
     'tunnel_borer': '「穿山甲」盾构采矿机：对地面右键放下（3×3×3 空地），右键乘坐。W 掘进 3×3 隧道，空格+W 上斜、Ctrl+W 下斜，S 后退，A/D 转向，G 自动掘进，E 面板；潜行+右键面板，潜行+左键收回（保留仓内物品和电量）。54 格收集仓、废石过滤、侧采矿脉、封堵岩浆和水、自动衬砌与照明，烧仓里的燃料充电。',
     'tunnel_segment': '盾构管片：盾构机嵌在隧道壁上的预制混凝土块，也可以合成来当建材。',
     'tunnel_lamp': '照明管片：带灯的盾构管片，亮度 15。',
@@ -106,6 +133,25 @@ PURPOSES = {
     'point_defence_launcher': '要塞点防御拦截阵地：7 级以上机械堡垒的防空。9 级 2 座、11 级 3 座……15 级 6 座，射程 200~440 格，每座 4~8 发拦截弹、慢慢装填；'
                               '会把飞向堡垒的战术核弹（齐射两发）和各种导弹在空中击毁，核弹不会核爆。先摧毁它们，或趁装填时用多枚导弹饱和攻击。',
 }
+
+# a line for every dish of the food expansion: food value and buffs
+_FX = {'speed': '速度', 'haste': '急迫', 'strength': '力量', 'regeneration': '生命恢复', 'resistance': '抗性提升', 'fire_resistance': '抗火',
+       'night_vision': '夜视', 'water_breathing': '水下呼吸', 'jump_boost': '跳跃提升', 'slow_falling': '缓降', 'absorption': '伤害吸收',
+       'health_boost': '生命提升', 'luck': '幸运', 'saturation': '饱和'}
+_ROMAN = ['', ' II', ' III', ' IV']
+if _CUI:
+    _OURS = {e['id']: e['zh'] for e in _CUI['effects']}
+    for _d in _CUI['dishes']:
+        if _d['id'] in PURPOSES: continue
+        _fx = []
+        for _e in _d['effects']:
+            ns, name = _e['effect'].split(':')
+            label = _OURS.get(name) if ns == 'heliosphere' else _FX.get(name, name)
+            sec = _e['seconds']
+            dur = f"{sec // 60} 分 {sec % 60} 秒" if sec % 60 and sec >= 60 else (f"{sec // 60} 分钟" if sec >= 60 else f"{sec} 秒")
+            _fx.append(f"{label}{_ROMAN[min(_e['level'], 3)]}（{dur}）")
+        tail = {'bowl': '吃完还碗。', 'bottle': '喝完还瓶子。'}.get(_d.get('container'), '')
+        PURPOSES[_d['id']] = f"{_d['zh']}：恢复 {_d['n']} 点饱食度" + ("；增益：" + "、".join(_fx) if _fx else "") + "。" + tail
 
 # the guns rebuilt after the player's sketches, and the rotary cannon that became a heavy machine gun
 RENAMES = [('PDW短突击枪', 'C-32冲锋枪'), ('C-36卡宾枪', 'C-36X卡宾枪'), ('BR-762战斗步枪', 'LT-77步枪'), ('LMG-60轻机枪', 'WRK-4通用机枪'),

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "top": "heliosphere:block/cuisine/oven_top",
+    "front": "heliosphere:block/cuisine/oven_front_on",
+    "side": "heliosphere:block/cuisine/oven_side",
+    "bottom": "heliosphere:block/cuisine/oven_bottom"
+  }
+}

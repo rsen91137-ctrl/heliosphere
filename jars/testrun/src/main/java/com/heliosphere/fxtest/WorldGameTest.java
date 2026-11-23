@@ -86,6 +86,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "capsule" -> capsule(ctx, sp);
                     case "borer" -> borer(ctx, sp);
                     case "intro" -> intro(ctx, sp);
+                    case "cuisine" -> cuisine(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
@@ -2261,6 +2262,164 @@ public class WorldGameTest implements FabricClientGameTest {
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
             p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
         });
+    }
+
+    /** The food expansion: crops grow and drop, the planter, heat, cooking in the wok by choosing the dish, machines, buffs, tools, seeds. */
+    private void cuisine(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        int[] o = new int[3];
+        cmd(sp, "execute in minecraft:overworld run tp @p 16400 140 16400");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            var l = s.overworld();
+            ServerPlayer p = player(s);
+            l.setDayTime(6000);
+            o[0] = p.getBlockX(); o[2] = p.getBlockZ();
+            o[1] = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+            var C = com.heliosphere.foods.cuisine.Cuisine.class;
+            com.heliosphere.core.machine.MachineType.ensureLoaded();
+            StringBuilder counts = new StringBuilder();
+            for (String m : new String[]{"grain_mill", "juicer", "fermenter", "cooking_pot", "steamer", "wok", "oven"})
+                counts.append(' ').append(m).append(' ').append(com.heliosphere.core.machine.MachineType.get(m).recipes().size());
+            report.add("[info] cuisine: crops " + com.heliosphere.foods.cuisine.Cuisine.CROPS.size() + ", dishes " + com.heliosphere.foods.cuisine.Cuisine.DISHES.size()
+                    + ", ingredients " + com.heliosphere.foods.cuisine.Cuisine.INGREDIENTS.size() + ", tools " + com.heliosphere.foods.cuisine.Cuisine.TOOLS.size() + ", recipes:" + counts);
+            // a field: every crop in its own column, four rows = the four ages, farmland with water under it
+            var crops = new java.util.ArrayList<>(com.heliosphere.foods.cuisine.Cuisine.CROPS.values());
+            for (int i = -2; i <= crops.size() * 1 + 2; i++) for (int j = -3; j <= 12; j++) for (int h = 0; h < 6; h++)
+                l.setBlock(new net.minecraft.core.BlockPos(o[0] + i, o[1] + h, o[2] + j), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+            for (int i = 0; i < crops.size(); i++) for (int age = 0; age < 4; age++) {
+                var soil = new net.minecraft.core.BlockPos(o[0] + i, o[1] - 1, o[2] + age * 2);
+                l.setBlock(soil, net.minecraft.world.level.block.Blocks.FARMLAND.defaultBlockState().setValue(net.minecraft.world.level.block.FarmBlock.MOISTURE, 7), 2);
+                l.setBlock(soil.north(), net.minecraft.world.level.block.Blocks.WATER.defaultBlockState(), 2);
+                l.setBlock(soil.above(), crops.get(i).defaultBlockState().setValue(com.heliosphere.foods.cuisine.CuisineCropBlock.AGE, age), 2);
+            }
+            // drops of a mature crop of each kind
+            int produce = 0, seeds = 0, kinds = 0;
+            for (int i = 0; i < crops.size(); i++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + i, o[1], o[2] + 6);
+                var drops = net.minecraft.world.level.block.Block.getDrops(l.getBlockState(pos), l, pos, null);
+                boolean got = false;
+                for (var d : drops) {
+                    if (d.is(com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get(crops.get(i).id))) { produce += d.getCount(); got = true; }
+                    if (d.is(com.heliosphere.foods.cuisine.Cuisine.SEEDS.get(crops.get(i).id))) seeds += d.getCount();
+                }
+                if (got) kinds++;
+            }
+            report.add("[info] cuisine: mature crops drop produce " + kinds + "/" + crops.size() + " kinds, " + produce + " produce and " + seeds + " seeds in all");
+            // growth by random ticks on watered farmland, and on a powered planter
+            var young = new net.minecraft.core.BlockPos(o[0], o[1], o[2]);
+            for (int k = 0; k < 400; k++) l.getBlockState(young).randomTick(l, young, l.random);
+            var planter = new net.minecraft.core.BlockPos(o[0] + 3, o[1] - 1, o[2] + 10);
+            l.setBlock(planter, com.heliosphere.foods.cuisine.Cuisine.HYDROPONIC_PLANTER.defaultBlockState(), 3);
+            if (l.getBlockEntity(planter) instanceof com.heliosphere.foods.cuisine.HydroponicPlanterBlockEntity pe) pe.setEnergy(4000);
+            l.setBlock(planter.above(), net.minecraft.world.level.block.Blocks.WHEAT.defaultBlockState(), 3);
+            l.setBlock(planter.east(), com.heliosphere.foods.cuisine.Cuisine.HYDROPONIC_PLANTER.defaultBlockState(), 3);
+            l.setBlock(planter.east().above(), crops.get(0).defaultBlockState(), 3);
+            report.add("[info] cuisine: after 400 random ticks the age-0 " + crops.get(0).id + " is age " + l.getBlockState(young).getValue(com.heliosphere.foods.cuisine.CuisineCropBlock.AGE)
+                    + "; wheat on a planter survives " + l.getBlockState(planter.above()).is(net.minecraft.world.level.block.Blocks.WHEAT) + ", our crop on a planter survives " + l.getBlockState(planter.east().above()).is(crops.get(0)));
+            // cookware lineup: wok on stone (no heat), wok on a lit campfire, pot on a powered stove, steamer on magma; oven, mill, juicer, fermenter powered
+            String[] row = {"wok", "wok", "cooking_pot", "steamer", "oven", "grain_mill", "juicer", "fermenter"};
+            net.minecraft.world.level.block.state.BlockState[] under = {net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), net.minecraft.world.level.block.Blocks.CAMPFIRE.defaultBlockState(),
+                    com.heliosphere.foods.cuisine.Cuisine.INDUCTION_STOVE.defaultBlockState(), net.minecraft.world.level.block.Blocks.MAGMA_BLOCK.defaultBlockState(),
+                    net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState()};
+            for (int k = 0; k < row.length; k++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + k * 2, o[1] + 1, o[2] - 3);
+                l.setBlock(pos.below(), under[k], 3);
+                l.setBlock(pos, com.heliosphere.foods.cuisine.Cuisine.COOKWARE.get(row[k]).defaultBlockState(), 3);
+                if (l.getBlockEntity(pos.below()) instanceof com.heliosphere.foods.cuisine.InductionStoveBlockEntity se) se.setEnergy(4000);
+                if (l.getBlockEntity(pos) instanceof com.heliosphere.core.machine.MachineBlockEntity be) be.setEnergy(be.capacity());
+            }
+            // ingredients: tomato egg in the burning wok, tofu in the pot, soy milk in the juicer, potatoes in the mill, a sweet potato in the oven
+            java.util.function.BiConsumer<Integer, Object[]> fill = (k, items) -> {
+                var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + k * 2, o[1] + 1, o[2] - 3));
+                for (int i = 0; i < items.length; i += 2) be.setItem(i / 2, new net.minecraft.world.item.ItemStack((net.minecraft.world.level.ItemLike) items[i], (Integer) items[i + 1]));
+            };
+            fill.accept(0, new Object[]{com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get("tomato"), 2, net.minecraft.world.item.Items.EGG, 2});
+            fill.accept(1, new Object[]{com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get("tomato"), 2, net.minecraft.world.item.Items.EGG, 2});
+            fill.accept(2, new Object[]{com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get("soybean"), 3});
+            fill.accept(4, new Object[]{com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get("sweet_potato"), 1});
+            fill.accept(5, new Object[]{net.minecraft.world.item.Items.POTATO, 4});
+            fill.accept(6, new Object[]{com.heliosphere.foods.cuisine.Cuisine.PRODUCE.get("soybean"), 2, net.minecraft.world.item.Items.GLASS_BOTTLE, 1});
+            // gated machines: choose the recipe like a click in the list
+            String[][] choose = {{"0", "tomato_egg"}, {"1", "tomato_egg"}, {"2", "tofu"}, {"4", "roasted_sweet_potato"}, {"6", "soy_milk"}};
+            for (String[] c : choose) {
+                int k = Integer.parseInt(c[0]);
+                var be = (com.heliosphere.core.machine.MachineBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + k * 2, o[1] + 1, o[2] - 3));
+                var list = be.type().recipes();
+                for (int i = 0; i < list.size(); i++)
+                    if (list.get(i).outputs.get(0).stack().is(com.heliosphere.foods.cuisine.Cuisine.item("heliosphere:" + c[1]))) {
+                        ((com.heliosphere.core.machine.Startable) be).heliosphere$arm(true);
+                        ((com.heliosphere.core.machine.Startable) be).heliosphere$lock(com.heliosphere.core.machine.Startable.CHOSEN + i);
+                        break;
+                    }
+            }
+            p.teleportTo(o[0] + 7.5, o[1] + 4, o[2] - 9.5);
+            p.getAbilities().flying = true; p.onUpdateAbilities();
+        });
+        look(ctx, 0, 30);
+        ctx.waitTicks(30);
+        shot(ctx, "cuisine_cookware");
+        for (int k = 0; k < 30; k++) {
+            ctx.waitTicks(10);
+            server(sp, s -> {
+                var l = s.overworld();
+                for (int i = 0; i < 8; i++) if (l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + i * 2, o[1] + 1, o[2] - 3)) instanceof com.heliosphere.core.machine.MachineBlockEntity be && i >= 4) be.setEnergy(be.capacity());
+            });
+        }
+        server(sp, s -> {
+            var l = s.overworld();
+            String[] row = {"wok on stone", "wok on a campfire", "pot on a powered stove", "steamer on magma", "oven", "mill", "juicer", "fermenter"};
+            for (int k = 0; k < row.length; k++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] + k * 2, o[1] + 1, o[2] - 3);
+                if (!(l.getBlockEntity(pos) instanceof com.heliosphere.core.machine.MachineBlockEntity be)) { report.add("[info] cuisine: " + row[k] + " has no machine"); continue; }
+                StringBuilder b = new StringBuilder();
+                for (int i = be.type().inputs; i < be.getContainerSize(); i++) if (!be.getItem(i).isEmpty()) b.append(' ').append(be.getItem(i));
+                report.add("[info] cuisine: " + row[k] + " 15 s: condition " + be.conditionKey() + ", lit " + l.getBlockState(pos).getValue(com.heliosphere.core.machine.MachineBlock.LIT) + ", out" + b);
+            }
+            ServerPlayer p = player(s);
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            p.getFoodData().setFoodLevel(4);
+            var mapo = new net.minecraft.world.item.ItemStack(com.heliosphere.foods.cuisine.Cuisine.DISHES.get("mapo_tofu"));
+            var left = mapo.finishUsingItem(l, p);
+            var tea = new net.minecraft.world.item.ItemStack(com.heliosphere.foods.cuisine.Cuisine.DISHES.get("green_tea"));
+            var bottle = tea.finishUsingItem(l, p);
+            StringBuilder fx = new StringBuilder();
+            for (var e : p.getActiveEffects()) fx.append(' ').append(e.getEffect().getRegisteredName()).append(' ').append(e.getDuration() / 20).append('s');
+            report.add("[info] cuisine: ate mapo tofu and drank green tea: hunger 4 -> " + p.getFoodData().getFoodLevel() + ", left " + left + " and " + bottle + ", effects" + fx
+                    + ", can freeze " + p.canFreeze() + ", acid protected " + com.heliosphere.core.disaster.AcidMask.protectedBy(p));
+            p.removeAllEffects();
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+            var knife = new net.minecraft.world.item.ItemStack(com.heliosphere.foods.cuisine.Cuisine.TOOLS.get("kitchen_knife"));
+            var rem = knife.getItem().getRecipeRemainder(knife);
+            int seedsBefore = 0;
+            for (var st : p.getInventory().getNonEquipmentItems()) seedsBefore += st.getCount();
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.foods.cuisine.Cuisine.SEED_PACKET, 2));
+            p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+            com.heliosphere.foods.cuisine.Cuisine.SEED_PACKET.use(l, p, net.minecraft.world.InteractionHand.MAIN_HAND);
+            int after = 0;
+            for (var st : p.getInventory().getNonEquipmentItems()) after += st.getCount();
+            p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+            int grassSeeds = 0;
+            for (int k = 0; k < 400; k++) {
+                var pos = new net.minecraft.core.BlockPos(o[0] - 1, o[1], o[2] + 12);
+                l.setBlock(pos.below(), net.minecraft.world.level.block.Blocks.GRASS_BLOCK.defaultBlockState(), 2);
+                l.setBlock(pos, net.minecraft.world.level.block.Blocks.SHORT_GRASS.defaultBlockState(), 2);
+                for (var d : net.minecraft.world.level.block.Block.getDrops(l.getBlockState(pos), l, pos, null))
+                    if (com.heliosphere.foods.cuisine.Cuisine.SEEDS.containsValue(d.getItem())) grassSeeds += d.getCount();
+            }
+            report.add("[info] cuisine: knife remainder damage " + rem.getDamageValue() + " (fresh 0); seed packet: items " + seedsBefore + " -> " + after + " (2 packets, one opened); 400 grass broken: " + grassSeeds + " crop seeds");
+            p.getInventory().clearContent();
+            int slot = 0;
+            for (var d : com.heliosphere.foods.cuisine.Cuisine.DISHES.values()) { if (slot >= 36) break; p.getInventory().setItem(slot++, new net.minecraft.world.item.ItemStack(d)); }
+            p.teleportTo(o[0] + 14.5, o[1] + 4, o[2] + 3.5);
+        });
+        look(ctx, 90, 35);
+        ctx.waitTicks(20);
+        shot(ctx, "cuisine_field");
+        ctx.runOnClient(mc -> mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player)));
+        ctx.waitTicks(10);
+        shot(ctx, "cuisine_dishes");
+        ctx.runOnClient(mc -> mc.setScreen(null));
+        server(sp, s -> player(s).getInventory().clearContent());
     }
 
     /** The opening cinematic: one screenshot per scene, then it must close by itself. */

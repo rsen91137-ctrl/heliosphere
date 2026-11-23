@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "heliosphere:block/hydroponic_planter"
+    },
+    "lit=true": {
+      "model": "heliosphere:block/hydroponic_planter_on"
+    }
+  }
+}
