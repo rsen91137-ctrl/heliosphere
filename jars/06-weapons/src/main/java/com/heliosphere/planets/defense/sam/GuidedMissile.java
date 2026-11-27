@@ -120,6 +120,7 @@ public class GuidedMissile extends Entity {
                 setPos(from.add(d.scale((i - 1) / (double) steps)));
                 return false;
             }
+            if (bored == 0) entryCrater(level, bp, limit);                     // where it goes into the ground: a crater anyone can see
             level.levelEvent(2001, bp, net.minecraft.world.level.block.Block.getId(st));
             if (level.random.nextFloat() < 0.1f) level.destroyBlock(bp, true);
             else level.setBlock(bp, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
@@ -128,6 +129,20 @@ public class GuidedMissile extends Entity {
         speed = Math.min(speed, 1.1);
         if (age % 3 == 0) level.playSound(null, getX(), getY(), getZ(), SoundEvents.GRINDSTONE_USE, SoundSource.HOSTILE, 2.5f, 0.5f);
         return true;
+    }
+
+    /** The crater a bunker buster blows into the surface on its way in: a bowl about five blocks across and two deep. */
+    private void entryCrater(ServerLevel level, net.minecraft.core.BlockPos at, float limit) {
+        for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++) for (int dy = 0; dy >= -2; dy--) {
+            if (dx * dx + dz * dz + dy * dy * 2 > 6) continue;
+            net.minecraft.core.BlockPos p = at.offset(dx, dy, dz);
+            var st = level.getBlockState(p);
+            if (st.isAir() || st.getDestroySpeed(level, p) < 0 || st.getBlock().getExplosionResistance() > limit) continue;
+            level.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 3);
+        }
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.EXPLOSION_EMITTER, at.getX() + 0.5, at.getY() + 1, at.getZ() + 0.5, 1, 0, 0, 0, 0);
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.LARGE_SMOKE, at.getX() + 0.5, at.getY() + 1.5, at.getZ() + 0.5, 30, 1.2, 0.8, 1.2, 0.04);
+        level.playSound(null, at, SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 5f, 0.6f);
     }
 
     public MissileSpec spec() { int i = entityData.get(SPEC); MissileSpec[] v = MissileSpec.values(); return v[Math.max(0, Math.min(v.length - 1, i))]; }

@@ -60,7 +60,7 @@
   "message.heliosphere.standoff_launch": "⚠ %s 在 %s 格外发射了超视距导弹！躲进有顶的建筑，或用防空系统拦截",
   "entity.heliosphere.drill_walker": "穿岩钻掘机",
   "item.heliosphere.drill_walker_deployment": "穿岩钻掘机部署器（创造）",
-  "message.heliosphere.penetrator_launch": "⚠ 钻地弹来袭！它会钻穿岩层后在深处爆炸——离开地面红圈的正下方",
+  "message.heliosphere.penetrator_launch": "⚠ 钻地弹已投下！它会从地面钻进去在深处爆炸——离开地面红圈的正下方",
   "message.heliosphere.sabotage": "⚠ 机械正在破坏你地表的设施！（%s, %s, %s）",
   "event.heliosphere.siege.underground": "机械发现你躲在地下：钻掘机正在打洞，渗透部队从洞穴里摸过来，钻地弹将从天而降！",
   "event.heliosphere.siege.covered": "机械发现你躲在屋顶下：钻地弹将从天而降！",
@@ -86,5 +86,6 @@
   "event.heliosphere.silo.destroyed": "核弹井已被摧毁，发射中止",
   "message.heliosphere.icbm_intercepted": "☢ 机械核弹已在空中被拦截击毁！",
   "event.heliosphere.siege.airborne.warn": "§l⚠ 雷达捕获大量空投舱：机械空降兵正在你头顶空投（难度 %s）§r 坐标 %s, %s",
-  "event.heliosphere.siege.airborne.bar": "机械空降突袭 · 难度 %s"
+  "event.heliosphere.siege.airborne.bar": "机械空降突袭 · 难度 %s",
+  "message.heliosphere.bomber_inbound": "⚠ 雷达发现机械轰炸机：它要飞到你头顶投下钻地弹！用防空高炮塔或防空车在它到达前击落它，投下的炸弹也能被打下来"
 }

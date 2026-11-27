@@ -22,9 +22,9 @@ def write(p, o):
 LANG = {  # key: (zh, en, tw)
     'entity.heliosphere.drill_walker': ('穿岩钻掘机', 'Rockbore Drill Walker', '穿岩鑽掘機'),
     'item.heliosphere.drill_walker_deployment': ('穿岩钻掘机部署器（创造）', 'Rockbore Drill Walker Deployer (Creative)', '穿岩鑽掘機部署器（創造）'),
-    'message.heliosphere.penetrator_launch': ('⚠ 钻地弹来袭！它会钻穿岩层后在深处爆炸——离开地面红圈的正下方',
-                                              '⚠ Bunker buster incoming! It bores through rock and goes off deep: get out from under the red ring',
-                                              '⚠ 鑽地彈來襲！它會鑽穿岩層後在深處爆炸——離開地面紅圈的正下方'),
+    'message.heliosphere.penetrator_launch': ('⚠ 钻地弹已投下！它会从地面钻进去在深处爆炸——离开地面红圈的正下方',
+                                              '⚠ Bunker buster away! It bores in from the surface and goes off deep: get out from under the red ring',
+                                              '⚠ 鑽地彈已投下！它會從地面鑽進去在深處爆炸——離開地面紅圈的正下方'),
     'message.heliosphere.sabotage': ('⚠ 机械正在破坏你地表的设施！（%s, %s, %s）', '⚠ Machines are wrecking your surface installations! (%s, %s, %s)',
                                      '⚠ 機械正在破壞你地表的設施！（%s, %s, %s）'),
     'event.heliosphere.siege.underground': ('机械发现你躲在地下：钻掘机正在打洞，渗透部队从洞穴里摸过来，钻地弹将从天而降！',
@@ -46,8 +46,8 @@ MISSILE = ('钻地弹', 'Bunker buster', '鑽地彈')
 
 TIP = ('§c地下不再安全：§r① 地面机械看不见你、又走不过去时，会朝你挖隧道（有裂纹和摩擦声预警），能挖什么取决于技术等级：'
        '5 级以下挖不动黑曜石、哭泣的黑曜石和远古残骸，基岩和强化深板岩谁都挖不动；② 第 197 天起出现「穿岩钻掘机」，'
-       '一看不见你就开挖，速度是普通机械的 5 倍，6 级能钻穿黑曜石；③ 你在屋顶下躲太久，打击飞机和围攻会改用钻地弹——'
-       '它直奔你的位置，钻穿 10～28 格方块后在深处爆炸，地面上你头顶会出现红色预警圈；④ 避难所在地下时，围攻的渗透部队'
+       '一看不见你就开挖，速度是普通机械的 5 倍，6 级能钻穿黑曜石；③ 你在屋顶下躲太久，围攻会派机械轰炸机（打击飞机也会亲自）飞到你头顶投钻地弹——'
+       '炸弹从地面炸出一个坑后笔直钻下来，在你所在的深度爆炸，你头顶地面会出现红色预警圈；轰炸机投弹前被击落就不会投弹，下落中的炸弹也能被防空高炮塔和防空车打掉；④ 避难所在地下时，围攻的渗透部队'
        '和一半地面机械会从附近洞穴里出现；⑤ 围攻中机械 15 秒打不到你，就会去拆你地表的机器、太阳能板和发电设备。'
        '对策：防御塔和防空系统照样有效；用强化深板岩/基岩级材料加固最核心的房间；在隧道口布置火力；别让机器全摆在露天。')
 

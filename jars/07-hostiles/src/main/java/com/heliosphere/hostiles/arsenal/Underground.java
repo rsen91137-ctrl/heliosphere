@@ -298,17 +298,116 @@ public final class Underground {
         return m;
     }
 
-    /** A siege's answer to a player who will not come out: bunker busters from the sky above. */
+    /**
+     * A siege's answer to a player who will not come out: machine bombers fly over and drop bunker busters straight
+     * down on them. Shoot a bomber down before it is overhead and its bomb never falls; flak and air defence can
+     * also hit the falling bomb. The bomb bores a shaft from the ground above the target, with a crater at the top.
+     */
     public static void bunkerStrike(ServerLevel level, ServerPlayer p, int count, int tier, float damage) {
-        for (int i = 0; i < count; i++) {
-            final int k = i;
-            EnemyArsenal.later(level, 40 + i * 50, () -> {
-                if (!p.isAlive() || p.level() != level) return;
-                double a = level.random.nextDouble() * Math.PI * 2;
-                int top = level.getHeight(Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ());
-                Vec3 from = new Vec3(p.getX() + Math.cos(a) * 30, Math.min(level.getMaxY() - 5, Math.max(top, p.getY()) + 70), p.getZ() + Math.sin(a) * 30);
-                penetrator(level, null, p, from, p.position().subtract(from).normalize(), damage, tier);
-            });
+        for (int i = 0; i < count; i++)
+            EnemyArsenal.later(level, 40 + i * 120, () -> { if (p.isAlive() && p.level() == level) bombRun(level, p, tier, damage); });
+    }
+
+    // ---- bombing runs -------------------------------------------------------------------------------------------
+
+    /** Tag of an aircraft on a bombing run (StrikeCraft leaves it to {@link #bomberTick}). */
+    public static final String BOMBER = "heliosphere.bomber";
+    /** Bombs released and bombers sent (for tests). */
+    public static int bombsDropped, bombersSent, bombFails;
+
+    private static final class Run {
+        java.util.UUID target;
+        int tier, age, after;
+        float damage;
+        boolean released, sent;        // sent: a bomber of its own, it leaves after the drop
+        Vec3 heading;
+    }
+
+    private static final Map<TechMob, Run> RUNS = new java.util.WeakHashMap<>();
+    private static final net.minecraft.server.level.TicketType BOMBER_TICKET = new net.minecraft.server.level.TicketType(40L,
+            net.minecraft.server.level.TicketType.FLAG_LOADING | net.minecraft.server.level.TicketType.FLAG_SIMULATION);
+
+    /** A bomber of its own sent at {@code p} from about 180 blocks out, 60 above the ground over the target. */
+    public static TechMob bombRun(ServerLevel level, ServerPlayer p, int tier, float damage) {
+        double a = level.random.nextDouble() * Math.PI * 2;
+        int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(p.getX()), Mth.floor(p.getZ()));
+        double y = Math.min(level.getMaxY() - 8, Math.max(ground, p.getY()) + 60);
+        TechMob jet = null;
+        for (double dist : new double[]{180, 140, 100, 70, 48, 32}) {                  // as far out as the world is loaded
+            double x = p.getX() + Math.cos(a) * dist, z = p.getZ() + Math.sin(a) * dist;
+            if (level.getChunkSource().getChunkNow(Mth.floor(x) >> 4, Mth.floor(z) >> 4) == null) continue;
+            jet = TechCombat.spawn(level, StrikeCraft.JET, x, y, z, p);
+            if (jet != null) break;
         }
+        if (jet == null) { bombFails++; return null; }
+        jet.setPersistenceRequired();
+        enlist(jet, p, tier, damage);
+        RUNS.get(jet).sent = true;
+        bombersSent++;
+        p.displayClientMessage(Component.translatable("message.heliosphere.bomber_inbound").withStyle(ChatFormatting.DARK_RED), false);
+        return jet;
+    }
+
+    /** Puts an aircraft (a strike jet or drone that cannot get at a player under cover) on a bombing run at {@code t}. */
+    public static void enlist(TechMob craft, LivingEntity t, int tier, float damage) {
+        Run r = new Run();
+        r.target = t.getUUID(); r.tier = tier; r.damage = damage;
+        Vec3 to = t.position().subtract(craft.position());
+        r.heading = new Vec3(to.x, 0, to.z).lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : new Vec3(to.x, 0, to.z).normalize();
+        RUNS.put(craft, r);
+        craft.addTag(BOMBER);
+    }
+
+    /** Flies a bomber; false when it is not on a run (StrikeCraft flies it then). */
+    public static boolean bomberTick(TechMob mob) {
+        if (!(mob.level() instanceof ServerLevel level)) return false;
+        Run r = RUNS.get(mob);
+        if (r == null) { if (mob.getTags().contains(BOMBER)) mob.removeTag(BOMBER); return false; }
+        r.age++;
+        if (mob.tickCount % 2 == 0) level.getChunkSource().addTicketWithRadius(BOMBER_TICKET, new net.minecraft.world.level.ChunkPos(mob.blockPosition()), 3);   // its chunk and the next ones keep running
+        net.minecraft.world.entity.Entity e = level.getEntity(r.target);
+        LivingEntity t = e instanceof LivingEntity le && le.isAlive() ? le : null;
+        Vec3 pos = mob.position();
+        double speed = 1.15, wantY;
+        if (!r.released && (t == null || r.age > 1600)) { r.released = true; r.after = 0; }
+        if (!r.released) {
+            Vec3 to = new Vec3(t.getX() - pos.x, 0, t.getZ() - pos.z);
+            double d = to.length();
+            Vec3 toN = d < 1e-3 ? r.heading : to.scale(1 / d);
+            double cos = Mth.clamp(r.heading.dot(toN), -1, 1);
+            double turn = Math.toRadians(d < 40 ? 6 : 3.5);
+            double ang = Math.acos(cos);
+            if (ang > 1e-4) {                                                  // turn toward the target at a limited rate
+                double k = Math.min(1, turn / ang);
+                r.heading = r.heading.scale(1 - k).add(toN.scale(k)).normalize();
+            }
+            int ground = level.getHeight(Heightmap.Types.MOTION_BLOCKING, Mth.floor(t.getX()), Mth.floor(t.getZ()));
+            wantY = Math.min(level.getMaxY() - 8, Math.max(ground, t.getY()) + 55);
+            if (d < 2.5 || (d < 8 && r.heading.dot(toN) < 0.2)) {             // overhead: bombs away, straight down
+                int depth = Math.max(0, ground - Mth.floor(t.getY()));
+                GuidedMissile bomb = penetrator(level, mob, t, pos.add(0, -1.2, 0), new Vec3(0, -1, 0), r.damage, r.tier);
+                bomb.bore(Math.min(64, Math.max(10, depth + 8)));
+                bombsDropped++;
+                r.released = true; r.after = 0;
+            }
+        } else {
+            wantY = pos.y + 4;
+            speed = 1.4;
+            if (++r.after > 160) {
+                RUNS.remove(mob);
+                mob.removeTag(BOMBER);
+                if (r.sent) mob.discard();                                      // its own bomber flies home
+                return r.sent;
+            }
+        }
+        double vy = Mth.clamp((wantY - pos.y) * 0.05, -0.4, 0.45);
+        if (mob.horizontalCollision) vy = 0.8;
+        Vec3 v = new Vec3(r.heading.x * speed, vy, r.heading.z * speed);
+        mob.setDeltaMovement(v);
+        float yaw = (float) (Mth.atan2(r.heading.z, r.heading.x) * Mth.RAD_TO_DEG) - 90f;
+        mob.setYRot(yaw); mob.setYBodyRot(yaw); mob.setYHeadRot(yaw);
+        mob.fallDistance = 0;
+        if (mob.tickCount % 20 == 0) level.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ELYTRA_FLYING, SoundSource.HOSTILE, 2.5f, 0.6f);
+        return true;
     }
 }

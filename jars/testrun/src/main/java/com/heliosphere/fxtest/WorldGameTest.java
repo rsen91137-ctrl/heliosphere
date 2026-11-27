@@ -87,6 +87,7 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "borer" -> borer(ctx, sp);
                     case "intro" -> intro(ctx, sp);
                     case "cuisine" -> cuisine(ctx, sp);
+                    case "bomber" -> bomber(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
@@ -2262,6 +2263,71 @@ public class WorldGameTest implements FabricClientGameTest {
             p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
             p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
         });
+    }
+
+    /** Bunker busters come by bomber: undefended, the bomb leaves a crater and a shaft over the hidden player; with flak, the bomber or its bomb is shot down. */
+    private void bomber(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        for (int round = 0; round < 2; round++) {
+            boolean flak = round == 1;
+            int[] o = new int[3];
+            int base = 16800 + round * 600;
+            cmd(sp, "execute in minecraft:overworld run tp @p " + base + " 140 " + base);
+            ctx.waitTicks(60);
+            int[] before = {com.heliosphere.hostiles.arsenal.Underground.bombsDropped, com.heliosphere.planets.defense.mk.Incoming.shotDown};
+            server(sp, s -> {
+                var l = s.overworld();
+                ServerPlayer p = player(s);
+                l.setDayTime(312L * 24000 + 6000);
+                o[0] = p.getBlockX(); o[2] = p.getBlockZ();
+                o[1] = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, o[0], o[2]);
+                // flat stone ground, a room 20 below it
+                for (int dx = -6; dx <= 6; dx++) for (int dz = -6; dz <= 6; dz++) {
+                    for (int dy = -24; dy < 0; dy++) l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+                    for (int dy = 0; dy < 30; dy++) l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+                }
+                for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++) for (int dy = -20; dy <= -18; dy++)
+                    l.setBlock(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+                if (flak) for (int[] a : new int[][]{{-4, 0}, {4, 0}, {0, 4}}) {
+                    var pos = new net.minecraft.core.BlockPos(o[0] + a[0], o[1], o[2] + a[1]);
+                    l.setBlock(pos, com.heliosphere.planets.defense.mk.Sentries.BLOCKS.get(com.heliosphere.planets.defense.mk.TurretKind.FLAK).defaultBlockState(), 3);
+                    var be = (com.heliosphere.planets.defense.mk.SentryBlockEntity) l.getBlockEntity(pos);
+                    be.adopt(be.capacity(), 3, p.getUUID());
+                    be.setEnergy(be.capacity());
+                }
+                p.teleportTo(o[0] + 0.5, o[1] - 20, o[2] + 0.5);
+                p.setGameMode(net.minecraft.world.level.GameType.SURVIVAL);
+                p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(2000);
+                p.setHealth(2000);
+                com.heliosphere.hostiles.arsenal.Underground.bombRun(l, p, 9, 30);
+            });
+            boolean[] done = {false};
+            int[] k0 = {0};
+            ctx.waitTicks(5);
+            for (int k = 0; k < 60 && !done[0]; k++) {
+                ctx.waitTicks(10);
+                server(sp, s -> {
+                    var l = s.overworld();
+                    ServerPlayer p = player(s);
+                    var jets = l.getEntitiesOfClass(com.heliosphere.planets.tech.TechMob.class, p.getBoundingBox().inflate(300), m -> m.getTags().contains(com.heliosphere.hostiles.arsenal.Underground.BOMBER));
+                    var bombs = l.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, p.getBoundingBox().inflate(300), m -> m.spec() == com.heliosphere.planets.defense.sam.MissileSpec.PENETRATOR);
+                    if (jets.isEmpty() && bombs.isEmpty()) done[0] = true;
+                    if (k0[0]++ % 4 == 0) for (var j : jets) report.add(String.format("[info]   bomber at %.0f,%.0f,%.0f hp %.0f", j.getX() - p.getX(), j.getY() - p.getY(), j.getZ() - p.getZ(), j.getHealth()));
+                });
+            }
+            server(sp, s -> {
+                var l = s.overworld();
+                ServerPlayer p = player(s);
+                int shaft = 0, crater = 0;
+                for (int dy = -17; dy < 0; dy++) for (int dx = -2; dx <= 2; dx++) for (int dz = -2; dz <= 2; dz++)
+                    if (l.getBlockState(new net.minecraft.core.BlockPos(o[0] + dx, o[1] + dy, o[2] + dz)).isAir()) { shaft++; if (dy >= -2) crater++; }
+                report.add("[info] bomber " + (flak ? "vs 3 Mk III flak turrets" : "undefended") + ": sent " + com.heliosphere.hostiles.arsenal.Underground.bombersSent + ", fails " + com.heliosphere.hostiles.arsenal.Underground.bombFails + ", bombs dropped " + (com.heliosphere.hostiles.arsenal.Underground.bombsDropped - before[0])
+                        + ", shot down by flak " + (com.heliosphere.planets.defense.mk.Incoming.shotDown - before[1]) + ", air blocks between the surface and the room " + shaft
+                        + " (crater " + crater + "), player health " + (int) p.getHealth() + "/2000, all gone " + done[0]);
+                p.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(20);
+                p.setHealth(20);
+                p.setGameMode(net.minecraft.world.level.GameType.CREATIVE);
+            });
+        }
     }
 
     /** The food expansion: crops grow and drop, the planter, heat, cooking in the wok by choosing the dish, machines, buffs, tools, seeds. */

@@ -83,6 +83,7 @@ public final class StrikeCraft {
     /** After the released machine logic: takes over the flight and the stand-off attack. */
     public static void tick(TechMob mob) {
         if (!(mob.level() instanceof ServerLevel level) || !mob.isAlive() || mob.isNoAi() || !is(mob)) return;
+        if (Underground.bomberTick(mob)) return;                               // on a bombing run
         Brain b = BRAINS.get(mob);
         if (b == null) {
             b = new Brain();
@@ -278,12 +279,11 @@ public final class StrikeCraft {
                     .withStyle(net.minecraft.ChatFormatting.RED), true);
     }
 
-    /** A bunker buster at a target that stays under cover: lobbed high so that it comes down on top of it. */
+    /** A target that stays under cover: the aircraft flies over it and drops a bunker buster straight down. */
     private static void bunker(ServerLevel level, TechMob mob, LivingEntity t) {
         TechCombat.Role r = mob.role();
-        Vec3 from = mob.position().add(0, -0.3, 0);
-        Vec3 dir = t.position().subtract(from).normalize().add(0, 0.9, 0);
-        Underground.penetrator(level, mob, t, from, dir, r.damage(), EnemyRoster.tier(r.id())).carrierSpeed(mob.getDeltaMovement().length());
+        Underground.enlist(mob, t, EnemyRoster.tier(r.id()), r.damage());
+        if (t instanceof ServerPlayer p) p.displayClientMessage(Component.translatable("message.heliosphere.bomber_inbound").withStyle(net.minecraft.ChatFormatting.DARK_RED), false);
         launched++;
     }
 

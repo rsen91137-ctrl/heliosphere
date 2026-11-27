@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * Artillery in the air, for the flak turret to shoot down: the machines' mortar rounds (drawn as an arc, they exist
  * only here: from, landing point, launch time, flight) and the shells of the siege drones and siege walkers (real
- * projectiles, weapon mode 2). The machines' nuclear missile is not artillery: only air-defence vehicles can stop it.
+ * projectiles, weapon mode 2), and the bunker busters the machine bombers drop, while they are still falling. The
+ * machines' nuclear missile is not artillery: only air-defence vehicles can stop it.
  */
 public final class Incoming {
     private Incoming() {}
@@ -71,6 +72,12 @@ public final class Incoming {
         for (TechProjectile p : level.getEntitiesOfClass(TechProjectile.class, new AABB(at, at).inflate(range), x -> x.isAlive() && x.mode() == 2)) {
             double d = p.position().distanceToSqr(at);
             if (d < bd) { bd = d; best = p; }
+        }
+        // a bunker buster on its way down from a bomber, still in the air
+        for (com.heliosphere.planets.defense.sam.GuidedMissile m : level.getEntitiesOfClass(com.heliosphere.planets.defense.sam.GuidedMissile.class, new AABB(at, at).inflate(range),
+                x -> x.isAlive() && x.spec() == com.heliosphere.planets.defense.sam.MissileSpec.PENETRATOR && x.bored == 0)) {
+            double d = m.position().distanceToSqr(at);
+            if (d < bd) { bd = d; best = m; }
         }
         return best;
     }
