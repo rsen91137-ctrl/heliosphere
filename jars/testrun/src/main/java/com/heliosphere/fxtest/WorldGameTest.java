@@ -88,6 +88,9 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "intro" -> intro(ctx, sp);
                     case "cuisine" -> cuisine(ctx, sp);
                     case "bomber" -> bomber(ctx, sp);
+                    case "suitjet" -> suitJet(ctx, sp);
+                    case "packrocket" -> packRocket(ctx, sp);
+                    case "planetores" -> planetOres(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
                     case "samnuke" -> samNuke(ctx, sp);
                     case "latesiege" -> {                                  // day 312: what an assault brings now
@@ -1981,6 +1984,176 @@ public class WorldGameTest implements FabricClientGameTest {
         }
         cmd(sp, "gamemode creative @a");
         server(sp, s -> player(s).setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY));
+    }
+
+    /** A jetpack clicked onto a space suit chestplate: the suit flies (double tap), keeps its protection, and the pack comes back off. */
+    private void suitJet(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "gamemode survival @a");
+        cmd(sp, "effect give @a resistance infinite 4 true");
+        cmd(sp, "execute in minecraft:overworld run tp @p 7600 200 7600");
+        ctx.waitTicks(60);
+        double[] y0 = new double[1];
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var inv = p.getInventory();
+            inv.clearContent();
+            var suit = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("space_suit_chestplate"));
+            var pack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("adaptive_jetpack"));
+            com.heliosphere.planets.gear.JetpackItem.setFuel(pack, com.heliosphere.planets.gear.JetpackItem.TANK);
+            inv.setItem(9, suit);
+            net.minecraft.world.inventory.Slot slot = null;
+            for (var sl : p.inventoryMenu.slots) if (sl.container == inv && sl.getContainerSlot() == 9) slot = sl;
+            boolean fitted = pack.overrideStackedOnOther(slot, net.minecraft.world.inventory.ClickAction.PRIMARY, p);
+            var worn = inv.getItem(9);
+            report.add("[info] suit+jetpack fitted " + fitted + ", pack left " + pack.getCount() + ", kind on suit " + com.heliosphere.planets.gear.JetpackItem.kindOn(worn)
+                    + ", fuel " + com.heliosphere.planets.gear.JetpackItem.fuel(worn) + ", item " + net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(worn.getItem()));
+            for (var es : new String[]{"helmet", "leggings", "boots"})
+                p.setItemSlot(es.equals("helmet") ? net.minecraft.world.entity.EquipmentSlot.HEAD : es.equals("leggings") ? net.minecraft.world.entity.EquipmentSlot.LEGS : net.minecraft.world.entity.EquipmentSlot.FEET,
+                        new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("space_suit_" + es)));
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, worn.copy());
+            inv.setItem(9, net.minecraft.world.item.ItemStack.EMPTY);
+            var prot = com.heliosphere.core.env.SpaceSuits.of(p);
+            report.add("[info] suit protection with the pack on: " + prot + ", jetpack worn " + com.heliosphere.planets.gear.Jetpacks.worn(p));
+            int g = Math.max(170, l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, p.getBlockX(), p.getBlockZ()) + 3);
+            for (int dx = -1; dx <= 1; dx++) for (int dz = -1; dz <= 1; dz++)
+                l.setBlock(new net.minecraft.core.BlockPos(p.getBlockX() + dx, g - 1, p.getBlockZ() + dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), 2);
+            p.teleportTo(p.getBlockX() + 0.5, g + 0.1, p.getBlockZ() + 0.5);
+            p.getAbilities().flying = false; p.onUpdateAbilities();
+            y0[0] = g;
+        });
+        ctx.waitTicks(40);
+        ctx.runOnClient(mc -> report.add("[info] client before: y " + String.format("%.2f", mc.player.getY()) + " onGround " + mc.player.onGround() + " screen " + mc.screen
+                + " worn " + com.heliosphere.planets.gear.Jetpacks.worn(mc.player) + " fuel " + com.heliosphere.planets.gear.JetpackItem.fuel(mc.player.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST))));
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(true)); ctx.waitTicks(3);
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(false)); ctx.waitTicks(2);
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(true));
+        for (int t = 0; t < 4; t++) {
+            ctx.waitTicks(10);
+            ctx.runOnClient(mc -> report.add("[info] client: y " + String.format("%.2f", mc.player.getY()) + " vy " + String.format("%.3f", mc.player.getDeltaMovement().y) + " onGround " + mc.player.onGround()));
+        }
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK)); ctx.waitTicks(2);
+        shot(ctx, "suit_jetpack");
+        ctx.runOnClient(mc -> mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON));
+        ctx.runOnClient(mc -> mc.options.keyJump.setDown(false));
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var chest = p.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.CHEST);
+            report.add("[info] suit jetpack (overworld): risen " + String.format("%.1f", p.getY() - y0[0]) + " blocks, fuel left " + com.heliosphere.planets.gear.JetpackItem.fuel(chest));
+            // take it back off: right-click with an empty cursor
+            var inv = p.getInventory();
+            inv.setItem(10, chest.copy());
+            p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
+            net.minecraft.world.inventory.Slot slot = null;
+            for (var sl : p.inventoryMenu.slots) if (sl.container == inv && sl.getContainerSlot() == 10) slot = sl;
+            net.minecraft.world.item.ItemStack[] carried = {net.minecraft.world.item.ItemStack.EMPTY};
+            boolean off = inv.getItem(10).overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack.EMPTY, slot, net.minecraft.world.inventory.ClickAction.SECONDARY, p,
+                    net.minecraft.world.entity.SlotAccess.of(() -> carried[0], v -> carried[0] = v));
+            report.add("[info] pack taken off " + off + ": " + carried[0] + " fuel " + com.heliosphere.planets.gear.JetpackItem.fuel(carried[0]) + ", suit still has kind " + com.heliosphere.planets.gear.JetpackItem.kindOn(inv.getItem(10)));
+        });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** The recovery wrench on a rocket on its pad packs the whole rocket into one item; the item stands it back up. */
+    private void packRocket(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 8000 200 8000");
+        ctx.waitTicks(60);
+        cmd(sp, "gamemode survival @a");
+        int x = 8000, z = 8000, y = 200;
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            p.getInventory().clearContent();
+            for (int dx = -7; dx <= 7; dx++) for (int dz = -7; dz <= 7; dz++) {
+                for (int dy = 0; dy < 60; dy++) l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y + dy, z + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x + dx, y - 1, z + dz), Math.abs(dx) <= 4 && Math.abs(dz) <= 4
+                        ? com.heliosphere.core.Reg.getBlock("launch_pad").defaultBlockState() : net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState());
+            }
+            var stack = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("rocket_qiming_1"));
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, stack);
+            var hit = new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3(x + 0.5, y, z + 0.5), net.minecraft.core.Direction.UP, new net.minecraft.core.BlockPos(x, y - 1, z), false);
+            report.add("[info] place qiming 1: " + stack.useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)));
+        });
+        ctx.waitTicks(30);
+        int[] parts = new int[1];
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var box = new net.minecraft.world.phys.AABB(x - 6, y - 4, z - 6, x + 6, y + 80, z + 6);
+            var list = l.getEntitiesOfClass(com.heliosphere.rocketry.entity.RocketEntity.class, box);
+            p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("rocket_recovery_tool")));
+            if (!list.isEmpty()) {
+                var r = list.get(0);
+                parts[0] = r.structure().parts().size();
+                var res = net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.invoker().interact(p, l, net.minecraft.world.InteractionHand.MAIN_HAND, r, null);
+                report.add("[info] wrench on the rocket entity (" + parts[0] + " parts): " + res + ", entity removed " + r.isRemoved());
+            } else {                                             // still blocks: the wrench on a part block
+                var hit = new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3(x + 0.5, y + 1, z + 0.5), net.minecraft.core.Direction.NORTH, new net.minecraft.core.BlockPos(x, y + 1, z), false);
+                var res = p.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit));
+                report.add("[info] wrench on a rocket block: " + res);
+            }
+            int packed = 0, loose = 0;
+            net.minecraft.world.item.ItemStack got = net.minecraft.world.item.ItemStack.EMPTY;
+            for (int i = 0; i < p.getInventory().getContainerSize(); i++) {
+                var it = p.getInventory().getItem(i);
+                if (it.is(com.heliosphere.core.Reg.get("packed_rocket"))) { packed += it.getCount(); got = it; }
+                else if (!it.isEmpty() && !it.is(com.heliosphere.core.Reg.get("rocket_recovery_tool"))) loose += it.getCount();
+            }
+            report.add((packed == 1 && loose == 0 ? "[ok] " : "[FAIL] ") + "recovered: " + packed + " packed rocket(s) named '" + got.getHoverName().getString() + "', " + loose + " loose parts");
+            int left = 0;
+            for (int dx = -6; dx <= 6; dx++) for (int dz = -6; dz <= 6; dz++) for (int dy = 0; dy < 60; dy++)
+                if (l.getBlockState(new net.minecraft.core.BlockPos(x + dx, y + dy, z + dz)).getBlock() instanceof com.heliosphere.rocketry.part.RocketPartBlock) left++;
+            report.add("[info] rocket blocks left on the pad: " + left + ", entities left " + l.getEntitiesOfClass(com.heliosphere.rocketry.entity.RocketEntity.class, box).size());
+            if (!got.isEmpty()) {
+                p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, got.copy());
+                var hit = new net.minecraft.world.phys.BlockHitResult(new net.minecraft.world.phys.Vec3(x + 0.5, y, z + 0.5), net.minecraft.core.Direction.UP, new net.minecraft.core.BlockPos(x, y - 1, z), false);
+                report.add("[info] place the packed rocket: " + p.getMainHandItem().useOn(new net.minecraft.world.item.context.UseOnContext(p, net.minecraft.world.InteractionHand.MAIN_HAND, hit)) + ", in hand after " + p.getMainHandItem().getCount());
+            }
+        });
+        ctx.waitTicks(30);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var box = new net.minecraft.world.phys.AABB(x - 6, y - 4, z - 6, x + 6, y + 80, z + 6);
+            var list = l.getEntitiesOfClass(com.heliosphere.rocketry.entity.RocketEntity.class, box);
+            int blocks = 0;
+            for (int dx = -6; dx <= 6; dx++) for (int dz = -6; dz <= 6; dz++) for (int dy = 0; dy < 60; dy++)
+                if (l.getBlockState(new net.minecraft.core.BlockPos(x + dx, y + dy, z + dz)).getBlock() instanceof com.heliosphere.rocketry.part.RocketPartBlock) blocks++;
+            int n = list.isEmpty() ? blocks : list.get(0).structure().parts().size();
+            report.add((n == parts[0] || parts[0] == 0 ? "[ok] " : "[FAIL] ") + "rocket stood back up: " + (list.isEmpty() ? blocks + " blocks" : "entity with " + n + " parts, propellant " + String.format("%.0f", list.get(0).structure().totalPropellant())));
+            p.teleportTo(x + 0.5, y + 2, z - 14.5);
+        });
+        look(ctx, 0, -20);
+        ctx.waitTicks(20);
+        shot(ctx, "packed_rocket_placed");
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** Fresh chunks on the Moon, Mars and Venus: every Earth ore there besides the local deposits. */
+    private void planetOres(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        for (String w : new String[]{"moon", "mars", "mercury", "ceres"}) {
+            cmd(sp, "execute in heliosphere:" + w + " run tp @p 20000 300 20000");
+            ctx.waitTicks(100);
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                java.util.Map<String, Integer> n = new java.util.TreeMap<>();
+                int cx = p.getBlockX() >> 4, cz = p.getBlockZ() >> 4;
+                var m = new net.minecraft.core.BlockPos.MutableBlockPos();
+                for (int ax = cx - 1; ax <= cx + 1; ax++) for (int az = cz - 1; az <= cz + 1; az++) {
+                    var c = l.getChunk(ax, az);
+                    for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) {
+                        int top = c.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z);
+                        for (int y = Math.max(l.getMinY(), top - 260); y <= top; y++) {
+                            var st = c.getBlockState(m.set((ax << 4) + x, y, (az << 4) + z));
+                            String id = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getKey(st.getBlock()).getPath();
+                            if (id.endsWith("_ore") || id.equals("oil_sand")) n.merge(id.replace("deepslate_", ""), 1, Integer::sum);
+                        }
+                    }
+                }
+                report.add("[info] " + w + ": " + n.size() + " Earth ore kinds in 3x3 fresh chunks: " + n);
+            });
+        }
     }
 
     /** The guns rebuilt after the sketches, in hand: hip, aimed down the sights for two of them, and seen from outside. */

@@ -223,5 +223,8 @@
   "message.heliosphere.turret_down": " · §c已癱瘓，%3$s 秒後重啟§r（耐久 %1$s/%2$s）",
   "message.heliosphere.turret_repaired": "防禦塔已修復：耐久 %s/%s",
   "item.heliosphere.jetpack.winged": "已裝鞘翅：鞘翅滑翔，按住空格靠噴氣上升（空手右鍵背包取下鞘翅）",
-  "item.heliosphere.jetpack.wingless": "在物品欄裡把鞘翅點到背包上即可裝上，兩者一起用"
+  "item.heliosphere.jetpack.wingless": "在物品欄裡把鞘翅點到背包上即可裝上，兩者一起用",
+  "item.heliosphere.jetpack.suit": "可以和太空衣一起穿：在物品欄裡把背包點到任意太空衣胸甲上即可合裝",
+  "item.heliosphere.jetpack.on_suit": "已裝 %s（燃料 %s%%）：雙擊空白鍵起飛",
+  "item.heliosphere.jetpack.on_suit_off": "空手右鍵胸甲取下噴氣背包"
 }

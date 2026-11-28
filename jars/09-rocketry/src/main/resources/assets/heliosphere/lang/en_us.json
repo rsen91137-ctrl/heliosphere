@@ -30,5 +30,15 @@
   "item.heliosphere.rocket_kit_phobos_clipper_2": "Phobos Clipper · Section Kit 2/2",
   "item.heliosphere.rocket_kit_enceladus_pioneer_1": "Ice Vent Pioneer · Section Kit 1/2",
   "item.heliosphere.rocket_kit_enceladus_pioneer_2": "Ice Vent Pioneer · Section Kit 2/2",
-  "tooltip.heliosphere.rocket_kit": "Combine in the assembly station with the rocket's other kits, crew capsule, nose cone (and escape tower) into the pre-assembled rocket"
+  "tooltip.heliosphere.rocket_kit": "Combine in the assembly station with the rocket's other kits, crew capsule, nose cone (and escape tower) into the pre-assembled rocket",
+  "item.heliosphere.packed_rocket": "Recovered Rocket",
+  "item.heliosphere.packed_rocket.named": "Recovered Rocket: %s",
+  "item.heliosphere.packed_rocket.custom": "Recovered Rocket (custom, %s parts)",
+  "tooltip.heliosphere.packed_rocket.size": "%s parts · %s blocks tall",
+  "tooltip.heliosphere.packed_rocket.fuelled": "Propellant kept in the tanks",
+  "tooltip.heliosphere.packed_rocket.empty": "Tanks are empty: fuel it after placing",
+  "tooltip.heliosphere.packed_rocket.use": "Use on a launch pad (or the ground) to stand the whole rocket back up as it was",
+  "message.heliosphere.rocket_packed": "Whole rocket recovered: %s (sneak with the wrench to take it apart into parts)",
+  "message.heliosphere.packed_rocket_placed": "Rocket placed (%s parts)",
+  "message.heliosphere.recovered": "§aRocket recovered (%s parts)"
 }

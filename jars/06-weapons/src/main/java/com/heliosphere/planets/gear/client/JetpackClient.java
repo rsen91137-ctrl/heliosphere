@@ -20,6 +20,16 @@ public final class JetpackClient {
 
     public static void init() {
         ClientTickEvents.START_CLIENT_TICK.register(JetpackClient::tick);
+        // a space suit carrying a jetpack says so
+        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, ctx, type, lines) -> {
+            if (!JetpackItem.suit(stack)) return;
+            JetpackKind k = JetpackItem.kindOn(stack);
+            if (k == null) return;
+            lines.add(net.minecraft.network.chat.Component.translatable("item.heliosphere.jetpack.on_suit",
+                    net.minecraft.network.chat.Component.translatable("item.heliosphere." + k.id), JetpackItem.fuel(stack) * 100 / JetpackItem.TANK)
+                    .withStyle(net.minecraft.ChatFormatting.AQUA));
+            lines.add(net.minecraft.network.chat.Component.translatable("item.heliosphere.jetpack.on_suit_off").withStyle(net.minecraft.ChatFormatting.DARK_GRAY));
+        });
     }
 
     /** Double tap of the jump key: the pack lights. One tap is an ordinary jump. */

@@ -17,5 +17,6 @@ public abstract class ShoulderSentryBreakMixin {
     @Inject(method = "applyDamage", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
     private void heliosphere$saveSentry(int damage, ServerPlayer player, Consumer<Item> onBreak, CallbackInfo ci) {
         ShoulderSentry.armourBreaking((ItemStack) (Object) this, player);
+        com.heliosphere.planets.gear.JetpackItem.suitBreaking((ItemStack) (Object) this, player);
     }
 }

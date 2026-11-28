@@ -6,7 +6,8 @@
   "mixins": [
     "JetpackFlightCheckMixin",
     "ShoulderSentryDetachMixin",
-    "ShoulderSentryBreakMixin"
+    "ShoulderSentryBreakMixin",
+    "SuitJetpackDetachMixin"
   ],
   "injectors": {
     "defaultRequire": 1

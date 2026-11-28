@@ -44,6 +44,7 @@ public final class RocketKits implements ModInitializer {
         kit("rocket_kit_enceladus_pioneer_1");
         kit("rocket_kit_enceladus_pioneer_2");
         MachineType.addProvider(RocketKits::recipes);
+        PackedRocketItem.ITEM = Reg.item("packed_rocket", PackedRocketItem::new, new Item.Properties().stacksTo(1));
     }
 
     private static void kit(String id) {

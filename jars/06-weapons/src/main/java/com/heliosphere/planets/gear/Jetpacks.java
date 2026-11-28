@@ -64,7 +64,8 @@ public final class Jetpacks {
     }
 
     public static JetpackItem worn(net.minecraft.world.entity.player.Player p) {
-        return p.getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof JetpackItem j ? j : null;
+        JetpackKind k = JetpackItem.kindOn(p.getItemBySlot(EquipmentSlot.CHEST));      // the pack, or one fitted to a space suit
+        return k == null ? null : ITEMS.get(k);
     }
 
     private static void tick(MinecraftServer server) {

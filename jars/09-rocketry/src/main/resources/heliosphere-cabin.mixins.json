@@ -7,7 +7,9 @@
     "RocketHoldMixin",
     "LandingWalkMixin",
     "FlightRoomSealMixin",
-    "ConsoleRocketMixin"
+    "ConsoleRocketMixin",
+    "RecoveryWholeRocketMixin",
+    "RecoverLandedRocketMixin"
   ],
   "client": [
     "CockpitFreeLookMixin",

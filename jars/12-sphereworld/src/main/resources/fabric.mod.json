@@ -4,5 +4,5 @@
   "version": "0",
   "name": "Overlay for 12 sphereworld. Only `mixins` and `entrypoints` are used: mergeJar appends them to the released fabric.mod.json.",
   "entrypoints": {"main": ["com.heliosphere.sphereworld.giant.GiantDepths"]},
-  "mixins": ["heliosphere-giants.mixins.json"]
+  "mixins": ["heliosphere-giants.mixins.json", "heliosphere-earthores.mixins.json"]
 }
