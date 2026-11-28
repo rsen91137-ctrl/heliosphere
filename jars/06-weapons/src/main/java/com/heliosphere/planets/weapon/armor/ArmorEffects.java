@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
  * What the special armour does, piece by piece: combat uniforms stop 6 % of bullet and missile damage each, the
  * bomb suit 15 % of blast damage each, the alien plates 10 % of fire and energy damage each; a full hazmat suit
  * keeps radiation, poison and wither out; a full ghillie suit, while you crouch, hides you from machines further
- * than 10 blocks away.
+ * than 10 blocks away. Any armour also blunts attacks from machines and creatures ({@link #guard}).
  */
 public final class ArmorEffects {
     private ArmorEffects() {}
@@ -28,7 +28,19 @@ public final class ArmorEffects {
                 default -> { }
             }
         }
+        if (e instanceof Player p && src.getEntity() != null && !(src.getEntity() instanceof Player)) amount *= guard(p);
         return amount;
+    }
+
+    /**
+     * Armour against attacks from machines and creatures (their shots, blasts and blows): on top of the vanilla
+     * reduction, every point of armour takes 5 % more off, down to 30 % of the hit with 14 points or more. Without it a
+     * machine's ordinary 30-point shot went straight through a space suit (13 armour, toughness 1) in one hit; now a
+     * suit or iron takes four or five such hits, diamond, netherite and the military sets seven or eight. PvP and
+     * falls, fire, the void and the like are left as they were.
+     */
+    public static float guard(Player p) {
+        return Math.max(0.3f, 1f - 0.05f * p.getArmorValue());
     }
 
     private static boolean bullet(DamageSource src) {

@@ -6,6 +6,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 public final class SentryClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
+        net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap.putBlock(com.heliosphere.planets.defense.ward.Wards.BLAST_GLASS,
+                net.minecraft.client.renderer.chunk.ChunkSectionLayer.TRANSLUCENT);
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, tctx, ttype, lines) -> {
             long[] kept = SentryBlock.stored(stack);
             if (kept == null || !(stack.getItem() instanceof net.minecraft.world.item.BlockItem bi) || !(bi.getBlock() instanceof SentryBlock)) return;

@@ -72,8 +72,8 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
     /** Knocked out since start (for tests). */
     public static int knockedOut;
 
-    /** What a turret takes before it is knocked out: 80, and 40 more a Mk. */
-    public float maxIntegrity() { return 80 + 40 * mk; }
+    /** What a turret takes before it is knocked out: 120, and 60 more a Mk. */
+    public float maxIntegrity() { return 120 + 60 * mk; }
     public float integrity() { return integrity < 0 ? maxIntegrity() : Math.min(integrity, maxIntegrity()); }
     public boolean disabled() { return disabled > 0; }
 
@@ -282,18 +282,18 @@ public class SentryBlockEntity extends BlockEntity implements EnergyNode {
 
     private void hit(ServerLevel level, Mob m, float damage) {
         m.invulnerableTime = 0;
-        m.hurtServer(level, source(level), damage * machineArmour(level, m));
+        com.heliosphere.planets.weapon.PlayerDamage.automatic(() -> m.hurtServer(level, source(level), damage * machineArmour(level, m)));
     }
 
     /**
      * The machines' armour against turret fire hardens in the last months: from evolution stage 9 each stage takes
-     * 4 % off a turret hit on a machine, down to 76 % of the damage at stage 15. Bosses take a quarter off on top.
+     * 3 % off a turret hit on a machine, down to 82 % of the damage at stage 14. Bosses take 15 % off on top.
      */
     private static float machineArmour(ServerLevel level, Mob m) {
         if (!(m instanceof com.heliosphere.planets.tech.TechMob t)) return 1f;
         int stage = (int) Math.max(1, Math.min(15, 1 + level.getServer().overworld().getDayTime() / 24000L / 24));   // Evolution.stage (07)
-        float k = stage <= 8 ? 1f : Math.max(0.7f, 1f - 0.04f * (stage - 8));
-        if (t.role() != null && BOSSES.contains(t.role().id())) k *= 0.75f;
+        float k = stage <= 8 ? 1f : Math.max(0.82f, 1f - 0.03f * (stage - 8));
+        if (t.role() != null && BOSSES.contains(t.role().id())) k *= 0.85f;
         return k;
     }
 

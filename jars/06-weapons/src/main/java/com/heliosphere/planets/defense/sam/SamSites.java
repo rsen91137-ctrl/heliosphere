@@ -96,6 +96,7 @@ public final class SamSites implements ModInitializer {
         com.heliosphere.planets.weapon.ammo.AmmoBox.init();
         com.heliosphere.planets.weapon.armor.Armory.init();
         com.heliosphere.planets.gear.Jetpacks.init();
+        com.heliosphere.planets.weapon.armor.SuitArmour.init();
     }
 
     private static final Identifier STORY = Identifier.fromNamespaceAndPath("heliosphere", "story");

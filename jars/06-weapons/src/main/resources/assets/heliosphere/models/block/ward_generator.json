@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "heliosphere:block/ward_generator_top",
+    "side": "heliosphere:block/ward_generator_side"
+  }
+}

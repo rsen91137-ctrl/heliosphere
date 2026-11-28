@@ -124,6 +124,9 @@
     {
       "id": "heliosphere:sam_ammo_crate",
       "required": false
-    }
+    },
+    "heliosphere:ward_generator",
+    "heliosphere:blast_concrete",
+    "heliosphere:blast_glass"
   ]
 }

@@ -12,7 +12,9 @@
     "AmmoBoxReloadMixin",
     "PlayerAmmoBoxMixin",
     "ArmorDamageMixin",
-    "GhillieTargetMixin"
+    "GhillieTargetMixin",
+    "PlayerWeaponDamageMixin",
+    "GunTooltipDamageMixin"
   ],
   "injectors": {
     "defaultRequire": 1

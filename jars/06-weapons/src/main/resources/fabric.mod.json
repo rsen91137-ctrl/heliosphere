@@ -6,12 +6,14 @@
   "mixins": [
     "heliosphere-weaponfx.mixins.json",
     "heliosphere-gear.mixins.json",
-    "heliosphere-samclient.mixins.json"
+    "heliosphere-samclient.mixins.json",
+    "heliosphere-ward.mixins.json"
   ],
   "entrypoints": {
     "main": [
       "com.heliosphere.planets.defense.mk.Sentries",
-      "com.heliosphere.planets.defense.sam.SamSites"
+      "com.heliosphere.planets.defense.sam.SamSites",
+      "com.heliosphere.planets.defense.ward.Wards"
     ],
     "client": [
       "com.heliosphere.planets.defense.mk.SentryClient",

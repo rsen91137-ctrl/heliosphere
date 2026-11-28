@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "SGS",
+    "GIG",
+    "SGS"
+  ],
+  "key": {
+    "S": "minecraft:stone",
+    "G": "minecraft:gravel",
+    "I": "minecraft:iron_ingot"
+  },
+  "result": {
+    "id": "heliosphere:blast_concrete",
+    "count": 8
+  }
+}

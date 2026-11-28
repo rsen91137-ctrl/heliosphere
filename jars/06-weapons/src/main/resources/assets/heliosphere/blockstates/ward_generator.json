@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "heliosphere:block/ward_generator"
+    },
+    "active=true": {
+      "model": "heliosphere:block/ward_generator_on"
+    }
+  }
+}

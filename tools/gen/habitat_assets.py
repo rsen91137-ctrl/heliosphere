@@ -85,24 +85,23 @@ LANG = {
                                                'Careful: there is no breathable air here and Earth creatures slowly suffocate - let it out inside a habitat field.',
                                                '注意：這裡沒有可呼吸的空氣，地球生物會慢慢窒息——把牠放進棲息地力場的圈裡。'),
     'block.heliosphere.habitat_field_emitter': ('栖息地力场发生器', 'Habitat Field Emitter', '棲息地力場發生器'),
-    'block.heliosphere.habitat_field_panel': ('力场防护板', 'Force-Field Panel', '力場防護板'),
-    'message.heliosphere.habitat_on': ('力场运行中：圈内 %s 格地面，从发生器下方 %s 格到上方 %s 格，空气可呼吸、恒温 20°C、地球重力。',
-                                       'Field running: %s columns inside the ring, from %s blocks below the emitter to %s above: breathable air, 20°C, Earth gravity.',
-                                       '力場運行中：圈內 %s 格地面，從發生器下方 %s 格到上方 %s 格，空氣可呼吸、恆溫 20°C、地球重力。'),
-    'message.heliosphere.habitat_leak': ('这一圈没有围合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的范围）。和发生器同一高度的一圈墙必须连续，门要关好。',
-                                         'The ring is not closed: there is a gap near %s, %s, %s (or it is larger than 40 blocks / 6400 columns). The wall at the emitter\'s height must go all the way round, doors shut.',
-                                         '這一圈沒有圍合：在 %s, %s, %s 附近有缺口（或超出 40 格 / 6400 格的範圍）。和發生器同一高度的一圈牆必須連續，門要關好。'),
+    'block.heliosphere.habitat_field_panel': ('力场防护板（装饰）', 'Force-Field Panel (decorative)', '力場防護板（裝飾）'),
+    'message.heliosphere.habitat_on': ('力场运行中：以发生器为中心半径 %s 格的圆形区域，从下方 %s 格到上方 %s 格，空气可呼吸、恒温 20°C、地球重力。电量 %s FE，耗电 %s FE/t。',
+                                       'Field up: a circle of radius %s round the emitter, from %s blocks below to %s above, with breathable air, 20°C and Earth gravity. Charge %s FE, using %s FE/t.',
+                                       '力場運行中：以發生器為中心半徑 %s 格的圓形區域，從下方 %s 格到上方 %s 格，空氣可呼吸、恆溫 20°C、地球重力。電量 %s FE，耗電 %s FE/t。'),
+    'message.heliosphere.habitat_unpowered': ('力场没有电：用电缆把发生器接到电网（运行时耗电 %s FE/t）。当前电量 %s FE。',
+                                              'The field has no power: connect the emitter to the grid with a cable (it uses %s FE/t while running). Charge %s FE.',
+                                              '力場沒有電：用電纜把發生器接到電網（運行時耗電 %s FE/t）。目前電量 %s FE。'),
 }
-PAGE_E = ('栖息地力场发生器：在任何星球上造一片「地球环境」，不耗电。在地面上用「力场防护板」或任何实心方块围一圈（一格高就够，不需要屋顶），把发生器放在圈内地面上：'
-          '发生器每 2 秒沿它所在的那一层向四周检查，只要这一圈是闭合的（距发生器 40 格以内、圈内最多 6400 格），圈内从发生器下方 6 格到上方 30 格的整个空间就可以呼吸、恒温 20°C、'
-          '重力变成地球重力（1g），不穿宇航服也能活动，跳跃和摔落都和在地球上一样。和发生器同一高度的那一圈必须连续：关着的门算墙，开着的门或缺一块就会失效，右键发生器会告诉你缺口在哪里。'
-          '圈内能看到淡淡的光点，发生器亮起表示正在运行。')
-PAGE_P = '力场防护板：透明、发光的墙板，在地面上围一圈就能圈出栖息地力场的范围（任何实心方块都能当围墙，这种板只是看得见外面）。总装台：玻璃×8 + 钢板 + 铜线×2 → 8 块。'
+PAGE_E = ('栖息地力场发生器：在任何星球上造一片「地球环境」。只要这一个方块、接上电就行，不需要围墙或其他方块：以发生器为中心、半径 32 格的圆形区域（直径约 64 格），'
+          '从发生器下方 8 格到上方 32 格，整个空间可以呼吸、恒温 20°C、重力变成地球重力（1g），不穿宇航服也能活动，跳跃和摔落都和在地球上一样。'
+          '用电缆接到电网供电：运行时耗电 48 FE/t，自带 96000 FE 储能；没电时力场消失。右键发生器查看电量和范围。范围内能看到淡淡的光点，发生器亮起表示正在运行。')
+PAGE_P = '力场防护板：透明、发光的装饰墙板（栖息地力场现在不需要围墙）。总装台：玻璃×8 + 钢板 + 铜线×2 → 8 块。'
 PAGE_C = ('生物收容舱：物种移植用。右键生物把它收进舱里（血量、名字、年龄、繁殖状态、项圈、驯服主人都保留），带上火箭，到目的地对地面右键放出；可以反复使用。'
           '玩家、Boss（末影龙、凋灵）和机械敌人不能收容。地球生物（原版的动物、村民等）在没有可呼吸空气的星球上会慢慢窒息（每 2 秒 2 点伤害），要放进栖息地力场的圈里才能活下去、繁衍。'
           '总装台：玻璃×4、钢板×2、电路板×1、压缩氧气罐×1。')
-TIP = ('§b星球栖息地：§r在外星球的地面上用「力场防护板」或任何实心方块围一圈（一格高、不用屋顶），把「栖息地力场发生器」放在圈内同一高度，'
-       '不用接电，圈内从下方 6 格到上方 30 格就会变成可呼吸、20°C、地球重力的环境，可以脱下宇航服建造基地。缺口处会失效，右键发生器查看缺口位置。')
+TIP = ('§b星球栖息地：§r在外星球上放一台「栖息地力场发生器」并用电缆接上电（48 FE/t），不需要围墙，'
+       '以它为中心半径 32 格、从下方 8 格到上方 32 格的范围就会变成可呼吸、20°C、地球重力的环境，可以脱下宇航服建造基地。没电力场就会消失，右键发生器查看电量。')
 
 
 def main():

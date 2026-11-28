@@ -180,7 +180,7 @@ public final class ShoulderSentry {
             for (int g = 0; g < guns; g++) {
                 Mob target = seen.get(g);
                 Vec3 c = target.getBoundingBox().getCenter();
-                target.hurtServer(level, level.damageSources().playerAttack(p), damage(mk));
+                com.heliosphere.planets.weapon.PlayerDamage.automatic(() -> target.hurtServer(level, level.damageSources().playerAttack(p), damage(mk)));
                 target.invulnerableTime = 0;
                 // a heavy tracer with its muzzle flash, a small burst and sparks where it hits
                 Vec3 from = muzzle.add(c.subtract(muzzle).normalize().scale(0.25));

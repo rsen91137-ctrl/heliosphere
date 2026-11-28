@@ -226,5 +226,10 @@
   "item.heliosphere.jetpack.wingless": "Click an elytra onto the pack in your inventory to fit it and use both",
   "item.heliosphere.jetpack.suit": "Wear it with a space suit: click the pack onto any suit chestplate in your inventory",
   "item.heliosphere.jetpack.on_suit": "%s fitted (fuel %s%%): double-tap jump to take off",
-  "item.heliosphere.jetpack.on_suit_off": "Right-click the chestplate with an empty hand to take the jetpack off"
+  "item.heliosphere.jetpack.on_suit_off": "Right-click the chestplate with an empty hand to take the jetpack off",
+  "block.heliosphere.ward_generator": "Ward Generator",
+  "block.heliosphere.blast_concrete": "Blast-Proof Concrete",
+  "block.heliosphere.blast_glass": "Blast-Proof Glass",
+  "message.heliosphere.ward_on": "Ward up over %s×%s blocks (24 up and down). Players inside get Regeneration I and Resistance I; machines are slowed, have a 10%% chance a second of a 1.5-second malfunction and lose 1.5%% of their health a second (4 at most). Charge %s FE, using %s FE/t.",
+  "message.heliosphere.ward_unpowered": "The ward generator has no power: connect it to the grid with a cable (it uses %s FE/t while running). Charge %s FE."
 }

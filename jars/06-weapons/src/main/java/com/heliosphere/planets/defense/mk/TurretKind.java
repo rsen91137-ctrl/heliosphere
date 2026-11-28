@@ -31,7 +31,10 @@ public enum TurretKind {
     private static final long[] CAPACITY = {4000, 6000, 9000, 14000, 20000, 40000};
 
     public double range(int mk) { return range * RANGE[clamp(mk)]; }
-    public float damage(int mk) { return damage * DAMAGE[clamp(mk)]; }
+    /** Every turret hits 40 % harder than its base number (the stage-36 strengthening). */
+    public static final float BOOST = 1.4f;
+
+    public float damage(int mk) { return damage * DAMAGE[clamp(mk)] * BOOST; }
     public int cooldown(int mk) { return Math.max(2, Math.round(cooldown * RATE[clamp(mk)])); }
     public long capacity(int mk) { return CAPACITY[clamp(mk)]; }
 

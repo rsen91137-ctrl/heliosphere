@@ -14,8 +14,8 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 
 /**
- * The habitat field: an emitter that gives an enclosed space Earth's air, temperature and gravity on any world, and
- * force-field panels, a clear wall to enclose it with (any solid block will do as wall); and the bio-containment
+ * The habitat field: a powered emitter that holds a round field of Earth's air, temperature and gravity around itself on
+ * any world (no walls needed; the force-field panels are left as a clear decorative wall); and the bio-containment
  * capsule to carry creatures to it, since Earth's animals suffocate on airless worlds outside it (LifeSupport).
  */
 public final class Habitat implements ModInitializer {

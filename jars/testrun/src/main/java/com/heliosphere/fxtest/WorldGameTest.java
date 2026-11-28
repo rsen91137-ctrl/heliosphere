@@ -89,6 +89,10 @@ public class WorldGameTest implements FabricClientGameTest {
                     case "cuisine" -> cuisine(ctx, sp);
                     case "bomber" -> bomber(ctx, sp);
                     case "suitjet" -> suitJet(ctx, sp);
+                    case "dmg25" -> damage25(ctx, sp);
+                    case "armor36" -> armour36(ctx, sp);
+                    case "ward" -> ward(ctx, sp);
+                    case "blastproof" -> blastProof(ctx, sp);
                     case "packrocket" -> packRocket(ctx, sp);
                     case "planetores" -> planetOres(ctx, sp);
                     case "siege11" -> siege11(ctx, sp);
@@ -1984,6 +1988,157 @@ public class WorldGameTest implements FabricClientGameTest {
         }
         cmd(sp, "gamemode creative @a");
         server(sp, s -> player(s).setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY));
+    }
+
+    /** Player weapon damage x2.5 against robots on the Moon (not against players); the gun tooltip shows it. */
+    private void damage25(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 7700 200 7700");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            for (String id : new String[]{"security_walker", "hunter_drone", "titan_walker"}) {
+                var a = com.heliosphere.planets.tech.TechCombat.spawn(l, id, p.getX() + 6, p.getY() + 3, p.getZ(), null);
+                var b = com.heliosphere.planets.tech.TechCombat.spawn(l, id, p.getX() - 6, p.getY() + 3, p.getZ(), null);
+                if (a == null || b == null) { report.add("[info] no " + id); continue; }
+                a.setNoAi(true); b.setNoAi(true);
+                float ha = a.getHealth(), hb = b.getHealth();
+                a.hurtServer(l, l.damageSources().playerAttack(p), 10f);
+                b.hurtServer(l, l.damageSources().generic(), 10f);
+                float da = ha - a.getHealth(), db = hb - b.getHealth();
+                report.add((da > db * 2.2f ? "[ok] " : "[FAIL] ") + id + " (hp " + ha + "): 10 from the player took " + String.format("%.1f", da) + ", 10 from elsewhere took " + String.format("%.1f", db));
+                a.discard(); b.discard();
+            }
+            var gun = new net.minecraft.world.item.ItemStack(com.heliosphere.core.Reg.get("sniper_rifle"));
+            var lines = gun.getTooltipLines(net.minecraft.world.item.Item.TooltipContext.of(l), p, net.minecraft.world.item.TooltipFlag.NORMAL);
+            for (var line : lines) if (line.getString().contains("90") || line.getString().contains("225")) report.add("[info] sniper tooltip: " + line.getString());
+        });
+    }
+
+    /** Hits a player takes from a machine's ordinary 30-point shot: bare, in a space suit, in netherite. */
+    private void armour36(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 7800 200 7800");
+        ctx.waitTicks(40);
+        cmd(sp, "gamemode survival @a");
+        cmd(sp, "effect clear @a");
+        String[][] sets = {{"heliosphere:space_suit_helmet", "heliosphere:space_suit_chestplate", "heliosphere:space_suit_leggings", "heliosphere:space_suit_boots"},
+                {"minecraft:iron_helmet", "minecraft:iron_chestplate", "minecraft:iron_leggings", "minecraft:iron_boots"},
+                {"minecraft:netherite_helmet", "minecraft:netherite_chestplate", "minecraft:netherite_leggings", "minecraft:netherite_boots"},
+                {"heliosphere:us_ocp_helmet", "heliosphere:us_ocp_chestplate", "heliosphere:us_ocp_leggings", "heliosphere:us_ocp_boots"}};
+        String[] names = {"space suit", "iron", "netherite", "US OCP"};
+        net.minecraft.world.entity.EquipmentSlot[] slots = {net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+                net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+        for (int k = 0; k < sets.length; k++) {
+            final int kk = k;
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                for (int i = 0; i < 4; i++) {
+                    var item = sets[kk].length == 0 ? null : net.minecraft.core.registries.BuiltInRegistries.ITEM.getOptional(net.minecraft.resources.Identifier.parse(sets[kk][i])).orElse(null);
+                    p.setItemSlot(slots[i], item == null ? net.minecraft.world.item.ItemStack.EMPTY : new net.minecraft.world.item.ItemStack(item));
+                }
+                p.setHealth(p.getMaxHealth());
+            });
+            ctx.waitTicks(3);
+            server(sp, s -> {
+                ServerPlayer p = player(s);
+                var l = p.level();
+                var bot = com.heliosphere.planets.tech.TechCombat.spawn(l, "hunter_drone", p.getX() + 5, p.getY() + 3, p.getZ(), null);
+                if (bot == null) { report.add("[FAIL] no drone"); return; }
+                bot.setNoAi(true);
+                p.invulnerableTime = 0;
+                p.hurtServer(l, l.damageSources().mobAttack(bot), 30f);
+                float took = p.getMaxHealth() - p.getHealth();
+                report.add((kk == 4 || took < 7 ? "[ok] " : "[FAIL] ") + names[kk] + " (armour " + p.getArmorValue() + ", toughness " + String.format("%.0f", p.getAttributeValue(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR_TOUGHNESS))
+                        + "): a 30-point machine hit takes " + String.format("%.1f", took) + " -> " + (took <= 0 ? "-" : String.valueOf((int) Math.ceil(20 / took))) + " hits from full health");
+                bot.discard();
+                p.setHealth(p.getMaxHealth());
+            });
+            ctx.waitTicks(3);
+        }
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            for (int i = 0; i < 4; i++) p.setItemSlot(slots[i], net.minecraft.world.item.ItemStack.EMPTY);
+            report.add("[info] turret damage now: laser Mk0 " + com.heliosphere.planets.defense.mk.TurretKind.LASER.damage(0) + ", rail Mk5 " + com.heliosphere.planets.defense.mk.TurretKind.RAIL.damage(5));
+        });
+        cmd(sp, "gamemode creative @a");
+    }
+
+    /** The ward generator: a player inside gets the buffs, machines inside are slowed, malfunction now and then and wear down. */
+    private void ward(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 7900 200 7900");
+        ctx.waitTicks(60);
+        int[] o = new int[3];
+        float[] hp0 = new float[4];
+        java.util.List<com.heliosphere.planets.tech.TechMob> bots = new java.util.ArrayList<>();
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x0 = p.getBlockX(), z0 = p.getBlockZ(), g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
+            o[0] = x0; o[1] = g; o[2] = z0;
+            var at = new net.minecraft.core.BlockPos(x0, g, z0);
+            l.setBlockAndUpdate(at, com.heliosphere.planets.defense.ward.Wards.GENERATOR.defaultBlockState());
+            ((com.heliosphere.planets.defense.ward.WardGeneratorBlockEntity) l.getBlockEntity(at)).setEnergy(80_000);
+            p.teleportTo(x0 + 2.5, g, z0 + 0.5);
+            String[] ids = {"security_walker", "siege_walker", "hunter_drone", "security_walker"};
+            for (int i = 0; i < ids.length; i++) {
+                var m = com.heliosphere.planets.tech.TechCombat.spawn(l, ids[i], x0 + 12 + i * 3, g + 1 + (ids[i].contains("drone") ? 3 : 0), z0 + 12, null);
+                bots.add(m); hp0[i] = m.getHealth();
+            }
+            var far = com.heliosphere.planets.tech.TechCombat.spawn(l, "security_walker", x0 + 60, g + 1, z0, null);
+            bots.add(far);
+        });
+        cmd(sp, "gamemode creative @a");
+        ctx.waitTicks(200);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            report.add("[info] ward: player regeneration " + p.hasEffect(net.minecraft.world.effect.MobEffects.REGENERATION) + ", resistance " + p.hasEffect(net.minecraft.world.effect.MobEffects.RESISTANCE)
+                    + "; malfunctions " + com.heliosphere.planets.defense.ward.WardGeneratorBlockEntity.malfunctions + ", wear ticks " + com.heliosphere.planets.defense.ward.WardGeneratorBlockEntity.drained);
+            for (int i = 0; i < 4; i++) {
+                var m = bots.get(i);
+                report.add("[info] ward: " + m.getType().getDescription().getString() + " health " + String.format("%.0f/%.0f", m.getHealth(), hp0[i]) + " in 10 s, slowed " + m.hasEffect(net.minecraft.world.effect.MobEffects.SLOWNESS) + ", alive " + m.isAlive());
+            }
+            var far = bots.get(4);
+            report.add("[info] ward: machine 60 blocks away slowed " + far.hasEffect(net.minecraft.world.effect.MobEffects.SLOWNESS) + ", health " + far.getHealth() + "/" + far.getMaxHealth());
+            p.teleportTo(o[0] - 6.5, o[1] + 4, o[2] - 6.5);
+        });
+        look(ctx, 225, 15);
+        ctx.waitTicks(10);
+        shot(ctx, "ward_field");
+        server(sp, s -> { for (var m : bots) m.discard(); });
+    }
+
+    /** Blast-proof concrete and glass next to plain stone under a level-10 machine warhead crater and a bunker buster's bore. */
+    private void blastProof(ClientGameTestContext ctx, TestSingleplayerContext sp) {
+        cmd(sp, "execute in minecraft:overworld run tp @p 8100 200 8100");
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            int x0 = p.getBlockX(), y0 = 190, z0 = p.getBlockZ();
+            var con = com.heliosphere.planets.defense.ward.Wards.BLAST_CONCRETE.defaultBlockState();
+            var gl = com.heliosphere.planets.defense.ward.Wards.BLAST_GLASS.defaultBlockState();
+            for (int dx = -6; dx <= 6; dx++) for (int dy = -6; dy <= 6; dy++) {
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, y0 + dy, z0), dx < -2 ? net.minecraft.world.level.block.Blocks.STONE.defaultBlockState() : dx < 2 ? gl : con);
+                l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, y0 + dy, z0 + 1), net.minecraft.world.level.block.Blocks.OBSIDIAN.defaultBlockState());
+            }
+            com.heliosphere.hostiles.arsenal.MachineBlast.crater(l, new net.minecraft.world.phys.Vec3(x0 + 0.5, y0 + 0.5, z0 - 1.5),
+                    com.heliosphere.planets.defense.sam.MachineWarheads.crater(10), com.heliosphere.planets.defense.sam.MachineWarheads.resistanceLimit(10));
+            l.explode(null, x0 + 0.5, y0 + 0.5, z0 - 1.5, 8f, net.minecraft.world.level.Level.ExplosionInteraction.TNT);
+            int stone = 0, glass = 0, concrete = 0, obsidian = 0;
+            for (int dx = -6; dx <= 6; dx++) for (int dy = -6; dy <= 6; dy++) {
+                var st = l.getBlockState(new net.minecraft.core.BlockPos(x0 + dx, y0 + dy, z0));
+                if (st.is(net.minecraft.world.level.block.Blocks.STONE)) stone++;
+                if (st.is(com.heliosphere.planets.defense.ward.Wards.BLAST_GLASS)) glass++;
+                if (st.is(com.heliosphere.planets.defense.ward.Wards.BLAST_CONCRETE)) concrete++;
+                if (l.getBlockState(new net.minecraft.core.BlockPos(x0 + dx, y0 + dy, z0 + 1)).is(net.minecraft.world.level.block.Blocks.OBSIDIAN)) obsidian++;
+            }
+            report.add((glass == 4 * 13 && concrete == 5 * 13 ? "[ok] " : "[FAIL] ") + "level-10 warhead crater + an 8-power blast: stone left " + stone + "/52, blast glass " + glass + "/52, blast concrete " + concrete + "/65, obsidian behind " + obsidian + "/169");
+            p.teleportTo(x0 + 0.5, y0 + 2, z0 - 12.5);
+        });
+        look(ctx, 0, 10);
+        ctx.waitTicks(20);
+        shot(ctx, "blast_proof_wall");
     }
 
     /** A jetpack clicked onto a space suit chestplate: the suit flies (double tap), keeps its protection, and the pack comes back off. */
@@ -3922,13 +4077,10 @@ public class WorldGameTest implements FabricClientGameTest {
             int x0 = p.getBlockX(), z0 = p.getBlockZ();
             int g = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x0, z0);
             o[0] = x0; o[1] = g; o[2] = z0;
-            var panel = com.heliosphere.industry.habitat.Habitat.PANEL.defaultBlockState();
-            // a ring of panels one block high on the ground, no roof; the emitter inside on the same level, no power
+            // the emitter alone on flat ground, no walls; first without power
             for (int dx = -6; dx <= 6; dx++) for (int dz = -6; dz <= 6; dz++) {
                 for (int dy = 0; dy <= 6; dy++) l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, g + dy, z0 + dz), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
                 l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, g - 1, z0 + dz), net.minecraft.world.level.block.Blocks.STONE.defaultBlockState());
-                if (Math.abs(dx) == 5 && Math.abs(dz) <= 5 || Math.abs(dz) == 5 && Math.abs(dx) <= 5)
-                    l.setBlockAndUpdate(new net.minecraft.core.BlockPos(x0 + dx, g, z0 + dz), panel);
             }
             var at = new net.minecraft.core.BlockPos(x0 + 3, g, z0 + 3);
             l.setBlockAndUpdate(at, com.heliosphere.industry.habitat.Habitat.EMITTER.defaultBlockState());
@@ -3936,14 +4088,26 @@ public class WorldGameTest implements FabricClientGameTest {
             p.getInventory().clearContent();                       // no suit
             p.setHealth(p.getMaxHealth());
         });
-        ctx.waitTicks(80);
+        ctx.waitTicks(60);
+        server(sp, s -> {
+            ServerPlayer p = player(s);
+            var l = p.level();
+            var be = (com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3));
+            report.add("[info] habitat emitter without power: running " + l.getBlockState(be.getBlockPos()).getValue(com.heliosphere.industry.habitat.HabitatEmitterBlock.ACTIVE)
+                    + ", breathable where the player stands " + com.heliosphere.core.env.Environment.breathable(l, net.minecraft.core.BlockPos.containing(p.getEyePosition())));
+            be.setEnergy(be.capacity());
+            p.setHealth(p.getMaxHealth());
+        });
+        ctx.waitTicks(40);
         server(sp, s -> {
             ServerPlayer p = player(s);
             var l = p.level();
             var be = (com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3));
             var eye = net.minecraft.core.BlockPos.containing(p.getEyePosition());
-            var out = new net.minecraft.core.BlockPos(o[0] + 9, o[1] + 1, o[2]);
-            report.add(String.format("[info] habitat ring on the Moon (no roof, no power): %d columns inside, running %s; inside: breathable %s, %.0f C, gravity x%.3f (player %.4f); outside: breathable %s, %.0f C, moon gravity %.3f; health %.0f",
+            var out = new net.minecraft.core.BlockPos(o[0] + 3 + 36, o[1] + 1, o[2] + 3);
+            var rim = new net.minecraft.core.BlockPos(o[0] + 3 + 30, o[1] + 1, o[2] + 3);
+            report.add("[info] habitat at radius 30: breathable " + com.heliosphere.core.env.Environment.breathable(l, rim) + ", charge " + be.energy());
+            report.add(String.format("[info] habitat emitter on the Moon (powered, no walls): %d columns inside, running %s; inside: breathable %s, %.0f C, gravity x%.3f (player %.4f); outside: breathable %s, %.0f C, moon gravity %.3f; health %.0f",
                     be.volume(), l.getBlockState(be.getBlockPos()).getValue(com.heliosphere.industry.habitat.HabitatEmitterBlock.ACTIVE),
                     com.heliosphere.core.env.Environment.breathable(l, eye), com.heliosphere.core.env.Environment.temperatureC(l, eye),
                     p.getGravity() / 0.08, p.getGravity(), com.heliosphere.core.env.Environment.breathable(l, out), com.heliosphere.core.env.Environment.temperatureC(l, out),
@@ -3957,7 +4121,8 @@ public class WorldGameTest implements FabricClientGameTest {
         server(sp, s -> {
             var l = player(s).level();
             var c = net.minecraft.world.entity.EntityType.COW.create(l, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
-            c.snapTo(o[0] + 9.5, o[1] + 1, o[2] + 0.5, 0, 0); c.setCustomName(net.minecraft.network.chat.Component.literal("Bessie")); l.addFreshEntity(c);
+            int cx = o[0] + 45, cy = l.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, cx, o[2]);
+            c.snapTo(cx + 0.5, cy, o[2] + 0.5, 0, 0); c.setCustomName(net.minecraft.network.chat.Component.literal("Bessie")); l.addFreshEntity(c);
             cow[0] = c.getUUID();
         });
         ctx.waitTicks(120);
@@ -3984,19 +4149,18 @@ public class WorldGameTest implements FabricClientGameTest {
             report.add("[info] capsule: the cow 6 s inside the ring: health " + (c == null ? -1 : c.getHealth()) + ", breathable " + com.heliosphere.core.env.Environment.breathable(c.level(), net.minecraft.core.BlockPos.containing(c.getEyePosition())));
         });
         // jump: how high on the Moon's surface, inside the field (client-side physics)
-        // a hole in the wall: the field goes off and says where
+        // the power cut: the field drops
         server(sp, s -> {
             var l = player(s).level();
-            l.setBlockAndUpdate(new net.minecraft.core.BlockPos(o[0] - 5, o[1], o[2]), net.minecraft.world.level.block.Blocks.AIR.defaultBlockState());
+            ((com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3))).setEnergy(0);
         });
-        ctx.waitTicks(80);
+        ctx.waitTicks(20);
         server(sp, s -> {
             ServerPlayer p = player(s);
             var l = p.level();
             var be = (com.heliosphere.industry.habitat.HabitatEmitterBlockEntity) l.getBlockEntity(new net.minecraft.core.BlockPos(o[0] + 3, o[1], o[2] + 3));
-            report.add("[info] habitat with a hole: volume " + be.volume() + ", leak at " + be.leak() + ", breathable inside " + com.heliosphere.core.env.Environment.breathable(l, net.minecraft.core.BlockPos.containing(p.getEyePosition()))
+            report.add("[info] habitat out of power: volume " + be.volume() + ", breathable inside " + com.heliosphere.core.env.Environment.breathable(l, net.minecraft.core.BlockPos.containing(p.getEyePosition()))
                     + ", player gravity x" + String.format("%.3f", p.getGravity() / 0.08));
-            l.setBlockAndUpdate(new net.minecraft.core.BlockPos(o[0] - 5, o[1], o[2]), com.heliosphere.industry.habitat.Habitat.PANEL.defaultBlockState());
         });
         cmd(sp, "gamemode creative @a");
         cmd(sp, "execute in minecraft:overworld run tp @p 0 120 0");

@@ -226,5 +226,10 @@
   "item.heliosphere.jetpack.wingless": "在物品欄裡把鞘翅點到背包上即可裝上，兩者一起用",
   "item.heliosphere.jetpack.suit": "可以和太空衣一起穿：在物品欄裡把背包點到任意太空衣胸甲上即可合裝",
   "item.heliosphere.jetpack.on_suit": "已裝 %s（燃料 %s%%）：雙擊空白鍵起飛",
-  "item.heliosphere.jetpack.on_suit_off": "空手右鍵胸甲取下噴氣背包"
+  "item.heliosphere.jetpack.on_suit_off": "空手右鍵胸甲取下噴氣背包",
+  "block.heliosphere.ward_generator": "結界發生器",
+  "block.heliosphere.blast_concrete": "抗爆混凝土",
+  "block.heliosphere.blast_glass": "抗爆玻璃",
+  "message.heliosphere.ward_on": "結界運行中：%s×%s 格範圍（上下各 24 格）。範圍內玩家獲得生命恢復 I 和抗性提升 I；機器人減速、每秒 10%% 機率故障 1.5 秒、每秒損失 1.5%% 生命（最多 4 點）。電量 %s FE，耗電 %s FE/t。",
+  "message.heliosphere.ward_unpowered": "結界發生器沒有電：用電纜接到電網（運行時耗電 %s FE/t）。目前電量 %s FE。"
 }
